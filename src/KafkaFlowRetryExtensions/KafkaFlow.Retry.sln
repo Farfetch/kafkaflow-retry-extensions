@@ -1,0 +1,47 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.30907.101
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Admin", "Admin", "{5AE4E956-15A8-4117-9A9D-97B53060FE4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{1DF1AB0D-37CB-4AFC-B701-8F0F2B260E54}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{F92E5E32-4611-44A1-9EF6-0091F337877B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repositories", "Repositories", "{90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DependencyResolvers", "DependencyResolvers", "{8744E838-592E-49B6-A5BA-B6718AF7F6EA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry", "KafkaFlowRetryExtensions\KafkaFlow.Retry.csproj", "{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{B1D2A20A-0742-4D8E-A773-66EB95560152}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.Sample", "..\..\samples\Kafka.Flow.Retry.Extensions.Sample\KafkaFlow.Retry.Sample.csproj", "{745CB854-1FFE-4C60-AD15-69A3A784CC9F}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01} = {1DF1AB0D-37CB-4AFC-B701-8F0F2B260E54}
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A953E534-FBCA-4F30-9CA5-96F67C1A49D8}
+	EndGlobalSection
+EndGlobal

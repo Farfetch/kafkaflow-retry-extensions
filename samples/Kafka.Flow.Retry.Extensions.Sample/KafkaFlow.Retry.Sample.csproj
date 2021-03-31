@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <IsPackable>false</IsPackable>
+    <GenerateDocumentationFile>false</GenerateDocumentationFile>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="KafkaFlow" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.Admin" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.Compressor" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.Compressor.Gzip" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.Serializer.ProtoBuf" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="1.5.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\KafkaFlowRetryExtensions\KafkaFlowRetryExtensions\KafkaFlow.Retry.csproj" />
+  </ItemGroup>
+</Project>
