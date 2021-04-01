@@ -21,6 +21,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\KafkaFlowRetryExtensions\KafkaFlowRetryExtensions\KafkaFlow.Retry.csproj" />
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
   </ItemGroup>
 </Project>
