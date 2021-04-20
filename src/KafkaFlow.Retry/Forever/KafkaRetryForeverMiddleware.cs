@@ -1,35 +1,34 @@
-﻿namespace KafkaFlow.Retry
+﻿namespace KafkaFlow.Retry.Forever
 {
     using System;
     using System.Threading.Tasks;
     using KafkaFlow;
     using Polly;
 
-    internal class KafkaRetryMiddleware : IMessageMiddleware
+    internal class KafkaRetryForeverMiddleware : IMessageMiddleware
     {
-        private readonly KafkaRetryDefinition kafkaRetryDefinition;
+        private readonly KafkaRetryForeverDefinition kafkaRetryForeverDefinition;
         private readonly ILogHandler logHandler;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
-        public KafkaRetryMiddleware(
+        public KafkaRetryForeverMiddleware(
             ILogHandler logHandler,
-            KafkaRetryDefinition kafkaRetryDefinition)
+            KafkaRetryForeverDefinition kafkaRetryForeverDefinition)
         {
             this.logHandler = logHandler;
-            this.kafkaRetryDefinition = kafkaRetryDefinition;
+            this.kafkaRetryForeverDefinition = kafkaRetryForeverDefinition;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
             var policy = Policy
-                .Handle<Exception>(exception => this.kafkaRetryDefinition.ShouldRetry(new KafkaRetryContext(exception)))
-                .WaitAndRetryAsync(
-                    this.kafkaRetryDefinition.GetNumberOfRetries(),
-                    (retryNumber, c) => this.kafkaRetryDefinition.GetTimeSpanAtOrLast(retryNumber),
-                    (exception, waitTime, attemptNumber, c) =>
+                .Handle<Exception>(exception => this.kafkaRetryForeverDefinition.ShouldRetry(new KafkaRetryContext(exception)))
+                .WaitAndRetryForeverAsync(
+                    (retryNumber, c) => this.kafkaRetryForeverDefinition.GetTimeSpanAtOrLast(retryNumber),
+                    (exception, attemptNumber, waitTime, c) =>
                     {
-                        if (this.kafkaRetryDefinition.ShouldPauseConsumer() && !this.controlWorkerId.HasValue)
+                        if (!this.controlWorkerId.HasValue)
                         {
                             lock (this.syncPauseAndResume)
                             {

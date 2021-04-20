@@ -55,7 +55,22 @@
                                         middlewares => middlewares
                                             .AddCompressor<GzipMessageCompressor>()
                                             .AddSerializer<ProtobufMessageSerializer>()
-                                            .Add<KafkaRetryMiddleware>()
+                                            .RetryWhen(
+                                                (configure) => configure
+                                                    .WasThrown<CustomException>()
+                                                    .TryTimes(2)
+                                                    .WithTimesBetweenTries(
+                                                        TimeSpan.FromMilliseconds(500),
+                                                        TimeSpan.FromMilliseconds(1000))
+                                                    .ShouldNotPauseConsumer()
+                                            )
+                                            .RetryForeverWhen(
+                                                (configure) => configure
+                                                    .WasThrown<AnotherCustomException>()
+                                                    .WithTimesBetweenTries(
+                                                        TimeSpan.FromMilliseconds(500),
+                                                        TimeSpan.FromMilliseconds(1000))
+                                            )
                                             .AddTypedHandlers(
                                                 handlers => handlers
                                                     .WithHandlerLifetime(InstanceLifetime.Singleton)
