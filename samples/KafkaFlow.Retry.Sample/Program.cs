@@ -59,15 +59,22 @@
                                                 (configure) => configure
                                                     .WasThrown<CustomException>()
                                                     .TryTimes(2)
-                                                    .WithTimesBetweenTries(
-                                                        TimeSpan.FromMilliseconds(500),
-                                                        TimeSpan.FromMilliseconds(1000))
+                                                    .WithTimeBetweenTriesPlan((retryNumber) =>
+                                                    {
+                                                        var plan = new[]
+                                                        {
+                                                            TimeSpan.FromMilliseconds(1500),
+                                                            TimeSpan.FromMilliseconds(2000)
+                                                        };
+
+                                                        return plan[retryNumber];
+                                                    })
                                                     .ShouldNotPauseConsumer()
                                             )
                                             .RetryForeverWhen(
                                                 (configure) => configure
                                                     .WasThrown<AnotherCustomException>()
-                                                    .WithTimesBetweenTries(
+                                                    .WithTimeBetweenTriesPlan(
                                                         TimeSpan.FromMilliseconds(500),
                                                         TimeSpan.FromMilliseconds(1000))
                                             )

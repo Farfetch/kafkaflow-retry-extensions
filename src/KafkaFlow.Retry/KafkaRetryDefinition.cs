@@ -9,20 +9,15 @@
         private readonly int numberOfRetries;
         private readonly bool pauseConsumer;
         private readonly IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions;
-        private readonly IReadOnlyCollection<TimeSpan> timesBetweenRetries;
+        private readonly Func<int, TimeSpan> timeBetweenTriesPlan;
 
         public KafkaRetryDefinition(
             int numberOfRetries,
-            IReadOnlyCollection<TimeSpan> timesBetweenRetries,
             IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions,
-            bool pauseConsumer
+            bool pauseConsumer,
+            Func<int, TimeSpan> timeBetweenTriesPlan
             )
         {
-            if (!timesBetweenRetries.Any())
-            {
-                throw new ArgumentException("There is no time between retries defined", nameof(timesBetweenRetries));
-            }
-
             if (numberOfRetries < 1)
             {
                 throw new ArgumentException("The number of retries should be higher than zero", nameof(numberOfRetries));
@@ -35,20 +30,18 @@
 
             this.retryWhenExceptions = retryWhenExceptions;
             this.numberOfRetries = numberOfRetries;
-            this.timesBetweenRetries = timesBetweenRetries;
             this.pauseConsumer = pauseConsumer;
+            this.timeBetweenTriesPlan = timeBetweenTriesPlan;
         }
 
-        internal int GetNumberOfRetries() =>
-            this.numberOfRetries;
+        internal Func<int, TimeSpan> TimesBetweenTriesPlan =>
+            this.timeBetweenTriesPlan;
 
-        internal TimeSpan GetTimeSpanAtOrLast(int retryNumber) =>
-                ((retryNumber - 1) < timesBetweenRetries.Count)
-            ? this.timesBetweenRetries.ElementAt(retryNumber - 1)
-            : this.timesBetweenRetries.Last();
+        internal int GetNumberOfRetries() =>
+                    this.numberOfRetries;
 
         internal bool ShouldPauseConsumer() =>
-            this.pauseConsumer;
+                    this.pauseConsumer;
 
         internal bool ShouldRetry(KafkaRetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));

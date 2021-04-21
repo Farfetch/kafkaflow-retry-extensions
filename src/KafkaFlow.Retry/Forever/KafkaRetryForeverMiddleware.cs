@@ -25,7 +25,7 @@
             var policy = Policy
                 .Handle<Exception>(exception => this.kafkaRetryForeverDefinition.ShouldRetry(new KafkaRetryContext(exception)))
                 .WaitAndRetryForeverAsync(
-                    (retryNumber, c) => this.kafkaRetryForeverDefinition.GetTimeSpanAtOrLast(retryNumber),
+                    (retryNumber, c) => this.kafkaRetryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, attemptNumber, waitTime, c) =>
                     {
                         if (!this.controlWorkerId.HasValue)

@@ -6,33 +6,25 @@
 
     internal class KafkaRetryForeverDefinition
     {
-        private readonly int numberOfRetries;
         private readonly IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions;
-        private readonly IReadOnlyCollection<TimeSpan> timesBetweenRetries;
+        private readonly Func<int, TimeSpan> timeBetweenTriesPlan;
 
         public KafkaRetryForeverDefinition(
-            IReadOnlyCollection<TimeSpan> timesBetweenRetries,
+            Func<int, TimeSpan> timeBetweenTriesPlan,
             IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions
             )
         {
-            if (!timesBetweenRetries.Any())
-            {
-                throw new ArgumentException("There is no time between retries defined", nameof(timesBetweenRetries));
-            }
-
             if (!retryWhenExceptions.Any())
             {
                 throw new ArgumentException("There is exceptions defined", nameof(retryWhenExceptions));
             }
 
+            this.timeBetweenTriesPlan = timeBetweenTriesPlan;
             this.retryWhenExceptions = retryWhenExceptions;
-            this.timesBetweenRetries = timesBetweenRetries;
         }
 
-        internal TimeSpan GetTimeSpanAtOrLast(int retryNumber) =>
-                ((retryNumber - 1) < timesBetweenRetries.Count)
-            ? this.timesBetweenRetries.ElementAt(retryNumber - 1)
-            : this.timesBetweenRetries.Last();
+        internal Func<int, TimeSpan> TimeBetweenTriesPlan =>
+            this.timeBetweenTriesPlan;
 
         internal bool ShouldRetry(KafkaRetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));

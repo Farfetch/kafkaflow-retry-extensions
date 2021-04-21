@@ -8,7 +8,7 @@
         private readonly List<Func<KafkaRetryContext, bool>> retryWhenExceptions = new List<Func<KafkaRetryContext, bool>>();
         private int numberOfRetries;
         private bool pauseConsumer;
-        private TimeSpan[] timesBetweenRetries;
+        private Func<int, TimeSpan> timeBetweenTriesPlan;
 
         public KafkaRetryDefinitionBuilder ShouldNotPauseConsumer()
         {
@@ -47,9 +47,18 @@
             return this;
         }
 
-        public KafkaRetryDefinitionBuilder WithTimesBetweenTries(params TimeSpan[] timesBetweenRetries)
+        public KafkaRetryDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timesBetweenTriesPlan)
         {
-            this.timesBetweenRetries = timesBetweenRetries;
+            this.timeBetweenTriesPlan = timesBetweenTriesPlan;
+            return this;
+        }
+
+        public KafkaRetryDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
+        {
+            this.timeBetweenTriesPlan = (retryNumber) =>
+               ((retryNumber - 1) < timeBetweenRetries.Length)
+                   ? timeBetweenRetries[retryNumber - 1]
+                   : timeBetweenRetries[timeBetweenRetries.Length - 1];
             return this;
         }
 
@@ -57,9 +66,9 @@
         {
             return new KafkaRetryDefinition(
                 this.numberOfRetries,
-                this.timesBetweenRetries,
                 this.retryWhenExceptions,
-                this.pauseConsumer
+                this.pauseConsumer,
+                this.timeBetweenTriesPlan
             );
         }
     }

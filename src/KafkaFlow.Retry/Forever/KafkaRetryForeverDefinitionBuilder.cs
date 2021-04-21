@@ -6,7 +6,7 @@
     public class KafkaRetryForeverDefinitionBuilder
     {
         private readonly List<Func<KafkaRetryContext, bool>> retryWhenExceptions = new List<Func<KafkaRetryContext, bool>>();
-        private TimeSpan[] timesBetweenRetries;
+        private Func<int, TimeSpan> timeBetweenTriesPlan;
 
         public KafkaRetryForeverDefinitionBuilder WasThrown<TException>()
                     where TException : Exception
@@ -27,16 +27,25 @@
             return this;
         }
 
-        public KafkaRetryForeverDefinitionBuilder WithTimesBetweenTries(params TimeSpan[] timesBetweenRetries)
+        public KafkaRetryForeverDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
         {
-            this.timesBetweenRetries = timesBetweenRetries;
+            this.timeBetweenTriesPlan = timeBetweenTriesPlan;
+            return this;
+        }
+
+        public KafkaRetryForeverDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
+        {
+            this.timeBetweenTriesPlan = (retryNumber) =>
+                ((retryNumber - 1) < timeBetweenRetries.Length)
+                    ? timeBetweenRetries[retryNumber - 1]
+                    : timeBetweenRetries[timeBetweenRetries.Length - 1];
             return this;
         }
 
         internal KafkaRetryForeverDefinition Build()
         {
             return new KafkaRetryForeverDefinition(
-                this.timesBetweenRetries,
+                this.timeBetweenTriesPlan,
                 this.retryWhenExceptions
             );
         }
