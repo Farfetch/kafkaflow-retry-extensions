@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.Forever
+﻿namespace KafkaFlow.Retry.Durable
 {
     using System;
     using System.Collections.Generic;

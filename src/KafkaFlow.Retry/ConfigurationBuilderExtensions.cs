@@ -16,7 +16,7 @@
             configure(kafkaRetryForeverDefinitionBuilder);
 
             return middlewareBuilder.Add(
-                resolver => new KafkaRetryForeverMiddleware(
+                resolver => new KafkaRetryDurableMiddleware(
                     resolver.Resolve<ILogHandler>(),
                     kafkaRetryForeverDefinitionBuilder.Build()
                 ));

@@ -44,9 +44,9 @@
             return this;
         }
 
-        internal KafkaRetryForeverDefinition Build()
+        internal KafkaRetryDurableDefinition Build()
         {
-            return new KafkaRetryForeverDefinition(
+            return new KafkaRetryDurableDefinition(
                 this.timeBetweenTriesPlan,
                 this.retryWhenExceptions
             );
