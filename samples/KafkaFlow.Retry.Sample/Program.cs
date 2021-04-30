@@ -11,6 +11,7 @@
     using KafkaFlow.Compressor.Gzip;
     using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
+    using KafkaFlow.Retry;
     using KafkaFlow.Serializer;
     using KafkaFlow.Serializer.ProtoBuf;
     using KafkaFlow.TypedHandler;
@@ -55,11 +56,11 @@
                                         middlewares => middlewares
                                             .AddCompressor<GzipMessageCompressor>()
                                             .AddSerializer<ProtobufMessageSerializer>()
-                                            .RetryWhen(
+                                            .Retry(
                                                 (configure) => configure
-                                                    .WasThrown<CustomException>()
+                                                    .Handle<CustomException>()
                                                     .TryTimes(2)
-                                                    .WithTimeBetweenTriesPlan((retryNumber) =>
+                                                    .WithTimeBetweenTriesPlan((retryCount) =>
                                                     {
                                                         var plan = new[]
                                                         {
@@ -67,13 +68,13 @@
                                                             TimeSpan.FromMilliseconds(2000)
                                                         };
 
-                                                        return plan[retryNumber];
+                                                        return plan[retryCount];
                                                     })
                                                     .ShouldNotPauseConsumer()
                                             )
-                                            .RetryForeverWhen(
+                                            .RetryForever(
                                                 (configure) => configure
-                                                    .WasThrown<AnotherCustomException>()
+                                                    .Handle<AnotherCustomException>()
                                                     .WithTimeBetweenTriesPlan(
                                                         TimeSpan.FromMilliseconds(500),
                                                         TimeSpan.FromMilliseconds(1000))

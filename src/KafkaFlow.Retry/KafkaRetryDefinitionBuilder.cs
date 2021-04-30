@@ -10,6 +10,13 @@
         private bool pauseConsumer;
         private Func<int, TimeSpan> timeBetweenTriesPlan;
 
+        public KafkaRetryDefinitionBuilder Handle<TException>()
+                    where TException : Exception
+        {
+            this.WasThrown(kafkaRetryContext => kafkaRetryContext.Exception is TException);
+            return this;
+        }
+
         public KafkaRetryDefinitionBuilder ShouldNotPauseConsumer()
         {
             this.pauseConsumer = false;
@@ -25,13 +32,6 @@
         public KafkaRetryDefinitionBuilder TryTimes(int numberOfRetries)
         {
             this.numberOfRetries = numberOfRetries;
-            return this;
-        }
-
-        public KafkaRetryDefinitionBuilder WasThrown<TException>()
-                    where TException : Exception
-        {
-            this.WasThrown(kafkaRetryContext => kafkaRetryContext.Exception is TException);
             return this;
         }
 

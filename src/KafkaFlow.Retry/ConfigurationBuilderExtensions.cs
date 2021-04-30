@@ -7,7 +7,7 @@
 
     public static class ConfigurationBuilderExtensions
     {
-        public static IConsumerMiddlewareConfigurationBuilder RetryForeverWhen(
+        public static IConsumerMiddlewareConfigurationBuilder RetryForever(
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
                Action<KafkaRetryForeverDefinitionBuilder> configure)
         {
@@ -22,7 +22,7 @@
                 ));
         }
 
-        public static IConsumerMiddlewareConfigurationBuilder RetryWhen(
+        public static IConsumerMiddlewareConfigurationBuilder Retry(
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
                Action<KafkaRetryDefinitionBuilder> configure)
         {
