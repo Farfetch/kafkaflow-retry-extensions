@@ -11,39 +11,31 @@
         private Func<int, TimeSpan> timeBetweenTriesPlan;
 
         public KafkaRetryDefinitionBuilder Handle<TException>()
-                    where TException : Exception
+            where TException : Exception
+            => this.Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
+
+        public KafkaRetryDefinitionBuilder Handle(Func<KafkaRetryContext, bool> func)
         {
-            this.WasThrown(kafkaRetryContext => kafkaRetryContext.Exception is TException);
+            this.retryWhenExceptions.Add(func);
             return this;
         }
 
-        public KafkaRetryDefinitionBuilder ShouldNotPauseConsumer()
-        {
-            this.pauseConsumer = false;
-            return this;
-        }
+        public KafkaRetryDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
+            where TException : Exception
+            => this.Handle(context => context.Exception is TException ex && rule(ex));
 
-        public KafkaRetryDefinitionBuilder ShouldPauseConsumer()
+        public KafkaRetryDefinitionBuilder HandleAnyException()
+            => this.Handle(kafkaRetryContext => true);
+
+        public KafkaRetryDefinitionBuilder ShouldPauseConsumer(bool pause)
         {
-            this.pauseConsumer = true;
+            this.pauseConsumer = pause;
             return this;
         }
 
         public KafkaRetryDefinitionBuilder TryTimes(int numberOfRetries)
         {
             this.numberOfRetries = numberOfRetries;
-            return this;
-        }
-
-        public KafkaRetryDefinitionBuilder WasThrown(Func<KafkaRetryContext, bool> func)
-        {
-            this.retryWhenExceptions.Add(func);
-            return this;
-        }
-
-        public KafkaRetryDefinitionBuilder WasThrownAnyException()
-        {
-            this.WasThrown(kafkaRetryContext => true);
             return this;
         }
 
@@ -54,13 +46,12 @@
         }
 
         public KafkaRetryDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
-        {
-            this.timeBetweenTriesPlan = (retryNumber) =>
-               ((retryNumber - 1) < timeBetweenRetries.Length)
-                   ? timeBetweenRetries[retryNumber - 1]
-                   : timeBetweenRetries[timeBetweenRetries.Length - 1];
-            return this;
-        }
+            => this.WithTimeBetweenTriesPlan(
+                    (retryNumber) =>
+                       ((retryNumber - 1) < timeBetweenRetries.Length)
+                           ? timeBetweenRetries[retryNumber - 1]
+                           : timeBetweenRetries[timeBetweenRetries.Length - 1]
+                );
 
         internal KafkaRetryDefinition Build()
         {

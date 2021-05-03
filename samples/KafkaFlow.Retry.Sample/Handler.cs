@@ -9,13 +9,14 @@
     {
         public Task Handle(IMessageContext context, TestMessage message)
         {
-            throw new AnotherCustomException("Test");
+            //throw new AnotherCustomException("Test");
 
             Console.WriteLine(
-                "Partition: {0} | Offset: {1} | Message: {2}",
+                "Partition: {0} | Offset: {1} | Message: {2} | Topic: {3}",
                 context.Partition,
                 context.Offset,
-                message.Text);
+                message.Text,
+                context.Topic);
 
             return Task.CompletedTask;
         }

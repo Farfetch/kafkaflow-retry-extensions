@@ -5,16 +5,16 @@
     using KafkaFlow;
     using Polly;
 
-    internal class KafkaRetryDurableMiddleware : IMessageMiddleware
+    internal class KafkaRetryForeverMiddleware : IMessageMiddleware
     {
-        private readonly KafkaRetryDurableDefinition kafkaRetryForeverDefinition;
+        private readonly KafkaRetryForeverDefinition kafkaRetryForeverDefinition;
         private readonly ILogHandler logHandler;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
-        public KafkaRetryDurableMiddleware(
+        public KafkaRetryForeverMiddleware(
             ILogHandler logHandler,
-            KafkaRetryDurableDefinition kafkaRetryForeverDefinition)
+            KafkaRetryForeverDefinition kafkaRetryForeverDefinition)
         {
             this.logHandler = logHandler;
             this.kafkaRetryForeverDefinition = kafkaRetryForeverDefinition;

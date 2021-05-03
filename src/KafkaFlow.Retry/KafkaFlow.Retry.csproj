@@ -1,11 +1,17 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KafkaFlow.Abstractions" Version="1.5.0" />
+    <PackageReference Include="KafkaFlow" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow.Abstractions" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow.Compressor" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow.Compressor.Gzip" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow.Serializer.ProtoBuf" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="1.5.3" />
     <PackageReference Include="Polly" Version="7.2.2" />
   </ItemGroup>
 </Project>

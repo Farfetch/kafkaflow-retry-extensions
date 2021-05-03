@@ -7,24 +7,16 @@
     internal class KafkaRetryDurableDefinition
     {
         private readonly IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions;
-        private readonly Func<int, TimeSpan> timeBetweenTriesPlan;
 
         public KafkaRetryDurableDefinition(
-            Func<int, TimeSpan> timeBetweenTriesPlan,
-            IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions
-            )
+            IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions,
+            string cronExpression)
         {
-            if (!retryWhenExceptions.Any())
-            {
-                throw new ArgumentException("There is exceptions defined", nameof(retryWhenExceptions));
-            }
-
-            this.timeBetweenTriesPlan = timeBetweenTriesPlan;
             this.retryWhenExceptions = retryWhenExceptions;
+            CronExpression = cronExpression;
         }
 
-        internal Func<int, TimeSpan> TimeBetweenTriesPlan =>
-            this.timeBetweenTriesPlan;
+        public string CronExpression { get; }
 
         internal bool ShouldRetry(KafkaRetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));

@@ -25,68 +25,88 @@
             const string producerName = "PrintConsole";
 
             const string consumerName = "test";
+            const int TimeoutErrorCode = -2;
+            const int ServerIsInaccessible = -2146232060;
 
             services.AddKafka(
-                kafka => kafka
-                    .UseConsoleLog()
-                    .AddCluster(
-                        cluster => cluster
-                            .WithBrokers(new[] { "localhost:9092" })
-                            .EnableAdminMessages("kafka-flow.admin", Guid.NewGuid().ToString())
-                            .AddProducer(
-                                producerName,
-                                producer => producer
-                                    .DefaultTopic("test-topic")
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSerializer<ProtobufMessageSerializer>()
-                                            .AddCompressor<GzipMessageCompressor>()
-                                    )
-                                    .WithAcks(Acks.All)
-                            )
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic("test-topic")
-                                    .WithGroupId("print-console-handler")
-                                    .WithName(consumerName)
-                                    .WithBufferSize(10)
-                                    .WithWorkersCount(20)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddCompressor<GzipMessageCompressor>()
-                                            .AddSerializer<ProtobufMessageSerializer>()
-                                            .Retry(
-                                                (configure) => configure
-                                                    .Handle<CustomException>()
-                                                    .TryTimes(2)
-                                                    .WithTimeBetweenTriesPlan((retryCount) =>
-                                                    {
-                                                        var plan = new[]
+                    kafka => kafka
+                        .UseConsoleLog()
+                        .AddCluster(
+                            cluster => cluster
+                                .WithBrokers(new[] { "localhost:9092" })
+                                .EnableAdminMessages("kafka-flow.admin", Guid.NewGuid().ToString())
+                                .AddProducer(
+                                    producerName,
+                                    producer => producer
+                                        .DefaultTopic("test-topic")
+                                        .AddMiddlewares(
+                                            middlewares => middlewares
+                                                .AddSerializer<ProtobufMessageSerializer>()
+                                                .AddCompressor<GzipMessageCompressor>()
+                                        )
+                                        .WithAcks(Acks.All)
+                                )
+                                .AddConsumer(
+                                    consumer => consumer
+                                        .Topic("test-topic")
+                                        .WithGroupId("print-console-handler")
+                                        .WithName(consumerName)
+                                        .WithBufferSize(10)
+                                        .WithWorkersCount(20)
+                                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                                        .AddMiddlewares(
+                                            middlewares => middlewares
+                                                .AddCompressor<GzipMessageCompressor>()
+                                                .AddSerializer<ProtobufMessageSerializer>()
+                                                .RetryDurable(
+                                                    (configure) => configure
+                                                        .Handle<NonBlockingException>()
+                                                        .WithEmbeddedCluster(
+                                                            cluster,
+                                                            configure => configure
+                                                                .WithRetryTopicName("test-topic-retry")
+                                                                .WithTypedHandlers(
+                                                                    handlers => handlers
+                                                                        .WithHandlerLifetime(InstanceLifetime.Transient)
+                                                                        .AddHandler<Handler>()
+                                                                )
+                                                                .Enabled(true)
+                                                        )
+                                                        .WithCronExpression("0 0/10 * 1/1 * ? *")
+                                                )
+                                                .Retry(
+                                                    (configure) => configure
+                                                        .Handle<CustomException>()
+                                                        .TryTimes(2)
+                                                        .WithTimeBetweenTriesPlan((retryCount) =>
                                                         {
+                                                            var plan = new[]
+                                                            {
                                                             TimeSpan.FromMilliseconds(1500),
                                                             TimeSpan.FromMilliseconds(2000)
-                                                        };
+                                                            };
 
-                                                        return plan[retryCount];
-                                                    })
-                                                    .ShouldNotPauseConsumer()
-                                            )
-                                            .RetryForever(
-                                                (configure) => configure
-                                                    .Handle<AnotherCustomException>()
-                                                    .WithTimeBetweenTriesPlan(
-                                                        TimeSpan.FromMilliseconds(500),
-                                                        TimeSpan.FromMilliseconds(1000))
-                                            )
-                                            .AddTypedHandlers(
-                                                handlers => handlers
-                                                    .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                    .AddHandler<Handler>())
-                                    )
-                            )
-                    )
-            );
+                                                            return plan[retryCount];
+                                                        })
+                                                        .ShouldPauseConsumer(false)
+                                                )
+                                                .RetryForever(
+                                                    (configure) => configure
+                                                        .Handle<CustomException>()
+                                                        //.Handle<SqlException>(ex => ex.ErrorCode == TimeoutErrorCode)
+                                                        //.Handle<SqlException>(ex => ex.ErrorCode == ServerIsInaccessible)
+                                                        .WithTimeBetweenTriesPlan(
+                                                            TimeSpan.FromMilliseconds(500),
+                                                            TimeSpan.FromMilliseconds(1000))
+                                                )
+                                                .AddTypedHandlers(
+                                                    handlers => handlers
+                                                        .WithHandlerLifetime(InstanceLifetime.Transient)
+                                                        .AddHandler<Handler>())
+                                        )
+                                )
+                        )
+                );
 
             var provider = services.BuildServiceProvider();
 

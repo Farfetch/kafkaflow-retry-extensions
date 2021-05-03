@@ -4,12 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
 
-    internal class KafkaRetryDurableDefinition
+    internal class KafkaRetryForeverDefinition
     {
         private readonly IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions;
         private readonly Func<int, TimeSpan> timeBetweenTriesPlan;
 
-        public KafkaRetryDurableDefinition(
+        public KafkaRetryForeverDefinition(
             Func<int, TimeSpan> timeBetweenTriesPlan,
             IReadOnlyCollection<Func<KafkaRetryContext, bool>> retryWhenExceptions
             )
