@@ -8,19 +8,21 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KafkaFlow" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.Admin" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.Compressor" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.Compressor.Gzip" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.Serializer.ProtoBuf" Version="1.5.3" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="1.5.3" />
+    <PackageReference Include="KafkaFlow" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.Admin" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.Compressor" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.Compressor.Gzip" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.Serializer.ProtoBuf" Version="1.5.4" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="1.5.4" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj" />
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
   </ItemGroup>
 </Project>

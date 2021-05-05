@@ -34,7 +34,7 @@
             this.timeBetweenTriesPlan = timeBetweenTriesPlan;
         }
 
-        internal Func<int, TimeSpan> TimesBetweenTriesPlan =>
+        internal Func<int, TimeSpan> TimeBetweenTriesPlan =>
             this.timeBetweenTriesPlan;
 
         internal int GetNumberOfRetries() =>

@@ -26,7 +26,7 @@
                 .Handle<Exception>(exception => this.kafkaRetryDefinition.ShouldRetry(new KafkaRetryContext(exception)))
                 .WaitAndRetryAsync(
                     this.kafkaRetryDefinition.GetNumberOfRetries(),
-                    (retryNumber, c) => this.kafkaRetryDefinition.TimesBetweenTriesPlan(retryNumber),
+                    (retryNumber, c) => this.kafkaRetryDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
                         if (this.kafkaRetryDefinition.ShouldPauseConsumer() && !this.controlWorkerId.HasValue)

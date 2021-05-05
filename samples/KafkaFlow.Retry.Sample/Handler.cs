@@ -9,7 +9,7 @@
     {
         public Task Handle(IMessageContext context, TestMessage message)
         {
-            //throw new AnotherCustomException("Test");
+            throw new NonBlockingException("NonBlockingException");
 
             Console.WriteLine(
                 "Partition: {0} | Offset: {1} | Message: {2} | Topic: {3}",

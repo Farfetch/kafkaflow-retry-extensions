@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-
     using KafkaFlow.Retry.Forever;
 
     public class KafkaRetryForeverDefinitionBuilder

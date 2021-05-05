@@ -12,6 +12,7 @@
     using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry;
+    using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
     using KafkaFlow.Serializer.ProtoBuf;
     using KafkaFlow.TypedHandler;
@@ -27,6 +28,14 @@
             const string consumerName = "test";
             const int TimeoutErrorCode = -2;
             const int ServerIsInaccessible = -2146232060;
+
+            const string sqlServerConnectionString = "Server=localhost;Database=SVC_KAFKA_FLOW_RETRY_DURABLE;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=Finance Transactions Journal Service";
+            const string sqlServerName = "SVC_KAFKA_FLOW_RETRY_DURABLE";
+
+            const string mongoDbconnectionString = "mongodb://localhost:27017/SVC_KAFKA_FLOW_RETRY_DURABLE";
+            const string mongoDbdatabaseName = "SVC_KAFKA_FLOW_RETRY_DURABLE";
+            const string mongoDbretryQueueCollectionName = "RetryQueues";
+            const string mongoDbretryQueueItemCollectionName = "RetryQueueItems";
 
             services.AddKafka(
                     kafka => kafka
@@ -59,9 +68,9 @@
                                                 .AddCompressor<GzipMessageCompressor>()
                                                 .AddSerializer<ProtobufMessageSerializer>()
                                                 .RetryDurable(
-                                                    (configure) => configure
+                                                    configure => configure
                                                         .Handle<NonBlockingException>()
-                                                        .WithEmbeddedCluster(
+                                                        .WithEmbeddedRetryCluster(
                                                             cluster,
                                                             configure => configure
                                                                 .WithRetryTopicName("test-topic-retry")
@@ -73,6 +82,21 @@
                                                                 .Enabled(true)
                                                         )
                                                         .WithCronExpression("0 0/10 * 1/1 * ? *")
+                                                        //.WithSqlServerDataProvider(sqlServerConnectionString, sqlServerName)
+                                                        .WithMongoDbDataProvider(
+                                                            mongoDbconnectionString,
+                                                            mongoDbdatabaseName,
+                                                            mongoDbretryQueueCollectionName,
+                                                            mongoDbretryQueueItemCollectionName)
+                                                        .WithRetryPlanBeforeRetryDurable(
+                                                            configure => configure
+                                                                .TryTimes(3)
+                                                                .WithTimeBetweenTriesPlan(
+                                                                    TimeSpan.FromMilliseconds(250),
+                                                                    TimeSpan.FromMilliseconds(500),
+                                                                    TimeSpan.FromMilliseconds(1000))
+                                                                .ShouldPauseConsumer(false)
+                                                        )
                                                 )
                                                 .Retry(
                                                     (configure) => configure
