@@ -5,7 +5,7 @@
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
 
-    public interface IRetryQueueDataProvider
+    public interface IKafkaRetryDurableQueueRepositoryProvider
     {
         Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input);
 

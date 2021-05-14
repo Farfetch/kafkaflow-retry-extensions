@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.Durable
+﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
 {
     using System.Collections.Generic;
     using KafkaFlow.Retry.Durable.Repository.Model;

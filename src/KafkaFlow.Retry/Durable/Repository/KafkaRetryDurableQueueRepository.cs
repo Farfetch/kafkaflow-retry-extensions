@@ -9,22 +9,23 @@
     using KafkaFlow.Retry.Durable.Repository.Actions.Create;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Repository.Model;
     using Polly;
 
-    internal class RetryQueueStorage : IRetryQueueStorage
+    internal class KafkaRetryDurableQueueRepository : IKafkaRetryDurableQueueRepository
     {
         private const int DefaultMaxWaitInSeconds = 60;
         private const int MaxAttempts = 6;
         private readonly IHeadersAdapter headersAdapter;
 
         //private readonly RetryPolicyBuilder<TKey, TResult> policyBuilder;
-        private readonly IRetryQueueDataProvider retryQueueDataProvider;
+        private readonly IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider;
 
         private readonly IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers;
 
-        public RetryQueueStorage(
-            IRetryQueueDataProvider retryQueueDataProvider,
+        public KafkaRetryDurableQueueRepository(
+            IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider,
             IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers,
             IHeadersAdapter headersAdapter)
         {
@@ -40,29 +41,38 @@
               .Handle<KafkaRetryException>()
               .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
               .ExecuteAsync(
-                () => this.AddIfQueueExistsAsync(context,
-                            new SaveToQueueInput(
-                                new RetryQueueItemMessage(
-                                    context.Topic,
-                                    context.PartitionKey,
-                                    context.Message.SerializeObjectToJson(),
-                                    context.Partition.Value,
-                                    context.Offset.Value,
-                                    context.Consumer.MessageTimestamp,
-                                    this.headersAdapter.AdaptToMessageHeaders(context.Headers)
-                                ),
-                                $"{context.GroupId}-{context.Consumer.Name}",
-                                System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
-                                RetryQueueStatus.Active,
-                                RetryQueueItemStatus.Waiting,
-                                SeverityLevel.Unknown,
-                                DateTime.UtcNow,
-                                null,
-                                DateTime.UtcNow,
-                                0,
-                                null
-                            )
+                async () =>
+                {
+                    context.Headers.SetString(
+                        KafkaRetryDurableConstants.MessageType,
+                        $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
+                    );
+
+                    return await this.AddIfQueueExistsAsync(
+                        context,
+                        new SaveToQueueInput(
+                            new RetryQueueItemMessage(
+                                context.Topic,
+                                context.PartitionKey,
+                                context.Message.SerializeObjectToJson(true),
+                                context.Partition.Value,
+                                context.Offset.Value,
+                                context.Consumer.MessageTimestamp,
+                                this.headersAdapter.AdaptToMessageHeaders(context.Headers)
+                            ),
+                            $"{context.GroupId}-{context.Consumer.Name}",
+                            System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
+                            RetryQueueStatus.Active,
+                            RetryQueueItemStatus.Waiting,
+                            SeverityLevel.Unknown, // TODO: which Severity Level should we choose?
+                            DateTime.UtcNow,
+                            null,
+                            DateTime.UtcNow,
+                            0,
+                            null
                         )
+                    ).ConfigureAwait(false);
+                }
                 ).ConfigureAwait(false);
         }
 
@@ -113,32 +123,40 @@
         public async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, string description)
         {
             return await Policy
-              .Handle<KafkaRetryException>(ex => ex.Error.Code != RetryErrorCode.DataProvider_UnrecoverableException)
-              .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
-              .ExecuteAsync(
-                () => this.SaveToQueueAsync(context,
-                            new SaveToQueueInput(
-                                        new RetryQueueItemMessage(
-                                            context.Topic,
-                                            context.PartitionKey,
-                                            context.Message.SerializeObjectToJson(),
-                                            context.Partition.Value,
-                                            context.Offset.Value,
-                                            context.Consumer.MessageTimestamp,
-                                            this.headersAdapter.AdaptToMessageHeaders(context.Headers)
-                                        ),
-                                    $"{context.GroupId}-{context.Consumer.Name}",
-                                    System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
-                                    RetryQueueStatus.Active,
-                                    RetryQueueItemStatus.Waiting,
-                                    SeverityLevel.Unknown,
-                                    DateTime.UtcNow,
-                                    DateTime.UtcNow,
-                                    DateTime.UtcNow,
-                                    0,
-                                    description
+                .Handle<KafkaRetryException>(ex => ex.Error.Code != RetryErrorCode.DataProvider_UnrecoverableException)
+                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
+                .ExecuteAsync(
+                    async () =>
+                    {
+                        context.Headers.SetString(
+                            KafkaRetryDurableConstants.MessageType,
+                            $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
+                        );
+
+                        return await this.SaveToQueueAsync(context,
+                           new SaveToQueueInput(
+                                new RetryQueueItemMessage(
+                                    context.Topic,
+                                    context.PartitionKey,
+                                    context.Message.SerializeObjectToJson(true),
+                                    context.Partition.Value,
+                                    context.Offset.Value,
+                                    context.Consumer.MessageTimestamp,
+                                    this.headersAdapter.AdaptToMessageHeaders(context.Headers)
+                                ),
+                            $"{context.GroupId}-{context.Consumer.Name}",
+                            System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
+                            RetryQueueStatus.Active,
+                            RetryQueueItemStatus.Waiting,
+                            SeverityLevel.Unknown, // TODO: which Severity Level should we choose?
+                            DateTime.UtcNow,
+                            DateTime.UtcNow,
+                            DateTime.UtcNow,
+                            0,
+                            description
                             )
-                        )
+                       ).ConfigureAwait(false);
+                    }
                 ).ConfigureAwait(false);
         }
 

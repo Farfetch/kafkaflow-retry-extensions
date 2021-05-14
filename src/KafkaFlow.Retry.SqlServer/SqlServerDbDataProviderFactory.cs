@@ -13,7 +13,7 @@
 
     public sealed class SqlServerDbDataProviderFactory
     {
-        public IRetryQueueDataProvider Create(SqlServerDbSettings sqlServerDbSettings)
+        public IKafkaRetryDurableQueueRepositoryProvider Create(SqlServerDbSettings sqlServerDbSettings)
         {
             Guard.Argument(sqlServerDbSettings)
                 .NotNull("It is mandatory to config the factory before creating new instances of IRetryQueueDataProvider. Make sure the Config method is executed before the Create method.");

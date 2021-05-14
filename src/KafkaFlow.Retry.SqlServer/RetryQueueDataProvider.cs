@@ -15,7 +15,7 @@
     using KafkaFlow.Retry.SqlServer.Readers;
     using KafkaFlow.Retry.SqlServer.Repositories;
 
-    internal sealed class RetryQueueDataProvider : IRetryQueueDataProvider
+    internal sealed class RetryQueueDataProvider : IKafkaRetryDurableQueueRepositoryProvider
     {
         private readonly IConnectionProvider connectionProvider;
         private readonly IRetryQueueDboFactory retryQueueDboFactory;

@@ -81,7 +81,13 @@
                                                                 )
                                                                 .Enabled(true)
                                                         )
-                                                        .WithCronExpression("0 0/10 * 1/1 * ? *")
+                                                        .WithPollingConfiguration(
+                                                            configure => configure
+                                                                .WithCronExpression("0/10 * * ? * *")
+                                                                .WithExpirationIntervalFactor(1)
+                                                                .WithFetchSize(10)
+                                                                .Enabled(true)
+                                                        )
                                                         //.WithSqlServerDataProvider(sqlServerConnectionString, sqlServerName)
                                                         .WithMongoDbDataProvider(
                                                             mongoDbconnectionString,

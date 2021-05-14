@@ -3,8 +3,9 @@
     using System;
     using KafkaFlow;
     using KafkaFlow.Configuration;
-    using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
+    using KafkaFlow.Retry.Durable.Polling;
+    using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Forever;
 
     public static class ConfigurationBuilderExtensions
@@ -25,25 +26,24 @@
         }
 
         public static IConsumerMiddlewareConfigurationBuilder RetryDurable(
-                       this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
                Action<KafkaRetryDurableDefinitionBuilder> configure)
         {
-            var kafkaRetryDurableDefinitionBuilder = new KafkaRetryDurableDefinitionBuilder();
-
+            var kafkaRetryDurableDefinitionBuilder = new KafkaRetryDurableDefinitionBuilder(middlewareBuilder.DependencyConfigurator);
             configure(kafkaRetryDurableDefinitionBuilder);
-
             var kafkaRetryDurableDefinitionBuild = kafkaRetryDurableDefinitionBuilder.Build();
 
             return middlewareBuilder.Add(
                 resolver => new KafkaRetryDurableMiddleware(
                     resolver.Resolve<ILogHandler>(),
+                    resolver.Resolve<IKafkaRetryDurableQueueRepository>(),
                     kafkaRetryDurableDefinitionBuild,
-                    resolver.Resolve<IProducerAccessor>()
+                    resolver.Resolve<IQueueTrackerCoordinator>()
                 ));
         }
 
         public static IConsumerMiddlewareConfigurationBuilder RetryForever(
-                               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
                Action<KafkaRetryForeverDefinitionBuilder> configure)
         {
             var kafkaRetryForeverDefinitionBuilder = new KafkaRetryForeverDefinitionBuilder();

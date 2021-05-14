@@ -27,7 +27,7 @@
                 throw new DataProviderCreationException($"The Retry Queue Data Provider could not be created. Error: {dataProviderCreation.Message}");
             }
 
-            kafkaRetryDurableDefinitionBuilder.WithDataProvider(dataProviderCreation.Result);
+            kafkaRetryDurableDefinitionBuilder.WithRepositoryProvider(dataProviderCreation.Result);
 
             return kafkaRetryDurableDefinitionBuilder;
         }

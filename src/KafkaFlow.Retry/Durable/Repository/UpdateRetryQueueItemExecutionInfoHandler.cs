@@ -9,10 +9,10 @@
     internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemHandler
     {
         //private readonly RetryPolicyBuilder<TKey, TResult> policyBuilder;
-        private readonly IRetryQueueDataProvider retryQueueDataProvider;
+        private readonly IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider;
 
         public UpdateRetryQueueItemExecutionInfoHandler(
-            IRetryQueueDataProvider retryQueueDataProvider)
+            IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider)
         {
             this.retryQueueDataProvider = retryQueueDataProvider;
         }

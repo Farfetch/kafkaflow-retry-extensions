@@ -7,7 +7,7 @@
             string connectionString,
             string databaseName)
         {
-            kafkaRetryDurableDefinitionBuilder.WithDataProvider(
+            kafkaRetryDurableDefinitionBuilder.WithRepositoryProvider(
                 new SqlServerDbDataProviderFactory()
                     .Create(
                         new SqlServerDbSettings(

@@ -2,16 +2,27 @@
 {
     using System;
     using System.Collections.Generic;
+    using KafkaFlow;
     using KafkaFlow.Configuration;
+    using KafkaFlow.Consumers;
+    using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
+    using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Adapters;
 
     public class KafkaRetryDurableDefinitionBuilder
     {
         private readonly List<Func<KafkaRetryContext, bool>> retryWhenExceptions = new List<Func<KafkaRetryContext, bool>>();
-        private string cronExpression;
+        private IDependencyConfigurator dependencyConfigurator;
+        private IKafkaRetryDurableQueueRepository durableQueueRepository;
+        private KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
         private KafkaRetryDurableRetryPlanBeforeDefinition kafkaRetryDurableRetryPlanBeforeDefinition;
-        private IRetryQueueDataProvider retryQueueDataProvider;
+
+        public KafkaRetryDurableDefinitionBuilder(IDependencyConfigurator dependencyConfigurator)
+        {
+            this.dependencyConfigurator = dependencyConfigurator;
+        }
 
         public KafkaRetryDurableDefinitionBuilder Handle<TException>()
             where TException : Exception
@@ -30,18 +41,6 @@
         public KafkaRetryDurableDefinitionBuilder HandleAnyException()
             => this.Handle(kafkaRetryContext => true);
 
-        public KafkaRetryDurableDefinitionBuilder WithCronExpression(string cronExpression)
-        {
-            this.cronExpression = cronExpression;
-            return this;
-        }
-
-        public KafkaRetryDurableDefinitionBuilder WithDataProvider(IRetryQueueDataProvider retryQueueDataProvider)
-        {
-            this.retryQueueDataProvider = retryQueueDataProvider;
-            return this;
-        }
-
         public KafkaRetryDurableDefinitionBuilder WithEmbeddedRetryCluster(
             IClusterConfigurationBuilder cluster,
             Action<KafkaRetryDurableEmbeddedClusterDefinitionBuilder> configure
@@ -50,6 +49,32 @@
             var kafkaRetryDurableEmbeddedClusterBuilder = new KafkaRetryDurableEmbeddedClusterDefinitionBuilder(cluster);
             configure(kafkaRetryDurableEmbeddedClusterBuilder);
             kafkaRetryDurableEmbeddedClusterBuilder.Build();
+            return this;
+        }
+
+        public KafkaRetryDurableDefinitionBuilder WithPollingConfiguration(Action<KafkaRetryDurablePollingDefinitionBuilder> configure)
+        {
+            var kafkaRetryDurablePollingDefinitionBuilder = new KafkaRetryDurablePollingDefinitionBuilder();
+            configure(kafkaRetryDurablePollingDefinitionBuilder);
+            this.kafkaRetryDurablePollingDefinition = kafkaRetryDurablePollingDefinitionBuilder.Build();
+
+            return this;
+        }
+
+        public KafkaRetryDurableDefinitionBuilder WithRepositoryProvider(IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableRepositoryProvider)
+        {
+            this.dependencyConfigurator
+                .AddSingleton<IKafkaRetryDurableQueueRepository>(
+                    service =>
+                        new KafkaRetryDurableQueueRepository(
+                            kafkaRetryDurableRepositoryProvider,
+                            new IUpdateRetryQueueItemHandler[]
+                            {
+                                new UpdateRetryQueueItemStatusHandler(kafkaRetryDurableRepositoryProvider),
+                                new UpdateRetryQueueItemExecutionInfoHandler(kafkaRetryDurableRepositoryProvider)
+                            },
+                            new HeadersAdapter()));
+
             return this;
         }
 
@@ -64,22 +89,27 @@
 
         internal KafkaRetryDurableDefinition Build()
         {
-            var headersAdapter = new HeadersAdapter();
-
-            var updateItemHandlers = new IUpdateRetryQueueItemHandler[]
-            {
-                new UpdateRetryQueueItemStatusHandler(this.retryQueueDataProvider),
-                new UpdateRetryQueueItemExecutionInfoHandler(this.retryQueueDataProvider)
-            };
-
-            var queueStorage = new RetryQueueStorage(this.retryQueueDataProvider, updateItemHandlers, headersAdapter);
-
-            return new KafkaRetryDurableDefinition(
-                this.retryWhenExceptions,
-                this.cronExpression,
-                queueStorage,
-                this.kafkaRetryDurableRetryPlanBeforeDefinition
+            this.dependencyConfigurator
+                .AddSingleton<IQueueTrackerCoordinator>(
+                service =>
+                    new QueueTrackerCoordinator(
+                        new QueueTrackerFactory(
+                            service.Resolve<IKafkaRetryDurableQueueRepository>(),
+                            service.Resolve<IProducerAccessor>().GetProducer(KafkaRetryDurableConstants.EmbeddedProducerName),
+                            service.Resolve<IConsumerAccessor>().GetConsumer(KafkaRetryDurableConstants.EmbeddedConsumerName)
+                        ),
+                        service.Resolve<IConsumerAccessor>()
+                    )
                 );
+
+            var kafkaRetryDurableDefinition =
+                new KafkaRetryDurableDefinition(
+                    this.retryWhenExceptions,
+                    this.kafkaRetryDurableRetryPlanBeforeDefinition,
+                    this.kafkaRetryDurablePollingDefinition
+                );
+
+            return kafkaRetryDurableDefinition;
         }
     }
 }

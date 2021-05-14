@@ -7,7 +7,7 @@
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal interface IRetryQueueStorage
+    internal interface IKafkaRetryDurableQueueRepository
     {
         Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context);
 

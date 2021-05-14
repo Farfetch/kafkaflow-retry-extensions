@@ -1,9 +1,11 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using System;
+    using System.Threading;
     using System.Threading.Tasks;
     using KafkaFlow;
-    using KafkaFlow.Producers;
+    using KafkaFlow.Retry.Durable.Polling;
+    using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Create;
     using Polly;
 
@@ -11,30 +13,49 @@
     {
         private readonly KafkaRetryDurableDefinition kafkaRetryDurableDefinition;
         private readonly ILogHandler logHandler;
-        private readonly IProducerAccessor producerAccessor;
+        private readonly IQueueTrackerCoordinator queueTrackerCoordinator;
+        private readonly IKafkaRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly object syncPauseAndResume = new object();
+        private bool asd;
         private int? controlWorkerId;
 
         public KafkaRetryDurableMiddleware(
             ILogHandler logHandler,
+            IKafkaRetryDurableQueueRepository retryDurableQueueRepository,
             KafkaRetryDurableDefinition kafkaRetryDurableDefinition,
-            IProducerAccessor producerAccessor)
+            IQueueTrackerCoordinator queueTrackerCoordinator)
         {
             this.logHandler = logHandler;
+            this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.kafkaRetryDurableDefinition = kafkaRetryDurableDefinition;
-            this.producerAccessor = producerAccessor;
+            this.queueTrackerCoordinator = queueTrackerCoordinator;
+            this.asd = false;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
-            var resultAddIfQueueExistsAsync = await this
-                .kafkaRetryDurableDefinition
-                .RetryQueueStorage
-                .AddIfQueueExistsAsync(context)
-                .ConfigureAwait(false);
-
-            if (resultAddIfQueueExistsAsync.Status == AddIfQueueExistsResultStatus.Added)
+            // Where should find the cancellation token
+            if (!this.asd)
             {
+                await this.queueTrackerCoordinator.InitializeAsync(kafkaRetryDurableDefinition, CancellationToken.None).ConfigureAwait(false);
+                this.asd = true;
+            }
+
+            try
+            {
+                var resultAddIfQueueExistsAsync = await this
+                    .retryDurableQueueRepository
+                    .AddIfQueueExistsAsync(context)
+                    .ConfigureAwait(false);
+
+                if (resultAddIfQueueExistsAsync.Status == AddIfQueueExistsResultStatus.Added)
+                {
+                    return;
+                }
+            }
+            catch (Exception)
+            {
+                context.Consumer.ShouldStoreOffset = false;
                 return;
             }
 
@@ -45,7 +66,8 @@
                     (retryNumber, c) => this.kafkaRetryDurableDefinition.KafkaRetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (this.kafkaRetryDurableDefinition.KafkaRetryDurableRetryPlanBeforeDefinition.ShouldPauseConsumer() && !this.controlWorkerId.HasValue)
+                        if (this.kafkaRetryDurableDefinition.KafkaRetryDurableRetryPlanBeforeDefinition.ShouldPauseConsumer()
+                        && !this.controlWorkerId.HasValue)
                         {
                             lock (this.syncPauseAndResume)
                             {
@@ -68,7 +90,7 @@
                         }
 
                         this.logHandler.Error(
-                            $"Exception captured by {nameof(KafkaRetryMiddleware)}. Retry in process.",
+                            $"Exception captured by {nameof(KafkaRetryDurableMiddleware)}. Retry in process.",
                             exception,
                             new
                             {
@@ -104,8 +126,7 @@
                 if (this.kafkaRetryDurableDefinition.ShouldRetry(new KafkaRetryContext(exception)))
                 {
                     var resultSaveToQueue = await this
-                        .kafkaRetryDurableDefinition
-                        .RetryQueueStorage
+                        .retryDurableQueueRepository
                         .SaveToQueueAsync(context, exception.Message)
                         .ConfigureAwait(false);
 

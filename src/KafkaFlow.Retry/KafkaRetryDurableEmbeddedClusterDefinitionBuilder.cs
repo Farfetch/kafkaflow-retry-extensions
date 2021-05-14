@@ -6,12 +6,12 @@
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Serializer;
-    using KafkaFlow.Serializer.ProtoBuf;
+    using KafkaFlow.Serializer.NewtonsoftJson;
     using KafkaFlow.TypedHandler;
 
     public class KafkaRetryDurableEmbeddedClusterDefinitionBuilder
     {
-        private IClusterConfigurationBuilder cluster;
+        private readonly IClusterConfigurationBuilder cluster;
         private bool enabled;
         private string retryTopicName;
         private Action<TypedHandlerConfigurationBuilder> typeHandlers;
@@ -48,28 +48,28 @@
 
             this.cluster
                 .AddProducer(
-                    "kafka-flow-retry-durable-producer",
+                    KafkaRetryDurableConstants.EmbeddedProducerName,
                     producer => producer
                         .DefaultTopic(this.retryTopicName)
                         .AddMiddlewares(
                             middlewares => middlewares
-                        .AddSerializer<ProtobufMessageSerializer>()
-                        .AddCompressor<GzipMessageCompressor>()
+                                .AddSerializer<NewtonsoftJsonMessageSerializer>()
+                                .AddCompressor<GzipMessageCompressor>()
                         )
                         .WithAcks(Acks.All)
                 )
                 .AddConsumer(
                     consumer => consumer
                         .Topic(this.retryTopicName)
-                        .WithGroupId("kafka-flow-retry-durable-consumer")
-                        .WithName("kafka-flow-retry-durable-consumer")
+                        .WithGroupId(KafkaRetryDurableConstants.EmbeddedConsumerGroupId)
+                        .WithName(KafkaRetryDurableConstants.EmbeddedConsumerName)
                         .WithBufferSize(10)
                         .WithWorkersCount(20)
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddCompressor<GzipMessageCompressor>()
-                                .AddSerializer<ProtobufMessageSerializer>()
+                                .AddSerializer<NewtonsoftJsonMessageSerializer>()
                                 .Add<KafkaRetryDurableValidationMiddleware>()
                                 .AddTypedHandlers(this.typeHandlers)
                         )

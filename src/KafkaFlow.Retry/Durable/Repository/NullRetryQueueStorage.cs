@@ -10,9 +10,9 @@
     using KafkaFlow.Retry.Durable.Repository.Model;
 
     [ExcludeFromCodeCoverage]
-    internal class NullRetryQueueStorage : IRetryQueueStorage
+    internal class NullRetryQueueStorage : IKafkaRetryDurableQueueRepository
     {
-        public static IRetryQueueStorage Instance = new NullRetryQueueStorage();
+        public static IKafkaRetryDurableQueueRepository Instance = new NullRetryQueueStorage();
 
         public Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context)
             => Task.FromResult(new AddIfQueueExistsResult(AddIfQueueExistsResultStatus.NoPendingMembers));

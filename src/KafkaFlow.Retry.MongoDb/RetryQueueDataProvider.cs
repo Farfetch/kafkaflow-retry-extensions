@@ -18,7 +18,7 @@
     using MongoDB.Driver;
     using MongoDB.Driver.Linq;
 
-    internal sealed class RetryQueueDataProvider : IRetryQueueDataProvider
+    internal sealed class RetryQueueDataProvider : IKafkaRetryDurableQueueRepositoryProvider
     {
         private readonly DbContext dbContext;
         private readonly IQueuesAdapter queuesAdapter;
