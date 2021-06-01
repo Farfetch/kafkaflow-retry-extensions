@@ -86,6 +86,7 @@
                                                                 .WithCronExpression("0/10 * * ? * *")
                                                                 .WithExpirationIntervalFactor(1)
                                                                 .WithFetchSize(10)
+                                                                .WithPollingStrategy("Latest")
                                                                 .Enabled(true)
                                                         )
                                                         //.WithSqlServerDataProvider(sqlServerConnectionString, sqlServerName)
@@ -164,7 +165,7 @@
                                     .Select(
                                         x => new BatchProduceItem(
                                             "test-topic",
-                                            Guid.NewGuid().ToString(),
+                                            "same-key",
                                             new TestMessage { Text = $"Message: {Guid.NewGuid()}" },
                                             null))
                                     .ToList());

@@ -2,11 +2,9 @@
 {
     internal static class PollingConstants
     {
+        public const string KafkaRetryDurablePollingDefinition = "KafkaRetryDurablePollingDefinition";
+        public const string KafkaRetryDurablePollingJobStrategy = "KafkaRetryDurablePollingJobStrategy";
+        public const string KafkaRetryDurableProducer = "KafkaRetryDurableProducer";
         public const string KafkaRetryDurableQueueRepository = "KafkaRetryDurableQueueRepository";
-        public const string NonBlockRetryPolicyConfigKey = "NonBlockRetryPolicyConfig";
-        public const string PollingConfigKey = "PollingConfig";
-        public const string RetryDurableConsumer = "RetryDurableConsumer";
-        public const string RetryPolicyBuilderKey = "RetryPolicyBuilder";
-        public const string RetryProducerKey = "QueueProducer";
     }
 }

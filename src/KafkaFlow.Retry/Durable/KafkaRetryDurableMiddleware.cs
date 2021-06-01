@@ -1,10 +1,8 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using System;
-    using System.Threading;
     using System.Threading.Tasks;
     using KafkaFlow;
-    using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Create;
     using Polly;
@@ -13,34 +11,22 @@
     {
         private readonly KafkaRetryDurableDefinition kafkaRetryDurableDefinition;
         private readonly ILogHandler logHandler;
-        private readonly IQueueTrackerCoordinator queueTrackerCoordinator;
         private readonly IKafkaRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly object syncPauseAndResume = new object();
-        private bool asd;
         private int? controlWorkerId;
 
         public KafkaRetryDurableMiddleware(
             ILogHandler logHandler,
             IKafkaRetryDurableQueueRepository retryDurableQueueRepository,
-            KafkaRetryDurableDefinition kafkaRetryDurableDefinition,
-            IQueueTrackerCoordinator queueTrackerCoordinator)
+            KafkaRetryDurableDefinition kafkaRetryDurableDefinition)
         {
             this.logHandler = logHandler;
             this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.kafkaRetryDurableDefinition = kafkaRetryDurableDefinition;
-            this.queueTrackerCoordinator = queueTrackerCoordinator;
-            this.asd = false;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
-            // Where should find the cancellation token
-            if (!this.asd)
-            {
-                await this.queueTrackerCoordinator.InitializeAsync(kafkaRetryDurableDefinition, CancellationToken.None).ConfigureAwait(false);
-                this.asd = true;
-            }
-
             try
             {
                 var resultAddIfQueueExistsAsync = await this

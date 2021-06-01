@@ -9,5 +9,6 @@
         public const string ItemId = "Kafka-Flow-Retry-Durable-Item-Id";
         public const string MessageType = "Kafka-Flow-Retry-Durable-Original-Message-Type";
         public const string QueueId = "Kafka-Flow-Retry-Durable-Queue-Id";
+        public const string Sort = "Kafka-Flow-Retry-Durable-Sort";
     }
 }

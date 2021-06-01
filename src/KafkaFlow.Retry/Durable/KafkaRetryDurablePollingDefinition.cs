@@ -1,14 +1,16 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using Dawn;
+    using KafkaFlow.Retry.Durable.Polling.Strategies;
 
     internal class KafkaRetryDurablePollingDefinition
     {
         public KafkaRetryDurablePollingDefinition(
             bool enabled,
-            string cronExpression = null,
-            int fetchSize = 96,
-            int expirationIntervalFactor = 1)
+            string cronExpression,
+            int fetchSize,
+            int expirationIntervalFactor,
+            PollingJobStrategyType pollingJobStrategy)
         {
             if (enabled)
             {
@@ -24,6 +26,7 @@
             this.Enabled = enabled;
             this.FetchSize = fetchSize;
             this.ExpirationIntervalFactor = expirationIntervalFactor;
+            this.PollingJobStrategy = pollingJobStrategy;
         }
 
         public string CronExpression { get; }
@@ -33,5 +36,7 @@
         public int ExpirationIntervalFactor { get; }
 
         public int FetchSize { get; }
+
+        public PollingJobStrategyType PollingJobStrategy { get; }
     }
 }

@@ -1,12 +1,11 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
-    using System;
     using System.Threading;
     using System.Threading.Tasks;
 
-    internal interface IQueueTrackerCoordinator : IDisposable
+    internal interface IQueueTrackerCoordinator
     {
-        Task InitializeAsync(KafkaRetryDurableDefinition kafkaRetryDurableDefinition, CancellationToken cancellationToken);
+        Task InitializeAsync(CancellationToken cancellationToken);
 
         Task ShutdownAsync(CancellationToken cancellationToken);
     }

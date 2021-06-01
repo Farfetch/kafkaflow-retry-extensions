@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using KafkaFlow;
     using KafkaFlow.Configuration;
-    using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Polling;
@@ -18,6 +17,7 @@
         private IKafkaRetryDurableQueueRepository durableQueueRepository;
         private KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
         private KafkaRetryDurableRetryPlanBeforeDefinition kafkaRetryDurableRetryPlanBeforeDefinition;
+        private KafkaRetryDurableEmbeddedClusterDefinitionBuilder kafkaRetryDurableEmbeddedClusterBuilder;
 
         public KafkaRetryDurableDefinitionBuilder(IDependencyConfigurator dependencyConfigurator)
         {
@@ -46,9 +46,10 @@
             Action<KafkaRetryDurableEmbeddedClusterDefinitionBuilder> configure
             )
         {
-            var kafkaRetryDurableEmbeddedClusterBuilder = new KafkaRetryDurableEmbeddedClusterDefinitionBuilder(cluster);
-            configure(kafkaRetryDurableEmbeddedClusterBuilder);
-            kafkaRetryDurableEmbeddedClusterBuilder.Build();
+            this.kafkaRetryDurableEmbeddedClusterBuilder = new KafkaRetryDurableEmbeddedClusterDefinitionBuilder(cluster);
+            configure(this.kafkaRetryDurableEmbeddedClusterBuilder);
+            this.kafkaRetryDurableEmbeddedClusterBuilder.Build();
+
             return this;
         }
 
@@ -89,24 +90,24 @@
 
         internal KafkaRetryDurableDefinition Build()
         {
+            var kafkaRetryDurableDefinition =
+                   new KafkaRetryDurableDefinition(
+                       this.retryWhenExceptions,
+                       this.kafkaRetryDurableRetryPlanBeforeDefinition,
+                       this.kafkaRetryDurablePollingDefinition
+                   );
+
             this.dependencyConfigurator
                 .AddSingleton<IQueueTrackerCoordinator>(
-                service =>
-                    new QueueTrackerCoordinator(
-                        new QueueTrackerFactory(
-                            service.Resolve<IKafkaRetryDurableQueueRepository>(),
-                            service.Resolve<IProducerAccessor>().GetProducer(KafkaRetryDurableConstants.EmbeddedProducerName),
-                            service.Resolve<IConsumerAccessor>().GetConsumer(KafkaRetryDurableConstants.EmbeddedConsumerName)
-                        ),
-                        service.Resolve<IConsumerAccessor>()
-                    )
-                );
-
-            var kafkaRetryDurableDefinition =
-                new KafkaRetryDurableDefinition(
-                    this.retryWhenExceptions,
-                    this.kafkaRetryDurableRetryPlanBeforeDefinition,
-                    this.kafkaRetryDurablePollingDefinition
+                    resolver =>
+                        new QueueTrackerCoordinator(
+                            new QueueTrackerFactory(
+                                resolver.Resolve<IKafkaRetryDurableQueueRepository>(),
+                                resolver.Resolve<IProducerAccessor>().GetProducer(KafkaRetryDurableConstants.EmbeddedProducerName),
+                                this.kafkaRetryDurablePollingDefinition
+                            ),
+                            this.kafkaRetryDurablePollingDefinition
+                        )
                 );
 
             return kafkaRetryDurableDefinition;

@@ -4,7 +4,6 @@
     using KafkaFlow;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Forever;
 
@@ -37,8 +36,7 @@
                 resolver => new KafkaRetryDurableMiddleware(
                     resolver.Resolve<ILogHandler>(),
                     resolver.Resolve<IKafkaRetryDurableQueueRepository>(),
-                    kafkaRetryDurableDefinitionBuild,
-                    resolver.Resolve<IQueueTrackerCoordinator>()
+                    kafkaRetryDurableDefinitionBuild
                 ));
         }
 

@@ -1,10 +1,13 @@
 ﻿namespace KafkaFlow.Retry
 {
     using System;
+    using System.Linq;
+    using System.Threading;
     using KafkaFlow.Compressor;
     using KafkaFlow.Compressor.Gzip;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable;
+    using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Serializer;
     using KafkaFlow.Serializer.NewtonsoftJson;
     using KafkaFlow.TypedHandler;
@@ -15,6 +18,7 @@
         private bool enabled;
         private string retryTopicName;
         private Action<TypedHandlerConfigurationBuilder> typeHandlers;
+        private const int DefaultPartitionElection = 0;
 
         public KafkaRetryDurableEmbeddedClusterDefinitionBuilder(IClusterConfigurationBuilder cluster)
         {
@@ -66,6 +70,26 @@
                         .WithBufferSize(10)
                         .WithWorkersCount(20)
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithPartitionsAssignedHandler(
+                            async (resolver, partitionsAssignedHandler) => 
+                            {
+                                if (partitionsAssignedHandler is object 
+                                 && partitionsAssignedHandler.Any(tp => tp.Partition == DefaultPartitionElection))
+                                {
+                                    var queueTrackerCoordinator = resolver.Resolve<IQueueTrackerCoordinator>();
+                                    await queueTrackerCoordinator
+                                            .InitializeAsync(CancellationToken.None)
+                                            .ConfigureAwait(false);
+                                }
+                            })
+                        .WithPartitionsRevokedHandler(
+                            async (resolver, partitionsRevokedHandler) =>
+                            {
+                                var queueTrackerCoordinator = resolver.Resolve<IQueueTrackerCoordinator>();
+                                await queueTrackerCoordinator
+                                        .ShutdownAsync(CancellationToken.None)
+                                        .ConfigureAwait(false);
+                            })
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddCompressor<GzipMessageCompressor>()

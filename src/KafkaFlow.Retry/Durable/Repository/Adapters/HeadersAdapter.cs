@@ -23,6 +23,7 @@
             messageHeaders.Add(KafkaRetryDurableConstants.AttemptsCount, item.AttemptsCount.ToString().StringToByteArray());
             messageHeaders.Add(KafkaRetryDurableConstants.QueueId, queueId.ToString().StringToByteArray());
             messageHeaders.Add(KafkaRetryDurableConstants.ItemId, item.Id.ToString().StringToByteArray());
+            messageHeaders.Add(KafkaRetryDurableConstants.Sort, item.Sort.ToString().StringToByteArray());
 
             return messageHeaders;
         }

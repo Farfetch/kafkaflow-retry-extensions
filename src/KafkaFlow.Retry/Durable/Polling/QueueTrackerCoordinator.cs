@@ -6,65 +6,34 @@
     using System.Threading.Tasks;
     using Confluent.Kafka;
     using Dawn;
-    using KafkaFlow.Consumers;
 
     internal class QueueTrackerCoordinator : IQueueTrackerCoordinator
     {
         private const int DefaultPartitionElection = 0;
-        private const string LogFacility = "QUEUE TRACKER COORDINATOR";
 
-        private readonly IConsumerAccessor consumerAccessor;
+        private readonly KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
         private readonly IQueueTrackerFactory queueTrackerFactory;
-        private CancellationToken cancellationToken;
-
         private QueueTracker queueTracker;
-
-        private KafkaRetryDurableDefinition queueTrackerConfig;
 
         public QueueTrackerCoordinator(
             IQueueTrackerFactory queueTrackerFactory,
-            IConsumerAccessor consumerAccessor)
+            KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition)
         {
+            Guard.Argument(this.kafkaRetryDurablePollingDefinition).Null(p => "No polling definitions was found");
+
             this.queueTrackerFactory = queueTrackerFactory;
-            this.consumerAccessor = consumerAccessor;
+            this.kafkaRetryDurablePollingDefinition = kafkaRetryDurablePollingDefinition;
         }
-
-        public void Dispose()
+        public async Task InitializeAsync(CancellationToken cancellationToken)
         {
-            if (this.queueTracker is object)
-            {
-                this.queueTracker.Dispose();
-                this.queueTracker = null;
-            }
-        }
-
-        public async Task InitializeAsync(
-            KafkaRetryDurableDefinition kafkaRetryDurableDefinition,
-            CancellationToken cancellationToken
-        )
-        {
-            Guard.Argument(kafkaRetryDurableDefinition).NotNull();
-            Guard.Argument(this.queueTrackerConfig).Null(p => "Queue tracker coordinator has already initialized");
-
-            this.queueTrackerConfig = kafkaRetryDurableDefinition;
-            this.cancellationToken = cancellationToken;
-
-            if (!kafkaRetryDurableDefinition.KafkaRetryDurablePollingDefinition.Enabled)
+            if (!kafkaRetryDurablePollingDefinition.Enabled)
             {
                 return;
             }
 
-            //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Info, LogFacility,$"The Retry Consumer is going to start for '{this.policyBuilder.GetSearchGroupKey()}'"));
+            this.queueTracker = this.queueTrackerFactory.Create();
+            await this.queueTracker.ScheduleJobAsync(cancellationToken).ConfigureAwait(false);
 
-            //this.retryConsumer.Start(action, cancellationToken);
-
-            //this.policyBuilder.SetInternalPartitionsAssignedHandler(OnPartitionsAssigned);
-            //this.policyBuilder.SetInternalPartitionsRevokedHandler(OnPartitionsRevoked);
-
-            //if (this.IsConsumerSelectedForPolling(this.consumerAccessor.GetConsumer("test").Assignment))
-            //{
-            await this.CreateAndScheduleAsync(kafkaRetryDurableDefinition, cancellationToken).ConfigureAwait(false);
-            //}
         }
 
         public async Task ShutdownAsync(CancellationToken cancellationToken)
@@ -72,23 +41,7 @@
             if (this.queueTracker is object)
             {
                 await this.queueTracker.ShutdownAsync(cancellationToken);
-
-                //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Info, LogFacility,$"The Queue Tracker has been shutdown for '{this.policyBuilder.GetSearchGroupKey()}'"));
             }
-
-            //if (this.retryConsumer is object)
-            //{
-            //    this.retryConsumer.Shutdown();
-
-            //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Info, LogFacility,$"The Retry Consumer been shutdown for '{this.policyBuilder.GetSearchGroupKey()}'"));
-            //}
-        }
-
-        private Task CreateAndScheduleAsync(KafkaRetryDurableDefinition kafkaRetryDurableDefinition, CancellationToken cancellationToken)
-        {
-            this.queueTracker = this.queueTrackerFactory.Create();
-
-            return this.queueTracker.ScheduleJobAsync(kafkaRetryDurableDefinition, cancellationToken);
         }
 
         private bool IsConsumerSelectedForPolling(IEnumerable<TopicPartition> topicPartitions)
