@@ -2,6 +2,6 @@
 {
     internal interface IPollingJobStrategyProvider
     {
-        IPollingJobStrategy GetPollingJobStrategy(Strategy strategy);
+        IPollingJobStrategy GetPollingJobStrategy(PollingStrategy strategy);
     }
 }

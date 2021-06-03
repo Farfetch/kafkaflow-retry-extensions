@@ -31,7 +31,7 @@
                     {
                         if (this.kafkaRetryDefinition.ShouldPauseConsumer() && !this.controlWorkerId.HasValue)
                         {
-                            lock (this.syncPauseAndResume)
+                            lock (this.syncPauseAndResume) // TODO: why we need this lock here?
                             {
                                 if (!this.controlWorkerId.HasValue)
                                 {

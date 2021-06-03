@@ -17,7 +17,7 @@
             };
         }
 
-        public IPollingJobStrategy GetPollingJobStrategy(Strategy strategy)
+        public IPollingJobStrategy GetPollingJobStrategy(PollingStrategy strategy)
         {
             return this.pollingJobStrategies.Single(x => Enum.Equals(x.Strategy, strategy));
         }

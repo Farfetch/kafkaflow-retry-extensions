@@ -6,7 +6,7 @@
 
     internal interface IPollingJobStrategy
     {
-        Strategy Strategy { get; }
+        PollingStrategy Strategy { get; }
 
         Task ExecuteAsync(
             IKafkaRetryDurableQueueRepository queueStorage,
