@@ -1,5 +1,4 @@
-﻿
-namespace KafkaFlow.Retry.Durable.Polling.Strategies
+﻿namespace KafkaFlow.Retry.Durable.Polling.Strategies
 {
     using System.Threading.Tasks;
     using KafkaFlow.Producers;
@@ -7,7 +6,7 @@ namespace KafkaFlow.Retry.Durable.Polling.Strategies
 
     internal interface IPollingJobStrategy
     {
-        PollingJobStrategyType PollingJobStrategyType { get; }
+        Strategy Strategy { get; }
 
         Task ExecuteAsync(
             IKafkaRetryDurableQueueRepository queueStorage,

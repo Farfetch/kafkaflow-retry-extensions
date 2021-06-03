@@ -17,9 +17,9 @@
             };
         }
 
-        public IPollingJobStrategy GetPollingJobStrategy(PollingJobStrategyType pollingJobStrategyType)
+        public IPollingJobStrategy GetPollingJobStrategy(Strategy strategy)
         {
-            return this.pollingJobStrategies.Single(x => Enum.Equals(x.PollingJobStrategyType, pollingJobStrategyType));
+            return this.pollingJobStrategies.Single(x => Enum.Equals(x.Strategy, strategy));
         }
     }
 }

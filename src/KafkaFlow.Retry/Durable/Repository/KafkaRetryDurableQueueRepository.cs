@@ -18,21 +18,20 @@
         private const int DefaultMaxWaitInSeconds = 60;
         private const int MaxAttempts = 6;
         private readonly IHeadersAdapter headersAdapter;
-
-        //private readonly RetryPolicyBuilder<TKey, TResult> policyBuilder;
+        private readonly KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
         private readonly IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider;
-
         private readonly IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers;
 
         public KafkaRetryDurableQueueRepository(
             IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider,
             IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers,
-            IHeadersAdapter headersAdapter)
+            IHeadersAdapter headersAdapter,
+            KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition)
         {
             this.retryQueueDataProvider = retryQueueDataProvider;
-            //this.policyBuilder = policyBuilder;
             this.updateItemHandlers = updateItemHandlers;
             this.headersAdapter = headersAdapter;
+            this.kafkaRetryDurablePollingDefinition = kafkaRetryDurablePollingDefinition;
         }
 
         public async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context)
@@ -60,7 +59,7 @@
                                 context.Consumer.MessageTimestamp,
                                 this.headersAdapter.AdaptToMessageHeaders(context.Headers)
                             ),
-                            $"{context.GroupId}-{context.Consumer.Name}",
+                            this.kafkaRetryDurablePollingDefinition.Id,
                             System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
@@ -144,7 +143,7 @@
                                     context.Consumer.MessageTimestamp,
                                     this.headersAdapter.AdaptToMessageHeaders(context.Headers)
                                 ),
-                            $"{context.GroupId}-{context.Consumer.Name}",
+                            this.kafkaRetryDurablePollingDefinition.Id,
                             System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,

@@ -12,18 +12,11 @@
     internal class QueueTracker
     {
         private static object internalLock = new object();
-
-        //private readonly KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
-
         private readonly KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
-
-        //private readonly RetryPolicyBuilder<TKey, TResult> policyBuilder;
-        //private readonly NonBlockRetryPolicyConfig policyConfig;
         private readonly IMessageProducer messageProducer;
-
         private readonly IPollingJobStrategyProvider pollingJobStrategyProvider;
         private readonly IKafkaRetryDurableQueueRepository queueStorage;
-        private JobKey jobKey;
+        private readonly bool waitForJobsToComplete = true;
         private IScheduler scheduler;
 
         public QueueTracker(
@@ -41,7 +34,8 @@
             this.pollingJobStrategyProvider = pollingJobStrategyProvider;
         }
 
-        private bool IsSchedulerActive => this.scheduler is object && this.scheduler.IsStarted && !this.scheduler.IsShutdown;
+        private bool IsSchedulerActive
+            => this.scheduler is object && this.scheduler.IsStarted && !this.scheduler.IsShutdown;
 
         internal async Task ScheduleJobAsync(CancellationToken cancellationToken = default(CancellationToken))
         {
@@ -65,11 +59,9 @@
                 .SetJobData(dataMap)
                 .Build();
 
-            this.jobKey = job.Key;
-
             ITrigger trigger = TriggerBuilder
                 .Create()
-                .WithIdentity($"pollingJob_{/*this.policyBuilder.Config.MainTopicName*/ string.Empty}", "queueTrackerGroup")
+                .WithIdentity($"pollingJob_{this.kafkaRetryDurablePollingDefinition.Id}", "queueTrackerGroup")
                 .WithCronSchedule(kafkaRetryDurablePollingDefinition.CronExpression)
                 .StartNow()
                 .WithPriority(1)
@@ -84,9 +76,7 @@
             {
                 if (this.IsSchedulerActive)
                 {
-                    //this.policyBuilder.OnLog(new LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Info, "QUEUE TRACKER", "The 'ShutdownAsync' has been called."));
-
-                    return this.scheduler.Shutdown(cancellationToken);
+                    return this.scheduler.Shutdown(waitForJobsToComplete, cancellationToken);
                 }
             }
 
@@ -94,6 +84,6 @@
         }
 
         private IPollingJobStrategy GetPollingJobStrategyProvider(KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition)
-           => this.pollingJobStrategyProvider.GetPollingJobStrategy(kafkaRetryDurablePollingDefinition.PollingJobStrategy);
+           => this.pollingJobStrategyProvider.GetPollingJobStrategy(kafkaRetryDurablePollingDefinition.Strategy);
     }
 }

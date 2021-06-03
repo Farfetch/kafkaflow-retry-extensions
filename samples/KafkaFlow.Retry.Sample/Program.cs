@@ -83,10 +83,11 @@
                                                         )
                                                         .WithPollingConfiguration(
                                                             configure => configure
+                                                                .WithStrategy(Strategy.Latest)
+                                                                .WithId("custom_search_key")
                                                                 .WithCronExpression("0/10 * * ? * *")
                                                                 .WithExpirationIntervalFactor(1)
                                                                 .WithFetchSize(10)
-                                                                .WithPollingStrategy("Latest")
                                                                 .Enabled(true)
                                                         )
                                                         //.WithSqlServerDataProvider(sqlServerConnectionString, sqlServerName)

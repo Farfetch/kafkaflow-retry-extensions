@@ -18,7 +18,7 @@
     {
         private static readonly HeadersAdapter headersAdapter = new HeadersAdapter();
         private TimeSpan expirationInterval = TimeSpan.Zero;
-        public PollingJobStrategyType PollingJobStrategyType => PollingJobStrategyType.Latest;
+        public Strategy Strategy => Strategy.Latest;
 
         public async Task ExecuteAsync(
             IKafkaRetryDurableQueueRepository queueStorage,
@@ -37,7 +37,7 @@
                        )
                    )
                    {
-                       SearchGroupKey = "print-console-handler-test"
+                       SearchGroupKey = kafkaRetryDurablePollingDefinition.Id
                    };
 
             var activeQueues = await queueStorage.GetRetryQueuesAsync(queueItemsInput).ConfigureAwait(false);
@@ -58,7 +58,7 @@
                     {
                         foreach (var itemToCancel in queueItemsOrdered.Take(queue.Items.Count() - 1))
                         {
-                            var inputCancelled = new UpdateItemStatusInput(item.Id, RetryQueueItemStatus.Cancelled);
+                            var inputCancelled = new UpdateItemStatusInput(itemToCancel.Id, RetryQueueItemStatus.Cancelled);
                             await queueStorage.UpdateItemAsync(inputCancelled).ConfigureAwait(false);
                         }
 

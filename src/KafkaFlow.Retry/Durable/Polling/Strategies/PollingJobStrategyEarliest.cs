@@ -18,7 +18,8 @@
     {
         private static readonly HeadersAdapter headersAdapter = new HeadersAdapter();
         private TimeSpan expirationInterval = TimeSpan.Zero;
-        public PollingJobStrategyType PollingJobStrategyType => PollingJobStrategyType.Earliest;
+
+        public Strategy Strategy => Strategy.Earliest;
 
         public async Task ExecuteAsync(
             IKafkaRetryDurableQueueRepository queueStorage,

@@ -15,9 +15,10 @@
         private readonly List<Func<KafkaRetryContext, bool>> retryWhenExceptions = new List<Func<KafkaRetryContext, bool>>();
         private IDependencyConfigurator dependencyConfigurator;
         private IKafkaRetryDurableQueueRepository durableQueueRepository;
-        private KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
-        private KafkaRetryDurableRetryPlanBeforeDefinition kafkaRetryDurableRetryPlanBeforeDefinition;
         private KafkaRetryDurableEmbeddedClusterDefinitionBuilder kafkaRetryDurableEmbeddedClusterBuilder;
+        private KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
+        private IKafkaRetryDurableQueueRepositoryProvider KafkaRetryDurableRepositoryProvider;
+        private KafkaRetryDurableRetryPlanBeforeDefinition kafkaRetryDurableRetryPlanBeforeDefinition;
 
         public KafkaRetryDurableDefinitionBuilder(IDependencyConfigurator dependencyConfigurator)
         {
@@ -64,17 +65,7 @@
 
         public KafkaRetryDurableDefinitionBuilder WithRepositoryProvider(IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableRepositoryProvider)
         {
-            this.dependencyConfigurator
-                .AddSingleton<IKafkaRetryDurableQueueRepository>(
-                    service =>
-                        new KafkaRetryDurableQueueRepository(
-                            kafkaRetryDurableRepositoryProvider,
-                            new IUpdateRetryQueueItemHandler[]
-                            {
-                                new UpdateRetryQueueItemStatusHandler(kafkaRetryDurableRepositoryProvider),
-                                new UpdateRetryQueueItemExecutionInfoHandler(kafkaRetryDurableRepositoryProvider)
-                            },
-                            new HeadersAdapter()));
+            this.KafkaRetryDurableRepositoryProvider = kafkaRetryDurableRepositoryProvider;
 
             return this;
         }
@@ -96,6 +87,19 @@
                        this.kafkaRetryDurableRetryPlanBeforeDefinition,
                        this.kafkaRetryDurablePollingDefinition
                    );
+
+            this.dependencyConfigurator
+                .AddSingleton<IKafkaRetryDurableQueueRepository>(
+                    service =>
+                        new KafkaRetryDurableQueueRepository(
+                            this.KafkaRetryDurableRepositoryProvider,
+                            new IUpdateRetryQueueItemHandler[]
+                            {
+                                new UpdateRetryQueueItemStatusHandler(this.KafkaRetryDurableRepositoryProvider),
+                                new UpdateRetryQueueItemExecutionInfoHandler(this.KafkaRetryDurableRepositoryProvider)
+                            },
+                            new HeadersAdapter(),
+                            this.kafkaRetryDurablePollingDefinition));
 
             this.dependencyConfigurator
                 .AddSingleton<IQueueTrackerCoordinator>(

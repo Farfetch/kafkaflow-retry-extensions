@@ -1,8 +1,6 @@
 ﻿namespace KafkaFlow.Retry
 {
-    using System;
     using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Durable.Polling.Strategies;
 
     public class KafkaRetryDurablePollingDefinitionBuilder
     {
@@ -10,7 +8,8 @@
         private bool enabled;
         private int expirationIntervalFactor = 1;
         private int fetchSize = 96;
-        private PollingJobStrategyType pollingJobStrategy = PollingJobStrategyType.Earliest;
+        private string Id = string.Empty;
+        private Strategy Strategy = Strategy.Earliest;
 
         public KafkaRetryDurablePollingDefinitionBuilder Enabled(bool enabled)
         {
@@ -36,9 +35,15 @@
             return this;
         }
 
-        public KafkaRetryDurablePollingDefinitionBuilder WithPollingStrategy(string pollingStrategy)
+        public KafkaRetryDurablePollingDefinitionBuilder WithId(string id)
         {
-            this.pollingJobStrategy = (PollingJobStrategyType)Enum.Parse(typeof(PollingJobStrategyType), pollingStrategy, true);
+            this.Id = id;
+            return this;
+        }
+
+        public KafkaRetryDurablePollingDefinitionBuilder WithStrategy(Strategy strategy)
+        {
+            this.Strategy = strategy;
             return this;
         }
 
@@ -49,7 +54,8 @@
                 this.cronExpression,
                 this.fetchSize,
                 this.expirationIntervalFactor,
-                this.pollingJobStrategy
+                this.Strategy,
+                this.Id
             );
         }
     }

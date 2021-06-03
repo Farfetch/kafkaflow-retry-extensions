@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using Dawn;
-    using KafkaFlow.Retry.Durable.Polling.Strategies;
 
     internal class KafkaRetryDurablePollingDefinition
     {
@@ -10,7 +9,8 @@
             string cronExpression,
             int fetchSize,
             int expirationIntervalFactor,
-            PollingJobStrategyType pollingJobStrategy)
+            Strategy strategy,
+            string id)
         {
             if (enabled)
             {
@@ -19,6 +19,7 @@
                     .True("A valid cron expression is required when the polling is enabled.");
             }
 
+            Guard.Argument(id, nameof(id)).NotNull().NotEmpty();
             Guard.Argument(fetchSize, nameof(fetchSize)).Positive();
             Guard.Argument(expirationIntervalFactor, nameof(expirationIntervalFactor)).Positive();
 
@@ -26,7 +27,8 @@
             this.Enabled = enabled;
             this.FetchSize = fetchSize;
             this.ExpirationIntervalFactor = expirationIntervalFactor;
-            this.PollingJobStrategy = pollingJobStrategy;
+            this.Strategy = strategy;
+            this.Id = id;
         }
 
         public string CronExpression { get; }
@@ -37,6 +39,8 @@
 
         public int FetchSize { get; }
 
-        public PollingJobStrategyType PollingJobStrategy { get; }
+        public string Id { get; }
+
+        public Strategy Strategy { get; }
     }
 }
