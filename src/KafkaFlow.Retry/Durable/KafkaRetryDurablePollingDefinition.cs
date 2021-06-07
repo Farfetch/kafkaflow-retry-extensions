@@ -9,7 +9,7 @@
             string cronExpression,
             int fetchSize,
             int expirationIntervalFactor,
-            Strategy strategy,
+            PollingStrategy strategy,
             string id)
         {
             if (enabled)
@@ -41,6 +41,6 @@
 
         public string Id { get; }
 
-        public Strategy Strategy { get; }
+        public PollingStrategy Strategy { get; }
     }
 }

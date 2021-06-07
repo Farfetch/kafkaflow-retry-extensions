@@ -9,7 +9,7 @@
         private int expirationIntervalFactor = 1;
         private int fetchSize = 96;
         private string Id = string.Empty;
-        private Strategy Strategy = Strategy.Earliest;
+        private PollingStrategy Strategy = PollingStrategy.KeepConsumptionOrder;
 
         public KafkaRetryDurablePollingDefinitionBuilder Enabled(bool enabled)
         {
@@ -41,7 +41,7 @@
             return this;
         }
 
-        public KafkaRetryDurablePollingDefinitionBuilder WithStrategy(Strategy strategy)
+        public KafkaRetryDurablePollingDefinitionBuilder WithStrategy(PollingStrategy strategy)
         {
             this.Strategy = strategy;
             return this;

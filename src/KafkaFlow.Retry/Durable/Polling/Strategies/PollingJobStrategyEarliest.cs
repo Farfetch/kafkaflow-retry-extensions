@@ -19,7 +19,7 @@
         private static readonly HeadersAdapter headersAdapter = new HeadersAdapter();
         private TimeSpan expirationInterval = TimeSpan.Zero;
 
-        public Strategy Strategy => Strategy.Earliest;
+        public PollingStrategy Strategy => PollingStrategy.KeepConsumptionOrder;
 
         public async Task ExecuteAsync(
             IKafkaRetryDurableQueueRepository queueStorage,
@@ -38,7 +38,7 @@
                        )
                    )
                    {
-                       SearchGroupKey = "print-console-handler-test"
+                       SearchGroupKey = "print-console-handler-test" // TODO: Temporary code?
                    };
 
             var activeQueues = await queueStorage.GetRetryQueuesAsync(queueItemsInput).ConfigureAwait(false);

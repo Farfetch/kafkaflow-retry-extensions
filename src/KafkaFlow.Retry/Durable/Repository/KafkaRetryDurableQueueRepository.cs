@@ -129,8 +129,10 @@
                     {
                         context.Headers.SetString(
                             KafkaRetryDurableConstants.MessageType,
-                            $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
+                            $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}" // TODO: reflection is really required here? any other option?
                         );
+
+                        var refDate = DateTime.UtcNow;
 
                         return await this.SaveToQueueAsync(context,
                            new SaveToQueueInput(
@@ -144,13 +146,13 @@
                                     this.headersAdapter.AdaptToMessageHeaders(context.Headers)
                                 ),
                             this.kafkaRetryDurablePollingDefinition.Id,
-                            System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey),
+                            System.Text.UTF8Encoding.UTF8.GetString(context.PartitionKey), // TODO: this worries me because this convertion can cause data loss.
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown, // TODO: which Severity Level should we choose?
-                            DateTime.UtcNow,
-                            DateTime.UtcNow,
-                            DateTime.UtcNow,
+                            refDate,
+                            refDate,
+                            refDate,
                             0,
                             description
                             )
@@ -176,7 +178,7 @@
                                 //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Error, "RETRY QUEUE STORAGE",
                                 //$"An item ({input.ItemId}) FAILED to update the status to '{input.Status}': {exception?.ToString()}"));
 
-                                var kafkaException = new KafkaRetryException(
+                                var kafkaException = new KafkaRetryException( // TODO: ok, we need to think on how we want to expose this kind of exception in this context to the user.
                                     new RetryError(RetryErrorCode.DataProvider_AddIfQueueExists),
                                     $"An error ocurred while trying to add the item to an existing queue.", exception);
 
