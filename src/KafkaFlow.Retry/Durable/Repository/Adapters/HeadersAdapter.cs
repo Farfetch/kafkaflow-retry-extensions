@@ -8,7 +8,7 @@
 
     internal class HeadersAdapter : IHeadersAdapter
     {
-        public IMessageHeaders AdaptToConfluentHeaders(Guid queueId, RetryQueueItem item)
+        public IMessageHeaders AdaptToConfluentHeaders(Guid queueId, RetryQueueItem item) // TODO: the headers are not from confluent. are a type declared at KafkaFlow
         {
             var messageHeaders = new MessageHeaders();
 
