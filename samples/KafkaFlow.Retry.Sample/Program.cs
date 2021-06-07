@@ -83,7 +83,7 @@
                                                         )
                                                         .WithPollingConfiguration(
                                                             configure => configure
-                                                                .WithStrategy(Strategy.Latest)
+                                                                .WithStrategy(PollingStrategy.LastConsumed)
                                                                 .WithId("custom_search_key")
                                                                 .WithCronExpression("0/10 * * ? * *")
                                                                 .WithExpirationIntervalFactor(1)

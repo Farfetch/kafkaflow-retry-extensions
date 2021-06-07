@@ -85,7 +85,7 @@
             }
             finally
             {
-                if (this.controlWorkerId == context.WorkerId)
+                if (this.controlWorkerId == context.WorkerId) // TODO: understand why this is necessary and the lock below.
                 {
                     lock (this.syncPauseAndResume)
                     {

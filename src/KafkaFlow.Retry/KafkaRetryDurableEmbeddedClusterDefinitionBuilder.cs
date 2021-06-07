@@ -14,11 +14,11 @@
 
     public class KafkaRetryDurableEmbeddedClusterDefinitionBuilder
     {
+        private const int DefaultPartitionElection = 0;
         private readonly IClusterConfigurationBuilder cluster;
         private bool enabled;
         private string retryTopicName;
         private Action<TypedHandlerConfigurationBuilder> typeHandlers;
-        private const int DefaultPartitionElection = 0;
 
         public KafkaRetryDurableEmbeddedClusterDefinitionBuilder(IClusterConfigurationBuilder cluster)
         {
@@ -71,14 +71,14 @@
                         .WithWorkersCount(20)
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .WithPartitionsAssignedHandler(
-                            async (resolver, partitionsAssignedHandler) => 
+                            async (resolver, partitionsAssignedHandler) =>
                             {
-                                if (partitionsAssignedHandler is object 
+                                if (partitionsAssignedHandler is object
                                  && partitionsAssignedHandler.Any(tp => tp.Partition == DefaultPartitionElection))
                                 {
                                     var queueTrackerCoordinator = resolver.Resolve<IQueueTrackerCoordinator>();
                                     await queueTrackerCoordinator
-                                            .InitializeAsync(CancellationToken.None)
+                                            .InitializeAsync(CancellationToken.None) // TODO: this will probably cause problems during the app shutdown. Handles cannot stay open. we need a cancellation token, event if it is only for internal usage
                                             .ConfigureAwait(false);
                                 }
                             })
@@ -87,13 +87,13 @@
                             {
                                 var queueTrackerCoordinator = resolver.Resolve<IQueueTrackerCoordinator>();
                                 await queueTrackerCoordinator
-                                        .ShutdownAsync(CancellationToken.None)
+                                        .ShutdownAsync(CancellationToken.None) /// same
                                         .ConfigureAwait(false);
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddCompressor<GzipMessageCompressor>()
-                                .AddSerializer<NewtonsoftJsonMessageSerializer>()
+                                .AddSerializer<NewtonsoftJsonMessageSerializer>() // I think we should use a better serializer for binary (key;mesage), pls check but I think protobuff is a better option
                                 .Add<KafkaRetryDurableValidationMiddleware>()
                                 .AddTypedHandlers(this.typeHandlers)
                         )

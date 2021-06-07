@@ -48,11 +48,11 @@
             }
             catch (KafkaRetryException ex)
             {
-                //policyBuilder.OnPollingExceptionHandler(ex);
+                // TODO: write a log for that
             }
             catch (Exception ex) // dispatch the handler and finish the job with success
             {
-                //policyBuilder.OnPollingExceptionHandler(new KafkaRetryException(new RetryError(RetryErrorCode.Polling_UnknownException), ex.Message, ex));
+                // TODO: write a log for that
             }
         }
     }

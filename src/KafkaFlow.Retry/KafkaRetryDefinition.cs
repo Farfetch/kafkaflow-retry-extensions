@@ -37,10 +37,10 @@
         internal Func<int, TimeSpan> TimeBetweenTriesPlan =>
             this.timeBetweenTriesPlan;
 
-        internal int GetNumberOfRetries() =>
+        internal int GetNumberOfRetries() => // TODO: code guideline: use a property { get; } here
                     this.numberOfRetries;
 
-        internal bool ShouldPauseConsumer() =>
+        internal bool ShouldPauseConsumer() => // TODO: code guideline: use a property { get; } here
                     this.pauseConsumer;
 
         internal bool ShouldRetry(KafkaRetryContext kafkaRetryContext) =>
