@@ -48,6 +48,7 @@ jobs:
         include: 'v*'
         exclude: '*-rc*'
         commit-ish: 'HEAD~'
+        skip-unshallow: true
 
     - name: Find last commit message
       id: last-commit-message
