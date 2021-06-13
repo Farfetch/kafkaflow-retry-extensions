@@ -1,4 +1,4 @@
-name: .NET
+name: Build
 
 on:
   push:
@@ -15,21 +15,106 @@ jobs:
 
     steps:
 
+    - name: Find branch name
+      id: extract-branch-name
+      run: |
+        if [ $GITHUB_EVENT_NAME == 'pull_request' ]; then
+          BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})
+        else
+          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+        fi
+
+        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
+        echo "Extracted branch name: $BRANCH_NAME"
+
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
+        ref: ${{ env.BRANCH_NAME }}
       
     - name: Commit Lint
       uses: wagoid/commitlint-github-action@v3.1.4
       with:
         firstParent: false
         failOnWarnings: true
+
+    - name: Force fetch tags
+      run: git fetch --tags --force
+
+    - name: Find Tag
+      id: prev-version-tag
+      uses: jimschubert/query-tag-action@v1
+      with:
+        include: 'v*'
+        exclude: '*-rc*'
+        commit-ish: 'HEAD~'
+
+    - name: Find last commit message
+      id: last-commit-message
+      run: |
+        last_commit_message=$(git log -1 --pretty=%B $BRANCH_NAME --)
+        echo "Last commit message found:"
+        echo " $last_commit_message"
+        echo "LAST_COMMIT_MESSAGE=$last_commit_message" >> $GITHUB_ENV
+
+    - name: Bump next build version options
+      id: semvers
+      uses: "WyriHaximus/github-action-next-semvers@v1.0"
+      with:
+        version: ${{ steps.prev-version-tag.outputs.tag }}
+
+    - name: Set next build version
+      id: build-context
+      env:
+        MAJOR: ${{steps.semvers.outputs.major}}
+        MINOR: ${{steps.semvers.outputs.minor}}
+        PATCH: ${{steps.semvers.outputs.patch}}
+        CURRENT: ${{steps.prev-version-tag.outputs.tag}}
+      run: |
+        echo "::set-output name=current-version::$CURRENT"
+
+        if [[ $LAST_COMMIT_MESSAGE =~ ^major:.*$ ]]; then
+          echo "Bumping to next major version."
+          NEXT_VERSION="v$MAJOR"
+        elif [[ $LAST_COMMIT_MESSAGE =~ ^feat:.*$ ]]; then
+          echo "Bumping to next minor version."
+          NEXT_VERSION="v$MINOR"
+        elif [[ $LAST_COMMIT_MESSAGE =~ ^(fix|ci|refactor):.*$ ]]; then
+          echo "Bumping to next patch version."
+          NEXT_VERSION="v$PATCH"
+        else
+          echo "Skipping version bump."
+          NEXT_VERSION="$CURRENT"
+        fi
+
+        if [[ $BRANCH_NAME = 'master' ]]; then
+            echo '::set-output name=context::release'
+        else
+            NEXT_VERSION="$NEXT_VERSION-beta"
+            echo '::set-output name=context::beta'
+        fi
+
+        echo "::set-output name=next-version::$NEXT_VERSION"
+        echo "Next version is: $NEXT_VERSION"
+        echo "BUILD_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
+
+    - name: Print build version
+      run: echo "Build version will be $BUILD_VERSION"
     
     - name: Get changed files using defaults
       id: changed-files
       uses: tj-actions/changed-files@v6.3
       with:
         fetch-depth: 2
+        
+    - name: Update project version
+      uses: roryprimrose/set-vs-sdk-project-version@v1
+      with:
+        projectFilter: '*.csproj'
+        version: ${{ env.BUILD_VERSION }}
+        assemblyVersion: ${{ env.BUILD_VERSION }}
+        fileVersion: ${{ env.BUILD_VERSION }}
+        informationalVersion: ${{ env.BUILD_VERSION }}
         
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
@@ -74,33 +159,13 @@ jobs:
         
     # - name: SonarScanner analysis end
     #   run: dotnet sonarscanner end /d:sonar.login=8f9e9412fb5ebcf5ea6f9a6b285b288e4645f866
-      
-    - name: Pack KafkaFlow.Retry
-      if: contains(steps.changed-files.outputs.all_modified_files, 'src/KafkaFlow.Retry/')
-      run: dotnet pack src/KafkaFlow.Retry/KafkaFlow.Retry.csproj --no-build -c Release --include-symbols
-      
-    - name: Pack KafkaFlow.Retry.API
-      if: contains(steps.changed-files.outputs.all_modified_files, 'src/KafkaFlow.Retry.API/')
-      run: dotnet pack src/KafkaFlow.Retry.API/KafkaFlow.Retry.API.csproj --no-build -c Release --include-symbols
-      
-    - name: Pack KafkaFlow.Retry.SqlServer
-      if: contains(steps.changed-files.outputs.all_modified_files, 'src/KafkaFlow.Retry.SqlServer/')
-      run: dotnet pack src/KafkaFlow.Retry.SqlServer/KafkaFlow.Retry.SqlServer.csproj --no-build -c Release --include-symbols
-      
-    - name: Pack KafkaFlow.Retry.MongoDb
-      if: contains(steps.changed-files.outputs.all_modified_files, 'src/KafkaFlow.Retry.MongoDb/')
-      run: dotnet pack src/KafkaFlow.Retry.MongoDb/KafkaFlow.Retry.MongoDb.csproj --no-build -c Release --include-symbols
-      
-    - name: Verify Changed files
-      if: contains(github.ref, 'master')
-      uses: tj-actions/verify-changed-files@v6.2
-      id: verify-changed-files
-      with:
-        files: .nupkg
-        
-    # - name: Publish NuGet packages
-    #   if: contains(github.ref, 'master') && steps.verify-changed-files.outputs.files_changed == 'true'
-    #   uses: dansiegel/publish-nuget@v1.01
-    #   with:
-    #     filename: '**/*.nupkg'
-    #     apiKey: ${{ secrets.NUGET_API_KEY }}
+
+    - name: Set build tag
+      uses: anothrNick/github-tag-action@1.26.0
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        DEFAULT_BUMP: none
+        WITH_V: false
+        CUSTOM_TAG: ${{ env.BUILD_VERSION }}
+        TAG_CONTEXT: branch
+        RELEASE_BRANCHES: .*
