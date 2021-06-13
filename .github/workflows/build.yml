@@ -9,29 +9,18 @@ jobs:
   build:
 
     runs-on: ubuntu-latest
-    
+
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     steps:
-    - name: Find branch name
-      id: extract-branch-name
-      run: |
-        if [ $GITHUB_EVENT_NAME == 'pull_request' ]; then
-          BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})
-        else
-          BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
-        fi
-
-        echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        echo "Extracted branch name: $BRANCH_NAME"
 
     - uses: actions/checkout@v2
       with:
-        ref: ${{ env.BRANCH_NAME }}     
+        fetch-depth: 0
       
     - name: Commit Lint
-      uses: wagoid/commitlint-github-action@master
+      uses: wagoid/commitlint-github-action@v3.1.4
       with:
         firstParent: false
         failOnWarnings: true
