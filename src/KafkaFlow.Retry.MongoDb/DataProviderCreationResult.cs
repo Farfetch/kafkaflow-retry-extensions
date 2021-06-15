@@ -4,7 +4,7 @@
 
     public class DataProviderCreationResult
     {
-        internal DataProviderCreationResult(string message, IKafkaRetryDurableQueueRepositoryProvider result, bool success)
+        internal DataProviderCreationResult(string message, IRetryDurableQueueRepositoryProvider result, bool success)
         {
             this.Message = message;
             this.Result = result;
@@ -12,7 +12,7 @@
         }
 
         public string Message { get; }
-        public IKafkaRetryDurableQueueRepositoryProvider Result { get; }
+        public IRetryDurableQueueRepositoryProvider Result { get; }
         public bool Success { get; }
     }
 }

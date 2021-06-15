@@ -18,7 +18,7 @@
     using MongoDB.Driver;
     using MongoDB.Driver.Linq;
 
-    internal sealed class RetryQueueDataProvider : IKafkaRetryDurableQueueRepositoryProvider
+    internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
     {
         private readonly DbContext dbContext;
         private readonly IQueuesAdapter queuesAdapter;
@@ -60,6 +60,26 @@
             }
 
             return new CheckQueueResult(CheckQueueResultStatus.DoesNotExist);
+        }
+
+        public async Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput input)
+        {
+            Guard.Argument(input, nameof(input)).NotNull();
+
+            var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
+
+            var itemsFilter = itemsFilterBuilder.Eq(i => i.RetryQueueId, input.QueueId)
+                            & itemsFilterBuilder.In(i => i.Status, new RetryQueueItemStatus[] { RetryQueueItemStatus.InRetry })
+                            & itemsFilterBuilder.Gt(i => i.Sort, input.Sort);
+
+            var itemsDbo = await this.dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
+
+            if (itemsDbo.Any())
+            {
+                return new QueueNewestItemsResult(QueueNewestItemsResultStatus.HasNewestItems);
+            }
+
+            return new QueueNewestItemsResult(QueueNewestItemsResultStatus.NoNewestItems);
         }
 
         public async Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput input)

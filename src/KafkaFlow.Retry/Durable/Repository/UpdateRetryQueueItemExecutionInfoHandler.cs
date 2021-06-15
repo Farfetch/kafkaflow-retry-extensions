@@ -8,13 +8,13 @@
 
     internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemHandler
     {
-        //private readonly RetryPolicyBuilder<TKey, TResult> policyBuilder;
-        private readonly IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider;
+        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
 
-        public UpdateRetryQueueItemExecutionInfoHandler(
-            IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider)
+        public UpdateRetryQueueItemExecutionInfoHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
         {
-            this.retryQueueDataProvider = retryQueueDataProvider;
+            Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
+
+            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
         }
 
         public bool CanHandle(UpdateItemInput input) => input is UpdateItemExecutionInfoInput;
@@ -27,11 +27,11 @@
 
             try
             {
-                var result = await this.retryQueueDataProvider.UpdateItemExecutionInfoAsync(updateItemExecutionInfoInput).ConfigureAwait(false);
+                var result = await this.retryDurableQueueRepositoryProvider.UpdateItemExecutionInfoAsync(updateItemExecutionInfoInput).ConfigureAwait(false);
 
                 if (result.Status != UpdateItemResultStatus.Updated)
                 {
-                    var kafkaException = new KafkaRetryException(
+                    var kafkaException = new RetryDurableException(
                         new RetryError(RetryErrorCode.DataProvider_UpdateItem),
                         $"{result.Status} while updating the item execution info."
                     );
@@ -40,14 +40,12 @@
                     kafkaException.Data.Add(nameof(updateItemExecutionInfoInput.ItemId), updateItemExecutionInfoInput.ItemId);
                     kafkaException.Data.Add(nameof(updateItemExecutionInfoInput.Status), updateItemExecutionInfoInput.Status);
 
-                    //this.policyBuilder.OnDataProviderException(kafkaException);
-
                     throw kafkaException;
                 }
             }
-            catch (Exception ex) when (!(ex is KafkaRetryException))
+            catch (Exception ex) when (!(ex is RetryDurableException))
             {
-                var kafkaException = new KafkaRetryException(
+                var kafkaException = new RetryDurableException(
                   new RetryError(RetryErrorCode.DataProvider_UpdateItem),
                   $"An error ocurred while trying to update the item execution info.", ex
                 );
@@ -55,8 +53,6 @@
                 kafkaException.Data.Add(nameof(updateItemExecutionInfoInput.QueueId), updateItemExecutionInfoInput.QueueId);
                 kafkaException.Data.Add(nameof(updateItemExecutionInfoInput.ItemId), updateItemExecutionInfoInput.ItemId);
                 kafkaException.Data.Add(nameof(updateItemExecutionInfoInput.Status), updateItemExecutionInfoInput.Status);
-
-                //this.policyBuilder.OnDataProviderException(kafkaException);
 
                 throw kafkaException;
             }

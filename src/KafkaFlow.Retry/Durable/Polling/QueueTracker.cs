@@ -1,43 +1,59 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
     using System.Threading;
-    using System.Threading.Tasks;
     using Dawn;
     using KafkaFlow.Producers;
-    using KafkaFlow.Retry.Durable.Polling.Strategies;
+    using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Adapters;
     using Quartz;
     using Quartz.Impl;
 
     internal class QueueTracker
     {
         private static object internalLock = new object();
-        private readonly KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition;
-        private readonly IMessageProducer messageProducer;
-        private readonly IPollingJobStrategyProvider pollingJobStrategyProvider;
-        private readonly IKafkaRetryDurableQueueRepository queueStorage;
+        private readonly ILogHandler logHandler;
+        private readonly IMessageAdapter messageAdapter;
+        private readonly IMessageHeadersAdapter messageHeadersAdapter;
+        private readonly IMessageProducer retryDurableMessageProducer;
+        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
+        private readonly IUtf8Encoder utf8Encoder;
         private readonly bool waitForJobsToComplete = true;
         private IScheduler scheduler;
 
         public QueueTracker(
-            IKafkaRetryDurableQueueRepository queueStorage,
-            IMessageProducer messageProducer,
-            KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition,
-            IPollingJobStrategyProvider pollingJobStrategyProvider
+            IRetryDurableQueueRepository retryDurableQueueRepository,
+            ILogHandler logHandler,
+            IMessageHeadersAdapter messageHeadersAdapter,
+            IMessageAdapter messageAdapter,
+            IUtf8Encoder utf8Encoder,
+            IMessageProducer retryDurableMessageProducer,
+            RetryDurablePollingDefinition retryDurablePollingDefinition
         )
         {
-            Guard.Argument(CronExpression.IsValidExpression(kafkaRetryDurablePollingDefinition.CronExpression), nameof(kafkaRetryDurablePollingDefinition.CronExpression)).True();
+            Guard.Argument(retryDurableQueueRepository).NotNull();
+            Guard.Argument(logHandler).NotNull();
+            Guard.Argument(messageHeadersAdapter).NotNull();
+            Guard.Argument(messageAdapter).NotNull();
+            Guard.Argument(utf8Encoder).NotNull();
+            Guard.Argument(retryDurableMessageProducer).NotNull();
+            Guard.Argument(retryDurablePollingDefinition).NotNull();
 
-            this.queueStorage = queueStorage;
-            this.messageProducer = messageProducer;
-            this.kafkaRetryDurablePollingDefinition = kafkaRetryDurablePollingDefinition;
-            this.pollingJobStrategyProvider = pollingJobStrategyProvider;
+            this.retryDurableQueueRepository = retryDurableQueueRepository;
+            this.logHandler = logHandler;
+            this.messageHeadersAdapter = messageHeadersAdapter;
+            this.messageAdapter = messageAdapter;
+            this.utf8Encoder = utf8Encoder;
+            this.retryDurableMessageProducer = retryDurableMessageProducer;
+            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
         }
 
         private bool IsSchedulerActive
             => this.scheduler is object && this.scheduler.IsStarted && !this.scheduler.IsShutdown;
 
-        internal async Task ScheduleJobAsync(CancellationToken cancellationToken = default(CancellationToken))
+        internal void ScheduleJob(CancellationToken cancellationToken = default)
         {
             Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
 
@@ -46,44 +62,54 @@
                 this.scheduler = StdSchedulerFactory.GetDefaultScheduler(cancellationToken).GetAwaiter().GetResult();
             }
 
-            await this.scheduler.Start(cancellationToken);
+            this.scheduler
+                .Start(cancellationToken)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
 
             JobDataMap dataMap = new JobDataMap();
-            dataMap.Add(PollingConstants.KafkaRetryDurableQueueRepository, this.queueStorage);
-            dataMap.Add(PollingConstants.KafkaRetryDurableProducer, this.messageProducer);
-            dataMap.Add(PollingConstants.KafkaRetryDurablePollingDefinition, this.kafkaRetryDurablePollingDefinition);
-            dataMap.Add(PollingConstants.KafkaRetryDurablePollingJobStrategy, this.GetPollingJobStrategyProvider(this.kafkaRetryDurablePollingDefinition));
+            dataMap.Add(QueuePollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
+            dataMap.Add(QueuePollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer);
+            dataMap.Add(QueuePollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition);
+            dataMap.Add(QueuePollingJobConstants.LogHandler, this.logHandler);
+            dataMap.Add(QueuePollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter);
+            dataMap.Add(QueuePollingJobConstants.MessageAdapter, this.messageAdapter);
+            dataMap.Add(QueuePollingJobConstants.Utf8Encoder, this.utf8Encoder);
 
             IJobDetail job = JobBuilder
-                .Create<PollingJob>()
+                .Create<QueuePollingJob>()
                 .SetJobData(dataMap)
                 .Build();
 
             ITrigger trigger = TriggerBuilder
                 .Create()
-                .WithIdentity($"pollingJob_{this.kafkaRetryDurablePollingDefinition.Id}", "queueTrackerGroup")
-                .WithCronSchedule(kafkaRetryDurablePollingDefinition.CronExpression)
+                .WithIdentity($"pollingJob_{this.retryDurablePollingDefinition.Id}", "queueTrackerGroup")
+                .WithCronSchedule(retryDurablePollingDefinition.CronExpression)
                 .StartNow()
                 .WithPriority(1)
                 .Build();
 
-            await this.scheduler.ScheduleJob(job, trigger, cancellationToken).ConfigureAwait(false);
+            this.scheduler
+                .ScheduleJob(job, trigger, cancellationToken)
+                .ConfigureAwait(false)
+                .GetAwaiter()
+                .GetResult();
         }
 
-        internal Task ShutdownAsync(CancellationToken cancellationToken)
+        internal void Shutdown(CancellationToken cancellationToken = default)
         {
             lock (internalLock)
             {
                 if (this.IsSchedulerActive)
                 {
-                    return this.scheduler.Shutdown(waitForJobsToComplete, cancellationToken);
+                    this.scheduler
+                        .Shutdown(waitForJobsToComplete, cancellationToken)
+                        .ConfigureAwait(false)
+                        .GetAwaiter()
+                        .GetResult();
                 }
             }
-
-            return Task.CompletedTask;
         }
-
-        private IPollingJobStrategy GetPollingJobStrategyProvider(KafkaRetryDurablePollingDefinition kafkaRetryDurablePollingDefinition)
-           => this.pollingJobStrategyProvider.GetPollingJobStrategy(kafkaRetryDurablePollingDefinition.Strategy);
     }
 }

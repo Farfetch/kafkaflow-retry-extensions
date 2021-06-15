@@ -74,18 +74,20 @@
                                                             cluster,
                                                             configure => configure
                                                                 .WithRetryTopicName("test-topic-retry")
-                                                                .WithTypedHandlers(
+                                                                .WithRetryConsumerBufferSize(4)
+                                                                .WithRetryConsumerWorkersCount(2)
+                                                                .WithRetryConusmerStrategy(RetryConsumerStrategy.LatestConsumption)
+                                                                .WithRetryTypedHandlers(
                                                                     handlers => handlers
                                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                                         .AddHandler<Handler>()
                                                                 )
                                                                 .Enabled(true)
                                                         )
-                                                        .WithPollingConfiguration(
+                                                        .WithQueuePollingJobConfiguration(
                                                             configure => configure
-                                                                .WithStrategy(PollingStrategy.LastConsumed)
                                                                 .WithId("custom_search_key")
-                                                                .WithCronExpression("0/10 * * ? * *")
+                                                                .WithCronExpression("0 0/1 * 1/1 * ? *")
                                                                 .WithExpirationIntervalFactor(1)
                                                                 .WithFetchSize(10)
                                                                 .Enabled(true)

@@ -11,47 +11,47 @@
     {
         public static IConsumerMiddlewareConfigurationBuilder Retry(
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<KafkaRetryDefinitionBuilder> configure)
+               Action<RetryDefinitionBuilder> configure)
         {
-            var kafkaRetryDefinitionBuilder = new KafkaRetryDefinitionBuilder();
+            var retryDefinitionBuilder = new RetryDefinitionBuilder();
 
-            configure(kafkaRetryDefinitionBuilder);
+            configure(retryDefinitionBuilder);
 
             return middlewareBuilder.Add(
-                resolver => new KafkaRetryMiddleware(
+                resolver => new RetryMiddleware(
                     resolver.Resolve<ILogHandler>(),
-                    kafkaRetryDefinitionBuilder.Build()
+                    retryDefinitionBuilder.Build()
                 ));
         }
 
         public static IConsumerMiddlewareConfigurationBuilder RetryDurable(
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<KafkaRetryDurableDefinitionBuilder> configure)
+               Action<RetryDurableDefinitionBuilder> configure)
         {
-            var kafkaRetryDurableDefinitionBuilder = new KafkaRetryDurableDefinitionBuilder(middlewareBuilder.DependencyConfigurator);
-            configure(kafkaRetryDurableDefinitionBuilder);
-            var kafkaRetryDurableDefinitionBuild = kafkaRetryDurableDefinitionBuilder.Build();
+            var retryDurableDefinitionBuilder = new RetryDurableDefinitionBuilder(middlewareBuilder.DependencyConfigurator);
+            configure(retryDurableDefinitionBuilder);
+            var retryDurableDefinitionBuild = retryDurableDefinitionBuilder.Build();
 
             return middlewareBuilder.Add(
-                resolver => new KafkaRetryDurableMiddleware(
+                resolver => new RetryDurableMiddleware(
                     resolver.Resolve<ILogHandler>(),
-                    resolver.Resolve<IKafkaRetryDurableQueueRepository>(),
-                    kafkaRetryDurableDefinitionBuild
+                    resolver.Resolve<IRetryDurableQueueRepository>(),
+                    retryDurableDefinitionBuild
                 ));
         }
 
         public static IConsumerMiddlewareConfigurationBuilder RetryForever(
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<KafkaRetryForeverDefinitionBuilder> configure)
+               Action<RetryForeverDefinitionBuilder> configure)
         {
-            var kafkaRetryForeverDefinitionBuilder = new KafkaRetryForeverDefinitionBuilder();
+            var retryForeverDefinitionBuilder = new RetryForeverDefinitionBuilder();
 
-            configure(kafkaRetryForeverDefinitionBuilder);
+            configure(retryForeverDefinitionBuilder);
 
             return middlewareBuilder.Add(
-                resolver => new KafkaRetryForeverMiddleware(
+                resolver => new RetryForeverMiddleware(
                     resolver.Resolve<ILogHandler>(),
-                    kafkaRetryForeverDefinitionBuilder.Build()
+                    retryForeverDefinitionBuilder.Build()
                 ));
         }
     }

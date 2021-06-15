@@ -4,6 +4,6 @@
     {
         None = 0,
         NoPendingItems = 1,
-        HasPendingItems = 2,
+        HasPendingItems = 2
     }
 }

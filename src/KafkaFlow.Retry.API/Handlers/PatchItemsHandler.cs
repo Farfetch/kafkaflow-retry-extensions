@@ -11,16 +11,16 @@
 
     internal class PatchItemsHandler : RetryRequestHandlerBase
     {
-        private readonly IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableQueueRepositoryProvider;
+        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
         private readonly IUpdateItemsInputAdapter updateItemsInputAdapter;
         private readonly IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter;
 
         public PatchItemsHandler(
-            IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableQueueRepositoryProvider,
+            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IUpdateItemsInputAdapter updateItemsInputAdapter,
             IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter)
         {
-            this.kafkaRetryDurableQueueRepositoryProvider = kafkaRetryDurableQueueRepositoryProvider;
+            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateItemsInputAdapter = updateItemsInputAdapter;
             this.updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
         }
@@ -54,7 +54,7 @@
             {
                 var input = this.updateItemsInputAdapter.Adapt(requestDto);
 
-                var result = await this.kafkaRetryDurableQueueRepositoryProvider.UpdateItemsAsync(input).ConfigureAwait(false);
+                var result = await this.retryDurableQueueRepositoryProvider.UpdateItemsAsync(input).ConfigureAwait(false);
 
                 var responseDto = this.updateItemsResponseDtoAdapter.Adapt(result);
 

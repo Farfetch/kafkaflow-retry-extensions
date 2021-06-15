@@ -8,13 +8,13 @@
 
     internal class UpdateRetryQueueItemStatusHandler : IUpdateRetryQueueItemHandler
     {
-        // private readonly RetryPolicyBuilder<TKey, TResult> policyBuilder;
-        private readonly IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider;
+        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
 
-        public UpdateRetryQueueItemStatusHandler(IKafkaRetryDurableQueueRepositoryProvider retryQueueDataProvider)
+        public UpdateRetryQueueItemStatusHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
         {
-            this.retryQueueDataProvider = retryQueueDataProvider;
-            //this.policyBuilder = policyBuilder;
+            Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
+
+            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
         }
 
         public bool CanHandle(UpdateItemInput input) => input is UpdateItemStatusInput;
@@ -27,15 +27,13 @@
 
             try
             {
-                await this.retryQueueDataProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
+                await this.retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
-                var kafkaException = new KafkaRetryException(
+                var kafkaException = new RetryDurableException(
                   new RetryError(RetryErrorCode.DataProvider_UpdateItem),
                   $"An error ocurred while updating the retry queue item status.", ex);
-
-                //this.policyBuilder.OnDataProviderException(kafkaException);
 
                 throw kafkaException;
             }

@@ -12,21 +12,21 @@
         private readonly IGetItemsInputAdapter getItemsInputAdapter;
         private readonly IGetItemsRequestDtoReader getItemsRequestDtoReader;
         private readonly IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter;
-        private readonly IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableQueueRepositoryProvider;
+        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
 
         public GetItemsHandler(
-            IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableQueueRepositoryProvider,
+            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IGetItemsRequestDtoReader getItemsRequestDtoReader,
             IGetItemsInputAdapter getItemsInputAdapter,
             IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter)
         {
-            Guard.Argument(kafkaRetryDurableQueueRepositoryProvider, nameof(kafkaRetryDurableQueueRepositoryProvider)).NotNull();
+            Guard.Argument(retryDurableQueueRepositoryProvider, nameof(retryDurableQueueRepositoryProvider)).NotNull();
             Guard.Argument(getItemsRequestDtoReader, nameof(getItemsRequestDtoReader)).NotNull();
             Guard.Argument(getItemsInputAdapter, nameof(getItemsInputAdapter)).NotNull();
             Guard.Argument(getItemsResponseDtoAdapter, nameof(getItemsResponseDtoAdapter)).NotNull();
 
             this.getItemsInputAdapter = getItemsInputAdapter;
-            this.kafkaRetryDurableQueueRepositoryProvider = kafkaRetryDurableQueueRepositoryProvider;
+            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.getItemsRequestDtoReader = getItemsRequestDtoReader;
             this.getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
         }
@@ -43,7 +43,7 @@
 
                 var input = this.getItemsInputAdapter.Adapt(requestDto);
 
-                var result = await this.kafkaRetryDurableQueueRepositoryProvider.GetQueuesAsync(input).ConfigureAwait(false);
+                var result = await this.retryDurableQueueRepositoryProvider.GetQueuesAsync(input).ConfigureAwait(false);
 
                 var responseDto = this.getItemsResponseDtoAdapter.Adapt(result);
 

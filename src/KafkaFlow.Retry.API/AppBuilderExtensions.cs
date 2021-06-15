@@ -13,54 +13,37 @@
             this IApplicationBuilder appBuilder
         )
         {
-            var kafkaRetryDurableQueueRepositoryProvider =
+            var retryDurableQueueRepositoryProvider =
                 appBuilder
                     .ApplicationServices
-                    .GetService(typeof(IKafkaRetryDurableQueueRepositoryProvider)) as IKafkaRetryDurableQueueRepositoryProvider;
+                    .GetService(typeof(IRetryDurableQueueRepositoryProvider)) as IRetryDurableQueueRepositoryProvider;
 
-            appBuilder.UseMiddleware<RetryMiddleware>(
-                new GetItemsHandler(
-                    kafkaRetryDurableQueueRepositoryProvider,
-                    new GetItemsRequestDtoReader(),
-                    new GetItemsInputAdapter(),
-                    new GetItemsResponseDtoAdapter()));
-
-            appBuilder.UseMiddleware<RetryMiddleware>(
-                new PatchItemsHandler(
-                    kafkaRetryDurableQueueRepositoryProvider,
-                    new UpdateItemsInputAdapter(),
-                    new UpdateItemsResponseDtoAdapter()));
-
-            appBuilder.UseMiddleware<RetryMiddleware>(
-                new PatchQueuesHandler(
-                    kafkaRetryDurableQueueRepositoryProvider,
-                    new UpdateQueuesInputAdapter(),
-                    new UpdateQueuesResponseDtoAdapter()));
+            appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider);
 
             return appBuilder;
         }
 
         public static IApplicationBuilder UseRetryEndpoints(
                     this IApplicationBuilder appBuilder,
-            IKafkaRetryDurableQueueRepositoryProvider kafkaRetryDurableQueueRepositoryProvider
+            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider
         )
         {
             appBuilder.UseMiddleware<RetryMiddleware>(
                 new GetItemsHandler(
-                    kafkaRetryDurableQueueRepositoryProvider,
+                    retryDurableQueueRepositoryProvider,
                     new GetItemsRequestDtoReader(),
                     new GetItemsInputAdapter(),
                     new GetItemsResponseDtoAdapter()));
 
             appBuilder.UseMiddleware<RetryMiddleware>(
                 new PatchItemsHandler(
-                    kafkaRetryDurableQueueRepositoryProvider,
+                    retryDurableQueueRepositoryProvider,
                     new UpdateItemsInputAdapter(),
                     new UpdateItemsResponseDtoAdapter()));
 
             appBuilder.UseMiddleware<RetryMiddleware>(
                 new PatchQueuesHandler(
-                    kafkaRetryDurableQueueRepositoryProvider,
+                    retryDurableQueueRepositoryProvider,
                     new UpdateQueuesInputAdapter(),
                     new UpdateQueuesResponseDtoAdapter()));
 

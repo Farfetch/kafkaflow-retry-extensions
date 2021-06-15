@@ -182,6 +182,30 @@
             }
         }
 
+        public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+        {
+            Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
+            Guard.Argument(sort, nameof(sort)).NotNegative();
+
+            using (var command = dbConnection.CreateCommand())
+            {
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = $@"SELECT *
+                                         FROM [RetryQueueItems]
+                                         WITH (NOLOCK)
+                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
+                                         AND IdItemStatus IN (@IdItemStatusInRetry)
+                                         AND Sort > @Sort
+                                         ORDER BY Sort ASC";
+
+                command.Parameters.AddWithValue("IdDomainRetryQueue", queueIdDomain);
+                command.Parameters.AddWithValue("IdItemStatusInRetry", (byte)RetryQueueItemStatus.InRetry);
+                command.Parameters.AddWithValue("Sort", sort);
+
+                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+            }
+        }
+
         public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
         {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();

@@ -15,7 +15,7 @@
     using KafkaFlow.Retry.SqlServer.Readers;
     using KafkaFlow.Retry.SqlServer.Repositories;
 
-    internal sealed class RetryQueueDataProvider : IKafkaRetryDurableQueueRepositoryProvider
+    internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
     {
         private readonly IConnectionProvider connectionProvider;
         private readonly IRetryQueueDboFactory retryQueueDboFactory;
@@ -68,6 +68,23 @@
                     exists ?
                         CheckQueueResultStatus.Exists :
                         CheckQueueResultStatus.DoesNotExist);
+            }
+        }
+
+        public async Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput input)
+        {
+            Guard.Argument(input, nameof(input)).NotNull();
+
+            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            {
+                var itemsDbo = await this.retryQueueItemRepository.GetNewestItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
+
+                if (itemsDbo.Any())
+                {
+                    return new QueueNewestItemsResult(QueueNewestItemsResultStatus.HasNewestItems);
+                }
+
+                return new QueueNewestItemsResult(QueueNewestItemsResultStatus.NoNewestItems);
             }
         }
 
