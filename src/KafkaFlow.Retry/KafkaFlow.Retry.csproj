@@ -2,12 +2,29 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>FARFETCH</Authors>
+    <Version></Version>
+    <PackageVersion></PackageVersion>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+    <InformationalVersion></InformationalVersion>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>kafka flow kafkaflow extension extensions retry</PackageTags>
+    <Description>A extension that adds retry capabilities to topic message consumers using KafkaFlow.</Description>
+    <Copyright>Copyright (c) FARFETCH 2021</Copyright>
   </PropertyGroup>
 
   <ItemGroup>
     <Compile Remove="Durable\Quartz\**" />
     <EmbeddedResource Remove="Durable\Quartz\**" />
     <None Remove="Durable\Quartz\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Link="LICENSE.md" />
   </ItemGroup>
 
   <ItemGroup>
