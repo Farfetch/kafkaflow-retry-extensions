@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using System;
-    using System.Text;
     using System.Threading.Tasks;
     using KafkaFlow;
     using KafkaFlow.Retry.Durable.Definitions;
@@ -30,7 +29,6 @@
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
 
-            var key = Encoding.UTF8.GetString((byte[])context.Message.Key);
             try
             {
                 var resultAddIfQueueExistsAsync = await this

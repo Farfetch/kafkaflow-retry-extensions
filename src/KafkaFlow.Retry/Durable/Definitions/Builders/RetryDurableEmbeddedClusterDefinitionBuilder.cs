@@ -3,8 +3,6 @@
     using System;
     using System.Linq;
     using Dawn;
-    using KafkaFlow.Compressor;
-    using KafkaFlow.Compressor.Gzip;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Polling;
@@ -85,10 +83,10 @@
                     RetryDurableConstants.EmbeddedProducerName,
                     producer => producer
                         .DefaultTopic(this.retryTopicName)
+                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSerializer<NewtonsoftJsonSerializer>()
-                                .AddCompressor<GzipMessageCompressor>()
                         )
                         .WithAcks(Acks.All) // TODO: this settings should be reviewed
                 )
@@ -120,7 +118,6 @@
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddCompressor<GzipMessageCompressor>()
                                 .AddSerializer<NewtonsoftJsonSerializer>() // I think we should use a better serializer for binary (key;mesage), pls check but I think protobuff is a better option
                                 .RetryConsumerStrategy(this.retryConusmerStrategy)
                                 .Add<RetryDurableConsumerValidationMiddleware>()

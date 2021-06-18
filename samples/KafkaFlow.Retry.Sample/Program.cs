@@ -7,8 +7,6 @@
     using KafkaFlow;
     using KafkaFlow.Admin;
     using KafkaFlow.Admin.Messages;
-    using KafkaFlow.Compressor;
-    using KafkaFlow.Compressor.Gzip;
     using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry;
@@ -47,10 +45,10 @@
                                     producerName,
                                     producer => producer
                                         .DefaultTopic("test-topic")
+                                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                                         .AddMiddlewares(
                                             middlewares => middlewares
                                                 .AddSerializer<ProtobufNetSerializer>()
-                                                .AddCompressor<GzipMessageCompressor>()
                                         )
                                         .WithAcks(Acks.All)
                                 )
@@ -64,7 +62,6 @@
                                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                                         .AddMiddlewares(
                                             middlewares => middlewares
-                                                .AddCompressor<GzipMessageCompressor>()
                                                 .AddSerializer<ProtobufNetSerializer>()
                                                 .RetryDurable(
                                                     configure => configure

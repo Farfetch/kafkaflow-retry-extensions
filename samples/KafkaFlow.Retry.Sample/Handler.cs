@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Sample
 {
     using System;
-    using System.Text;
     using System.Threading.Tasks;
     using KafkaFlow;
     using KafkaFlow.TypedHandler;
@@ -10,7 +9,6 @@
     {
         public Task Handle(IMessageContext context, TestMessage message)
         {
-            var key = Encoding.UTF8.GetString((byte[])context.Message.Key);
             throw new NonBlockingException("NonBlockingException");
 
             Console.WriteLine(
