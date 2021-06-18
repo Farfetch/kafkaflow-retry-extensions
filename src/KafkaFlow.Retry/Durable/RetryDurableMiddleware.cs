@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using System;
+    using System.Text;
     using System.Threading.Tasks;
     using KafkaFlow;
     using KafkaFlow.Retry.Durable.Definitions;
@@ -28,6 +29,8 @@
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
+
+            var key = Encoding.UTF8.GetString((byte[])context.Message.Key);
             try
             {
                 var resultAddIfQueueExistsAsync = await this
@@ -42,7 +45,7 @@
             }
             catch (Exception)
             {
-                context.Consumer.ShouldStoreOffset = false;
+                context.ConsumerContext.ShouldStoreOffset = false;
                 return;
             }
 
@@ -60,17 +63,17 @@
                             {
                                 if (!this.controlWorkerId.HasValue)
                                 {
-                                    this.controlWorkerId = context.WorkerId;
+                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
 
-                                    context.Consumer.Pause();
+                                    context.ConsumerContext.Pause();
 
                                     this.logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
-                                            ConsumerGroup = context.GroupId,
-                                            ConsumerName = context.Consumer.Name,
-                                            Worker = context.WorkerId
+                                            ConsumerGroup = context.ConsumerContext.GroupId,
+                                            ConsumerName = context.ConsumerContext.ConsumerName,
+                                            Worker = context.ConsumerContext.WorkerId
                                         });
                                 }
                             }
@@ -83,8 +86,8 @@
                             {
                                 AttemptNumber = attemptNumber,
                                 WaitMilliseconds = waitTime.TotalMilliseconds,
-                                PartitionNumber = context.Partition,
-                                Worker = context.WorkerId,
+                                PartitionNumber = context.ConsumerContext.Partition,
+                                Worker = context.ConsumerContext.WorkerId,
                                 //Headers = context.HeadersAsJson(),
                                 //Message = context.Message.ToJson(),
                                 ExceptionType = exception.GetType().FullName,
@@ -98,14 +101,14 @@
                 await policy
                     .ExecuteAsync(
                         _ => next(context),
-                        context.Consumer.WorkerStopped
+                        context.ConsumerContext.WorkerStopped
                     ).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                if (context.Consumer.WorkerStopped.IsCancellationRequested)
+                if (context.ConsumerContext.WorkerStopped.IsCancellationRequested)
                 {
-                    context.Consumer.ShouldStoreOffset = false;
+                    context.ConsumerContext.ShouldStoreOffset = false;
                 }
             }
             catch (Exception exception)
@@ -120,7 +123,7 @@
                     if (resultSaveToQueue.Status != SaveToQueueResultStatus.Created
                      && resultSaveToQueue.Status != SaveToQueueResultStatus.Added)
                     {
-                        context.Consumer.ShouldStoreOffset = false;
+                        context.ConsumerContext.ShouldStoreOffset = false;
                     }
                 }
                 else
@@ -130,23 +133,23 @@
             }
             finally
             {
-                if (this.controlWorkerId == context.WorkerId)
+                if (this.controlWorkerId == context.ConsumerContext.WorkerId)
                 {
                     lock (this.syncPauseAndResume)
                     {
-                        if (this.controlWorkerId == context.WorkerId)
+                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
                         {
                             this.controlWorkerId = null;
 
-                            context.Consumer.Resume();
+                            context.ConsumerContext.Resume();
 
                             this.logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {
-                                    ConsumerGroup = context.GroupId,
-                                    ConsumerName = context.Consumer.Name,
-                                    Worker = context.WorkerId
+                                    ConsumerGroup = context.ConsumerContext.GroupId,
+                                    ConsumerName = context.ConsumerContext.ConsumerName,
+                                    Worker = context.ConsumerContext.WorkerId
                                 });
                         }
                     }

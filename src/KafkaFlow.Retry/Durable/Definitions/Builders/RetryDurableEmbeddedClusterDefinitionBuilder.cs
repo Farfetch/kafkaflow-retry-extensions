@@ -9,7 +9,6 @@
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Serializer;
-    using KafkaFlow.Serializer.NewtonsoftJson;
     using KafkaFlow.TypedHandler;
 
     public class RetryDurableEmbeddedClusterDefinitionBuilder
@@ -88,7 +87,7 @@
                         .DefaultTopic(this.retryTopicName)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSerializer<NewtonsoftJsonMessageSerializer>()
+                                .AddSerializer<NewtonsoftJsonSerializer>()
                                 .AddCompressor<GzipMessageCompressor>()
                         )
                         .WithAcks(Acks.All) // TODO: this settings should be reviewed
@@ -122,7 +121,7 @@
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddCompressor<GzipMessageCompressor>()
-                                .AddSerializer<NewtonsoftJsonMessageSerializer>() // I think we should use a better serializer for binary (key;mesage), pls check but I think protobuff is a better option
+                                .AddSerializer<NewtonsoftJsonSerializer>() // I think we should use a better serializer for binary (key;mesage), pls check but I think protobuff is a better option
                                 .RetryConsumerStrategy(this.retryConusmerStrategy)
                                 .Add<RetryDurableConsumerValidationMiddleware>()
                                 .AddTypedHandlers(this.retryTypeHandlers)

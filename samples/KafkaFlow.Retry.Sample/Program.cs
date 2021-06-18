@@ -14,7 +14,6 @@
     using KafkaFlow.Retry;
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
-    using KafkaFlow.Serializer.ProtoBuf;
     using KafkaFlow.TypedHandler;
 
     internal static class Program
@@ -50,7 +49,7 @@
                                         .DefaultTopic("test-topic")
                                         .AddMiddlewares(
                                             middlewares => middlewares
-                                                .AddSerializer<ProtobufMessageSerializer>()
+                                                .AddSerializer<ProtobufNetSerializer>()
                                                 .AddCompressor<GzipMessageCompressor>()
                                         )
                                         .WithAcks(Acks.All)
@@ -66,7 +65,7 @@
                                         .AddMiddlewares(
                                             middlewares => middlewares
                                                 .AddCompressor<GzipMessageCompressor>()
-                                                .AddSerializer<ProtobufMessageSerializer>()
+                                                .AddSerializer<ProtobufNetSerializer>()
                                                 .RetryDurable(
                                                     configure => configure
                                                         .Handle<NonBlockingException>()

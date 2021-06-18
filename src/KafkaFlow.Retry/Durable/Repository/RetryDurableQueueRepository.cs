@@ -67,20 +67,23 @@
                         $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
                     );
 
+                    var asss = context.Message;
+                    var partition = asss.Key;
+
                     return await this.AddIfQueueExistsAsync(
                         context,
                         new SaveToQueueInput(
                             new RetryQueueItemMessage(
-                                context.Topic,
-                                context.PartitionKey,
+                                context.ConsumerContext.Topic,
+                                (byte[])partition,
                                 this.messageAdapter.AdaptFromKafkaFlowMessage(context.Message),
-                                context.Partition.Value,
-                                context.Offset.Value,
-                                context.Consumer.MessageTimestamp,
+                                context.ConsumerContext.Partition,
+                                context.ConsumerContext.Offset,
+                                context.ConsumerContext.MessageTimestamp,
                                 this.messageHeadersAdapter.AdaptFromKafkaFlowMessageHeaders(context.Headers)
                             ),
                             this.retryDurablePollingDefinition.Id,
-                            this.utf8Encoder.Decode(context.PartitionKey), // TODO: this worries me because this convertion can cause data loss.
+                            this.utf8Encoder.Decode((byte[])partition), // TODO: this worries me because this convertion can cause data loss.
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -179,16 +182,16 @@
                         return await this.SaveToQueueAsync(context,
                            new SaveToQueueInput(
                                 new RetryQueueItemMessage(
-                                    context.Topic,
-                                    context.PartitionKey,
+                                    context.ConsumerContext.Topic,
+                                    (byte[])context.Message.Key,
                                     this.messageAdapter.AdaptFromKafkaFlowMessage(context.Message),
-                                    context.Partition.Value,
-                                    context.Offset.Value,
-                                    context.Consumer.MessageTimestamp,
+                                    context.ConsumerContext.Partition,
+                                    context.ConsumerContext.Offset,
+                                    context.ConsumerContext.MessageTimestamp,
                                     this.messageHeadersAdapter.AdaptFromKafkaFlowMessageHeaders(context.Headers)
                                 ),
                             this.retryDurablePollingDefinition.Id,
-                            this.utf8Encoder.Decode(context.PartitionKey), // TODO: this worries me because this convertion can cause data loss.
+                            this.utf8Encoder.Decode((byte[])context.Message.Key), // TODO: this worries me because this convertion can cause data loss.
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
