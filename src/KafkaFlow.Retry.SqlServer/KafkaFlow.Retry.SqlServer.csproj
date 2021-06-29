@@ -2,7 +2,24 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>FARFETCH</Authors>
+    <Version></Version>
+    <PackageVersion></PackageVersion>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+    <InformationalVersion></InformationalVersion>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>kafka flow kafkaflow extension extensions retry sql sqlserver</PackageTags>
+    <Description>A durable persistence adapter for SQL Server for KafkaFlow.Retry extension.</Description>
+    <Copyright>Copyright (c) FARFETCH 2021</Copyright>
   </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Link="LICENSE.md" />
+  </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />

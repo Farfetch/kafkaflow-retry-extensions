@@ -1,0 +1,35 @@
+name: Publish
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.x
+      
+    - name: Pack KafkaFlow.Retry
+      run: dotnet pack src/KafkaFlow.Retry/KafkaFlow.Retry.csproj --no-build -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      
+    - name: Pack KafkaFlow.Retry.API
+      run: dotnet pack src/KafkaFlow.Retry.API/KafkaFlow.Retry.API.csproj --no-build -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      
+    - name: Pack KafkaFlow.Retry.SqlServer
+      run: dotnet pack src/KafkaFlow.Retry.SqlServer/KafkaFlow.Retry.SqlServer.csproj --no-build -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      
+    - name: Pack KafkaFlow.Retry.MongoDb
+      run: dotnet pack src/KafkaFlow.Retry.MongoDb/KafkaFlow.Retry.MongoDb.csproj --no-build -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+
+    - name: Publish
+      run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+
+    - name: Print Version
+      run: echo ${{ github.event.release.tag_name }}
