@@ -23,8 +23,9 @@
 
         public byte[] AdaptFromKafkaFlowMessage(object message)
         {
+            //TODO: Decorator Pattern
             var messageSerialized = this.newtonsoftJsonSerializer.SerializeObject(message);
-            var messageEncoded = this.utf8Encoder.Encode(messageSerialized);
+            var messageEncoded = this.utf8Encoder.Encode(messageSerialized); //TODO: To be removed
             var messageCompressed = this.gzipCompressor.Compress(messageEncoded);
 
             return messageCompressed;
@@ -33,9 +34,9 @@
         public object AdaptToKafkaFlowMessage(byte[] message, Type type)
         {
             var messageDecompressed = this.gzipCompressor.Decompress(message);
-            var messageDencoded = this.utf8Encoder.Decode(messageDecompressed);
+            var messageDencoded = this.utf8Encoder.Decode(messageDecompressed); //TODO: To be removed
             var messageDeserialized = this.newtonsoftJsonSerializer.DeserializeObject(messageDencoded, type);
-
+           
             return messageDeserialized;
         }
     }

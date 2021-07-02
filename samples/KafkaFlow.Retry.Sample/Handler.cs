@@ -13,10 +13,10 @@
 
             Console.WriteLine(
                 "Partition: {0} | Offset: {1} | Message: {2} | Topic: {3}",
-                context.Partition,
-                context.Offset,
+                context.ConsumerContext.Partition,
+                context.ConsumerContext.Offset,
                 message.Text,
-                context.Topic);
+                context.ConsumerContext.Topic);
 
             return Task.CompletedTask;
         }

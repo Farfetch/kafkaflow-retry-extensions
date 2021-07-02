@@ -35,17 +35,17 @@
                             {
                                 if (!this.controlWorkerId.HasValue)
                                 {
-                                    this.controlWorkerId = context.WorkerId;
+                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
 
-                                    context.Consumer.Pause();
+                                    context.ConsumerContext.Pause();
 
                                     this.logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
-                                            ConsumerGroup = context.GroupId,
-                                            ConsumerName = context.Consumer.Name,
-                                            Worker = context.WorkerId
+                                            ConsumerGroup = context.ConsumerContext.GroupId,
+                                            ConsumerName = context.ConsumerContext.ConsumerName,
+                                            Worker = context.ConsumerContext.WorkerId
                                         });
                                 }
                             }
@@ -58,8 +58,8 @@
                             {
                                 AttemptNumber = attemptNumber,
                                 WaitMilliseconds = waitTime.TotalMilliseconds,
-                                PartitionNumber = context.Partition,
-                                Worker = context.WorkerId,
+                                PartitionNumber = context.ConsumerContext.Partition,
+                                Worker = context.ConsumerContext.WorkerId,
                                 //Headers = context.HeadersAsJson(),
                                 //Message = context.Message.ToJson(),
                                 ExceptionType = exception.GetType().FullName,
@@ -73,35 +73,35 @@
                 await policy
                     .ExecuteAsync(
                         _ => next(context),
-                        context.Consumer.WorkerStopped
+                        context.ConsumerContext.WorkerStopped
                     ).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                if (context.Consumer.WorkerStopped.IsCancellationRequested)
+                if (context.ConsumerContext.WorkerStopped.IsCancellationRequested)
                 {
-                    context.Consumer.ShouldStoreOffset = false;
+                    context.ConsumerContext.ShouldStoreOffset = false;
                 }
             }
             finally
             {
-                if (this.controlWorkerId == context.WorkerId) // TODO: understand why this is necessary and the lock below.
+                if (this.controlWorkerId == context.ConsumerContext.WorkerId) // TODO: understand why this is necessary and the lock below.
                 {
                     lock (this.syncPauseAndResume)
                     {
-                        if (this.controlWorkerId == context.WorkerId)
+                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
                         {
                             this.controlWorkerId = null;
 
-                            context.Consumer.Resume();
+                            context.ConsumerContext.Resume();
 
                             this.logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {
-                                    ConsumerGroup = context.GroupId,
-                                    ConsumerName = context.Consumer.Name,
-                                    Worker = context.WorkerId
+                                    ConsumerGroup = context.ConsumerContext.GroupId,
+                                    ConsumerName = context.ConsumerContext.ConsumerName,
+                                    Worker = context.ConsumerContext.WorkerId
                                 });
                         }
                     }
