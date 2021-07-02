@@ -5,7 +5,6 @@
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
-    using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
@@ -174,6 +173,7 @@
         {
             var messageHeaders = messageHeadersAdapter.AdaptToKafkaFlowMessageHeaders(item.Message.Headers);
 
+            //TODO: Should we have a naming pattern
             messageHeaders.Add(RetryDurableConstants.AttemptsCount, utf8Encoder.Encode(item.AttemptsCount.ToString()));
             messageHeaders.Add(RetryDurableConstants.QueueId, utf8Encoder.Encode(queueId.ToString()));
             messageHeaders.Add(RetryDurableConstants.ItemId, utf8Encoder.Encode(item.Id.ToString()));

@@ -66,16 +66,14 @@
                         RetryDurableConstants.MessageType,
                         $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
                     );
-
-                    var asss = context.Message;
-                    var partition = asss.Key;
+                    //TODO: Should be passed by the client.
 
                     return await this.AddIfQueueExistsAsync(
                         context,
                         new SaveToQueueInput(
                             new RetryQueueItemMessage(
                                 context.ConsumerContext.Topic,
-                                (byte[])partition,
+                                (byte[])context.Message.Key,
                                 this.messageAdapter.AdaptFromKafkaFlowMessage(context.Message),
                                 context.ConsumerContext.Partition,
                                 context.ConsumerContext.Offset,
@@ -83,7 +81,7 @@
                                 this.messageHeadersAdapter.AdaptFromKafkaFlowMessageHeaders(context.Headers)
                             ),
                             this.retryDurablePollingDefinition.Id,
-                            this.utf8Encoder.Decode((byte[])partition), // TODO: this worries me because this convertion can cause data loss.
+                            this.utf8Encoder.Decode((byte[])context.Message.Key), // TODO: this worries me because this convertion can cause data loss.
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
