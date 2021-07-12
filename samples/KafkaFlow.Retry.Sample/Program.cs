@@ -66,13 +66,14 @@
                                                 .RetryDurable(
                                                     configure => configure
                                                         .Handle<NonBlockingException>()
+                                                        .WithMessageType(typeof(TestMessage))
                                                         .WithEmbeddedRetryCluster(
                                                             cluster,
                                                             configure => configure
                                                                 .WithRetryTopicName("test-topic-retry")
                                                                 .WithRetryConsumerBufferSize(4)
                                                                 .WithRetryConsumerWorkersCount(2)
-                                                                .WithRetryConusmerStrategy(RetryConsumerStrategy.LatestConsumption)
+                                                                .WithRetryConusmerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
                                                                 .WithRetryTypedHandlers(
                                                                     handlers => handlers
                                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
@@ -104,7 +105,7 @@
                                                                 .ShouldPauseConsumer(false)
                                                         )
                                                 )
-                                                .Retry(
+                                                .RetrySimple(
                                                     (configure) => configure
                                                         .Handle<CustomException>()
                                                         .TryTimes(2)
@@ -219,10 +220,10 @@
                         if (int.TryParse(workersInput, out var workers))
                         {
                             await adminProducer.ProduceAsync(
-                                new ChangeConsumerWorkerCount
+                                new ChangeConsumerWorkersCount
                                 {
                                     ConsumerName = consumerName,
-                                    WorkerCount = workers
+                                    WorkersCount = workers
                                 });
                         }
 

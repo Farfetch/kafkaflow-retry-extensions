@@ -14,6 +14,7 @@
         private const int DefaultPartitionElection = 0;
         private readonly IClusterConfigurationBuilder cluster;
         private bool enabled;
+        private Type messageType;
         private int retryConsumerBufferSize;
         private int retryConsumerWorkersCount;
         private RetryConsumerStrategy retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
@@ -77,6 +78,7 @@
             Guard.Argument(this.retryConsumerWorkersCount)
                 .NotZero("A buffer size great than zero should be defined")
                 .NotNegative(x => "A buffer size great than zero should be defined");
+            Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
             this.cluster
                 .AddProducer(
@@ -84,10 +86,6 @@
                     producer => producer
                         .DefaultTopic(this.retryTopicName)
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                        .AddMiddlewares(
-                            middlewares => middlewares
-                                .AddSerializer<NewtonsoftJsonSerializer>()
-                        )
                         .WithAcks(Acks.All) // TODO: this settings should be reviewed
                 )
                 .AddConsumer(
@@ -118,12 +116,18 @@
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSerializer<NewtonsoftJsonSerializer>() // I think we should use a better serializer for binary (key;mesage), pls check but I think protobuff is a better option
+                                .AddSingleTypeSerializer<ProtobufNetSerializer>(this.messageType)
                                 .RetryConsumerStrategy(this.retryConusmerStrategy)
                                 .Add<RetryDurableConsumerValidationMiddleware>()
                                 .AddTypedHandlers(this.retryTypeHandlers)
                         )
                 );
+        }
+
+        internal RetryDurableEmbeddedClusterDefinitionBuilder WithMessageType(Type messageType)
+        {
+            this.messageType = messageType;
+            return this;
         }
     }
 }

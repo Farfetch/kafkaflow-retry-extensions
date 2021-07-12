@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
     using Dawn;
-    using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
@@ -13,7 +12,7 @@
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
         private readonly IMessageProducer retryDurableMessageProducer;
-        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition;
         private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly IUtf8Encoder utf8Encoder;
 
@@ -24,7 +23,7 @@
             IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder,
             IMessageProducer retryDurableMessageProducer,
-            RetryDurablePollingDefinition retryDurablePollingDefinition
+            IRetryDurablePollingDefinition retryDurablePollingDefinition
         )
         {
             Guard.Argument(retryDurableQueueRepository).NotNull();

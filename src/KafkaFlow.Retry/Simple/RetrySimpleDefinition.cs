@@ -1,15 +1,15 @@
-﻿namespace KafkaFlow.Retry
+﻿namespace KafkaFlow.Retry.Simple
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
     using Dawn;
 
-    internal class RetryDefinition
+    internal class RetrySimpleDefinition : IRetrySimpleDefinition
     {
         private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
 
-        public RetryDefinition(
+        public RetrySimpleDefinition(
             int numberOfRetries,
             IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions,
             bool pauseConsumer,
@@ -31,9 +31,9 @@
 
         public bool PauseConsumer { get; }
 
-        internal Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
+        public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
-        internal bool ShouldRetry(RetryContext kafkaRetryContext) =>
+        public bool ShouldRetry(RetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
     }
 }

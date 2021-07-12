@@ -5,8 +5,8 @@
 
     internal interface IMessageHeadersAdapter
     {
-        IEnumerable<MessageHeader> AdaptFromKafkaFlowMessageHeaders(IMessageHeaders messageHeaders);
+        IEnumerable<MessageHeader> AdaptMessageHeadersToRepository(IMessageHeaders messageHeaders);
 
-        IMessageHeaders AdaptToKafkaFlowMessageHeaders(IEnumerable<MessageHeader> fromMessageHeaders);
+        IMessageHeaders AdaptMessageHeadersFromRepository(IEnumerable<MessageHeader> fromMessageHeaders);
     }
 }

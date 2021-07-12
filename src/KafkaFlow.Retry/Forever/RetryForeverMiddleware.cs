@@ -7,14 +7,14 @@
 
     internal class RetryForeverMiddleware : IMessageMiddleware
     {
-        private readonly RetryForeverDefinition kafkaRetryForeverDefinition;
+        private readonly IRetryForeverDefinition kafkaRetryForeverDefinition;
         private readonly ILogHandler logHandler;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
         public RetryForeverMiddleware(
             ILogHandler logHandler,
-            RetryForeverDefinition kafkaRetryForeverDefinition)
+            IRetryForeverDefinition kafkaRetryForeverDefinition)
         {
             this.logHandler = logHandler;
             this.kafkaRetryForeverDefinition = kafkaRetryForeverDefinition;
@@ -51,7 +51,7 @@
                         }
 
                         this.logHandler.Error(
-                            $"Exception captured by {nameof(RetryMiddleware)}. Retry in process.",
+                            $"Exception captured by {nameof(RetryForeverMiddleware)}. Retry in process.",
                             exception,
                             new
                             {

@@ -11,8 +11,8 @@
 
         public RetryDurableDefinition(
             IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions,
-            RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition,
-            RetryDurablePollingDefinition retryDurablePollingDefinition)
+            IRetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition,
+            IRetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             Guard.Argument(retryWhenExceptions).NotNull("At least an exception should be defined");
             Guard.Argument(retryWhenExceptions.Count).NotNegative(value => "At least an exception should be defined");
@@ -24,9 +24,9 @@
             this.RetryDurablePollingDefinition = retryDurablePollingDefinition;
         }
 
-        public RetryDurablePollingDefinition RetryDurablePollingDefinition { get; }
+        public IRetryDurablePollingDefinition RetryDurablePollingDefinition { get; }
 
-        public RetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
+        public IRetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
 
         public bool ShouldRetry(RetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));

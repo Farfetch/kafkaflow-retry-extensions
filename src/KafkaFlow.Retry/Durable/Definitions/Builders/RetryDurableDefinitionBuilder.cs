@@ -18,9 +18,11 @@
     {
         private readonly IDependencyConfigurator dependencyConfigurator;
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-        private RetryDurablePollingDefinition retryDurablePollingDefinition;
+        private Type messageType;
+        private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
+        private IRetryDurablePollingDefinition retryDurablePollingDefinition;
         private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
-        private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
+        private IRetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
 
         public RetryDurableDefinitionBuilder(IDependencyConfigurator dependencyConfigurator)
         {
@@ -49,10 +51,15 @@
             Action<RetryDurableEmbeddedClusterDefinitionBuilder> configure
             )
         {
-            var retryDurableEmbeddedClusterBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
-            configure(retryDurableEmbeddedClusterBuilder);
-            retryDurableEmbeddedClusterBuilder.Build();
+            this.retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
+            configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
+            return this;
+        }
+
+        public RetryDurableDefinitionBuilder WithMessageType(Type messageType)
+        {
+            this.messageType = messageType;
             return this;
         }
 
@@ -81,7 +88,7 @@
             return this;
         }
 
-        internal RetryDurableDefinition Build()
+        internal IRetryDurableDefinition Build()
         {
             var retryDurableDefinition =
                    new RetryDurableDefinition(
@@ -90,18 +97,20 @@
                        this.retryDurablePollingDefinition
                    );
 
+            this.retryDurableEmbeddedClusterDefinitionBuilder.WithMessageType(this.messageType);
+            this.retryDurableEmbeddedClusterDefinitionBuilder.Build();
+
             this.dependencyConfigurator.AddSingleton<IRetryDurableDefinition>(retryDurableDefinition);
             this.dependencyConfigurator.AddSingleton<IMessageHeadersAdapter>(new MessageHeadersAdapter());
             this.dependencyConfigurator.AddSingleton<IGzipCompressor>(new GzipCompressor());
             this.dependencyConfigurator.AddSingleton<IUtf8Encoder>(new Utf8Encoder());
-            this.dependencyConfigurator.AddSingleton<INewtonsoftJsonSerializer>(new NewtonsoftJsonSerializer());
+            this.dependencyConfigurator.AddSingleton<IProtobufNetSerializer>(new ProtobufNetSerializer());
             this.dependencyConfigurator
                 .AddSingleton<IMessageAdapter>(
                     resolver =>
                         new MessageAdapter(
                             resolver.Resolve<IGzipCompressor>(),
-                            resolver.Resolve<INewtonsoftJsonSerializer>(),
-                            resolver.Resolve<IUtf8Encoder>()));
+                            resolver.Resolve<IProtobufNetSerializer>()));
 
             this.dependencyConfigurator
                 .AddSingleton<IRetryDurableQueueRepository>(

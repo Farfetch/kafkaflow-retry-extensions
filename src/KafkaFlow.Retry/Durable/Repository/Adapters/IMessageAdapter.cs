@@ -1,11 +1,9 @@
 ﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
 {
-    using System;
-
     internal interface IMessageAdapter
     {
-        byte[] AdaptFromKafkaFlowMessage(object message);
+        byte[] AdaptMessageFromRepository(byte[] message);
 
-        object AdaptToKafkaFlowMessage(byte[] message, Type type);
+        byte[] AdaptMessageToRepository(object message);
     }
 }

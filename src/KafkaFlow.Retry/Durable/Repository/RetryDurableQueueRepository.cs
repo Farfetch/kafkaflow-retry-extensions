@@ -22,7 +22,7 @@
         private const int MaxAttempts = 6;
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition;
         private readonly IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private readonly IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers;
         private readonly IUtf8Encoder utf8Encoder;
@@ -33,7 +33,7 @@
             IMessageHeadersAdapter messageHeadersAdapter,
             IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder,
-            RetryDurablePollingDefinition retryDurablePollingDefinition)
+            IRetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             Guard.Argument(retryDurableRepositoryProvider).NotNull("Retry durable requires a repository to be defined");
             Guard.Argument(updateItemHandlers).NotNull("At least an update item handler should be defined");
@@ -59,26 +59,17 @@
               .ExecuteAsync(
                 async () =>
                 {
-                    // TODO: reflection is really required here? any other option? There are a
-                    // Header MessageType which already has de type. If KafkaFLow always create it
-                    // we should use it. KafkaFLow uses this approach que get the type.
-                    context.Headers.SetString(
-                        RetryDurableConstants.MessageType,
-                        $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
-                    );
-                    //TODO: Should be passed by the client.
-
                     return await this.AddIfQueueExistsAsync(
                         context,
                         new SaveToQueueInput(
                             new RetryQueueItemMessage(
                                 context.ConsumerContext.Topic,
                                 (byte[])context.Message.Key,
-                                this.messageAdapter.AdaptFromKafkaFlowMessage(context.Message),
+                                this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
                                 context.ConsumerContext.Partition,
                                 context.ConsumerContext.Offset,
                                 context.ConsumerContext.MessageTimestamp,
-                                this.messageHeadersAdapter.AdaptFromKafkaFlowMessageHeaders(context.Headers)
+                                this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                             ),
                             this.retryDurablePollingDefinition.Id,
                             this.utf8Encoder.Decode((byte[])context.Message.Key), // TODO: this worries me because this convertion can cause data loss.
@@ -167,14 +158,6 @@
                 .ExecuteAsync(
                     async () =>
                     {
-                        // TODO: reflection is really required here? any other option? There are a
-                        // Header MessageType which already has de type. If KafkaFLow always create
-                        // it we should use it. KafkaFLow uses this approach que get the type.
-                        context.Headers.SetString(
-                            RetryDurableConstants.MessageType,
-                            $"{context.Message.GetType().FullName}, {context.Message.GetType().Assembly.GetName().Name}"
-                        );
-
                         var refDate = DateTime.UtcNow;
 
                         return await this.SaveToQueueAsync(context,
@@ -182,11 +165,11 @@
                                 new RetryQueueItemMessage(
                                     context.ConsumerContext.Topic,
                                     (byte[])context.Message.Key,
-                                    this.messageAdapter.AdaptFromKafkaFlowMessage(context.Message),
+                                    this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
                                     context.ConsumerContext.Partition,
                                     context.ConsumerContext.Offset,
                                     context.ConsumerContext.MessageTimestamp,
-                                    this.messageHeadersAdapter.AdaptFromKafkaFlowMessageHeaders(context.Headers)
+                                    this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                                 ),
                             this.retryDurablePollingDefinition.Id,
                             this.utf8Encoder.Decode((byte[])context.Message.Key), // TODO: this worries me because this convertion can cause data loss.

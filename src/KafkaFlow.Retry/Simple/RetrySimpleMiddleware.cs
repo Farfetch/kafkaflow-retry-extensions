@@ -1,20 +1,20 @@
-﻿namespace KafkaFlow.Retry
+﻿namespace KafkaFlow.Retry.Simple
 {
     using System;
     using System.Threading.Tasks;
     using KafkaFlow;
     using Polly;
 
-    internal class RetryMiddleware : IMessageMiddleware
+    internal class RetrySimpleMiddleware : IMessageMiddleware
     {
-        private readonly RetryDefinition kafkaRetryDefinition;
+        private readonly RetrySimpleDefinition kafkaRetryDefinition;
         private readonly ILogHandler logHandler;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
-        public RetryMiddleware(
+        public RetrySimpleMiddleware(
             ILogHandler logHandler,
-            RetryDefinition kafkaRetryDefinition)
+            RetrySimpleDefinition kafkaRetryDefinition)
         {
             this.logHandler = logHandler;
             this.kafkaRetryDefinition = kafkaRetryDefinition;
@@ -52,7 +52,7 @@
                         }
 
                         this.logHandler.Error(
-                            $"Exception captured by {nameof(RetryMiddleware)}. Retry in process.",
+                            $"Exception captured by {nameof(RetrySimpleMiddleware)}. Retry in process.",
                             exception,
                             new
                             {

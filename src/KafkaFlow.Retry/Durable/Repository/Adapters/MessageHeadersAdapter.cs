@@ -6,17 +6,7 @@
 
     internal class MessageHeadersAdapter : IMessageHeadersAdapter
     {
-        public IEnumerable<MessageHeader> AdaptFromKafkaFlowMessageHeaders(IMessageHeaders messageHeaders)
-        {
-            if (messageHeaders is null)
-            {
-                return Enumerable.Empty<MessageHeader>();
-            }
-
-            return messageHeaders.Select(h => new MessageHeader(h.Key, h.Value)).ToList();
-        }
-
-        public IMessageHeaders AdaptToKafkaFlowMessageHeaders(IEnumerable<MessageHeader> fromMessageHeaders)
+        public IMessageHeaders AdaptMessageHeadersFromRepository(IEnumerable<MessageHeader> fromMessageHeaders)
         {
             var toMessageHeaders = new MessageHeaders();
 
@@ -31,6 +21,16 @@
             }
 
             return toMessageHeaders;
+        }
+
+        public IEnumerable<MessageHeader> AdaptMessageHeadersToRepository(IMessageHeaders messageHeaders)
+        {
+            if (messageHeaders is null)
+            {
+                return Enumerable.Empty<MessageHeader>();
+            }
+
+            return messageHeaders.Select(h => new MessageHeader(h.Key, h.Value)).ToList();
         }
     }
 }
