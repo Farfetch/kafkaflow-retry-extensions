@@ -85,7 +85,7 @@ BEGIN
 		[CreationDate] [datetime2](7) NOT NULL,
 		[LastExecution] [datetime2](7),
 		[ModifiedStatusDate] [datetime2](7),
-		[Description] [ntext] NULL,
+		[Description] [nvarchar](4096) NULL,
 		CONSTRAINT [FK_RetryQueues_RetryQueueItems_IdRetryQueue] FOREIGN KEY ([IdRetryQueue]) REFERENCES [dbo].[RetryQueues]([Id]) ON DELETE CASCADE,
 		CONSTRAINT [FK_RetryQueues_RetryQueueItems_IdDomainRetryQueue] FOREIGN KEY ([IdDomainRetryQueue]) REFERENCES [dbo].[RetryQueues]([IdDomain]),
 		CONSTRAINT [FK_QueueItemStatus_RetryQueueItems] FOREIGN KEY ([IdItemStatus]) REFERENCES [dbo].[QueueItemStatus]([Code]),
