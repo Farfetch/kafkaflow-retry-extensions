@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\..\LICENSE.md" Pack="true" Link="LICENSE.md">
+    <None Include="..\..\LICENSE.md" Pack="true" Link="LICENSE.md" PackagePath=".">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
