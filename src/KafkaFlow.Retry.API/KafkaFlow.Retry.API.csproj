@@ -13,7 +13,7 @@
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>kafka flow kafkaflow extension extensions retry api</PackageTags>
-    <Description>A API middleware that allows to manage retry queue messages for topic message consumers using KafkaFlow.</Description>
+    <Description>An HTTP API middleware for managing retry queue messages for topic message consumers using KafkaFlow.</Description>
     <Copyright>Copyright (c) FARFETCH 2021</Copyright>
   </PropertyGroup>
 
