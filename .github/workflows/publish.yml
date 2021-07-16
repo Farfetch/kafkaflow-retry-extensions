@@ -21,10 +21,7 @@ jobs:
     
     - name: Publish KafkaFlow.Retry
       run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.TEMP_NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
-      
-    - name: Clean
-      run: dotnet clean src/KafkaFlow.Retry.sln
-    
+          
     - name: Pack KafkaFlow.Retry.API
       run: dotnet pack src/KafkaFlow.Retry.API/KafkaFlow.Retry.API.csproj -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
       
@@ -34,8 +31,14 @@ jobs:
     - name: Pack KafkaFlow.Retry.MongoDb
       run: dotnet pack src/KafkaFlow.Retry.MongoDb/KafkaFlow.Retry.MongoDb.csproj -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
 
-    - name: Publish (others)
-      run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+    - name: Publish (MongoDB)
+      run: dotnet nuget push ./**/KafkaFlow.Retry.MongoDb.*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+      
+    - name: Publish (SqlServer)
+      run: dotnet nuget push ./**/KafkaFlow.Retry.SqlServer.*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+      
+    - name: Publish (API)
+      run: dotnet nuget push ./**/KafkaFlow.Retry.API.*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
 
     - name: Print Version
       run: echo ${{ github.event.release.tag_name }}
