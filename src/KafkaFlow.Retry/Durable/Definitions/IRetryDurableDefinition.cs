@@ -2,9 +2,9 @@
 {
     internal interface IRetryDurableDefinition
     {
-        RetryDurablePollingDefinition RetryDurablePollingDefinition { get; }
+        IRetryDurablePollingDefinition RetryDurablePollingDefinition { get; }
 
-        RetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
+        IRetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
 
         bool ShouldRetry(RetryContext kafkaRetryContext);
     }

@@ -2,50 +2,51 @@
 {
     using System;
     using System.Collections.Generic;
+    using KafkaFlow.Retry.Simple;
 
-    public class RetryDefinitionBuilder
+    public class RetrySimpleDefinitionBuilder
     {
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
         private int numberOfRetries;
         private bool pauseConsumer;
         private Func<int, TimeSpan> timeBetweenTriesPlan;
 
-        public RetryDefinitionBuilder Handle<TException>()
+        public RetrySimpleDefinitionBuilder Handle<TException>()
             where TException : Exception
             => this.Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
 
-        public RetryDefinitionBuilder Handle(Func<RetryContext, bool> func)
+        public RetrySimpleDefinitionBuilder Handle(Func<RetryContext, bool> func)
         {
             this.retryWhenExceptions.Add(func);
             return this;
         }
 
-        public RetryDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
+        public RetrySimpleDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
             where TException : Exception
             => this.Handle(context => context.Exception is TException ex && rule(ex));
 
-        public RetryDefinitionBuilder HandleAnyException()
+        public RetrySimpleDefinitionBuilder HandleAnyException()
             => this.Handle(kafkaRetryContext => true);
 
-        public RetryDefinitionBuilder ShouldPauseConsumer(bool pause)
+        public RetrySimpleDefinitionBuilder ShouldPauseConsumer(bool pause)
         {
             this.pauseConsumer = pause;
             return this;
         }
 
-        public RetryDefinitionBuilder TryTimes(int numberOfRetries)
+        public RetrySimpleDefinitionBuilder TryTimes(int numberOfRetries)
         {
             this.numberOfRetries = numberOfRetries;
             return this;
         }
 
-        public RetryDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timesBetweenTriesPlan)
+        public RetrySimpleDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timesBetweenTriesPlan)
         {
             this.timeBetweenTriesPlan = timesBetweenTriesPlan;
             return this;
         }
 
-        public RetryDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
+        public RetrySimpleDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
             => this.WithTimeBetweenTriesPlan(
                     (retryNumber) =>
                        ((retryNumber - 1) < timeBetweenRetries.Length)
@@ -53,9 +54,9 @@
                            : timeBetweenRetries[timeBetweenRetries.Length - 1]
                 );
 
-        internal RetryDefinition Build()
+        internal RetrySimpleDefinition Build()
         {
-            return new RetryDefinition(
+            return new RetrySimpleDefinition(
                 this.numberOfRetries,
                 this.retryWhenExceptions,
                 this.pauseConsumer,

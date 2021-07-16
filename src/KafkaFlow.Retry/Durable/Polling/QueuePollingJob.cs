@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
     using System;
-    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
@@ -46,7 +45,7 @@
 
             var retryDurableQueueRepository = jobDataMap[QueuePollingJobConstants.RetryDurableQueueRepository] as IRetryDurableQueueRepository;
             var retryDurableProducer = jobDataMap[QueuePollingJobConstants.RetryDurableMessageProducer] as IMessageProducer;
-            var retryDurablePollingDefinition = jobDataMap[QueuePollingJobConstants.RetryDurablePollingDefinition] as RetryDurablePollingDefinition;
+            var retryDurablePollingDefinition = jobDataMap[QueuePollingJobConstants.RetryDurablePollingDefinition] as IRetryDurablePollingDefinition;
             var logHandler = jobDataMap[QueuePollingJobConstants.LogHandler] as ILogHandler;
             var messageHeadersAdapter = jobDataMap[QueuePollingJobConstants.MessageHeadersAdapter] as IMessageHeadersAdapter;
             var messageAdapter = jobDataMap[QueuePollingJobConstants.MessageAdapter] as IMessageAdapter;
@@ -104,12 +103,10 @@
 
                         try
                         {
-                            var messageType = this.GetMessageTypeFromMessageHeaders(item.Message.Headers, utf8Encoder);
-
                             await retryDurableProducer
                                 .ProduceAsync(
-                                    utf8Encoder.Decode(item.Message.Key),
-                                    messageAdapter.AdaptToKafkaFlowMessage(item.Message.Value, messageType),
+                                    item.Message.Key,
+                                    messageAdapter.AdaptMessageFromRepository(item.Message.Value),
                                     this.GetMessageHeaders(messageHeadersAdapter, utf8Encoder, queue.Id, item)
                                 ).ConfigureAwait(false);
                         }
@@ -137,7 +134,7 @@
             }
         }
 
-        private TimeSpan GetExpirationInterval(RetryDurablePollingDefinition retryDurablePollingDefinition)
+        private TimeSpan GetExpirationInterval(IRetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             if (this.expirationInterval != TimeSpan.Zero)
             {
@@ -171,9 +168,8 @@
             Guid queueId,
             RetryQueueItem item)
         {
-            var messageHeaders = messageHeadersAdapter.AdaptToKafkaFlowMessageHeaders(item.Message.Headers);
+            var messageHeaders = messageHeadersAdapter.AdaptMessageHeadersFromRepository(item.Message.Headers);
 
-            //TODO: Should we have a naming pattern
             messageHeaders.Add(RetryDurableConstants.AttemptsCount, utf8Encoder.Encode(item.AttemptsCount.ToString()));
             messageHeaders.Add(RetryDurableConstants.QueueId, utf8Encoder.Encode(queueId.ToString()));
             messageHeaders.Add(RetryDurableConstants.ItemId, utf8Encoder.Encode(item.Id.ToString()));
@@ -182,15 +178,7 @@
             return messageHeaders;
         }
 
-        private Type GetMessageTypeFromMessageHeaders(
-            IList<MessageHeader> headers,
-            IUtf8Encoder utf8Encoder)
-        {
-            var header = headers.First(h => string.Equals(h.Key, RetryDurableConstants.MessageType));
-            return Type.GetType(utf8Encoder.Decode(header.Value));
-        }
-
-        private bool IsAbleToBeProduced(RetryQueueItem item, RetryDurablePollingDefinition retryDurablePollingDefinition)
+        private bool IsAbleToBeProduced(RetryQueueItem item, IRetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             return item.Status == RetryQueueItemStatus.Waiting
                  || (item.ModifiedStatusDate.HasValue

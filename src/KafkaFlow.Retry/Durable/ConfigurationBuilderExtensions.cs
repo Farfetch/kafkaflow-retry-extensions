@@ -7,7 +7,7 @@
     internal static class ConfigurationBuilderExtensions
     {
         public static IConsumerMiddlewareConfigurationBuilder RetryConsumerStrategy(
-          this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+                          this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
           RetryConsumerStrategy retryConsumerStrategy)
         {
             switch (retryConsumerStrategy)

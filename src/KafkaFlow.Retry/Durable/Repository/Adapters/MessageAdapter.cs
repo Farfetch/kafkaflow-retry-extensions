@@ -1,43 +1,30 @@
 ﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
 {
-    using System;
     using KafkaFlow.Retry.Durable.Compression;
-    using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Serializers;
 
     internal class MessageAdapter : IMessageAdapter
     {
         private readonly IGzipCompressor gzipCompressor;
-        private readonly INewtonsoftJsonSerializer newtonsoftJsonSerializer;
-        private readonly IUtf8Encoder utf8Encoder;
+        private readonly IProtobufNetSerializer protobufNetSerializer;
 
         public MessageAdapter(
             IGzipCompressor gzipCompressor,
-            INewtonsoftJsonSerializer newtonsoftJsonSerializer,
-            IUtf8Encoder utf8Encoder)
+            IProtobufNetSerializer protobufNetSerializer)
         {
             this.gzipCompressor = gzipCompressor;
-            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            this.utf8Encoder = utf8Encoder;
+            this.protobufNetSerializer = protobufNetSerializer;
         }
 
-        public byte[] AdaptFromKafkaFlowMessage(object message)
+        public byte[] AdaptMessageFromRepository(byte[] message)
         {
-            //TODO: Decorator Pattern
-            var messageSerialized = this.newtonsoftJsonSerializer.SerializeObject(message);
-            var messageEncoded = this.utf8Encoder.Encode(messageSerialized); //TODO: To be removed
-            var messageCompressed = this.gzipCompressor.Compress(messageEncoded);
-
-            return messageCompressed;
+            return this.gzipCompressor.Decompress(message);
         }
 
-        public object AdaptToKafkaFlowMessage(byte[] message, Type type)
+        public byte[] AdaptMessageToRepository(object message)
         {
-            var messageDecompressed = this.gzipCompressor.Decompress(message);
-            var messageDencoded = this.utf8Encoder.Decode(messageDecompressed); //TODO: To be removed
-            var messageDeserialized = this.newtonsoftJsonSerializer.DeserializeObject(messageDencoded, type);
-           
-            return messageDeserialized;
+            byte[] messageSerialized = this.protobufNetSerializer.Serialize(message);
+            return this.gzipCompressor.Compress(messageSerialized);
         }
     }
 }

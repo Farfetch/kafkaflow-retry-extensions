@@ -5,7 +5,7 @@
     using System.Linq;
     using Dawn;
 
-    internal class RetryForeverDefinition
+    internal class RetryForeverDefinition : IRetryForeverDefinition
     {
         private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
 
@@ -22,9 +22,9 @@
             this.retryWhenExceptions = retryWhenExceptions;
         }
 
-        internal Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
+        public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
-        internal bool ShouldRetry(RetryContext kafkaRetryContext) =>
+        public bool ShouldRetry(RetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
     }
 }

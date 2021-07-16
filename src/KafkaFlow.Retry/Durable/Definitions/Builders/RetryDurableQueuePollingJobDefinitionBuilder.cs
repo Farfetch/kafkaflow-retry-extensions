@@ -40,7 +40,7 @@
             return this;
         }
 
-        internal RetryDurablePollingDefinition Build()
+        internal IRetryDurablePollingDefinition Build()
         {
             return new RetryDurablePollingDefinition(
                 this.enabled,

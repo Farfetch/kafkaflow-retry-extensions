@@ -6,24 +6,10 @@
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Forever;
+    using KafkaFlow.Retry.Simple;
 
     public static class ConfigurationBuilderExtensions
     {
-        public static IConsumerMiddlewareConfigurationBuilder Retry(
-               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<RetryDefinitionBuilder> configure)
-        {
-            var retryDefinitionBuilder = new RetryDefinitionBuilder();
-
-            configure(retryDefinitionBuilder);
-
-            return middlewareBuilder.Add(
-                resolver => new RetryMiddleware(
-                    resolver.Resolve<ILogHandler>(),
-                    retryDefinitionBuilder.Build()
-                ));
-        }
-
         public static IConsumerMiddlewareConfigurationBuilder RetryDurable(
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
                Action<RetryDurableDefinitionBuilder> configure)
@@ -52,6 +38,21 @@
                 resolver => new RetryForeverMiddleware(
                     resolver.Resolve<ILogHandler>(),
                     retryForeverDefinitionBuilder.Build()
+                ));
+        }
+
+        public static IConsumerMiddlewareConfigurationBuilder RetrySimple(
+                               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+               Action<RetrySimpleDefinitionBuilder> configure)
+        {
+            var retryDefinitionBuilder = new RetrySimpleDefinitionBuilder();
+
+            configure(retryDefinitionBuilder);
+
+            return middlewareBuilder.Add(
+                resolver => new RetrySimpleMiddleware(
+                    resolver.Resolve<ILogHandler>(),
+                    retryDefinitionBuilder.Build()
                 ));
         }
     }

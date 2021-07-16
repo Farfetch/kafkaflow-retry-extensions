@@ -11,7 +11,7 @@
     internal class RetryDurableMiddleware : IMessageMiddleware
     {
         private readonly ILogHandler logHandler;
-        private readonly RetryDurableDefinition retryDurableDefinition;
+        private readonly IRetryDurableDefinition retryDurableDefinition;
         private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
@@ -19,7 +19,7 @@
         public RetryDurableMiddleware(
             ILogHandler logHandler,
             IRetryDurableQueueRepository retryDurableQueueRepository,
-            RetryDurableDefinition retryDurableDefinition)
+            IRetryDurableDefinition retryDurableDefinition)
         {
             this.logHandler = logHandler;
             this.retryDurableQueueRepository = retryDurableQueueRepository;
@@ -28,7 +28,6 @@
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
-
             try
             {
                 var resultAddIfQueueExistsAsync = await this
