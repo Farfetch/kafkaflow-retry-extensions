@@ -21,7 +21,9 @@
     <Compile Remove="Durable\Quartz\**" />
     <EmbeddedResource Remove="Durable\Quartz\**" />
     <None Remove="Durable\Quartz\**" />
-    <None Include="..\..\LICENSE.md" Link="LICENSE.md" />
+    <None Include="..\..\LICENSE.md" Pack="true" Link="LICENSE.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
   <ItemGroup>
