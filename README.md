@@ -1,4 +1,4 @@
-# kafka-flow-retry-extensions
+# KafkaFlow Retry Extensions
 KafkaFlow Retry is a .NET framework to retry messages on consumers, simple to use.
 
 KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafka-flow).
@@ -6,14 +6,19 @@ KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafk
 ## KafkaFlow Retry
 
 ## Features
- - Retry Simple 
- - Retry Forever
- - Retry Durable
+ - Simple Retry
+ - Forever Retry
+ - Durable Retry
  - Fluent configuration
  - Admin Web API to manage messages and queue messages
  - Persistence in SQL Server and MongoDb
 
 ## Packages
+
+|Name                             |nuget.org|
+|---------------------------------|----|
+|KafkaFlow.Retry|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.svg)
+
 
 ## Basic Usage
 
@@ -79,4 +84,4 @@ Read the [Contributing guidelines](CONTRIBUTING.md)
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE.md)
