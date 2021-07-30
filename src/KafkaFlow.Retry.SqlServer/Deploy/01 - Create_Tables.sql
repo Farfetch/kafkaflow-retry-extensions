@@ -85,7 +85,7 @@ BEGIN
 		[CreationDate] [datetime2](7) NOT NULL,
 		[LastExecution] [datetime2](7),
 		[ModifiedStatusDate] [datetime2](7),
-		[Description] [nvarchar](4096) NULL,
+		[Description] [nvarchar](MAX) NULL,
 		CONSTRAINT [FK_RetryQueues_RetryQueueItems_IdRetryQueue] FOREIGN KEY ([IdRetryQueue]) REFERENCES [dbo].[RetryQueues]([Id]) ON DELETE CASCADE,
 		CONSTRAINT [FK_RetryQueues_RetryQueueItems_IdDomainRetryQueue] FOREIGN KEY ([IdDomainRetryQueue]) REFERENCES [dbo].[RetryQueues]([IdDomain]),
 		CONSTRAINT [FK_QueueItemStatus_RetryQueueItems] FOREIGN KEY ([IdItemStatus]) REFERENCES [dbo].[QueueItemStatus]([Code]),
@@ -101,8 +101,7 @@ IF (NOT EXISTS (SELECT *
                  AND  TABLE_NAME = 'ItemMessages'))
 BEGIN
 	CREATE TABLE [dbo].[ItemMessages] (
-		[IdRetryQueueItem] [bigint] PRIMARY KEY,
-		--[IdRetryQueueItemDomain] [uniqueidentifier],
+		[IdRetryQueueItem] [bigint] PRIMARY KEY,		
 		[Key] [varbinary](8000) NOT NULL,
 		[Value] [varbinary](MAX) NOT NULL,
 		[TopicName] [nvarchar](300) NOT NULL,
