@@ -45,7 +45,7 @@ jobs:
       id: prev-version-tag
       uses: jimschubert/query-tag-action@v1
       with:
-        include: 'v*'
+        include: '*.*.*'
         exclude: '*-rc*'
         commit-ish: 'HEAD~'
         skip-unshallow: true
