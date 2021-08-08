@@ -152,6 +152,15 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release src/KafkaFlow.Retry.sln
       
+    - name: Start Kafka 
+      uses: 280780363/kafka-action@v1.0
+      with:
+        kafka version: "latest" # Optional, kafka version
+        zookeeper version: "latest" # Optional, zookeeper version
+        kafka port: 9092 # Optional, kafka port. Connect using localhost:9092
+        zookeeper port: 2181 # Optional, zookeeper port
+        auto create topic: "true" # Optional, auto create kafka topic
+
     - name: Test
       run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
       
