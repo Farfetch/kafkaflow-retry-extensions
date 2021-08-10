@@ -13,13 +13,17 @@
                     new
                     {
                         Message = message,
-                        Exception = ex,
+                        Exception = new
+                        {
+                            ex.Message,
+                            ex.StackTrace
+                        },
                         Data = data,
                     }, new JsonSerializerOptions
                     {
                         MaxDepth = 0,
                         IgnoreNullValues = true,
-                        IgnoreReadOnlyProperties = true
+                        IgnoreReadOnlyProperties = false
                     }));
         }
 
@@ -35,7 +39,7 @@
                     {
                         MaxDepth = 0,
                         IgnoreNullValues = true,
-                        IgnoreReadOnlyProperties = true
+                        IgnoreReadOnlyProperties = false
                     }));
         }
 
@@ -51,7 +55,7 @@
                     {
                         MaxDepth = 0,
                         IgnoreNullValues = true,
-                        IgnoreReadOnlyProperties = true
+                        IgnoreReadOnlyProperties = false
                     }));
         }
     }

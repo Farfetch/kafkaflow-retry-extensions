@@ -22,15 +22,10 @@
     <PackageReference Include="KafkaFlow.Serializer" Version="2.1.2" />
     <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.1.2" />
     <PackageReference Include="KafkaFlow.TypedHandler" Version="2.1.2" />
-
-    <!--<PackageReference Include="KafkaFlow" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Serializer.ProtobufNet" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.1.2" />-->
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj" />
     <ProjectReference Include="..\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
   </ItemGroup>
 

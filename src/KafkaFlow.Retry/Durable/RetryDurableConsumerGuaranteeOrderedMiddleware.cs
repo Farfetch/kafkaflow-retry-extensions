@@ -35,28 +35,42 @@
             var itemId = Guid.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
             var attemptsCount = int.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
             var sort = int.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
-
-            var pendingItems = await this
-                       .ThereArePendingItemsAsync(
-                           queueId,
-                           itemId,
-                           sort)
-                       .ConfigureAwait(false);
-
-            if (pendingItems)
+            var pendingItems = false;
+            try
             {
-                await this
-                    .UpdateAsync(
-                        RetryQueueItemStatus.Waiting,
-                        queueId,
-                        itemId,
-                        attemptsCount
-                    ).ConfigureAwait(false);
+                pendingItems = await this
+                           .ThereArePendingItemsAsync(
+                               queueId,
+                               itemId,
+                               sort)
+                           .ConfigureAwait(false);
 
-                return;
+                if (pendingItems)
+                {
+                    await this
+                        .UpdateAsync(
+                            RetryQueueItemStatus.Waiting,
+                            queueId,
+                            itemId,
+                            attemptsCount
+                        ).ConfigureAwait(false);
+
+                    return;
+                }
+
+                await next(context).ConfigureAwait(false);
             }
-
-            await next(context).ConfigureAwait(false);
+            catch (Exception ex)
+            {
+                logHandler.Error("RetryDurableConsumerGuaranteeOrderedMiddleware", ex, new
+                {
+                    queueId,
+                    itemId,
+                    attemptsCount,
+                    sort,
+                    pendingItems
+                });
+            }
         }
 
         private async Task<bool> ThereArePendingItemsAsync(
