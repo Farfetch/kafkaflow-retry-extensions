@@ -10,7 +10,7 @@
     using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry;
-    using KafkaFlow.Retry.SqlServer;
+    using KafkaFlow.Retry.MongoDb;
     using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
 

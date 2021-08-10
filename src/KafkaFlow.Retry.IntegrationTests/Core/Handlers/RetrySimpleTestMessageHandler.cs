@@ -12,7 +12,7 @@
         {
             MessageStorage.Add(message);
 
-            throw new RetrySimpleException();
+            throw new RetrySimpleTestException();
         }
     }
 }

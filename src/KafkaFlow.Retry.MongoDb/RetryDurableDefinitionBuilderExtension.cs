@@ -1,7 +1,5 @@
-﻿namespace KafkaFlow.Retry.SqlServer
+﻿namespace KafkaFlow.Retry.MongoDb
 {
-    using KafkaFlow.Retry.MongoDb;
-
     public static class RetryDurableDefinitionBuilderExtension
     {
         public static RetryDurableDefinitionBuilder WithMongoDbDataProvider(
