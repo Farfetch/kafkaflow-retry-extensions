@@ -6,28 +6,30 @@
     internal class QueueTrackerCoordinator : IQueueTrackerCoordinator
     {
         private readonly IQueueTrackerFactory queueTrackerFactory;
-        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition;
         private QueueTracker queueTracker;
 
-        public QueueTrackerCoordinator(
-            IQueueTrackerFactory queueTrackerFactory,
-            IRetryDurablePollingDefinition retryDurablePollingDefinition)
+        public QueueTrackerCoordinator(IQueueTrackerFactory queueTrackerFactory)
         {
             Guard.Argument(queueTrackerFactory).NotNull();
-            Guard.Argument(retryDurablePollingDefinition).NotNull("No polling definitions was found");
 
             this.queueTrackerFactory = queueTrackerFactory;
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
         }
 
-        public void Initialize()
+        public void Initialize(
+            RetryDurablePollingDefinition retryDurablePollingDefinition,
+            IMessageProducer retryDurableMessageProducer,
+            ILogHandler logHandler)
         {
             if (!retryDurablePollingDefinition.Enabled)
             {
                 return;
             }
 
-            this.queueTracker = this.queueTrackerFactory.Create();
+            this.queueTracker = this.queueTrackerFactory
+                .Create(
+                    retryDurablePollingDefinition,
+                    retryDurableMessageProducer,
+                    logHandler);
             this.queueTracker.ScheduleJob();
         }
 

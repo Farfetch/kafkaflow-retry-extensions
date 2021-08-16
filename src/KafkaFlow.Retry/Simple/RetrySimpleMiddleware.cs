@@ -7,29 +7,29 @@
 
     internal class RetrySimpleMiddleware : IMessageMiddleware
     {
-        private readonly RetrySimpleDefinition kafkaRetryDefinition;
         private readonly ILogHandler logHandler;
+        private readonly RetrySimpleDefinition retrySimpleDefinition;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
         public RetrySimpleMiddleware(
             ILogHandler logHandler,
-            RetrySimpleDefinition kafkaRetryDefinition)
+            RetrySimpleDefinition retrySimpleDefinition)
         {
             this.logHandler = logHandler;
-            this.kafkaRetryDefinition = kafkaRetryDefinition;
+            this.retrySimpleDefinition = retrySimpleDefinition;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
             var policy = Policy
-                .Handle<Exception>(exception => this.kafkaRetryDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => this.retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
-                    this.kafkaRetryDefinition.NumberOfRetries,
-                    (retryNumber, c) => this.kafkaRetryDefinition.TimeBetweenTriesPlan(retryNumber),
+                    this.retrySimpleDefinition.NumberOfRetries,
+                    (retryNumber, c) => this.retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (this.kafkaRetryDefinition.PauseConsumer && !this.controlWorkerId.HasValue)
+                        if (this.retrySimpleDefinition.PauseConsumer && !this.controlWorkerId.HasValue)
                         {
                             lock (this.syncPauseAndResume) // TODO: why we need this lock here?
                             {

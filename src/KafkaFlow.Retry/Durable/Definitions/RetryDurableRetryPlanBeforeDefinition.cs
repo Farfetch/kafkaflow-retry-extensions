@@ -3,7 +3,7 @@
     using System;
     using Dawn;
 
-    internal class RetryDurableRetryPlanBeforeDefinition : IRetryDurableRetryPlanBeforeDefinition
+    internal class RetryDurableRetryPlanBeforeDefinition
     {
         public RetryDurableRetryPlanBeforeDefinition(
             Func<int, TimeSpan> timeBetweenTriesPlan,

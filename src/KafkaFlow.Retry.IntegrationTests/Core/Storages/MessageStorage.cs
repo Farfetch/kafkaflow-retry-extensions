@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages
 {
     using System;
     using System.Collections.Concurrent;

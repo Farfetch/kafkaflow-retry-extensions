@@ -7,25 +7,25 @@
 
     internal class RetryForeverMiddleware : IMessageMiddleware
     {
-        private readonly IRetryForeverDefinition kafkaRetryForeverDefinition;
         private readonly ILogHandler logHandler;
+        private readonly RetryForeverDefinition retryForeverDefinition;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
         public RetryForeverMiddleware(
             ILogHandler logHandler,
-            IRetryForeverDefinition kafkaRetryForeverDefinition)
+            RetryForeverDefinition retryForeverDefinition)
         {
             this.logHandler = logHandler;
-            this.kafkaRetryForeverDefinition = kafkaRetryForeverDefinition;
+            this.retryForeverDefinition = retryForeverDefinition;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
             var policy = Policy
-                .Handle<Exception>(exception => this.kafkaRetryForeverDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => this.retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryForeverAsync(
-                    (retryNumber, c) => this.kafkaRetryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
+                    (retryNumber, c) => this.retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, attemptNumber, waitTime, c) =>
                     {
                         if (!this.controlWorkerId.HasValue)

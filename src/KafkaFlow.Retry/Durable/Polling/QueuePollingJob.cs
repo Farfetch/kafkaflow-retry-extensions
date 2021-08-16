@@ -45,7 +45,7 @@
 
             var retryDurableQueueRepository = jobDataMap[QueuePollingJobConstants.RetryDurableQueueRepository] as IRetryDurableQueueRepository;
             var retryDurableProducer = jobDataMap[QueuePollingJobConstants.RetryDurableMessageProducer] as IMessageProducer;
-            var retryDurablePollingDefinition = jobDataMap[QueuePollingJobConstants.RetryDurablePollingDefinition] as IRetryDurablePollingDefinition;
+            var retryDurablePollingDefinition = jobDataMap[QueuePollingJobConstants.RetryDurablePollingDefinition] as RetryDurablePollingDefinition;
             var logHandler = jobDataMap[QueuePollingJobConstants.LogHandler] as ILogHandler;
             var messageHeadersAdapter = jobDataMap[QueuePollingJobConstants.MessageHeadersAdapter] as IMessageHeadersAdapter;
             var messageAdapter = jobDataMap[QueuePollingJobConstants.MessageAdapter] as IMessageAdapter;
@@ -134,7 +134,7 @@
             }
         }
 
-        private TimeSpan GetExpirationInterval(IRetryDurablePollingDefinition retryDurablePollingDefinition)
+        private TimeSpan GetExpirationInterval(RetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             if (this.expirationInterval != TimeSpan.Zero)
             {
@@ -178,7 +178,7 @@
             return messageHeaders;
         }
 
-        private bool IsAbleToBeProduced(RetryQueueItem item, IRetryDurablePollingDefinition retryDurablePollingDefinition)
+        private bool IsAbleToBeProduced(RetryQueueItem item, RetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             return item.Status == RetryQueueItemStatus.Waiting
                  || (item.ModifiedStatusDate.HasValue
