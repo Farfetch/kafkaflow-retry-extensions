@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages
 {
     using System;
     using System.Collections.Generic;
@@ -10,7 +10,7 @@
     using MongoDB.Driver;
     using Xunit;
 
-    internal static class MongoStorage
+    internal class MongoStorage : IStorage
     {
         private const int TimeoutSec = 60;
         private static IMongoDatabase database;
@@ -19,12 +19,7 @@
         private static IMongoCollection<RetryQueueItemDbo> retryQueueItemsCollection;
         private static IMongoCollection<RetryQueueDbo> retryQueuesCollection;
 
-        public static void DropDatabase()
-        {
-            mongoClient.DropDatabase(databaseName);
-        }
-
-        public static void Setup(
+        public MongoStorage(
             string connectionString,
             string dbName,
             string retryQueueCollectionName,
@@ -37,7 +32,7 @@
             retryQueueItemsCollection = database.GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
         }
 
-        internal static async Task AssertRetryDurableMessageCreationAsync(RetryDurableTestMessage message, int count)
+        public async Task AssertRetryDurableMessageCreationAsync(RetryDurableTestMessage message, int count)
         {
             RetryQueueDbo retryQueue = await GetRetryQueueAsync(message).ConfigureAwait(false);
             if (retryQueue.Id == Guid.Empty)
@@ -58,7 +53,7 @@
             Assert.All(retryQueueItems, i => Enum.Equals(i.Status, RetryQueueItemStatus.Waiting));
         }
 
-        internal static async Task AssertRetryDurableMessageDoneAsync(RetryDurableTestMessage message)
+        public async Task AssertRetryDurableMessageDoneAsync(RetryDurableTestMessage message)
         {
             RetryQueueDbo retryQueue = await GetRetryQueueAsync(message).ConfigureAwait(false);
             if (retryQueue.Id == Guid.Empty)
@@ -81,7 +76,7 @@
             Assert.True(Enum.Equals(retryQueue.Status, RetryQueueStatus.Done));
         }
 
-        internal static async Task AssertRetryDurableMessageRetryingAsync(RetryDurableTestMessage message, int retryCount)
+        public async Task AssertRetryDurableMessageRetryingAsync(RetryDurableTestMessage message, int retryCount)
         {
             RetryQueueDbo retryQueue = await GetRetryQueueAsync(message).ConfigureAwait(false);
             if (retryQueue.Id == Guid.Empty)
@@ -110,7 +105,12 @@
             Assert.All(retryQueueItems, i => Enum.Equals(i.Status, RetryQueueItemStatus.Waiting));
         }
 
-        private static async Task<RetryQueueDbo> GetRetryQueueAsync(RetryDurableTestMessage message)
+        public void CleanDatabase()
+        {
+            mongoClient.DropDatabase(databaseName);
+        }
+
+        private async Task<RetryQueueDbo> GetRetryQueueAsync(RetryDurableTestMessage message)
         {
             var start = DateTime.Now;
             Guid retryQueueId = Guid.Empty;
@@ -137,7 +137,7 @@
             return retryQueue;
         }
 
-        private static async Task<List<RetryQueueItemDbo>> GetRetryQueueItemsAsync(
+        private async Task<List<RetryQueueItemDbo>> GetRetryQueueItemsAsync(
             Guid retryQueueId,
             Func<List<RetryQueueItemDbo>, bool> stopCondition)
         {

@@ -7,8 +7,8 @@
         private string cronExpression;
         private bool enabled;
         private int expirationIntervalFactor = 1;
-        private int fetchSize = 96;
-        private string id = string.Empty;
+        private int fetchSize = 256;
+        private string id;
 
         public RetryDurableQueuePollingJobDefinitionBuilder Enabled(bool enabled)
         {
@@ -40,7 +40,7 @@
             return this;
         }
 
-        internal IRetryDurablePollingDefinition Build()
+        internal RetryDurablePollingDefinition Build()
         {
             return new RetryDurablePollingDefinition(
                 this.enabled,

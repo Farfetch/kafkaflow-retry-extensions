@@ -1,35 +1,40 @@
 namespace KafkaFlow.Retry.IntegrationTests
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
     using KafkaFlow.Retry.IntegrationTests.Core;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
+    using KafkaFlow.Retry.IntegrationTests.Core.Storages;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
 
-    public class RetryDurableTests : IDisposable
+    [Collection("BootstrapperHostCollection")]
+    public class RetryDurableTests
     {
+        private readonly BootstrapperHostFixture bootstrapperHostFixture;
         private readonly Fixture fixture = new Fixture();
-        private IServiceProvider provider;
 
-        public RetryDurableTests()
+        public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
-            this.provider = Bootstrapper.GetServiceProvider();
+            this.bootstrapperHostFixture = bootstrapperHostFixture;
+
             MessageStorage.Clear();
             MessageStorage.ThrowException = true;
-            MongoStorage.DropDatabase();
         }
 
-        public void Dispose()
+        public static IEnumerable<object[]> GetStorages()
         {
-            Bootstrapper.KafkaBusStop();
+            yield return new object[] { typeof(MongoStorage), typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>) };
+            yield return new object[] { typeof(SqlServerStorage), typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>) };
         }
 
-        [Fact]
-        public async Task RetryDurableTest_ConsumerStrategyGuaranteeOrderedConsumption()
+        [Theory]
+        [MemberData(nameof(GetStorages))]
+        internal async Task RetryDurableTest_ConsumerStrategyGuaranteeOrderedConsumption(Type storageType, Type producerType)
         {
             // Arrange
             var numberOfMessages = 5;
@@ -37,8 +42,10 @@ namespace KafkaFlow.Retry.IntegrationTests
             var numberOfTimesThatEachMessageIsTriedBeforeDurable = 4;
             var numberOfTimesThatEachMessageIsTriedDuringDurable = 2;
             var numberOfTimesThatEachMessageIsTriedWhenDone = numberOfMessagesByEachSameKey;
-            var producer = this.provider.GetRequiredService<IMessageProducer<RetryDurableProducer>>();
+            var storage = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService(storageType) as IStorage;
+            var producer = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService(producerType) as IMessageProducer;
             var messages = this.fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
+            storage.CleanDatabase();
 
             // Act
             messages.ForEach(
@@ -58,7 +65,7 @@ namespace KafkaFlow.Retry.IntegrationTests
 
             foreach (var message in messages)
             {
-                await MongoStorage.AssertRetryDurableMessageCreationAsync(message, numberOfMessagesByEachSameKey).ConfigureAwait(false);
+                await storage.AssertRetryDurableMessageCreationAsync(message, numberOfMessagesByEachSameKey).ConfigureAwait(false);
             }
 
             // Assert - Retrying
@@ -71,7 +78,7 @@ namespace KafkaFlow.Retry.IntegrationTests
 
             foreach (var message in messages)
             {
-                await MongoStorage.AssertRetryDurableMessageRetryingAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
+                await storage.AssertRetryDurableMessageRetryingAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
             }
 
             // Assert - Done
@@ -85,7 +92,7 @@ namespace KafkaFlow.Retry.IntegrationTests
 
             foreach (var message in messages)
             {
-                await MongoStorage.AssertRetryDurableMessageDoneAsync(message).ConfigureAwait(false);
+                await storage.AssertRetryDurableMessageDoneAsync(message).ConfigureAwait(false);
             }
         }
     }

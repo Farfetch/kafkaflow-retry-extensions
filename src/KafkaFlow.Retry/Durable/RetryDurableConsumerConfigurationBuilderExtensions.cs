@@ -4,11 +4,13 @@
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
 
-    internal static class ConfigurationBuilderExtensions
+    internal static class RetryDurableConsumerConfigurationBuilderExtensions
     {
         public static IConsumerMiddlewareConfigurationBuilder RetryConsumerStrategy(
-                          this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-          RetryConsumerStrategy retryConsumerStrategy)
+            this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+            RetryConsumerStrategy retryConsumerStrategy,
+            IRetryDurableQueueRepository retryDurableQueueRepository,
+            IUtf8Encoder utf8Encoder)
         {
             switch (retryConsumerStrategy)
             {
@@ -17,8 +19,8 @@
                         middlewareBuilder.Add(
                            resolver => new RetryDurableConsumerGuaranteeOrderedMiddleware(
                                resolver.Resolve<ILogHandler>(),
-                               resolver.Resolve<IRetryDurableQueueRepository>(),
-                               resolver.Resolve<IUtf8Encoder>()
+                               retryDurableQueueRepository,
+                               utf8Encoder
                            ));
                     }
                     break;
@@ -28,8 +30,8 @@
                         middlewareBuilder.Add(
                            resolver => new RetryDurableConsumerLatestMiddleware(
                                resolver.Resolve<ILogHandler>(),
-                               resolver.Resolve<IRetryDurableQueueRepository>(),
-                               resolver.Resolve<IUtf8Encoder>()
+                               retryDurableQueueRepository,
+                               utf8Encoder
                            ));
                     }
                     break;

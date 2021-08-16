@@ -26,7 +26,7 @@
             const int TimeoutErrorCode = -2;
             const int ServerIsInaccessible = -2146232060;
 
-            const string sqlServerConnectionString = "Server=localhost;Database=SVC_KAFKA_FLOW_RETRY_DURABLE;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=Finance Transactions Journal Service";
+            const string sqlServerConnectionString = "Server=localhost;Database=SVC_KAFKA_FLOW_RETRY_DURABLE;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=KafkaFlow Retry Sample";
             const string sqlServerName = "SVC_KAFKA_FLOW_RETRY_DURABLE";
 
             const string mongoDbconnectionString = "mongodb://localhost:27017/SVC_KAFKA_FLOW_RETRY_DURABLE";
@@ -67,6 +67,20 @@
                                                     configure => configure
                                                         .Handle<NonBlockingException>()
                                                         .WithMessageType(typeof(TestMessage))
+                                                        .WithMongoDbDataProvider(
+                                                            mongoDbconnectionString,
+                                                            mongoDbdatabaseName,
+                                                            mongoDbretryQueueCollectionName,
+                                                            mongoDbretryQueueItemCollectionName)
+                                                        .WithRetryPlanBeforeRetryDurable(
+                                                            configure => configure
+                                                                .TryTimes(3)
+                                                                .WithTimeBetweenTriesPlan(
+                                                                    TimeSpan.FromMilliseconds(250),
+                                                                    TimeSpan.FromMilliseconds(500),
+                                                                    TimeSpan.FromMilliseconds(1000))
+                                                                .ShouldPauseConsumer(false)
+                                                        )
                                                         .WithEmbeddedRetryCluster(
                                                             cluster,
                                                             configure => configure
@@ -88,23 +102,7 @@
                                                                 .WithExpirationIntervalFactor(1)
                                                                 .WithFetchSize(10)
                                                                 .Enabled(true)
-                                                        )
-                                                        //.WithSqlServerDataProvider(sqlServerConnectionString, sqlServerName)
-                                                        .WithMongoDbDataProvider(
-                                                            mongoDbconnectionString,
-                                                            mongoDbdatabaseName,
-                                                            mongoDbretryQueueCollectionName,
-                                                            mongoDbretryQueueItemCollectionName)
-                                                        .WithRetryPlanBeforeRetryDurable(
-                                                            configure => configure
-                                                                .TryTimes(3)
-                                                                .WithTimeBetweenTriesPlan(
-                                                                    TimeSpan.FromMilliseconds(250),
-                                                                    TimeSpan.FromMilliseconds(500),
-                                                                    TimeSpan.FromMilliseconds(1000))
-                                                                .ShouldPauseConsumer(false)
-                                                        )
-                                                )
+                                                        ))
                                                 .RetrySimple(
                                                     (configure) => configure
                                                         .Handle<CustomException>()

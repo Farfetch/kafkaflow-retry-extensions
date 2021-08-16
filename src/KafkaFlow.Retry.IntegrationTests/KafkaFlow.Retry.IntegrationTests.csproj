@@ -26,6 +26,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj" />
+    <ProjectReference Include="..\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj" />
     <ProjectReference Include="..\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
   </ItemGroup>
 
