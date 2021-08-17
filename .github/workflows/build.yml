@@ -138,11 +138,6 @@ jobs:
     #     export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
     #     export PATH=$PATH:$JAVA_HOME
         
-    # - name: MongoDB in GitHub Actions
-    #   uses: supercharge/mongodb-github-action@1.6.0
-    #   with:
-    #     mongodb-version: '4.4'
-        
     # - name: SonarScanner analysis begin
     #   run: dotnet sonarscanner begin /k:<TBD> /v:$BUILD_VERSION /o:<TBD> /d:sonar.host.url=https://sonarcloud.io /d:sonar.login=<TBD> /d:sonar.coverage.exclusions="tests/*Tests/**" /d:sonar.coverageReportPaths="../../coverage-outputs/SonarQube.xml" /d:sonar.branch.name=$BRANCH_NAME
       
@@ -152,6 +147,21 @@ jobs:
     - name: Build
       run: dotnet build --no-restore -c Release src/KafkaFlow.Retry.sln
       
+    - name: Start MongoDB
+      uses: supercharge/mongodb-github-action@1.6.0
+      with:
+        mongodb-version: '4.4'
+        #mongodb-port: 27017 (default)
+    
+    - name: Start Kafka 
+      uses: 280780363/kafka-action@v1.0
+      with:
+        kafka version: "latest" # Optional, kafka version
+        zookeeper version: "latest" # Optional, zookeeper version
+        kafka port: 9092 # Optional, kafka port. Connect using localhost:9092
+        zookeeper port: 2181 # Optional, zookeeper port
+        auto create topic: "true" # Optional, auto create kafka topic
+
     - name: Test
       run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
       
