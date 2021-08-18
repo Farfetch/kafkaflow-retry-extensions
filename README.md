@@ -80,9 +80,12 @@ Read the [Contributing guidelines](CONTRIBUTING.md)
 
 ## Maintainers
 
--   [Rodrigo Belo](https://github.com/rodrigobelo)
--   [Martinho Novais](https://github.com/martinhonovais)
+-   [Carlos Goias](https://github.com/carlosgoias)
+-   [Fernando Marins](https://github.com/fernando-a-marins)
 -   [Luís Garcês](https://github.com/luispfgarces)
+-   [Martinho Novais](https://github.com/martinhonovais)
+-   [Rodrigo Belo](https://github.com/rodrigobelo)
+
 
 ## License
 
