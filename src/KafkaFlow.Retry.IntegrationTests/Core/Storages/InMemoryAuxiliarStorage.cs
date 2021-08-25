@@ -7,7 +7,7 @@
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using Xunit;
 
-    internal static class MessageStorage
+    internal static class InMemoryAuxiliarStorage
     {
         private const int TimeoutSec = 60;
         private static readonly ConcurrentBag<RetryDurableTestMessage> RetryDurableMessage = new ConcurrentBag<RetryDurableTestMessage>();

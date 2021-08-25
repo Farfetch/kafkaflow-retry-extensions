@@ -60,16 +60,16 @@
 
                 await next(context).ConfigureAwait(false);
             }
-            catch (Exception ex)
+            catch (Exception exception)
             {
-                logHandler.Error("RetryDurableConsumerGuaranteeOrderedMiddleware", ex, new
-                {
-                    queueId,
-                    itemId,
-                    attemptsCount,
-                    sort,
-                    pendingItems
-                });
+                await this
+                    .UpdateAsync(
+                        RetryQueueItemStatus.Waiting,
+                        queueId,
+                        itemId,
+                        attemptsCount,
+                        exception
+                    ).ConfigureAwait(false);
             }
         }
 

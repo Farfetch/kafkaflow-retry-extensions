@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.Core
 {
     using System;
+    using System.Collections.Generic;
     using System.IO;
     using System.Threading;
     using global::Microsoft.Extensions.Configuration;
@@ -11,6 +12,7 @@
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
     using KafkaFlow.Retry.MongoDb;
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
@@ -246,7 +248,7 @@
                                                         configure => configure
                                                             .Enabled(true)
                                                             .WithId("custom_search_key_durable_sql_server")
-                                                            .WithCronExpression("0/15 * * ? * * *")
+                                                            .WithCronExpression("0/30 * * ? * * *")
                                                             .WithExpirationIntervalFactor(1)
                                                             .WithFetchSize(256))
                                                     .WithSqlServerDataProvider(
@@ -271,16 +273,15 @@
             services.AddSingleton<RetryForeverProducer>();
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>();
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>();
-            services.AddSingleton(
-                new SqlServerStorage(
-                    sqlServerConnectionString,
-                    sqlServerDatabaseName));
-            services.AddSingleton(
-                new MongoStorage(
-                    mongoDbConnectionString,
-                    mongoDbDatabaseName,
-                    mongoDbRetryQueueCollectionName,
-                    mongoDbRetryQueueItemCollectionName));
+            services.AddSingleton<IRepositoryProvider>(
+                sp => new RepositoryProvider(
+                    new List<IRepository>
+                    {
+                        new MongoDbRepository(mongoDbConnectionString, mongoDbDatabaseName, mongoDbRetryQueueCollectionName, mongoDbRetryQueueItemCollectionName),
+                        new SqlServerRepository(sqlServerConnectionString, sqlServerDatabaseName)
+                    })
+                );
+            services.AddSingleton<PhysicalStorage>();
         }
     }
 }
