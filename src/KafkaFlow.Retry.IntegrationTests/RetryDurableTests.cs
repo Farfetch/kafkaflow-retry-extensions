@@ -9,6 +9,7 @@ namespace KafkaFlow.Retry.IntegrationTests
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
 
@@ -17,24 +18,28 @@ namespace KafkaFlow.Retry.IntegrationTests
     {
         private readonly BootstrapperHostFixture bootstrapperHostFixture;
         private readonly Fixture fixture = new Fixture();
+        private readonly PhysicalStorage physicalStorage;
+        private readonly IRepositoryProvider repositoryProvider;
+        private readonly IServiceProvider serviceProvider;
 
         public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
-            this.bootstrapperHostFixture = bootstrapperHostFixture;
-
-            MessageStorage.Clear();
-            MessageStorage.ThrowException = true;
+            this.serviceProvider = bootstrapperHostFixture.ServiceProvider;
+            this.physicalStorage = this.serviceProvider.GetRequiredService<PhysicalStorage>();
+            this.repositoryProvider = this.serviceProvider.GetRequiredService<IRepositoryProvider>();
+            InMemoryAuxiliarStorage.Clear();
+            InMemoryAuxiliarStorage.ThrowException = true;
         }
 
         public static IEnumerable<object[]> GetStorages()
         {
-            yield return new object[] { typeof(MongoStorage), typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>) };
-            yield return new object[] { typeof(SqlServerStorage), typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>) };
+            yield return new object[] { typeof(MongoDbRepository), typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>) };
+            yield return new object[] { typeof(SqlServerRepository), typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>) };
         }
 
         [Theory]
         [MemberData(nameof(GetStorages))]
-        internal async Task RetryDurableTest_ConsumerStrategyGuaranteeOrderedConsumption(Type storageType, Type producerType)
+        internal async Task RetryDurableTest_ConsumerStrategyGuaranteeOrderedConsumption(Type repositoryType, Type producerType)
         {
             // Arrange
             var numberOfMessages = 5;
@@ -42,11 +47,9 @@ namespace KafkaFlow.Retry.IntegrationTests
             var numberOfTimesThatEachMessageIsTriedBeforeDurable = 4;
             var numberOfTimesThatEachMessageIsTriedDuringDurable = 2;
             var numberOfTimesThatEachMessageIsTriedWhenDone = numberOfMessagesByEachSameKey;
-            var storage = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService(storageType) as IStorage;
-            var producer = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService(producerType) as IMessageProducer;
+            var producer = this.serviceProvider.GetRequiredService(producerType) as IMessageProducer;
             var messages = this.fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
-            storage.CleanDatabase();
-
+            await this.repositoryProvider.GetRepositoryOfType(repositoryType).CleanDatabaseAsync().ConfigureAwait(false);
             // Act
             messages.ForEach(
                 m =>
@@ -60,39 +63,39 @@ namespace KafkaFlow.Retry.IntegrationTests
             // Assert - Creation
             foreach (var message in messages)
             {
-                await MessageStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedBeforeDurable).ConfigureAwait(false);
+                await InMemoryAuxiliarStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedBeforeDurable).ConfigureAwait(false);
             }
 
             foreach (var message in messages)
             {
-                await storage.AssertRetryDurableMessageCreationAsync(message, numberOfMessagesByEachSameKey).ConfigureAwait(false);
+                await this.physicalStorage.AssertRetryDurableMessageCreationAsync(repositoryType, message, numberOfMessagesByEachSameKey).ConfigureAwait(false);
             }
 
             // Assert - Retrying
-            MessageStorage.Clear();
+            InMemoryAuxiliarStorage.Clear();
 
             foreach (var message in messages)
             {
-                await MessageStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
+                await InMemoryAuxiliarStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
             }
 
             foreach (var message in messages)
             {
-                await storage.AssertRetryDurableMessageRetryingAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
+                await this.physicalStorage.AssertRetryDurableMessageRetryingAsync(repositoryType, message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
             }
 
             // Assert - Done
-            MessageStorage.ThrowException = false;
-            MessageStorage.Clear();
+            InMemoryAuxiliarStorage.ThrowException = false;
+            InMemoryAuxiliarStorage.Clear();
 
             foreach (var message in messages)
             {
-                await MessageStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedWhenDone).ConfigureAwait(false);
+                await InMemoryAuxiliarStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedWhenDone).ConfigureAwait(false);
             }
 
             foreach (var message in messages)
             {
-                await storage.AssertRetryDurableMessageDoneAsync(message).ConfigureAwait(false);
+                await this.physicalStorage.AssertRetryDurableMessageDoneAsync(repositoryType, message).ConfigureAwait(false);
             }
         }
     }

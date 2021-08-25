@@ -18,11 +18,9 @@
 
         public Task Handle(IMessageContext context, RetryDurableTestMessage message)
         {
-            this.logHandler.Info($"{message.Key}#{message.Value}", context.ConsumerContext.Offset);
+            InMemoryAuxiliarStorage.Add(message);
 
-            MessageStorage.Add(message);
-
-            if (MessageStorage.ThrowException)
+            if (InMemoryAuxiliarStorage.ThrowException)
             {
                 throw new RetryDurableTestException();
             }
