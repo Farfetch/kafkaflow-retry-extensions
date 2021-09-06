@@ -150,7 +150,7 @@ jobs:
       run: dotnet build --no-restore -c Release src/KafkaFlow.Retry.sln
       
     - name: Start SqlServer
-      run: docker run -d -p 1433:1433 -e ACCEPT_EULA=${{ env.ACCEPT_EULA }} -e SA_PASSWORD=${{ env.SQLSERVER_SA_PASSWORD }} mcr.microsoft.com/mssql/server:2017-latest
+      run: docker run -d -p 1433:1433 -e ACCEPT_EULA=${{ env.ACCEPT_EULA }} -e SA_PASSWORD=${{ env.SQLSERVER_SA_PASSWORD }} -e MSSQL_PID=Developer mcr.microsoft.com/mssql/server:2017-latest
       
     - name: Start MongoDB
       uses: supercharge/mongodb-github-action@1.6.0
