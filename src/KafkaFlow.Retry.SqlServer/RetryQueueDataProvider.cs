@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
@@ -15,6 +16,7 @@
     using KafkaFlow.Retry.SqlServer.Readers;
     using KafkaFlow.Retry.SqlServer.Repositories;
 
+    [ExcludeFromCodeCoverage]
     internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
     {
         private readonly IConnectionProvider connectionProvider;

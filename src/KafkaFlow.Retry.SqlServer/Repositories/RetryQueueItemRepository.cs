@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
@@ -11,6 +12,7 @@
     using KafkaFlow.Retry.Durable.Repository.Model;
     using KafkaFlow.Retry.SqlServer.Model;
 
+    [ExcludeFromCodeCoverage]
     internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
     {
         public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo)

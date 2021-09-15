@@ -25,6 +25,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API", "Kafk
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.API.Sample", "..\samples\KafkaFlow.Retry.API.Sample\KafkaFlow.Retry.API.Sample.csproj", "{F27309CD-D796-425B-B5D6-780B7B57E9C7}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.UnitTests", "KafkaFlow.Retry.UnitTests\KafkaFlow.Retry.UnitTests.csproj", "{1476B630-9D07-420E-96D1-668EF6D01D6C}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -55,6 +57,10 @@ Global
 		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1476B630-9D07-420E-96D1-668EF6D01D6C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1476B630-9D07-420E-96D1-668EF6D01D6C}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1476B630-9D07-420E-96D1-668EF6D01D6C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1476B630-9D07-420E-96D1-668EF6D01D6C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -66,6 +72,7 @@ Global
 		{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8} = {90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}
 		{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F} = {5AE4E956-15A8-4117-9A9D-97B53060FE4C}
 		{F27309CD-D796-425B-B5D6-780B7B57E9C7} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+		{1476B630-9D07-420E-96D1-668EF6D01D6C} = {F92E5E32-4611-44A1-9EF6-0091F337877B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A953E534-FBCA-4F30-9CA5-96F67C1A49D8}

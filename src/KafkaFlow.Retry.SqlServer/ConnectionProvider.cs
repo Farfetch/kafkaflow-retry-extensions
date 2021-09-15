@@ -1,7 +1,9 @@
 ﻿namespace KafkaFlow.Retry.SqlServer
 {
+    using System.Diagnostics.CodeAnalysis;
     using Dawn;
 
+    [ExcludeFromCodeCoverage]
     internal sealed class ConnectionProvider : IConnectionProvider
     {
         public IDbConnection Create(SqlServerDbSettings sqlServerDbSettings)

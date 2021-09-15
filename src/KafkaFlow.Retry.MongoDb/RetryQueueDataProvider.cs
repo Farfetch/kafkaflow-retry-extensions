@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
@@ -18,6 +19,7 @@
     using MongoDB.Driver;
     using MongoDB.Driver.Linq;
 
+    [ExcludeFromCodeCoverage]
     internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
     {
         private readonly DbContext dbContext;

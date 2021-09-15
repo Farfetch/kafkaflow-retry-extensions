@@ -10,7 +10,6 @@
     using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry;
-    using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
 
@@ -90,11 +89,11 @@
                                                                 .Enabled(true)
                                                         )
                                                         //.WithSqlServerDataProvider(sqlServerConnectionString, sqlServerName)
-                                                        .WithMongoDbDataProvider(
+                                                        /*.WithMongoDbDataProvider(
                                                             mongoDbconnectionString,
                                                             mongoDbdatabaseName,
                                                             mongoDbretryQueueCollectionName,
-                                                            mongoDbretryQueueItemCollectionName)
+                                                            mongoDbretryQueueItemCollectionName)*/
                                                         .WithRetryPlanBeforeRetryDurable(
                                                             configure => configure
                                                                 .TryTimes(3)

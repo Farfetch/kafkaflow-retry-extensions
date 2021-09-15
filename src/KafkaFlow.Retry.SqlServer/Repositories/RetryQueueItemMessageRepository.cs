@@ -2,11 +2,13 @@
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
     using KafkaFlow.Retry.SqlServer.Model;
 
+    [ExcludeFromCodeCoverage]
     internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRepository
     {
         public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo)

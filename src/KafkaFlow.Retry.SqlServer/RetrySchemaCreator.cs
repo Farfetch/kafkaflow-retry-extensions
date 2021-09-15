@@ -2,10 +2,12 @@
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using Dawn;
     using KafkaFlow.Retry.SqlServer.Model.Schema;
 
+    [ExcludeFromCodeCoverage]
     internal class RetrySchemaCreator : IRetrySchemaCreator
     {
         private readonly IEnumerable<Script> schemaScripts;

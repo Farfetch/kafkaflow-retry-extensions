@@ -2,20 +2,24 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Dawn;
     using KafkaFlow;
     using Polly;
 
     internal class RetrySimpleMiddleware : IMessageMiddleware
     {
-        private readonly RetrySimpleDefinition kafkaRetryDefinition;
+        private readonly IRetrySimpleDefinition kafkaRetryDefinition;
         private readonly ILogHandler logHandler;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
         public RetrySimpleMiddleware(
             ILogHandler logHandler,
-            RetrySimpleDefinition kafkaRetryDefinition)
+            IRetrySimpleDefinition kafkaRetryDefinition)
         {
+            Guard.Argument(logHandler).NotNull();
+            Guard.Argument(kafkaRetryDefinition).NotNull();
+
             this.logHandler = logHandler;
             this.kafkaRetryDefinition = kafkaRetryDefinition;
         }

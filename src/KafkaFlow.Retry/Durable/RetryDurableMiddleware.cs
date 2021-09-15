@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Dawn;
     using KafkaFlow;
     using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Repository;
@@ -21,6 +22,10 @@
             IRetryDurableQueueRepository retryDurableQueueRepository,
             IRetryDurableDefinition retryDurableDefinition)
         {
+            Guard.Argument(logHandler).NotNull();
+            Guard.Argument(retryDurableQueueRepository).NotNull();
+            Guard.Argument(retryDurableDefinition).NotNull();
+
             this.logHandler = logHandler;
             this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.retryDurableDefinition = retryDurableDefinition;

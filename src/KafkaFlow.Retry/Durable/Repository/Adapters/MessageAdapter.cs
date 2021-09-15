@@ -1,5 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
 {
+    using Dawn;
     using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Serializers;
 
@@ -12,6 +13,9 @@
             IGzipCompressor gzipCompressor,
             IProtobufNetSerializer protobufNetSerializer)
         {
+            Guard.Argument(gzipCompressor).NotNull();
+            Guard.Argument(protobufNetSerializer).NotNull();
+
             this.gzipCompressor = gzipCompressor;
             this.protobufNetSerializer = protobufNetSerializer;
         }

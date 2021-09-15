@@ -11,6 +11,8 @@
 
         public RetryQueueItemDboFactory(IMessageAdapter messageAdapter)
         {
+            Guard.Argument(messageAdapter, nameof(messageAdapter)).NotNull();
+
             this.messageAdapter = messageAdapter;
         }
 
