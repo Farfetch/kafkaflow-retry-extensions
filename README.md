@@ -174,6 +174,7 @@ Read the [Contributing guidelines](CONTRIBUTING.md)
 -   [Luís Garcês](https://github.com/luispfgarces)
 -   [Martinho Novais](https://github.com/martinhonovais)
 -   [Rodrigo Belo](https://github.com/rodrigobelo)
+-   [Sérgio Ribeiro](https://github.com/sergioamribeiro)
 
 
 ## License
