@@ -77,13 +77,13 @@ jobs:
 
         if [[ $LAST_COMMIT_MESSAGE =~ ^major:.*$ ]]; then
           echo "Bumping to next major version."
-          NEXT_VERSION="v$MAJOR"
+          NEXT_VERSION="$MAJOR"
         elif [[ $LAST_COMMIT_MESSAGE =~ ^feat:.*$ ]]; then
           echo "Bumping to next minor version."
-          NEXT_VERSION="v$MINOR"
+          NEXT_VERSION="$MINOR"
         elif [[ $LAST_COMMIT_MESSAGE =~ ^(fix|ci|refactor|chore):.*$ ]]; then
           echo "Bumping to next patch version."
-          NEXT_VERSION="v$PATCH"
+          NEXT_VERSION="$PATCH"
         else
           echo "Skipping version bump."
           NEXT_VERSION="$CURRENT"
