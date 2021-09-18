@@ -8,6 +8,10 @@ jobs:
   release:
     runs-on: ubuntu-latest
 
+    env:
+      BUILD_VERSION: ${{ github.event.release.tag_name }}
+      NUGET_SOURCE: https://api.nuget.org/v3/index.json
+
     steps:
     - uses: actions/checkout@v2
 
@@ -16,20 +20,29 @@ jobs:
       with:
         dotnet-version: 3.1.x
       
+    - name: Update project version
+      uses: roryprimrose/set-vs-sdk-project-version@v1
+      with:
+        projectFilter: '*.csproj'
+        version: ${{ env.BUILD_VERSION }}
+        assemblyVersion: ${{ env.BUILD_VERSION }}
+        fileVersion: ${{ env.BUILD_VERSION }}
+        informationalVersion: ${{ env.BUILD_VERSION }}
+
     - name: Pack KafkaFlow.Retry
-      run: dotnet pack src/KafkaFlow.Retry/KafkaFlow.Retry.csproj -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      run: dotnet pack src/KafkaFlow.Retry/KafkaFlow.Retry.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
           
     - name: Pack KafkaFlow.Retry.API
-      run: dotnet pack src/KafkaFlow.Retry.API/KafkaFlow.Retry.API.csproj -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      run: dotnet pack src/KafkaFlow.Retry.API/KafkaFlow.Retry.API.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
       
     - name: Pack KafkaFlow.Retry.SqlServer
-      run: dotnet pack src/KafkaFlow.Retry.SqlServer/KafkaFlow.Retry.SqlServer.csproj -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      run: dotnet pack src/KafkaFlow.Retry.SqlServer/KafkaFlow.Retry.SqlServer.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
       
     - name: Pack KafkaFlow.Retry.MongoDb
-      run: dotnet pack src/KafkaFlow.Retry.MongoDb/KafkaFlow.Retry.MongoDb.csproj -c Release --include-symbols /p:Version=${{ github.event.release.tag_name }}
+      run: dotnet pack src/KafkaFlow.Retry.MongoDb/KafkaFlow.Retry.MongoDb.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
 
     - name: Publish
-      run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s https://api.nuget.org/v3/index.json --skip-duplicate
+      run: dotnet nuget push ./**/*.nupkg -k ${{ secrets.NUGET_PUBLISH_KEY }} -s ${{ env.NUGET_SOURCE }} --skip-duplicate
 
     - name: Print Version
-      run: echo ${{ github.event.release.tag_name }}
+      run: echo ${{ env.BUILD_VERSION }}
