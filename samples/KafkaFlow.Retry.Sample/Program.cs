@@ -106,12 +106,14 @@
                                                 .RetrySimple(
                                                     (configure) => configure
                                                         .Handle<CustomException>()
-                                                        .TryTimes(2)
+                                                        .Handle<CustomException>()
+                                                        .TryTimes(3)
                                                         .WithTimeBetweenTriesPlan((retryCount) =>
                                                         {
                                                             var plan = new[]
                                                             {
                                                             TimeSpan.FromMilliseconds(1500),
+                                                            TimeSpan.FromMilliseconds(2000),
                                                             TimeSpan.FromMilliseconds(2000)
                                                             };
 

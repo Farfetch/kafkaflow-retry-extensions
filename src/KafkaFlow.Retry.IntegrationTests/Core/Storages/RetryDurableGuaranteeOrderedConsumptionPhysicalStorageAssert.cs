@@ -9,11 +9,11 @@
     using MongoDB.Driver;
     using Xunit;
 
-    public class PhysicalStorage
+    public class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IPhysicalStorageAssert
     {
         private readonly IRepositoryProvider repositoryProvider;
 
-        public PhysicalStorage(IRepositoryProvider repositoryProvider)
+        public RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert(IRepositoryProvider repositoryProvider)
         {
             this.repositoryProvider = repositoryProvider;
         }
