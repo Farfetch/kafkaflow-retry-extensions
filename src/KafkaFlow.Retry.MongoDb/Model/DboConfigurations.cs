@@ -53,7 +53,7 @@
 
         internal static void TryRegisterClassMapppings()
         {
-            if (BsonClassMap.IsClassMapRegistered(typeof(RetryQueueDbo)))
+            if (!BsonClassMap.IsClassMapRegistered(typeof(RetryQueueDbo)))
             {
                 BsonClassMap.RegisterClassMap<RetryQueueDbo>(cm =>
                     {
@@ -62,7 +62,7 @@
                     });
             }
 
-            if (BsonClassMap.IsClassMapRegistered(typeof(RetryQueueItemDbo)))
+            if (!BsonClassMap.IsClassMapRegistered(typeof(RetryQueueItemDbo)))
             {
                 BsonClassMap.RegisterClassMap<RetryQueueItemDbo>(cm =>
                     {
