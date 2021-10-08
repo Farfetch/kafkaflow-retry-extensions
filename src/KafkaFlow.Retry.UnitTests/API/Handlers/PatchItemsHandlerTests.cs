@@ -2,7 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Net;
+    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
@@ -13,9 +16,11 @@
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using global::KafkaFlow.Retry.UnitTests.API.Utilities;
+    using Microsoft.AspNetCore.Http;
     using Moq;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class PatchItemsHandlerTests
     {
         private readonly string httpMethod = "PATCH";
@@ -71,12 +76,31 @@
         }
 
         [Fact]
-        public async Task PatchItemsHandler_HandleAsync_WithErrorInDeserialization_ReturnsBadRequest()
+        public async Task PatchItemsHandler_HandleAsync_WithErrorInDeserialization()
         {
             // arrange
-            var wrongDto = new { DummyProp = "some text" };
+            string expectedDataException = "Newtonsoft.Json.JsonSerializationException";
+            var wrongDto = new List<FakeDto> { new FakeDto { DummyProperty = "some text" } };
 
-            var httpContext = await HttpContextHelper.CreateContext(this.resourcePath, this.httpMethod, wrongDto);
+            var mockHttpContext = HttpContextHelper.MockHttpContext(this.resourcePath, this.httpMethod, requestBody: wrongDto);
+
+            var httpResponse = new Mock<HttpResponse>();
+            string actualData = null;
+
+            httpResponse
+                .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .Callback((byte[] data, int offset, int length, CancellationToken token) =>
+                {
+                    if (length > 0)
+                    {
+                        actualData = Encoding.UTF8.GetString(data);
+                    }
+                })
+                .Returns(Task.CompletedTask);
+
+            mockHttpContext
+                .SetupGet(ctx => ctx.Response)
+                .Returns(httpResponse.Object);
 
             var handler = new PatchItemsHandler(
              Mock.Of<IRetryDurableQueueRepositoryProvider>(),
@@ -85,11 +109,10 @@
              );
 
             // act
-            await handler.HandleAsync(httpContext.Request, httpContext.Response).ConfigureAwait(false);
+            await handler.HandleAsync(mockHttpContext.Object.Request, mockHttpContext.Object.Response).ConfigureAwait(false);
 
             // assert
-            // TODO test is not working because http CreateContext() cannot write the body properly
-            //Assert.Equal((int)HttpStatusCode.BadRequest, httpContext.Response.StatusCode);
+            Assert.Contains(expectedDataException, actualData);
         }
 
         [Theory]
@@ -157,65 +180,41 @@
                 });
         }
 
+        internal class FakeDto
+        {
+            public string DummyProperty { get; set; }
+        }
+
         private class DependenciesThrowingExceptionsData : IEnumerable<object[]>
         {
-            private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProvider;
-            private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProviderWithException;
-            private readonly Mock<IUpdateItemsInputAdapter> inputAdapter;
-            private readonly Mock<IUpdateItemsInputAdapter> inputAdapterWithException;
-            private readonly Mock<IUpdateItemsResponseDtoAdapter> responseDtoAdapter;
-            private readonly Mock<IUpdateItemsResponseDtoAdapter> responseDtoAdapterWithException;
-
-            public DependenciesThrowingExceptionsData()
-            {
-                this.inputAdapter = new Mock<IUpdateItemsInputAdapter>();
-                this.dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
-                this.responseDtoAdapter = new Mock<IUpdateItemsResponseDtoAdapter>();
-
-                this.inputAdapterWithException = new Mock<IUpdateItemsInputAdapter>();
-                inputAdapterWithException
-                    .Setup(mock => mock.Adapt(It.IsAny<UpdateItemsRequestDto>()))
-                    .Throws(new Exception());
-
-                this.dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
-                dataProviderWithException
-                    .Setup(mock => mock.UpdateItemsAsync(It.IsAny<UpdateItemsInput>()))
-                    .ThrowsAsync(new Exception());
-
-                this.responseDtoAdapterWithException = new Mock<IUpdateItemsResponseDtoAdapter>();
-                responseDtoAdapterWithException
-                    .Setup(mock => mock.Adapt(It.IsAny<UpdateItemsResult>()))
-                    .Throws(new Exception());
-            }
-
             public IEnumerator<object[]> GetEnumerator()
             {
                 yield return new object[] // success case
                 {
-                    inputAdapter.Object,
-                    dataProvider.Object,
-                    responseDtoAdapter.Object,
+                    Mock.Of<IUpdateItemsInputAdapter>(),
+                    Mock.Of<IRetryDurableQueueRepositoryProvider>(),
+                    Mock.Of<IUpdateItemsResponseDtoAdapter>(),
                     (int)HttpStatusCode.OK
                 };
                 yield return new object[]
                 {
-                    inputAdapterWithException.Object,
-                    dataProvider.Object,
-                    responseDtoAdapter.Object,
+                    null,
+                    Mock.Of<IRetryDurableQueueRepositoryProvider>(),
+                    Mock.Of<IUpdateItemsResponseDtoAdapter>(),
                     (int)HttpStatusCode.InternalServerError
                 };
                 yield return new object[]
                 {
-                    inputAdapter.Object,
-                    dataProviderWithException.Object,
-                    responseDtoAdapter.Object,
+                    Mock.Of<IUpdateItemsInputAdapter>(),
+                    null,
+                    Mock.Of<IUpdateItemsResponseDtoAdapter>(),
                     (int)HttpStatusCode.InternalServerError
                 };
                 yield return new object[]
                 {
-                    inputAdapter.Object,
-                    dataProvider.Object,
-                    responseDtoAdapterWithException.Object,
+                    Mock.Of<IUpdateItemsInputAdapter>(),
+                    Mock.Of<IRetryDurableQueueRepositoryProvider>(),
+                    null,
                     (int)HttpStatusCode.InternalServerError
                 };
             }

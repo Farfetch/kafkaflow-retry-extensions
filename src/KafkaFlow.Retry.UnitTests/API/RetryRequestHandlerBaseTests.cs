@@ -1,9 +1,13 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API
 {
+    using System.Text;
+    using System.Threading;
     using System.Threading.Tasks;
     using FluentAssertions;
     using global::KafkaFlow.Retry.UnitTests.API.Surrogate;
     using global::KafkaFlow.Retry.UnitTests.API.Utilities;
+    using Microsoft.AspNetCore.Http;
+    using Moq;
     using Xunit;
 
     public class RetryRequestHandlerBaseTests
@@ -20,18 +24,34 @@
                 Text = Durable.Repository.Model.RetryQueueStatus.Active
             };
 
-            var httpContext = await HttpContextHelper.CreateContext(ResourcePath, HttpMethod, dto).ConfigureAwait(false);
+            var mockHttpContext = HttpContextHelper.MockHttpContext(ResourcePath, HttpMethod, requestBody: dto);
+
+            var httpResponse = new Mock<HttpResponse>();
+            string actualValue = null;
+
+            httpResponse
+                .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+                .Callback((byte[] data, int offset, int length, CancellationToken token) =>
+                {
+                    if (length > 0)
+                    {
+                        actualValue = Encoding.UTF8.GetString(data);
+                    }
+                })
+                .Returns(Task.CompletedTask);
+
+            mockHttpContext
+                .SetupGet(ctx => ctx.Response)
+                .Returns(httpResponse.Object);
 
             var surrogate = new RetryRequestHandlerSurrogate();
 
             // Act
-            var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response);
+            var result = await surrogate.HandleAsync(mockHttpContext.Object.Request, mockHttpContext.Object.Response);
 
             // Assert
             result.Should().BeTrue();
-
-            //var actualValue = await HttpContextHelper.ReadResponse<DtoSurrogate>(httpContext.Response);
-            //Assert.Equal(dto, actualValue);
+            Assert.Equal(Newtonsoft.Json.JsonConvert.SerializeObject(dto), actualValue);
         }
 
         [Fact]

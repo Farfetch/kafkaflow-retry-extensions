@@ -65,14 +65,14 @@
             return requestDto;
         }
 
-        protected virtual async Task WriteResponseAsync<T>(HttpResponse response, T responseDto, int statusCode)
+        protected virtual Task WriteResponseAsync<T>(HttpResponse response, T responseDto, int statusCode)
         {
             var body = JsonConvert.SerializeObject(responseDto, this.jsonSerializerSettings);
 
             response.ContentType = "application/json";
             response.StatusCode = statusCode;
 
-            await response.WriteAsync(body, Encoding.UTF8).ConfigureAwait(false);
+            return response.WriteAsync(body, Encoding.UTF8);
         }
     }
 }

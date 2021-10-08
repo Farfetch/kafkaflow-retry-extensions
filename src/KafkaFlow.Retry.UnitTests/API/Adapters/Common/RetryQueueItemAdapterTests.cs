@@ -1,12 +1,14 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.Common;
     using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class RetryQueueItemAdapterTests
     {
         private readonly IRetryQueueItemAdapter adapter = new RetryQueueItemAdapter();

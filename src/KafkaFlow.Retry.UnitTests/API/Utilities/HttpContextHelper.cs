@@ -1,11 +1,14 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Utilities
 {
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
     using Microsoft.AspNetCore.Http;
+    using Moq;
     using Newtonsoft.Json;
 
+    [ExcludeFromCodeCoverage]
     internal static class HttpContextHelper
     {
         public static async Task<HttpContext> CreateContext(string path, string method, object requestBody = null)
@@ -17,15 +20,11 @@
 
             if (requestBody is object)
             {
-                // TODO this is not working (it's not writing the request body)
-
                 var body = JsonConvert.SerializeObject(requestBody,
                     new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
 
-                using (var writer = new StreamWriter(context.Request.Body, Encoding.UTF8))
-                {
-                    await writer.WriteAsync(body);
-                }
+                using var writer = new StreamWriter(context.Request.Body, Encoding.UTF8);
+                await writer.WriteAsync(body);
             }
 
             context.Response.Body = new MemoryStream();
@@ -33,9 +32,24 @@
             return context;
         }
 
-        public static HttpContext CreateDefaultContext()
+        public static Mock<HttpContext> MockHttpContext(string path, string method, string contentType = "application/json", object requestBody = null)
         {
-            return new DefaultHttpContext();
+            var context = new Mock<HttpContext>();
+
+            context
+                .SetupGet(ctx => ctx.Request.Path)
+                .Returns(path);
+            context
+                .SetupGet(ctx => ctx.Request.Method)
+                .Returns(method);
+            context
+                .SetupGet(ctx => ctx.Request.ContentType)
+                .Returns(contentType);
+            context
+                .SetupGet(ctx => ctx.Request.Body)
+                .Returns(new MemoryStream(Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(requestBody))));
+
+            return context;
         }
 
         public static async Task<T> ReadResponse<T>(HttpResponse response)

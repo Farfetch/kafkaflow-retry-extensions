@@ -3,6 +3,7 @@
     using System;
     using System.Collections;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Net;
     using System.Text;
@@ -21,6 +22,7 @@
     using Newtonsoft.Json;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class GetItemsHandlerTests
     {
         private readonly Mock<IGetItemsInputAdapter> getItemsInputAdapter = new Mock<IGetItemsInputAdapter>();
