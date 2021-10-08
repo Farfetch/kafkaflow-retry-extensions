@@ -24,7 +24,7 @@
                     new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
 
                 using var writer = new StreamWriter(context.Request.Body, Encoding.UTF8);
-                await writer.WriteAsync(body);
+                await writer.WriteAsync(body).ConfigureAwait(false);
             }
 
             context.Response.Body = new MemoryStream();
@@ -64,7 +64,7 @@
                 var requestMessage = await reader.ReadToEndAsync().ConfigureAwait(false);
 
                 responseDto = JsonConvert.DeserializeObject<T>(requestMessage,
-                    new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
+                    new JsonSerializerSettings { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
             }
 
             return responseDto;

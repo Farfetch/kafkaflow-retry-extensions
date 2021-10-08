@@ -78,7 +78,7 @@
             retryDurableQueueRepositoryProvider.Verify(mock => mock.GetQueuesAsync(getQueuesInput), Times.Once());
             getItemsResponseDtoReader.Verify(mock => mock.Adapt(getQueuesResult), Times.Once());
 
-            await this.AssertResponse(httpContext.Response, expectedGetItemsResponseDto);
+            await this.AssertResponse(httpContext.Response, expectedGetItemsResponseDto).ConfigureAwait(false);
         }
 
         [Theory]
@@ -150,7 +150,7 @@
 
         private GetItemsRequestDto CreateRequestDto()
         {
-            return new GetItemsRequestDto()
+            return new GetItemsRequestDto
             {
                 ItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
                 SeverityLevels = new SeverityLevel[] { SeverityLevel.High },
@@ -161,7 +161,7 @@
 
         private GetItemsResponseDto CreateResponseDto()
         {
-            var queueItemsDto = new RetryQueueItemDto[]
+            var queueItemsDto = new[]
             {
                 new RetryQueueItemDto(),
                 new RetryQueueItemDto()
@@ -177,13 +177,13 @@
 
         private IEnumerable<RetryQueue> CreateRetryQueues()
         {
-            var retryQueueItems = new RetryQueueItem[]
+            var retryQueueItems = new[]
             {
                 new RetryQueueItem(Guid.NewGuid(), 3, DateTime.UtcNow, 1, DateTime.UtcNow, DateTime.UtcNow, RetryQueueItemStatus.Waiting, SeverityLevel.High, "description"),
                 new RetryQueueItem(Guid.NewGuid(), 0, DateTime.UtcNow, 2, null, DateTime.UtcNow, RetryQueueItemStatus.Waiting, SeverityLevel.High, "description"),
             };
 
-            return new RetryQueue[]
+            return new[]
             {
                 new RetryQueue(Guid.NewGuid(), "orderGroupKey", "searchGroupKey", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, retryQueueItems)
             };

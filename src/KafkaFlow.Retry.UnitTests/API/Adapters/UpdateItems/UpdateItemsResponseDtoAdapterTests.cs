@@ -1,11 +1,13 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class UpdateItemsResponseDtoAdapterTests
     {
         private readonly IUpdateItemsResponseDtoAdapter adapter = new UpdateItemsResponseDtoAdapter();
@@ -14,7 +16,7 @@
         public void UpdateItemsResponseDtoAdapter_Adapt_Success()
         {
             // Arrange
-            var expectedResults = new UpdateItemResult[]
+            var expectedResults = new[]
             {
                 new UpdateItemResult(Guid.NewGuid(), UpdateItemResultStatus.ItemIsNotInWaitingState),
                 new UpdateItemResult(Guid.NewGuid(), UpdateItemResultStatus.UpdateIsNotAllowed),

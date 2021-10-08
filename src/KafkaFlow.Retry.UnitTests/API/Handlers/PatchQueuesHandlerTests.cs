@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Net;
     using System.Threading.Tasks;
     using FluentAssertions;
@@ -16,6 +17,7 @@
     using Moq;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class PatchQueuesHandlerTests
     {
         private readonly string httpMethod = "PATCH";
@@ -96,15 +98,15 @@
         private UpdateQueuesInput CreateInput()
         {
             return new UpdateQueuesInput(
-                new string[] { "queueGroupKey1", "queueGroupKey2" },
+                new[] { "queueGroupKey1", "queueGroupKey2" },
                 RetryQueueItemStatus.Cancelled);
         }
 
         private UpdateQueuesRequestDto CreateRequestDto()
         {
-            return new UpdateQueuesRequestDto()
+            return new UpdateQueuesRequestDto
             {
-                QueueGroupKeys = new string[] { "queueGroupKey1", "queueGroupKey2" },
+                QueueGroupKeys = new[] { "queueGroupKey1", "queueGroupKey2" },
                 ItemStatus = RetryQueueItemStatusDto.Cancelled
             };
         }
@@ -113,7 +115,7 @@
         {
             return new UpdateQueuesResponseDto()
             {
-                UpdateQueuesResults = new UpdateQueueResultDto[]
+                UpdateQueuesResults = new[]
                 {
                     new UpdateQueueResultDto("queueGroupKey1", UpdateQueueResultStatus.Updated, RetryQueueStatus.Done)
                 }
@@ -123,7 +125,7 @@
         private UpdateQueuesResult CreateResult()
         {
             return new UpdateQueuesResult(
-                new UpdateQueueResult[]
+                new[]
                 {
                     new UpdateQueueResult("queueGroupKey1", UpdateQueueResultStatus.Updated, RetryQueueStatus.Active),
                     new UpdateQueueResult("queueGroupKey2", UpdateQueueResultStatus.NotUpdated, RetryQueueStatus.Active),

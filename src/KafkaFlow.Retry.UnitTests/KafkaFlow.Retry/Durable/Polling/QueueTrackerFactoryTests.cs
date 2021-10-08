@@ -1,19 +1,21 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentAssertions;
-using KafkaFlow.Retry.Durable.Definitions;
-using KafkaFlow.Retry.Durable.Encoders;
-using KafkaFlow.Retry.Durable.Polling;
-using KafkaFlow.Retry.Durable.Repository;
-using KafkaFlow.Retry.Durable.Repository.Adapters;
-using Moq;
-using Xunit;
-
-namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
+﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    using FluentAssertions;
+    using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Encoders;
+    using global::KafkaFlow.Retry.Durable.Polling;
+    using global::KafkaFlow.Retry.Durable.Repository;
+    using global::KafkaFlow.Retry.Durable.Repository.Adapters;
+    using Moq;
+    using Xunit;
+
+    [ExcludeFromCodeCoverage]
     public class QueueTrackerFactoryTests
     {
-        public static IEnumerable<object[]> DataTest = new List<object[]>
+        public readonly static IEnumerable<object[]> DataTest = new List<object[]>
         {
             new object[]
             {

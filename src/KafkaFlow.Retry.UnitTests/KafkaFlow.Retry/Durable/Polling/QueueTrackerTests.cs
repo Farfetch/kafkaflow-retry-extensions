@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
     using global::KafkaFlow.Retry.Durable.Encoders;
@@ -11,9 +12,10 @@
     using Moq;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class QueueTrackerTests
     {
-        public static IEnumerable<object[]> DataTest = new List<object[]>
+        public readonly static IEnumerable<object[]> DataTest = new List<object[]>
         {
             new object[]
             {

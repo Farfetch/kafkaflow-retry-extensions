@@ -1,12 +1,14 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
     using global::KafkaFlow.Retry.API.Dtos;
     using global::KafkaFlow.Retry.API.Dtos.Common;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class UpdateItemsInputAdapterTests
     {
         private readonly IUpdateItemsInputAdapter adapter = new UpdateItemsInputAdapter();
@@ -15,9 +17,9 @@
         public void UpdateItemsInputAdapter_Adapt_Success()
         {
             // Arrange
-            var requestDto = new UpdateItemsRequestDto()
+            var requestDto = new UpdateItemsRequestDto
             {
-                ItemIds = new Guid[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() },
+                ItemIds = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() },
                 Status = RetryQueueItemStatusDto.Cancelled
             };
 

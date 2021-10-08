@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.GetItems;
     using global::KafkaFlow.Retry.API.Dtos;
@@ -8,6 +9,7 @@
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class GetItemsInputAdapterTests
     {
         private readonly IGetItemsInputAdapter adapter = new GetItemsInputAdapter();
@@ -16,7 +18,7 @@
         public void GetItemsInputAdapter_Adapt_Success()
         {
             // Arrange
-            var requestDto = new GetItemsRequestDto()
+            var requestDto = new GetItemsRequestDto
             {
                 ItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry },
                 SeverityLevels = new SeverityLevel[] { SeverityLevel.High, SeverityLevel.Medium },

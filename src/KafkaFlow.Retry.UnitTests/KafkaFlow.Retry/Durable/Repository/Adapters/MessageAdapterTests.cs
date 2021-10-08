@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Compression;
     using global::KafkaFlow.Retry.Durable.Repository.Adapters;
@@ -9,9 +10,10 @@
     using Moq;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class MessageAdapterTests
     {
-        public static IEnumerable<object[]> DataTest = new List<object[]>
+        public readonly static IEnumerable<object[]> DataTest = new List<object[]>
         {
             new object[]
             {

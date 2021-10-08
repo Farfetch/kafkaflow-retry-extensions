@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems
 {
     using System;
+    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.GetItems;
     using global::KafkaFlow.Retry.Durable.Common;
@@ -8,6 +9,7 @@
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class GetItemsResponseDtoAdapterTests
     {
         private readonly IGetItemsResponseDtoAdapter adapter = new GetItemsResponseDtoAdapter();
@@ -18,18 +20,18 @@
             // Arrange
             var item1 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
             var item2 = this.CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.High);
-            var itemsA = new RetryQueueItem[] { item1, item2 };
+            var itemsA = new[] { item1, item2 };
 
             var item3 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.Waiting, SeverityLevel.Medium);
             var item4 = this.CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.Medium);
-            var itemsB = new RetryQueueItem[] { item3, item4 };
+            var itemsB = new[] { item3, item4 };
 
             var queueA = new RetryQueue(Guid.NewGuid(), "searchGroupKeyA", "queueGroupKeyA", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, itemsA);
             var queueB = new RetryQueue(Guid.NewGuid(), "searchGroupKeyB", "queueGroupKeyB", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Done, itemsB);
 
-            var queues = new RetryQueue[] { queueA, queueB };
+            var queues = new[] { queueA, queueB };
 
-            var expectedRetryQueueItems = new RetryQueueItem[] { item1, item2, item3, item4 };
+            var expectedRetryQueueItems = new[] { item1, item2, item3, item4 };
 
             var getQueuesResult = new GetQueuesResult(queues);
 

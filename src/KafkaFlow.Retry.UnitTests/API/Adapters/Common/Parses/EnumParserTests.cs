@@ -17,15 +17,15 @@
     [ExcludeFromCodeCoverage]
     public class EnumParserTests
     {
-        private readonly EnumTests[] defaultEnum = new EnumTests[] { EnumTests.Value1 };
+        private readonly EnumTests[] defaultEnum = new[] { EnumTests.Value1 };
         private readonly EnumParser<EnumTests> enumParser = new EnumParser<EnumTests>();
 
         [Fact]
         public void EnumParser_Parse_Success()
         {
             // Arrange
-            var queryParams = new string[] { "1", "2", "3" };
-            var expectedItems = new EnumTests[] { EnumTests.Value1, EnumTests.Value2, EnumTests.Value3 };
+            var queryParams = new[] { "1", "2", "3" };
+            var expectedItems = new[] { EnumTests.Value1, EnumTests.Value2, EnumTests.Value3 };
 
             // Act
             var result = this.enumParser.Parse(queryParams, this.defaultEnum);

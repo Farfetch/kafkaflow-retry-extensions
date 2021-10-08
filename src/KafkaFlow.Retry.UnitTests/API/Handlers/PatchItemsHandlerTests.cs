@@ -144,25 +144,25 @@
         private UpdateItemsInput CreateInput()
         {
             return new UpdateItemsInput(
-                new Guid[] { itemId1, itemId2, itemId3 },
-                RetryQueueItemStatus.Cancelled
+                    new[] { itemId1, itemId2, itemId3 },
+                    RetryQueueItemStatus.Cancelled
                 );
         }
 
         private UpdateItemsRequestDto CreateRequestDto()
         {
-            return new UpdateItemsRequestDto()
+            return new UpdateItemsRequestDto
             {
-                ItemIds = new Guid[] { itemId1, itemId2, itemId3 },
+                ItemIds = new[] { itemId1, itemId2, itemId3 },
                 Status = RetryQueueItemStatusDto.Cancelled
             };
         }
 
         private UpdateItemsResponseDto CreateResponseDto()
         {
-            return new UpdateItemsResponseDto()
+            return new UpdateItemsResponseDto
             {
-                UpdateItemsResults = new UpdateItemResultDto[] {
+                UpdateItemsResults = new[] {
                     new UpdateItemResultDto(itemId1, UpdateItemResultStatus.Updated),
                     new UpdateItemResultDto(itemId2, UpdateItemResultStatus.QueueNotFound),
                     new UpdateItemResultDto(itemId3, UpdateItemResultStatus.ItemIsNotTheFirstWaitingInQueue),
@@ -173,7 +173,7 @@
         private UpdateItemsResult CreateResult()
         {
             return new UpdateItemsResult(
-                new UpdateItemResult[] {
+                new[] {
                     new UpdateItemResult(itemId1, UpdateItemResultStatus.Updated),
                     new UpdateItemResult(itemId2, UpdateItemResultStatus.QueueNotFound),
                     new UpdateItemResult(itemId3, UpdateItemResultStatus.ItemIsNotInWaitingState)

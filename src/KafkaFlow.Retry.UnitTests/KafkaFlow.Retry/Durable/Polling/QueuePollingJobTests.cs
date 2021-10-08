@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable;
@@ -19,9 +20,10 @@
     using Quartz;
     using Xunit;
 
+    [ExcludeFromCodeCoverage]
     public class QueuePollingJobTests
     {
-        public static IEnumerable<object[]> DataTest = new List<object[]>
+        public readonly static IEnumerable<object[]> DataTest = new List<object[]>
         {
             new object[]
             {
