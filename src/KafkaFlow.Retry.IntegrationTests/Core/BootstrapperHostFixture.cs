@@ -68,6 +68,10 @@
             var mongoDbRetryQueueCollectionName = context.Configuration.GetValue<string>("MongoDbRepository:RetryQueueCollectionName");
             var mongoDbRetryQueueItemCollectionName = context.Configuration.GetValue<string>("MongoDbRepository:RetryQueueItemCollectionName");
             var sqlServerConnectionString = context.Configuration.GetValue<string>("SqlServerRepository:ConnectionString");
+            if (Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD") != null)
+            {
+                sqlServerConnectionString += "Integrated Security=false;";
+            }
             var sqlServerDatabaseName = context.Configuration.GetValue<string>("SqlServerRepository:DatabaseName");
             var topics = new string[]
             {
