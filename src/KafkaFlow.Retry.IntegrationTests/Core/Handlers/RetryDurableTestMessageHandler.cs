@@ -18,9 +18,9 @@
 
         public Task Handle(IMessageContext context, RetryDurableTestMessage message)
         {
-            InMemoryAuxiliarStorage.Add(message);
+            InMemoryAuxiliarStorage<RetryDurableTestMessage>.Add(message);
 
-            if (InMemoryAuxiliarStorage.ThrowException)
+            if (InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException)
             {
                 throw new RetryDurableTestException();
             }

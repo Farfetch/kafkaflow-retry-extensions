@@ -19,8 +19,8 @@ namespace KafkaFlow.Retry.IntegrationTests
         public RetryForeverTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
             this.bootstrapperHostFixture = bootstrapperHostFixture;
-            InMemoryAuxiliarStorage.Clear();
-            InMemoryAuxiliarStorage.ThrowException = true;
+            InMemoryAuxiliarStorage<RetryForeverTestMessage>.Clear();
+            InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException = true;
         }
 
         [Fact]
@@ -36,16 +36,16 @@ namespace KafkaFlow.Retry.IntegrationTests
             // Assert
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage.AssertCountRetryForeverMessageAsync(message, 20);
+                await InMemoryAuxiliarStorage<RetryForeverTestMessage>.AssertCountMessageAsync(message, 20);
             }
 
             // To avoid a message not committed on the tests topic
-            InMemoryAuxiliarStorage.Clear();
-            InMemoryAuxiliarStorage.ThrowException = false;
+            InMemoryAuxiliarStorage<RetryForeverTestMessage>.Clear();
+            InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException = false;
 
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage.AssertCountRetryForeverMessageAsync(message, 1);
+                await InMemoryAuxiliarStorage<RetryForeverTestMessage>.AssertCountMessageAsync(message, 1);
             }
         }
     }

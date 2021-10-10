@@ -21,7 +21,7 @@ namespace KafkaFlow.Retry.IntegrationTests
         public RetrySimpleTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
             this.bootstrapperHostFixture = bootstrapperHostFixture;
-            InMemoryAuxiliarStorage.Clear();
+            InMemoryAuxiliarStorage<RetrySimpleTestMessage>.Clear();
         }
 
         [Fact]
@@ -37,7 +37,7 @@ namespace KafkaFlow.Retry.IntegrationTests
             // Assert
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage.AssertCountRetrySimpleMessageAsync(message, 4);
+                await InMemoryAuxiliarStorage<RetrySimpleTestMessage>.AssertCountMessageAsync(message, 4);
             }
         }
     }

@@ -26,11 +26,8 @@
                 .GetRetryQueueAsync(message)
                 .ConfigureAwait(false);
 
-            if (retryQueue.Id == Guid.Empty)
-            {
-                Assert.True(false, "Retry Durable Creation Get Retry Queue cannot be asserted.");
-                return;
-            }
+            Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Creation Get Retry Queue cannot be asserted.");
+
             var retryQueueItems = await this
                 .repositoryProvider
                 .GetRepositoryOfType(repositoryType)
@@ -40,11 +37,7 @@
                 })
                 .ConfigureAwait(false);
 
-            if (retryQueueItems is null)
-            {
-                Assert.True(false, "Retry Durable Creation Get Retry Queue Item Message cannot be asserted.");
-                return;
-            }
+            Assert.True(retryQueueItems != null, "Retry Durable Creation Get Retry Queue Item Message cannot be asserted.");
 
             Assert.Equal(0, retryQueueItems.Sum(i => i.AttemptsCount));
             Assert.Equal(retryQueueItems.Count() - 1, retryQueueItems.Max(i => i.Sort));
@@ -60,11 +53,8 @@
                 .GetRetryQueueAsync(message)
                 .ConfigureAwait(false);
 
-            if (retryQueue.Id == Guid.Empty)
-            {
-                Assert.True(false, "Retry Durable Done Get Retry Queue cannot be asserted.");
-                return;
-            }
+            Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Done Get Retry Queue cannot be asserted.");
+
             var retryQueueItems = await this
                 .repositoryProvider
                 .GetRepositoryOfType(repositoryType)
@@ -74,11 +64,8 @@
                 {
                     return rqi.OrderBy(x => x.Sort).Last().Status != RetryQueueItemStatusTestModel.Done;
                 }).ConfigureAwait(false);
-            if (retryQueueItems is null)
-            {
-                Assert.True(false, "Retry Durable Done Get Retry Queue Item Message cannot be asserted.");
-                return;
-            }
+
+            Assert.True(retryQueueItems != null, "Retry Durable Done Get Retry Queue Item Message cannot be asserted.");
 
             Assert.True(Enum.Equals(retryQueue.Status, RetryQueueStatusTestModel.Done));
         }
@@ -89,11 +76,8 @@
                 .repositoryProvider
                 .GetRepositoryOfType(repositoryType)
                 .GetRetryQueueAsync(message).ConfigureAwait(false);
-            if (retryQueue.Id == Guid.Empty)
-            {
-                Assert.True(false, "Retry Durable Retrying Get Retry Queue cannot be asserted.");
-                return;
-            }
+
+            Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Retrying Get Retry Queue cannot be asserted.");
 
             var retryQueueItems = await this
                 .repositoryProvider
@@ -104,11 +88,8 @@
                 {
                     return rqi.OrderBy(x => x.Sort).Last().AttemptsCount != retryCount;
                 }).ConfigureAwait(false);
-            if (retryQueueItems is null)
-            {
-                Assert.True(false, "Retry Durable Retrying Get Retry Queue Item Message cannot be asserted.");
-                return;
-            }
+
+            Assert.True(retryQueueItems != null, "Retry Durable Retrying Get Retry Queue Item Message cannot be asserted.");
 
             Assert.True(Enum.Equals(retryQueue.Status, RetryQueueStatusTestModel.Active));
             Assert.Equal(retryQueueItems.Count() - 1, retryQueueItems.Max(i => i.Sort));

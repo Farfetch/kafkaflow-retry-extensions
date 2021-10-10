@@ -25,8 +25,8 @@ namespace KafkaFlow.Retry.IntegrationTests
         {
             this.serviceProvider = bootstrapperHostFixture.ServiceProvider;
             this.repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
-            InMemoryAuxiliarStorage.Clear();
-            InMemoryAuxiliarStorage.ThrowException = true;
+            InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
+            InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
         }
 
         public static IEnumerable<object[]> Scenarios()
@@ -91,7 +91,7 @@ namespace KafkaFlow.Retry.IntegrationTests
             // Assert - Creation
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedBeforeDurable).ConfigureAwait(false);
+                await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedBeforeDurable).ConfigureAwait(false);
             }
 
             foreach (var message in messages)
@@ -100,11 +100,11 @@ namespace KafkaFlow.Retry.IntegrationTests
             }
 
             // Assert - Retrying
-            InMemoryAuxiliarStorage.Clear();
+            InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
 
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
+                await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
             }
 
             foreach (var message in messages)
@@ -113,12 +113,12 @@ namespace KafkaFlow.Retry.IntegrationTests
             }
 
             // Assert - Done
-            InMemoryAuxiliarStorage.ThrowException = false;
-            InMemoryAuxiliarStorage.Clear();
+            InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = false;
+            InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
 
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage.AssertCountRetryDurableMessageAsync(message, numberOfTimesThatEachMessageIsTriedWhenDone).ConfigureAwait(false);
+                await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedWhenDone).ConfigureAwait(false);
             }
 
             foreach (var message in messages)

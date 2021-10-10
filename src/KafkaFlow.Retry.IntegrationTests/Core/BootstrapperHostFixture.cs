@@ -7,27 +7,17 @@
     using global::Microsoft.Extensions.Configuration;
     using global::Microsoft.Extensions.DependencyInjection;
     using global::Microsoft.Extensions.Hosting;
-    using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
-    using KafkaFlow.Retry.IntegrationTests.Core.Handlers;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-    using KafkaFlow.Retry.MongoDb;
-    using KafkaFlow.Retry.SqlServer;
-    using KafkaFlow.Serializer;
-    using KafkaFlow.TypedHandler;
     using Xunit;
-    using AutoOffsetReset = KafkaFlow.AutoOffsetReset;
 
     [CollectionDefinition("BootstrapperHostCollection")]
-    public class BootstrapperHosCollectionFixture : ICollectionFixture<BootstrapperHostFixture>
+    public class BootstrapperHostCollectionFixture : ICollectionFixture<BootstrapperHostFixture>
     { }
 
     public class BootstrapperHostFixture : IDisposable
     {
-        private const string RetryForeverTopicName = "test-retry-forever";
-        private const string RetrySimpleTopicName = "test-retry-simple";
         private static IKafkaBus kafkaBus;
 
         public BootstrapperHostFixture()
@@ -79,6 +69,22 @@
             var mongoDbRetryQueueItemCollectionName = context.Configuration.GetValue<string>("MongoDbRepository:RetryQueueItemCollectionName");
             var sqlServerConnectionString = context.Configuration.GetValue<string>("SqlServerRepository:ConnectionString");
             var sqlServerDatabaseName = context.Configuration.GetValue<string>("SqlServerRepository:DatabaseName");
+            var topics = new string[]
+            {
+                "test-kafka-flow-retry-retry-simple",
+                "test-kafka-flow-retry-retry-forever",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry"
+            };
+
+            BootstrapperKafka.RecreateKafkaTopics(kafkaBrokers, topics).GetAwaiter().GetResult();
+            BootstrapperSqlServerSchema.RecreateSqlSchema(sqlServerDatabaseName, sqlServerConnectionString).GetAwaiter().GetResult();
 
             services.AddKafka(
                 kafka => kafka
@@ -86,302 +92,25 @@
                     .AddCluster(
                         cluster => cluster
                             .WithBrokers(kafkaBrokers.Split(';'))
-                            .AddProducer<RetrySimpleProducer>(
-                                producer => producer
-                                    .DefaultTopic(RetrySimpleTopicName)
-                                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<RetrySimpleTestMessage, NewtonsoftJsonSerializer>()))
-                            .AddProducer<RetryForeverProducer>(
-                                producer => producer
-                                    .DefaultTopic(RetryForeverTopicName)
-                                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<RetryForeverTestMessage, ProtobufNetSerializer>()))
-                            .AddProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>(
-                                producer => producer
-                                    .DefaultTopic("test-retry-durable-guarantee-ordered-consumption-mongo-db")
-                                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
-                            .AddProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>(
-                                producer => producer
-                                    .DefaultTopic("test-retry-durable-guarantee-ordered-consumption-sql-server")
-                                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
-                            .AddProducer<RetryDurableLatestConsumptionMongoDbProducer>(
-                                producer => producer
-                                    .DefaultTopic("test-retry-durable-latest-consumption-mongo-db")
-                                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
-                            .AddProducer<RetryDurableLatestConsumptionSqlServerProducer>(
-                                producer => producer
-                                    .DefaultTopic("test-retry-durable-latest-consumption-sql-server")
-                                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
-
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic(RetrySimpleTopicName)
-                                    .WithGroupId("test-consumer-retry-simple")
-                                    .WithBufferSize(100)
-                                    .WithWorkersCount(10)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetrySimpleTestMessage))
-                                            .RetrySimple(
-                                                (configure) => configure
-                                                    .Handle<RetrySimpleTestException>()
-                                                    .TryTimes(3)
-                                                    .ShouldPauseConsumer(false)
-                                                    .WithTimeBetweenTriesPlan(
-                                                        (retryCount) =>
-                                                        {
-                                                            var plan = new[]
-                                                            {
-                                                                TimeSpan.FromMilliseconds(100),
-                                                                TimeSpan.FromMilliseconds(100),
-                                                                TimeSpan.FromMilliseconds(100),
-                                                                TimeSpan.FromMilliseconds(100)
-                                                            };
-
-                                                            return plan[retryCount];
-                                                        }))
-                                            .AddTypedHandlers(
-                                                handlers =>
-                                                    handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                        .AddHandler<RetrySimpleTestMessageHandler>())))
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic(RetryForeverTopicName)
-                                    .WithGroupId("test-consumer-retry-forever")
-                                    .WithBufferSize(100)
-                                    .WithWorkersCount(10)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryForeverTestMessage))
-                                            .RetryForever(
-                                                (configure) => configure
-                                                    .Handle<RetryForeverTestException>()
-                                                    .WithTimeBetweenTriesPlan(TimeSpan.FromMilliseconds(100)))
-                                            .AddTypedHandlers(
-                                                handlers =>
-                                                    handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                        .AddHandler<RetryForeverTestMessageHandler>())))
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic("test-retry-durable-guarantee-ordered-consumption-mongo-db")
-                                    .WithGroupId("test-consumer-retry-durable-guarantee-ordered-consumption-mongo-db")
-                                    .WithBufferSize(100)
-                                    .WithWorkersCount(10)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
-                                            .RetryDurable(
-                                                (configure) => configure
-                                                    .Handle<RetryDurableTestException>()
-                                                    .WithMessageType(typeof(RetryDurableTestMessage))
-                                                    .WithEmbeddedRetryCluster(
-                                                        cluster,
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithRetryTopicName("test-retry-durable-guarantee-ordered-consumption-mongo-db-retry")
-                                                            .WithRetryConsumerBufferSize(100)
-                                                            .WithRetryConsumerWorkersCount(10)
-                                                            .WithRetryConusmerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
-                                                            .WithRetryTypedHandlers(
-                                                                handlers => handlers
-                                                                    .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                                    .AddHandler<RetryDurableTestMessageHandler>()))
-                                                    .WithQueuePollingJobConfiguration(
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithId("custom_search_key_durable_guarantee_ordered_consumption_mongo_db")
-                                                            .WithCronExpression("0/30 * * ? * * *")
-                                                            .WithExpirationIntervalFactor(1)
-                                                            .WithFetchSize(256))
-                                                    .WithMongoDbDataProvider(
-                                                        mongoDbConnectionString,
-                                                        mongoDbDatabaseName,
-                                                        mongoDbRetryQueueCollectionName,
-                                                        mongoDbRetryQueueItemCollectionName)
-                                                    .WithRetryPlanBeforeRetryDurable(
-                                                        configure => configure
-                                                            .TryTimes(3)
-                                                            .WithTimeBetweenTriesPlan(
-                                                                TimeSpan.FromMilliseconds(250),
-                                                                TimeSpan.FromMilliseconds(500),
-                                                                TimeSpan.FromMilliseconds(1000))
-                                                            .ShouldPauseConsumer(false)))
-                                            .AddTypedHandlers(
-                                                handlers =>
-                                                    handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                        .AddHandler<RetryDurableTestMessageHandler>())))
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic("test-retry-durable-guarantee-ordered-consumption-sql-server")
-                                    .WithGroupId("test-consumer-retry-durable-guarantee-ordered-consumption-sql-server")
-                                    .WithBufferSize(100)
-                                    .WithWorkersCount(10)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
-                                            .RetryDurable(
-                                                (configure) => configure
-                                                    .Handle<RetryDurableTestException>()
-                                                    .WithMessageType(typeof(RetryDurableTestMessage))
-                                                    .WithEmbeddedRetryCluster(
-                                                        cluster,
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithRetryTopicName("test-retry-durable-guarantee-ordered-consumption-sql-server-retry")
-                                                            .WithRetryConsumerBufferSize(100)
-                                                            .WithRetryConsumerWorkersCount(10)
-                                                            .WithRetryConusmerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
-                                                            .WithRetryTypedHandlers(
-                                                                handlers => handlers
-                                                                    .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                                    .AddHandler<RetryDurableTestMessageHandler>()))
-                                                    .WithQueuePollingJobConfiguration(
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithId("custom_search_key_durable_guarantee_ordered_consumption_sql_server")
-                                                            .WithCronExpression("0/30 * * ? * * *")
-                                                            .WithExpirationIntervalFactor(1)
-                                                            .WithFetchSize(256))
-                                                    .WithSqlServerDataProvider(
-                                                        sqlServerConnectionString,
-                                                        sqlServerDatabaseName)
-                                                    .WithRetryPlanBeforeRetryDurable(
-                                                        configure => configure
-                                                            .TryTimes(3)
-                                                            .WithTimeBetweenTriesPlan(
-                                                                TimeSpan.FromMilliseconds(250),
-                                                                TimeSpan.FromMilliseconds(500),
-                                                                TimeSpan.FromMilliseconds(1000))
-                                                            .ShouldPauseConsumer(false)))
-                                            .AddTypedHandlers(
-                                                handlers =>
-                                                    handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                        .AddHandler<RetryDurableTestMessageHandler>())))
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic("test-retry-durable-latest-consumption-mongo-db")
-                                    .WithGroupId("test-consumer-retry-durable-latest-consumption-mongo-db")
-                                    .WithBufferSize(100)
-                                    .WithWorkersCount(10)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
-                                            .RetryDurable(
-                                                (configure) => configure
-                                                    .Handle<RetryDurableTestException>()
-                                                    .WithMessageType(typeof(RetryDurableTestMessage))
-                                                    .WithEmbeddedRetryCluster(
-                                                        cluster,
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithRetryTopicName("test-retry-durable-latest-consumption-mongo-db-retry")
-                                                            .WithRetryConsumerBufferSize(100)
-                                                            .WithRetryConsumerWorkersCount(10)
-                                                            .WithRetryConusmerStrategy(RetryConsumerStrategy.LatestConsumption)
-                                                            .WithRetryTypedHandlers(
-                                                                handlers => handlers
-                                                                    .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                                    .AddHandler<RetryDurableTestMessageHandler>()))
-                                                    .WithQueuePollingJobConfiguration(
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithId("custom_search_key_durable_latest_consumption_mongo_db")
-                                                            .WithCronExpression("0/30 * * ? * * *")
-                                                            .WithExpirationIntervalFactor(1)
-                                                            .WithFetchSize(256))
-                                                    .WithMongoDbDataProvider(
-                                                        mongoDbConnectionString,
-                                                        mongoDbDatabaseName,
-                                                        mongoDbRetryQueueCollectionName,
-                                                        mongoDbRetryQueueItemCollectionName)
-                                                    .WithRetryPlanBeforeRetryDurable(
-                                                        configure => configure
-                                                            .TryTimes(3)
-                                                            .WithTimeBetweenTriesPlan(
-                                                                TimeSpan.FromMilliseconds(250),
-                                                                TimeSpan.FromMilliseconds(500),
-                                                                TimeSpan.FromMilliseconds(1000))
-                                                            .ShouldPauseConsumer(false)))
-                                            .AddTypedHandlers(
-                                                handlers =>
-                                                    handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                        .AddHandler<RetryDurableTestMessageHandler>())))
-                            .AddConsumer(
-                                consumer => consumer
-                                    .Topic("test-retry-durable-latest-consumption-sql-server")
-                                    .WithGroupId("test-consumer-retry-durable-latest-consumption-sql-server")
-                                    .WithBufferSize(100)
-                                    .WithWorkersCount(10)
-                                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
-                                    .AddMiddlewares(
-                                        middlewares => middlewares
-                                            .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
-                                            .RetryDurable(
-                                                (configure) => configure
-                                                    .Handle<RetryDurableTestException>()
-                                                    .WithMessageType(typeof(RetryDurableTestMessage))
-                                                    .WithEmbeddedRetryCluster(
-                                                        cluster,
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithRetryTopicName("test-retry-durable-latest-consumption-sql-server-retry")
-                                                            .WithRetryConsumerBufferSize(100)
-                                                            .WithRetryConsumerWorkersCount(10)
-                                                            .WithRetryConusmerStrategy(RetryConsumerStrategy.LatestConsumption)
-                                                            .WithRetryTypedHandlers(
-                                                                handlers => handlers
-                                                                    .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                                    .AddHandler<RetryDurableTestMessageHandler>()))
-                                                    .WithQueuePollingJobConfiguration(
-                                                        configure => configure
-                                                            .Enabled(true)
-                                                            .WithId("custom_search_key_durable_latest_consumption_sql_server")
-                                                            .WithCronExpression("0 0/1 * * * ?")
-                                                            .WithExpirationIntervalFactor(1)
-                                                            .WithFetchSize(256))
-                                                    .WithSqlServerDataProvider(
-                                                        sqlServerConnectionString,
-                                                        sqlServerDatabaseName)
-                                                    .WithRetryPlanBeforeRetryDurable(
-                                                        configure => configure
-                                                            .TryTimes(3)
-                                                            .WithTimeBetweenTriesPlan(
-                                                                TimeSpan.FromMilliseconds(250),
-                                                                TimeSpan.FromMilliseconds(500),
-                                                                TimeSpan.FromMilliseconds(1000))
-                                                            .ShouldPauseConsumer(false)))
-                                            .AddTypedHandlers(
-                                                handlers =>
-                                                    handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                                        .AddHandler<RetryDurableTestMessageHandler>())))
-                                    ));
+                            .SetupRetrySimpleCluster()
+                            .SetupRetryForeverCluster()
+                            .SetupRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
+                                mongoDbConnectionString,
+                                mongoDbDatabaseName,
+                                mongoDbRetryQueueCollectionName,
+                                mongoDbRetryQueueItemCollectionName)
+                            .SetupRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
+                                sqlServerConnectionString,
+                                sqlServerDatabaseName)
+                            .SetupRetryDurableLatestConsumptionMongoDbCluster(
+                                mongoDbConnectionString,
+                                mongoDbDatabaseName,
+                                mongoDbRetryQueueCollectionName,
+                                mongoDbRetryQueueItemCollectionName)
+                            .SetupRetryDurableLatestConsumptionSqlServerCluster(
+                                sqlServerConnectionString,
+                                sqlServerDatabaseName)
+                    ));
 
             services.AddSingleton<RetrySimpleProducer>();
             services.AddSingleton<RetryForeverProducer>();

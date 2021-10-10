@@ -11,9 +11,9 @@
     {
         public Task Handle(IMessageContext context, RetryForeverTestMessage message)
         {
-            InMemoryAuxiliarStorage.Add(message);
+            InMemoryAuxiliarStorage<RetryForeverTestMessage>.Add(message);
 
-            if (InMemoryAuxiliarStorage.ThrowException)
+            if (InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException)
             {
                 throw new RetryForeverTestException();
             }
