@@ -39,8 +39,6 @@
             }
         }
 
-        public SqlCommand CreateCommand() => this.GetDbConnection().CreateCommand();
-
         public void Dispose()
         {
             if (this.sqlConnection is object)
@@ -112,13 +110,15 @@
             return retryQueueItems;
         }
 
+        private SqlCommand CreateCommand() => this.GetDbConnection().CreateCommand();
+
         private async Task<IList<RetryQueueItemTestModel>> ExecuteReaderAsync(SqlCommand command)
         {
             var items = new List<RetryQueueItemTestModel>();
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                while (await reader.ReadAsync())
+                while (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     items.Add(this.FillRetryQueueItemTestModel(reader));
                 }
@@ -179,6 +179,7 @@
             {
                 this.sqlConnection = new SqlConnection(this.connectionString);
                 this.sqlConnection.Open();
+                this.sqlConnection.ChangeDatabase(this.dbName);
             }
 
             return this.sqlConnection;

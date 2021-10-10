@@ -11,7 +11,7 @@
     {
         public Task Handle(IMessageContext context, RetrySimpleTestMessage message)
         {
-            InMemoryAuxiliarStorage.Add(message);
+            InMemoryAuxiliarStorage<RetrySimpleTestMessage>.Add(message);
 
             throw new RetrySimpleTestException();
         }

@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-
-namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+
     internal class RepositoryProvider : IRepositoryProvider
     {
         private readonly IEnumerable<IRepository> repositories;

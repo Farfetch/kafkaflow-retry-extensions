@@ -3,7 +3,7 @@
     using System.Runtime.Serialization;
 
     [DataContract]
-    public class RetryDurableTestMessage
+    public class RetryDurableTestMessage : ITestMessage
     {
         [DataMember(Order = 1)]
         public string Key { get; set; }

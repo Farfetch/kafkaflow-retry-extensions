@@ -48,7 +48,7 @@
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConusmerStrategy(RetryConsumerStrategy retryConusmerStrategy)
+        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
         {
             this.retryConusmerStrategy = retryConusmerStrategy;
             return this;
