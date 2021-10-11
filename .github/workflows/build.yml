@@ -16,6 +16,7 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       ACCEPT_EULA: Y
       SQLSERVER_SA_PASSWORD: SqlSever123123
+      SQLSERVER_INTEGRATED_SECURITY: 'False'
       
     steps:
 

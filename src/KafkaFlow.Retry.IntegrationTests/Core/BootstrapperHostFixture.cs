@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Data.SqlClient;
     using System.IO;
     using System.Threading;
     using global::Microsoft.Extensions.Configuration;
@@ -67,12 +68,13 @@
             var mongoDbDatabaseName = context.Configuration.GetValue<string>("MongoDbRepository:DatabaseName");
             var mongoDbRetryQueueCollectionName = context.Configuration.GetValue<string>("MongoDbRepository:RetryQueueCollectionName");
             var mongoDbRetryQueueItemCollectionName = context.Configuration.GetValue<string>("MongoDbRepository:RetryQueueItemCollectionName");
-            var sqlServerConnectionString = context.Configuration.GetValue<string>("SqlServerRepository:ConnectionString");
-            if (Environment.GetEnvironmentVariable("SQLSERVER_SA_PASSWORD") != null)
-            {
-                sqlServerConnectionString += "Integrated Security=false;";
-            }
             var sqlServerDatabaseName = context.Configuration.GetValue<string>("SqlServerRepository:DatabaseName");
+            var sqlServerConnectionStringBuilder = new SqlConnectionStringBuilder(context.Configuration.GetValue<string>("SqlServerRepository:ConnectionString"));
+            if (Environment.GetEnvironmentVariable("SQLSERVER_INTEGRATED_SECURITY") != null)
+            {
+                sqlServerConnectionStringBuilder.IntegratedSecurity = false;
+            }
+            var sqlServerConnectionString = sqlServerConnectionStringBuilder.ToString();
             var topics = new string[]
             {
                 "test-kafka-flow-retry-retry-simple",
