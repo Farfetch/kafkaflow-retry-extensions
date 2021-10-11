@@ -42,15 +42,15 @@
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
-        {
-            this.retryConsumerWorkersCount = retryConsumerWorkersCount;
-            return this;
-        }
-
         public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
         {
             this.retryConusmerStrategy = retryConusmerStrategy;
+            return this;
+        }
+
+        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
+        {
+            this.retryConsumerWorkersCount = retryConsumerWorkersCount;
             return this;
         }
 
@@ -139,7 +139,7 @@
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<ProtobufNetSerializer>(messageType)
-                                .RetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
+                                .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
                                 .Add(resolver =>
                                     new RetryDurableConsumerValidationMiddleware(
                                             resolver.Resolve<ILogHandler>(),

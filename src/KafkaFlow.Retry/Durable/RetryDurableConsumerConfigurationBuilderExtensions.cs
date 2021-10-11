@@ -1,12 +1,13 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
+    using System;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
 
     internal static class RetryDurableConsumerConfigurationBuilderExtensions
     {
-        public static IConsumerMiddlewareConfigurationBuilder RetryConsumerStrategy(
+        public static IConsumerMiddlewareConfigurationBuilder WithRetryConsumerStrategy(
             this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
             RetryConsumerStrategy retryConsumerStrategy,
             IRetryDurableQueueRepository retryDurableQueueRepository,
@@ -37,7 +38,7 @@
                     break;
 
                 default:
-                    break;
+                    throw new NotImplementedException("RetryConsumerStrategy not defined");
             }
 
             return middlewareBuilder;

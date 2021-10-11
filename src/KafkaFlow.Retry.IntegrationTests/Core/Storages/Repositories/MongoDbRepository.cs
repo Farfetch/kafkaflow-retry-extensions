@@ -12,11 +12,10 @@
     internal class MongoDbRepository : IRepository
     {
         private const int TimeoutSec = 60;
-        private static IMongoDatabase database;
-        private static string databaseName;
-        private static MongoClient mongoClient;
-        private static IMongoCollection<RetryQueueItemDbo> retryQueueItemsCollection;
-        private static IMongoCollection<RetryQueueDbo> retryQueuesCollection;
+        private readonly string databaseName;
+        private readonly MongoClient mongoClient;
+        private readonly IMongoCollection<RetryQueueItemDbo> retryQueueItemsCollection;
+        private readonly IMongoCollection<RetryQueueDbo> retryQueuesCollection;
 
         public MongoDbRepository(
             string connectionString,
@@ -26,9 +25,8 @@
         {
             databaseName = dbName;
             mongoClient = new MongoClient(connectionString);
-            database = mongoClient.GetDatabase(dbName);
-            retryQueuesCollection = database.GetCollection<RetryQueueDbo>(retryQueueCollectionName);
-            retryQueueItemsCollection = database.GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
+            retryQueuesCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
+            retryQueueItemsCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
         }
 
         public Type RepositoryType => typeof(MongoDbRepository);

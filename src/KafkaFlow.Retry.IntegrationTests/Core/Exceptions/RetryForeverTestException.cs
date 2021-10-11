@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class RetryForeverTestException : Exception
+    public class RetryForeverTestException : Exception
     {
     }
 }

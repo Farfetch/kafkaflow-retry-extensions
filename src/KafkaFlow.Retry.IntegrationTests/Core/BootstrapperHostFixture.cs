@@ -19,7 +19,7 @@
 
     public class BootstrapperHostFixture : IDisposable
     {
-        private static IKafkaBus kafkaBus;
+        private readonly IKafkaBus kafkaBus;
 
         public BootstrapperHostFixture()
         {
@@ -75,7 +75,7 @@
                 sqlServerConnectionStringBuilder.IntegratedSecurity = false;
             }
             var sqlServerConnectionString = sqlServerConnectionStringBuilder.ToString();
-            var topics = new string[]
+            var topics = new[]
             {
                 "test-kafka-flow-retry-retry-simple",
                 "test-kafka-flow-retry-retry-forever",
