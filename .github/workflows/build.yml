@@ -181,6 +181,14 @@ jobs:
         
     # - name: SonarScanner analysis end
     #   run: dotnet sonarscanner end /d:sonar.login=8f9e9412fb5ebcf5ea6f9a6b285b288e4645f866
+    
+    - name: Delete build tag if exists
+      uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        delete_release: false
+        tag_name: ${{ env.BUILD_VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Set build tag
       uses: anothrNick/github-tag-action@1.26.0
