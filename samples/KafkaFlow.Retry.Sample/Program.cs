@@ -1,13 +1,12 @@
 ﻿namespace KafkaFlow.Retry.Sample
 {
     using System;
+    using System.Globalization;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
     using global::Microsoft.Extensions.DependencyInjection;
     using KafkaFlow;
-    using KafkaFlow.Admin;
-    using KafkaFlow.Consumers;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry.Sample.Helpers;
     using KafkaFlow.Retry.Sample.Messages;
@@ -24,7 +23,7 @@
             var mongoDbRetryQueueItemCollectionName = "RetryQueueItems";
             var sqlServerConnectionString = "Server=localhost;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=KafkaFlow Retry Sample";
             var sqlServerDatabaseName = "kafka_flow_retry_durable_sample";
-            var topics = new string[]
+            var topics = new[]
             {
                 "sample-kafka-flow-retry-simple-topic",
                 "sample-kafka-flow-retry-forever-topic",
@@ -66,24 +65,21 @@
             // Wait partition assignment
             Thread.Sleep(10000);
 
-            var consumers = provider.GetRequiredService<IConsumerAccessor>();
             var producers = provider.GetRequiredService<IProducerAccessor>();
-
-            var adminProducer = provider.GetService<IAdminProducer>();
 
             while (true)
             {
-                Console.Write("retry-simple, retry-forever, retry-durable-mongodb or retry-durable-sqlserver: ");
-                var input = Console.ReadLine().ToLower();
+                Console.Write("retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver or exit: ");
+                var input = Console.ReadLine().ToLower(CultureInfo.InvariantCulture);
 
                 switch (input)
                 {
                     case "retry-durable-mongodb":
                         {
                             Console.Write("Number of the distinct messages to produce: ");
-                            int.TryParse(Console.ReadLine().ToLower(), out var numOfMessages);
+                            int.TryParse(Console.ReadLine(), out var numOfMessages);
                             Console.Write("Number of messages with same partition key: ");
-                            int.TryParse(Console.ReadLine().ToLower(), out var numOfMessagesWithSamePartitionkey);
+                            int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
                             var messages = Enumerable
                                 .Range(0, numOfMessages)
                                 .SelectMany(
@@ -112,9 +108,9 @@
                     case "retry-durable-sqlserver":
                         {
                             Console.Write("Number of the distinct messages to produce: ");
-                            int.TryParse(Console.ReadLine().ToLower(), out var numOfMessages);
+                            int.TryParse(Console.ReadLine(), out var numOfMessages);
                             Console.Write("Number of messages with same partition key: ");
-                            int.TryParse(Console.ReadLine().ToLower(), out var numOfMessagesWithSamePartitionkey);
+                            int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
 
                             var messages = Enumerable
                                 .Range(0, numOfMessages)
@@ -144,7 +140,7 @@
                     case "retry-forever":
                         {
                             Console.Write("Number of messages to produce: ");
-                            int.TryParse(Console.ReadLine().ToLower(), out var num_of_messages);
+                            int.TryParse(Console.ReadLine(), out var num_of_messages);
                             await producers["kafka-flow-retry-forever-producer"]
                                 .BatchProduceAsync(
                                     Enumerable
@@ -164,7 +160,7 @@
                     case "retry-simple":
                         {
                             Console.Write("Number of messages to produce:");
-                            int.TryParse(Console.ReadLine().ToLower(), out var num_of_messages);
+                            int.TryParse(Console.ReadLine(), out var num_of_messages);
                             await producers["kafka-flow-retry-simple-producer"]
                                 .BatchProduceAsync(
                                     Enumerable
@@ -183,7 +179,11 @@
 
                     case "exit":
                         await bus.StopAsync();
-                        return;
+                        break;
+
+                    default:
+                        Console.Write("USE: retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver or exit: ");
+                        break;
                 }
             }
         }

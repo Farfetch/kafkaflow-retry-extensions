@@ -2,7 +2,7 @@
 {
     using System;
 
-    internal class RetryDurableTestException : Exception
+    public class RetryDurableTestException : Exception
     {
         public RetryDurableTestException(string message) : base(message)
         { }

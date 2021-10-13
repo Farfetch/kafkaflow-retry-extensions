@@ -17,7 +17,7 @@
 
                 foreach (var script in GetScriptsForSchemaCreation())
                 {
-                    string[] batches = script.Split(new string[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
 
                     foreach (var batch in batches)
                     {
