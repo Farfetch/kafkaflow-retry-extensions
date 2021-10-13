@@ -8,51 +8,42 @@
 
     internal class QueueTrackerFactory : IQueueTrackerFactory
     {
-        private readonly ILogHandler logHandler;
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly IMessageProducer retryDurableMessageProducer;
-        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition;
         private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly IUtf8Encoder utf8Encoder;
 
         public QueueTrackerFactory(
             IRetryDurableQueueRepository retryDurableQueueRepository,
-            ILogHandler logHandler,
             IMessageHeadersAdapter messageHeadersAdapter,
             IMessageAdapter messageAdapter,
-            IUtf8Encoder utf8Encoder,
-            IMessageProducer retryDurableMessageProducer,
-            IRetryDurablePollingDefinition retryDurablePollingDefinition
+            IUtf8Encoder utf8Encoder
         )
         {
             Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(logHandler).NotNull();
             Guard.Argument(messageHeadersAdapter).NotNull();
             Guard.Argument(messageAdapter).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
-            Guard.Argument(retryDurableMessageProducer).NotNull();
-            Guard.Argument(retryDurablePollingDefinition).NotNull();
 
             this.retryDurableQueueRepository = retryDurableQueueRepository;
-            this.logHandler = logHandler;
             this.messageHeadersAdapter = messageHeadersAdapter;
             this.messageAdapter = messageAdapter;
             this.utf8Encoder = utf8Encoder;
-            this.retryDurableMessageProducer = retryDurableMessageProducer;
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
         }
 
-        public QueueTracker Create()
+        public QueueTracker Create(
+            RetryDurablePollingDefinition retryDurablePollingDefinition,
+            IMessageProducer retryDurableMessageProducer,
+            ILogHandler logHandler)
         {
             return new QueueTracker(
                 this.retryDurableQueueRepository,
-                this.logHandler,
+                logHandler,
                 this.messageHeadersAdapter,
                 this.messageAdapter,
                 this.utf8Encoder,
-                this.retryDurableMessageProducer,
-                this.retryDurablePollingDefinition
+                retryDurableMessageProducer,
+                retryDurablePollingDefinition
                 );
         }
     }

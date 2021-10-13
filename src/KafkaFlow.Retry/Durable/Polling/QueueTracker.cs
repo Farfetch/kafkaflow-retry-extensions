@@ -16,7 +16,7 @@
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
         private readonly IMessageProducer retryDurableMessageProducer;
-        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
         private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly IUtf8Encoder utf8Encoder;
         private readonly bool waitForJobsToComplete = true;
@@ -29,7 +29,7 @@
             IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder,
             IMessageProducer retryDurableMessageProducer,
-            IRetryDurablePollingDefinition retryDurablePollingDefinition
+            RetryDurablePollingDefinition retryDurablePollingDefinition
         )
         {
             Guard.Argument(retryDurableQueueRepository).NotNull();

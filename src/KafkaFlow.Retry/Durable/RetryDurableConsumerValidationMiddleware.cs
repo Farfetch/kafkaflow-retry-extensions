@@ -3,7 +3,6 @@
     using System;
     using System.Threading.Tasks;
     using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
@@ -12,24 +11,20 @@
     internal class RetryDurableConsumerValidationMiddleware : IMessageMiddleware
     {
         private readonly ILogHandler logHandler;
-        private readonly IRetryDurableDefinition retryDurableDefinition;
         private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
         private readonly IUtf8Encoder utf8Encoder;
 
         public RetryDurableConsumerValidationMiddleware(
             ILogHandler logHandler,
             IRetryDurableQueueRepository retryDurableQueueRepository,
-            IRetryDurableDefinition retryDurableDefinition,
             IUtf8Encoder utf8Encoder)
         {
             Guard.Argument(logHandler).NotNull();
             Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(retryDurableDefinition).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
 
             this.logHandler = logHandler;
             this.retryDurableQueueRepository = retryDurableQueueRepository;
-            this.retryDurableDefinition = retryDurableDefinition;
             this.utf8Encoder = utf8Encoder;
         }
 

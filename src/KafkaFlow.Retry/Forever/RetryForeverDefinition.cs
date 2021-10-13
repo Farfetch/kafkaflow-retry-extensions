@@ -5,7 +5,7 @@
     using System.Linq;
     using Dawn;
 
-    internal class RetryForeverDefinition : IRetryForeverDefinition
+    internal class RetryForeverDefinition
     {
         private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
 

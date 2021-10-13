@@ -2,7 +2,7 @@
 {
     using Dawn;
 
-    internal class RetryDurablePollingDefinition : IRetryDurablePollingDefinition
+    internal class RetryDurablePollingDefinition
     {
         public RetryDurablePollingDefinition(
             bool enabled,

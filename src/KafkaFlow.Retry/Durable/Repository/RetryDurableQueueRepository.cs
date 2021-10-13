@@ -22,7 +22,7 @@
         private const int MaxAttempts = 6;
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
         private readonly IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private readonly IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers;
         private readonly IUtf8Encoder utf8Encoder;
@@ -33,7 +33,7 @@
             IMessageHeadersAdapter messageHeadersAdapter,
             IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder,
-            IRetryDurablePollingDefinition retryDurablePollingDefinition)
+            RetryDurablePollingDefinition retryDurablePollingDefinition)
         {
             Guard.Argument(retryDurableRepositoryProvider).NotNull("Retry durable requires a repository to be defined");
             Guard.Argument(updateItemHandlers).NotNull("At least an update item handler should be defined");

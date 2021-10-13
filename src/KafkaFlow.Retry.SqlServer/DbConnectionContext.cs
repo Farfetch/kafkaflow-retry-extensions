@@ -72,6 +72,7 @@
             {
                 this.sqlConnection = new SqlConnection(this.sqlServerDbSettings.ConnectionString);
                 this.sqlConnection.Open();
+                this.sqlConnection.ChangeDatabase(this.sqlServerDbSettings.DatabaseName);
             }
             return this.sqlConnection;
         }
