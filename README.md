@@ -3,15 +3,20 @@ KafkaFlow Retry is a .NET framework to retry messages on consumers, simple to us
 
 KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafka-flow).
 
-## KafkaFlow Retry
 
-## Features
- - Simple Retry
- - Forever Retry
- - Durable Retry
- - Fluent configuration
- - Admin Web API to manage messages and queue messages
- - Persistence in SQL Server and MongoDb
+# Resilience policies
+
+|Policy| Description | Aka| Required Packages|
+| ------------- | ------------- |:-------------: |------------- |
+|**Simple Retry** <br/>(policy family)<br/><sub>([quickstart](#retry)&nbsp;;&nbsp;[deep](https://github.com/App-vNext/Polly/wiki/Retry))</sub>|Many faults are transient and may self-correct after a short delay.| "Maybe it's just a blip" |   KafkaFlow.Retry |
+|**Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#circuit-breaker)&nbsp;;&nbsp;[deep](https://github.com/App-vNext/Polly/wiki/Circuit-Breaker))</sub>|Many faults are semi-transient and may self-correct after multiple retries. | "Never give up" | KafkaFlow.Retry | 
+|**Durable Retry**<br/><sub>([quickstart](#timeout)&nbsp;;&nbsp;[deep](https://github.com/App-vNext/Polly/wiki/Timeout))</sub>|Beyond a certain amount of retries and wait, you want to keep processing next-in-line messages but you can't loss the current offset message. As persistance databases, MongoDb or SqlServer are available. And you can manage in-retry messages through HTTP API.| "I can't stop processing messages but I can't loss messages"  | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb | 
+
+# Installing via NuGet
+Install packages related to your context. The Core package is required for all other packages. 
+
+## Requirements
+**.NET Core 2.1 and later using Hosted Service**
 
 ## Packages
 
@@ -22,10 +27,22 @@ KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafk
 |KafkaFlow.Retry.MongoDb|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.MongoDb.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.MongoDb/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.MongoDb.svg)
 |KafkaFlow.Retry.SqlServer|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.SqlServer.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.SqlServer/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.SqlServer.svg)
 
-## Usage Examples
+## Core package 
+    Install-Package KafkaFlow.Retry
 
-**.NET Core 2.1 and later using Hosted Service**
+## HTTP API package
+    Install-Package KafkaFlow.Retry.API
 
+## MongoDb package 
+    Install-Package KafkaFlow.Retry.MongoDb
+
+## SqlServer package
+    Install-Package KafkaFlow.Retry.SqlServer
+
+# Usage &ndash; Simple and Forever retries
+// TODO: break in two blocks/steps (KafkaFlow basics and Retry middleware)
+<br />
+// TODO: add comments to explain what the line of code does 
 ### Simple Retry
 ```csharp
 public static void Main(string[] args)
@@ -70,7 +87,7 @@ public static void Main(string[] args)
 }
 ```
 
-### Durable Retry
+# Usage &ndash; Durable retries
 ```csharp
 public static void Main(string[] args)
 {
