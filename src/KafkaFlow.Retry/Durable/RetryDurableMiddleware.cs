@@ -2,27 +2,27 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Dawn;
     using KafkaFlow;
     using KafkaFlow.Retry.Durable.Definitions;
-    using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Create;
     using Polly;
 
     internal class RetryDurableMiddleware : IMessageMiddleware
     {
         private readonly ILogHandler logHandler;
-        private readonly IRetryDurableDefinition retryDurableDefinition;
-        private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
+        private readonly RetryDurableDefinition retryDurableDefinition;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
         public RetryDurableMiddleware(
             ILogHandler logHandler,
-            IRetryDurableQueueRepository retryDurableQueueRepository,
-            IRetryDurableDefinition retryDurableDefinition)
+            RetryDurableDefinition retryDurableDefinition)
         {
+            Guard.Argument(logHandler).NotNull();
+            Guard.Argument(retryDurableDefinition).NotNull();
+
             this.logHandler = logHandler;
-            this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.retryDurableDefinition = retryDurableDefinition;
         }
 
@@ -31,7 +31,8 @@
             try
             {
                 var resultAddIfQueueExistsAsync = await this
-                    .retryDurableQueueRepository
+                    .retryDurableDefinition
+                    .RetryDurableQueueRepository
                     .AddIfQueueExistsAsync(context)
                     .ConfigureAwait(false);
 
@@ -85,8 +86,6 @@
                                 WaitMilliseconds = waitTime.TotalMilliseconds,
                                 PartitionNumber = context.ConsumerContext.Partition,
                                 Worker = context.ConsumerContext.WorkerId,
-                                //Headers = context.HeadersAsJson(),
-                                //Message = context.Message.ToJson(),
                                 ExceptionType = exception.GetType().FullName,
                                 ExceptionMessage = exception.Message
                             });
@@ -113,7 +112,8 @@
                 if (this.retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
                 {
                     var resultSaveToQueue = await this
-                        .retryDurableQueueRepository
+                        .retryDurableDefinition
+                        .RetryDurableQueueRepository
                         .SaveToQueueAsync(context, exception.Message)
                         .ConfigureAwait(false);
 

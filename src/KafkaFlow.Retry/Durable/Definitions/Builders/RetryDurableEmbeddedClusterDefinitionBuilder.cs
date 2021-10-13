@@ -4,8 +4,13 @@
     using System.Linq;
     using Dawn;
     using KafkaFlow.Configuration;
+    using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
+    using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Polling;
+    using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
 
@@ -14,7 +19,6 @@
         private const int DefaultPartitionElection = 0;
         private readonly IClusterConfigurationBuilder cluster;
         private bool enabled;
-        private Type messageType;
         private int retryConsumerBufferSize;
         private int retryConsumerWorkersCount;
         private RetryConsumerStrategy retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
@@ -38,15 +42,15 @@
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
+        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
         {
-            this.retryConsumerWorkersCount = retryConsumerWorkersCount;
+            this.retryConusmerStrategy = retryConusmerStrategy;
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConusmerStrategy(RetryConsumerStrategy retryConusmerStrategy)
+        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
         {
-            this.retryConusmerStrategy = retryConusmerStrategy;
+            this.retryConsumerWorkersCount = retryConsumerWorkersCount;
             return this;
         }
 
@@ -62,7 +66,14 @@
             return this;
         }
 
-        internal void Build()
+        internal void Build(
+            Type messageType,
+            IRetryDurableQueueRepository retryDurableQueueRepository,
+            IUtf8Encoder utf8Encoder,
+            IMessageAdapter messageAdapter,
+            IMessageHeadersAdapter messageHeadersAdapter,
+            RetryDurablePollingDefinition retryDurablePollingDefinition
+            )
         {
             if (!enabled)
             {
@@ -78,11 +89,23 @@
             Guard.Argument(this.retryConsumerWorkersCount)
                 .NotZero("A buffer size great than zero should be defined")
                 .NotNegative(x => "A buffer size great than zero should be defined");
-            Guard.Argument(this.messageType).NotNull("A message type should be defined");
+
+            var producerName = $"{RetryDurableConstants.EmbeddedProducerName}-{this.retryTopicName}";
+            var consumerGroupId = $"{RetryDurableConstants.EmbeddedConsumerName}-{this.retryTopicName}";
+
+            var queueTrackerCoordinator =
+                new QueueTrackerCoordinator(
+                    new QueueTrackerFactory(
+                        retryDurableQueueRepository,
+                        messageHeadersAdapter,
+                        messageAdapter,
+                        utf8Encoder
+                    )
+                );
 
             this.cluster
                 .AddProducer(
-                    RetryDurableConstants.EmbeddedProducerName,
+                    producerName,
                     producer => producer
                         .DefaultTopic(this.retryTopicName)
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
@@ -91,8 +114,7 @@
                 .AddConsumer(
                     consumer => consumer
                         .Topic(this.retryTopicName)
-                        .WithGroupId(RetryDurableConstants.EmbeddedConsumerGroupId)
-                        .WithName(RetryDurableConstants.EmbeddedConsumerName)
+                        .WithGroupId(consumerGroupId)
                         .WithBufferSize(this.retryConsumerBufferSize)
                         .WithWorkersCount(this.retryConsumerWorkersCount)
                         .WithAutoOffsetReset(AutoOffsetReset.Latest) // TODO: this settings should be reviewed
@@ -102,32 +124,31 @@
                                 if (partitionsAssignedHandler is object
                                  && partitionsAssignedHandler.Any(tp => tp.Partition == DefaultPartitionElection))
                                 {
-                                    resolver
-                                        .Resolve<IQueueTrackerCoordinator>()
-                                        .Initialize();
+                                    queueTrackerCoordinator
+                                        .Initialize(
+                                            retryDurablePollingDefinition,
+                                            resolver.Resolve<IProducerAccessor>().GetProducer(producerName),
+                                            resolver.Resolve<ILogHandler>());
                                 }
                             })
                         .WithPartitionsRevokedHandler(
                             (resolver, partitionsRevokedHandler) =>
                             {
-                                resolver
-                                    .Resolve<IQueueTrackerCoordinator>()
-                                    .Shutdown();
+                                queueTrackerCoordinator.Shutdown();
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(this.messageType)
-                                .RetryConsumerStrategy(this.retryConusmerStrategy)
-                                .Add<RetryDurableConsumerValidationMiddleware>()
+                                .AddSingleTypeSerializer<ProtobufNetSerializer>(messageType)
+                                .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
+                                .Add(resolver =>
+                                    new RetryDurableConsumerValidationMiddleware(
+                                            resolver.Resolve<ILogHandler>(),
+                                            retryDurableQueueRepository,
+                                            utf8Encoder
+                                        ))
                                 .AddTypedHandlers(this.retryTypeHandlers)
                         )
                 );
-        }
-
-        internal RetryDurableEmbeddedClusterDefinitionBuilder WithMessageType(Type messageType)
-        {
-            this.messageType = messageType;
-            return this;
         }
     }
 }
