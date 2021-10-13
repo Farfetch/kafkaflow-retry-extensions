@@ -71,7 +71,7 @@
             Func<IList<RetryQueueItemTestModel>, bool> stopCondition)
         {
             var start = DateTime.Now;
-            List<RetryQueueItemTestModel> retryQueueItems = new List<RetryQueueItemTestModel>();
+            List<RetryQueueItemTestModel> retryQueueItems = null;
             do
             {
                 if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
@@ -100,7 +100,7 @@
                         }).ToList();
             } while (stopCondition(retryQueueItems));
 
-            return retryQueueItems;
+            return retryQueueItems ?? new List<RetryQueueItemTestModel>();
         }
     }
 }

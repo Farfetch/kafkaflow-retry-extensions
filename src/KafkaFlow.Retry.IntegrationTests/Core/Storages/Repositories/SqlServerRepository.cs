@@ -85,7 +85,7 @@
         public async Task<IList<RetryQueueItemTestModel>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItemTestModel>, bool> stopCondition)
         {
             var start = DateTime.Now;
-            IList<RetryQueueItemTestModel> retryQueueItems = new List<RetryQueueItemTestModel>();
+            IList<RetryQueueItemTestModel> retryQueueItems = null;
             do
             {
                 if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
@@ -107,7 +107,7 @@
                 }
             } while (stopCondition(retryQueueItems));
 
-            return retryQueueItems;
+            return retryQueueItems ?? new List<RetryQueueItemTestModel>();
         }
 
         private SqlCommand CreateCommand() => this.GetDbConnection().CreateCommand();

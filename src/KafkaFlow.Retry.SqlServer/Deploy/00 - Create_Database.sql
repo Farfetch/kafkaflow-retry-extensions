@@ -1,4 +1,4 @@
-﻿USE master
+﻿USE master;
 IF (NOT EXISTS (SELECT * 
                  FROM sys.databases 
                  WHERE name = '@dbname'))
