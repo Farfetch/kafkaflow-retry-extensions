@@ -21,7 +21,7 @@
             if (requestBody is object)
             {
                 var body = JsonConvert.SerializeObject(requestBody,
-                    new JsonSerializerSettings() { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
+                    new JsonSerializerSettings { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
 
                 using var writer = new StreamWriter(context.Request.Body, Encoding.UTF8);
                 await writer.WriteAsync(body).ConfigureAwait(false);

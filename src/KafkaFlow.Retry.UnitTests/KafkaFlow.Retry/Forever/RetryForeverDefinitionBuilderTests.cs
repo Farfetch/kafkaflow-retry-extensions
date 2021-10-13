@@ -18,7 +18,7 @@
             builder.WithTimeBetweenTriesPlan(new TimeSpan[0])
             .WithTimeBetweenTriesPlan(new Func<int, TimeSpan>(_ => new TimeSpan()))
             .Handle<Exception>()
-            .Handle(new Func<Exception, bool>(_ => 1 == 1))
+            .Handle(new Func<Exception, bool>(_ => true))
             .Handle(new Func<RetryContext, bool>((d) => d == retryContext));
 
             // Act

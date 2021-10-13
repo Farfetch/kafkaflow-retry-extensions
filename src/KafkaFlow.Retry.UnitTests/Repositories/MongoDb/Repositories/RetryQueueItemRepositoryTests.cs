@@ -138,7 +138,7 @@
             var result = await repository
                 .GetItemsAsync(
                     retriesQueueId,
-                    new List<RetryQueueItemStatus>() { RetryQueueItemStatus.Waiting })
+                    new List<RetryQueueItemStatus> { RetryQueueItemStatus.Waiting })
                 .ConfigureAwait(false);
 
             // Assert

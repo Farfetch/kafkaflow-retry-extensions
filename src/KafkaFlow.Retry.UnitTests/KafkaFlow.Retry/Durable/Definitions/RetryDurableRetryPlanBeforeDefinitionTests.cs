@@ -12,15 +12,13 @@
         {
             new object[]
             {
-                funcTimeSpan, -1
+                 new Func<int, TimeSpan>(_ => new TimeSpan(1)), -1
             },
             new object[]
             {
                 null, 1
             }
         };
-
-        private static readonly Func<int, TimeSpan> funcTimeSpan = new Func<int, TimeSpan>(_ => new TimeSpan(1));
 
         [Theory]
         [MemberData(nameof(DataTest))]

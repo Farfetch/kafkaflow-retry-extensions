@@ -113,7 +113,7 @@
 
         private UpdateQueuesResponseDto CreateResponseDto()
         {
-            return new UpdateQueuesResponseDto()
+            return new UpdateQueuesResponseDto
             {
                 UpdateQueuesResults = new[]
                 {

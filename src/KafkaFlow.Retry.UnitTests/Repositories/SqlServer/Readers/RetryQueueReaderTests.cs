@@ -70,7 +70,7 @@
         public RetryQueueReaderTests()
         {
             var item1 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
-            var itemsA = new RetryQueueItem[] { item1 };
+            var itemsA = new[] { item1 };
 
             retryQueueAdapter
                 .Setup(d => d.Adapt(It.IsAny<RetryQueueDbo>()))
@@ -110,7 +110,7 @@
             // Arrange
             var wrapper = new RetryQueuesDboWrapper
             {
-                QueuesDbos = new RetryQueueDbo[1]
+                QueuesDbos = new[]
                 {
                     new RetryQueueDbo
                     {
@@ -122,7 +122,7 @@
                         SearchGroupKey = "1"
                     }
                 },
-                ItemsDbos = new RetryQueueItemDbo[1]
+                ItemsDbos = new[]
                 {
                     new RetryQueueItemDbo
                     {
@@ -140,7 +140,7 @@
                         Status = RetryQueueItemStatus.InRetry
                     }
                 },
-                MessagesDbos = new RetryQueueItemMessageDbo[1]
+                MessagesDbos = new[]
                 {
                     new RetryQueueItemMessageDbo
                     {
@@ -153,7 +153,7 @@
                         Value = new byte[] { 2, 4, 6 }
                     }
                 },
-                HeadersDbos = new RetryQueueItemMessageHeaderDbo[1]
+                HeadersDbos = new[]
                 {
                     new RetryQueueItemMessageHeaderDbo
                     {
