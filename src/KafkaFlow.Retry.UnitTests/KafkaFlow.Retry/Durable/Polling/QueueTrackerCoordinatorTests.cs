@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
 {
     using System;
-    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
@@ -15,32 +14,16 @@
     [ExcludeFromCodeCoverage]
     public class QueueTrackerCoordinatorTests
     {
-        public readonly static IEnumerable<object[]> DataTest = new List<object[]>
-        {
-            new object[]
-            {
-                null,
-                Mock.Of<IRetryDurablePollingDefinition>()
-            },
-            new object[]
-            {
-                Mock.Of<IQueueTrackerFactory>(),
-                null
-            }
-        };
-
+        private readonly Mock<ILogHandler> mockILogHandler = new Mock<ILogHandler>();
+        private readonly Mock<IMessageProducer> mockIMessageProducer = new Mock<IMessageProducer>();
         private readonly Mock<IQueueTrackerFactory> queueTrackerFactory = new Mock<IQueueTrackerFactory>();
-        private readonly Mock<IRetryDurablePollingDefinition> retryDurablePollingDefinition = new Mock<IRetryDurablePollingDefinition>();
+        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100, "id");
 
-        [Theory]
-        [MemberData(nameof(DataTest))]
-        public void QueueTrackerCoordinator_Ctor_WithArgumentNull_ThrowsException(
-            object queueTrackerFactory,
-            object retryDurablePollingDefinition)
+        [Fact]
+        public void QueueTrackerCoordinator_Ctor_WithArgumentNull_ThrowsException()
         {
             // Arrange & Act
-            Action act = () => new QueueTrackerCoordinator((IQueueTrackerFactory)queueTrackerFactory,
-                (IRetryDurablePollingDefinition)retryDurablePollingDefinition);
+            Action act = () => new QueueTrackerCoordinator(null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
@@ -50,16 +33,8 @@
         public void QueueTrackerCoordinator_Initialize_Success()
         {
             // Arrange
-            retryDurablePollingDefinition
-                .Setup(d => d.Enabled)
-                .Returns(true);
-
-            retryDurablePollingDefinition
-                .Setup(d => d.CronExpression)
-                .Returns("0 0 14-6 ? * FRI-MON");
-
             queueTrackerFactory
-                .Setup(d => d.Create())
+                .Setup(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new QueueTracker(
                     Mock.Of<IRetryDurableQueueRepository>(),
                     Mock.Of<ILogHandler>(),
@@ -67,33 +42,26 @@
                     Mock.Of<IMessageAdapter>(),
                     Mock.Of<IUtf8Encoder>(),
                     Mock.Of<IMessageProducer>(),
-                    retryDurablePollingDefinition.Object
+                    retryDurablePollingDefinition
                     ));
 
-            var coordinator = new QueueTrackerCoordinator(queueTrackerFactory.Object,
-                retryDurablePollingDefinition.Object);
+            var coordinator = new QueueTrackerCoordinator(queueTrackerFactory.Object);
 
             // Act
-            coordinator.Initialize();
+            coordinator.Initialize(retryDurablePollingDefinition,
+                                mockIMessageProducer.Object,
+                                mockILogHandler.Object);
 
             //Assert
-            queueTrackerFactory.Verify(d => d.Create(), Times.Once);
+            queueTrackerFactory.Verify(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
         }
 
         [Fact]
         public void QueueTrackerCoordinator_Shutdown_Success()
         {
             // Arrange
-            retryDurablePollingDefinition
-                .Setup(d => d.Enabled)
-                .Returns(true);
-
-            retryDurablePollingDefinition
-                .Setup(d => d.CronExpression)
-                .Returns("0 0 14-6 ? * FRI-MON");
-
             queueTrackerFactory
-                .Setup(d => d.Create())
+                .Setup(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new QueueTracker(
                     Mock.Of<IRetryDurableQueueRepository>(),
                     Mock.Of<ILogHandler>(),
@@ -101,18 +69,20 @@
                     Mock.Of<IMessageAdapter>(),
                     Mock.Of<IUtf8Encoder>(),
                     Mock.Of<IMessageProducer>(),
-                    retryDurablePollingDefinition.Object
+                    retryDurablePollingDefinition
                     ));
 
-            var coordinator = new QueueTrackerCoordinator(queueTrackerFactory.Object,
-                retryDurablePollingDefinition.Object);
+            var coordinator = new QueueTrackerCoordinator(queueTrackerFactory.Object);
 
             // Act
-            coordinator.Initialize();
+            coordinator.Initialize(
+                        retryDurablePollingDefinition,
+                        mockIMessageProducer.Object,
+                        mockILogHandler.Object);
             coordinator.Shutdown();
 
             //Assert
-            queueTrackerFactory.Verify(d => d.Create(), Times.Once);
+            queueTrackerFactory.Verify(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
         }
     }
 }

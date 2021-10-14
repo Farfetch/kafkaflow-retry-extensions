@@ -4,13 +4,15 @@
     using System.Collections.Generic;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Repository;
+    using Moq;
     using Xunit;
 
     public class RetryDurableDefinitionTests
     {
         private static readonly RetryContext retry = new RetryContext(new Exception());
-        private readonly IRetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(false, "ad", 1, 1, "ad");
-        private readonly IRetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition = new RetryDurableRetryPlanBeforeDefinition(new Func<int, TimeSpan>(_ => new TimeSpan(1)), 1, false);
+        private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
+        private readonly RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition = new RetryDurableRetryPlanBeforeDefinition(new Func<int, TimeSpan>(_ => new TimeSpan(1)), 1, false);
 
         private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>
         {
@@ -21,7 +23,7 @@
         public void RetryDurableDefinition_Ctor_WithNullArgsForRetryDurablePollingDefinition_ThrowsException()
         {
             // Act
-            Action act = () => new RetryDurableDefinition(retryWhenExceptions, retryDurableRetryPlanBeforeDefinition, retryDurablePollingDefinition: null);
+            Action act = () => new RetryDurableDefinition(retryWhenExceptions, retryDurableRetryPlanBeforeDefinition, retryDurableQueueRepository: null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
@@ -31,7 +33,7 @@
         public void RetryDurableDefinition_Ctor_WithNullArgsForRetryDurableRetryPlanBeforeDefinition_ThrowsException()
         {
             // Act
-            Action act = () => new RetryDurableDefinition(retryWhenExceptions, retryDurableRetryPlanBeforeDefinition: null, retryDurablePollingDefinition);
+            Action act = () => new RetryDurableDefinition(retryWhenExceptions, retryDurableRetryPlanBeforeDefinition: null, retryDurableQueueRepository.Object);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
@@ -42,7 +44,7 @@
         {
             // Act
 
-            Action act = () => new RetryDurableDefinition(retryWhenExceptions: null, retryDurableRetryPlanBeforeDefinition, retryDurablePollingDefinition);
+            Action act = () => new RetryDurableDefinition(retryWhenExceptions: null, retryDurableRetryPlanBeforeDefinition, retryDurableQueueRepository.Object);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
@@ -55,7 +57,7 @@
             var retryDurableDefinition = new RetryDurableDefinition(
                 retryWhenExceptions,
                 retryDurableRetryPlanBeforeDefinition,
-                retryDurablePollingDefinition);
+                retryDurableQueueRepository.Object);
 
             // Act
             var result = retryDurableDefinition.ShouldRetry(retry);

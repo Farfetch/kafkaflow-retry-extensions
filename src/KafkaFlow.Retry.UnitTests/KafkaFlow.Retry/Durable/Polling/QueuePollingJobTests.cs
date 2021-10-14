@@ -31,7 +31,7 @@
                 {
                     { "RetryDurableQueueRepository", null },
                     { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", Mock.Of<IRetryDurablePollingDefinition>()},
+                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                     { "LogHandler", Mock.Of<ILogHandler>() },
                     { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
                     { "MessageAdapter", Mock.Of<IMessageAdapter>() },
@@ -44,7 +44,7 @@
                 {
                     { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
                     { "RetryDurableProducer", null },
-                    { "RetryDurablePollingDefinition", Mock.Of<IRetryDurablePollingDefinition>()},
+                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                     { "LogHandler", Mock.Of<ILogHandler>() },
                     { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
                     { "MessageAdapter", Mock.Of<IMessageAdapter>() },
@@ -70,7 +70,7 @@
                 {
                     { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
                     { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", Mock.Of<IRetryDurablePollingDefinition>()},
+                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                     { "LogHandler", null },
                     { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
                     { "MessageAdapter", Mock.Of<IMessageAdapter>() },
@@ -83,7 +83,7 @@
                 {
                     { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
                     { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", Mock.Of<IRetryDurablePollingDefinition>()},
+                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                     { "LogHandler", Mock.Of<ILogHandler>() },
                     { "MessageHeadersAdapter", null },
                     { "MessageAdapter", Mock.Of<IMessageAdapter>() },
@@ -96,7 +96,7 @@
                 {
                     { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
                     { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", Mock.Of<IRetryDurablePollingDefinition>()},
+                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                     { "LogHandler", Mock.Of<ILogHandler>() },
                     { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
                     { "MessageAdapter", null },
@@ -109,7 +109,7 @@
                 {
                     { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
                     { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", Mock.Of<IRetryDurablePollingDefinition>()},
+                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                     { "LogHandler", Mock.Of<ILogHandler>() },
                     { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
                     { "MessageAdapter", Mock.Of<IMessageAdapter>() },
@@ -118,13 +118,13 @@
             }
         };
 
+        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1, "id");
         private readonly IJob job = new QueuePollingJob();
         private readonly Mock<IJobExecutionContext> jobExecutionContext = new Mock<IJobExecutionContext>();
         private readonly Mock<ILogHandler> logHandler = new Mock<ILogHandler>();
         private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();
         private readonly Mock<IMessageHeadersAdapter> messageHeadersAdapter = new Mock<IMessageHeadersAdapter>();
         private readonly Mock<IMessageProducer> messageProducer = new Mock<IMessageProducer>();
-        private readonly Mock<IRetryDurablePollingDefinition> retryDurablePollingDefinition = new Mock<IRetryDurablePollingDefinition>();
         private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
         private readonly Mock<IUtf8Encoder> utf8Encoder = new Mock<IUtf8Encoder>();
 
@@ -132,10 +132,6 @@
         public async Task QueuePollingJob_Execute_ProduceMessageFailed_LogError()
         {
             // Arrange
-            retryDurablePollingDefinition.Setup(d => d.CronExpression).Returns("0 0 14-6 ? * FRI-MON");
-            retryDurablePollingDefinition.Setup(d => d.FetchSize).Returns(1);
-            retryDurablePollingDefinition.Setup(d => d.ExpirationIntervalFactor).Returns(1);
-
             retryDurableQueueRepository
                     .Setup(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()))
                     .ReturnsAsync(new List<RetryQueue>
@@ -170,7 +166,7 @@
             {
                 { "RetryDurableQueueRepository", retryDurableQueueRepository.Object },
                 { "RetryDurableProducer", messageProducer.Object },
-                { "RetryDurablePollingDefinition", retryDurablePollingDefinition.Object},
+                { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                 { "LogHandler", logHandler.Object },
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
@@ -197,10 +193,6 @@
         public async Task QueuePollingJob_Execute_RetryDurableQueueRepositoryFailed_LogError()
         {
             // Arrange
-            retryDurablePollingDefinition.Setup(d => d.CronExpression).Returns("0 0 14-6 ? * FRI-MON");
-            retryDurablePollingDefinition.Setup(d => d.FetchSize).Returns(1);
-            retryDurablePollingDefinition.Setup(d => d.ExpirationIntervalFactor).Returns(1);
-
             retryDurableQueueRepository
                 .Setup(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()))
                 .Throws(new RetryDurableException(new RetryError(RetryErrorCode.Consumer_BlockedException), "error"));
@@ -209,7 +201,7 @@
             {
                 { "RetryDurableQueueRepository", retryDurableQueueRepository.Object },
                 { "RetryDurableProducer", messageProducer.Object },
-                { "RetryDurablePollingDefinition", retryDurablePollingDefinition.Object},
+                { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                 { "LogHandler", logHandler.Object },
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
@@ -234,10 +226,6 @@
         public async Task QueuePollingJob_Execute_Success()
         {
             // Arrange
-            retryDurablePollingDefinition.Setup(d => d.CronExpression).Returns("0 0 14-6 ? * FRI-MON");
-            retryDurablePollingDefinition.Setup(d => d.FetchSize).Returns(1);
-            retryDurablePollingDefinition.Setup(d => d.ExpirationIntervalFactor).Returns(1);
-
             retryDurableQueueRepository
                 .Setup(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()))
                 .ReturnsAsync(new List<RetryQueue>
@@ -271,7 +259,7 @@
             {
                 { "RetryDurableQueueRepository", retryDurableQueueRepository.Object },
                 { "RetryDurableProducer", messageProducer.Object },
-                { "RetryDurablePollingDefinition", retryDurablePollingDefinition.Object},
+                { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
                 { "LogHandler", logHandler.Object },
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },

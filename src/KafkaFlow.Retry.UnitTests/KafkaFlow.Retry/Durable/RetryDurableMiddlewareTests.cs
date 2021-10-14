@@ -16,19 +16,11 @@
             new object[]
             {
                 null,
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IRetryDurableDefinition>()
+                Mock.Of<RetryDurableDefinition>()
             },
             new object[]
             {
                 Mock.Of<ILogHandler>(),
-                null,
-                Mock.Of<IRetryDurableDefinition>()
-            },
-            new object[]
-            {
-                Mock.Of<ILogHandler>(),
-                Mock.Of<IRetryDurableQueueRepository>(),
                 null
             }
         };
@@ -41,14 +33,12 @@
         [MemberData(nameof(DataTest))]
         public void RetryDurableMiddleware_Ctor_Tests(
             object logHandler,
-            object retryDurableQueueRepository,
             object retryDurableDefinition)
         {
             // Act
             Action act = () => new RetryDurableMiddleware(
                 (ILogHandler)logHandler,
-                (IRetryDurableQueueRepository)retryDurableQueueRepository,
-                (IRetryDurableDefinition)retryDurableDefinition
+                (RetryDurableDefinition)retryDurableDefinition
                 );
 
             // Assert

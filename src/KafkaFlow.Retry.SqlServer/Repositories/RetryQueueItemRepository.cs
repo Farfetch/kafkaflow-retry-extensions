@@ -196,11 +196,12 @@
                                          FROM [RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
-                                         AND IdItemStatus IN (@IdItemStatusInRetry)
+                                         AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
                                          AND Sort > @Sort
                                          ORDER BY Sort ASC";
 
                 command.Parameters.AddWithValue("IdDomainRetryQueue", queueIdDomain);
+                command.Parameters.AddWithValue("IdItemStatusWaiting", (byte)RetryQueueItemStatus.Waiting);
                 command.Parameters.AddWithValue("IdItemStatusInRetry", (byte)RetryQueueItemStatus.InRetry);
                 command.Parameters.AddWithValue("Sort", sort);
 

@@ -2,38 +2,34 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Dawn;
     using KafkaFlow;
     using Polly;
 
     internal class RetrySimpleMiddleware : IMessageMiddleware
     {
-        private readonly IRetrySimpleDefinition kafkaRetryDefinition;
         private readonly ILogHandler logHandler;
+        private readonly RetrySimpleDefinition retrySimpleDefinition;
         private readonly object syncPauseAndResume = new object();
         private int? controlWorkerId;
 
         public RetrySimpleMiddleware(
             ILogHandler logHandler,
-            IRetrySimpleDefinition kafkaRetryDefinition)
+            RetrySimpleDefinition retrySimpleDefinition)
         {
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(kafkaRetryDefinition).NotNull();
-
             this.logHandler = logHandler;
-            this.kafkaRetryDefinition = kafkaRetryDefinition;
+            this.retrySimpleDefinition = retrySimpleDefinition;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
         {
             var policy = Policy
-                .Handle<Exception>(exception => this.kafkaRetryDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => this.retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
-                    this.kafkaRetryDefinition.NumberOfRetries,
-                    (retryNumber, c) => this.kafkaRetryDefinition.TimeBetweenTriesPlan(retryNumber),
+                    this.retrySimpleDefinition.NumberOfRetries,
+                    (retryNumber, c) => this.retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (this.kafkaRetryDefinition.PauseConsumer && !this.controlWorkerId.HasValue)
+                        if (this.retrySimpleDefinition.PauseConsumer && !this.controlWorkerId.HasValue)
                         {
                             lock (this.syncPauseAndResume) // TODO: why we need this lock here?
                             {

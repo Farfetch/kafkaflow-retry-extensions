@@ -4,29 +4,30 @@
     using System.Collections.Generic;
     using System.Linq;
     using Dawn;
+    using KafkaFlow.Retry.Durable.Repository;
 
-    internal class RetryDurableDefinition : IRetryDurableDefinition
+    internal class RetryDurableDefinition
     {
         private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
 
         public RetryDurableDefinition(
             IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions,
-            IRetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition,
-            IRetryDurablePollingDefinition retryDurablePollingDefinition)
+            RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition,
+            IRetryDurableQueueRepository retryDurableQueueRepository)
         {
             Guard.Argument(retryWhenExceptions).NotNull("At least an exception should be defined");
             Guard.Argument(retryWhenExceptions.Count).NotNegative(value => "At least an exception should be defined");
             Guard.Argument(retryDurableRetryPlanBeforeDefinition).NotNull();
-            Guard.Argument(retryDurablePollingDefinition).NotNull();
+            Guard.Argument(retryDurableQueueRepository).NotNull();
 
             this.retryWhenExceptions = retryWhenExceptions;
             this.RetryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinition;
-            this.RetryDurablePollingDefinition = retryDurablePollingDefinition;
+            this.RetryDurableQueueRepository = retryDurableQueueRepository;
         }
 
-        public IRetryDurablePollingDefinition RetryDurablePollingDefinition { get; }
+        public IRetryDurableQueueRepository RetryDurableQueueRepository { get; }
 
-        public IRetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
+        public RetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
 
         public bool ShouldRetry(RetryContext kafkaRetryContext) =>
             this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));

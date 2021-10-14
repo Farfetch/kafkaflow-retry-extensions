@@ -35,28 +35,42 @@
             var itemId = Guid.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
             var attemptsCount = int.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
             var sort = int.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
+            var pendingItems = false;
+            try
+            {
+                pendingItems = await this
+                           .ThereArePendingItemsAsync(
+                               queueId,
+                               itemId,
+                               sort)
+                           .ConfigureAwait(false);
 
-            var pendingItems = await this
-                       .ThereArePendingItemsAsync(
-                           queueId,
-                           itemId,
-                           sort)
-                       .ConfigureAwait(false);
+                if (pendingItems)
+                {
+                    await this
+                        .UpdateAsync(
+                            RetryQueueItemStatus.Waiting,
+                            queueId,
+                            itemId,
+                            attemptsCount
+                        ).ConfigureAwait(false);
 
-            if (pendingItems)
+                    return;
+                }
+
+                await next(context).ConfigureAwait(false);
+            }
+            catch (Exception exception)
             {
                 await this
                     .UpdateAsync(
                         RetryQueueItemStatus.Waiting,
                         queueId,
                         itemId,
-                        attemptsCount
+                        attemptsCount,
+                        exception
                     ).ConfigureAwait(false);
-
-                return;
             }
-
-            await next(context).ConfigureAwait(false);
         }
 
         private async Task<bool> ThereArePendingItemsAsync(
