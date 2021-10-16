@@ -3,12 +3,12 @@
     using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Serializers;
 
-    internal class MessageAdapter : IMessageAdapter
+    internal class ProtobufNetMessageAdapter : IMessageAdapter
     {
         private readonly IGzipCompressor gzipCompressor;
         private readonly IProtobufNetSerializer protobufNetSerializer;
 
-        public MessageAdapter(
+        public ProtobufNetMessageAdapter(
             IGzipCompressor gzipCompressor,
             IProtobufNetSerializer protobufNetSerializer)
         {

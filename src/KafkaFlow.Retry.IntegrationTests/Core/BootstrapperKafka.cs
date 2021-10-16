@@ -101,6 +101,7 @@
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageSerializerStrategy(MessageSerializerStrategy.NewtonsoftJson)
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure
@@ -302,6 +303,7 @@
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageSerializerStrategy(MessageSerializerStrategy.NewtonsoftJson)
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure

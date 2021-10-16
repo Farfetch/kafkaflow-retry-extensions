@@ -11,7 +11,9 @@
     using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using KafkaFlow.Serializer;
+    using KafkaFlow.Retry.Durable.Serializers;
+
+    //using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
 
     public class RetryDurableEmbeddedClusterDefinitionBuilder
@@ -70,6 +72,8 @@
             Type messageType,
             IRetryDurableQueueRepository retryDurableQueueRepository,
             IUtf8Encoder utf8Encoder,
+            INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+            MessageSerializerStrategy messageSerializerStrategy,
             IMessageAdapter messageAdapter,
             IMessageHeadersAdapter messageHeadersAdapter,
             RetryDurablePollingDefinition retryDurablePollingDefinition
@@ -138,7 +142,7 @@
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(messageType)
+                                .WithMessageSerializerStrategy(messageSerializerStrategy, messageType, utf8Encoder, newtonsoftJsonSerializer)
                                 .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
                                 .Add(resolver =>
                                     new RetryDurableConsumerValidationMiddleware(

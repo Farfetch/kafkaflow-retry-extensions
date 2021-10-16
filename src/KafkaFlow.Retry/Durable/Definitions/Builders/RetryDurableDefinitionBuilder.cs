@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using Dawn;
-    using KafkaFlow;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Definitions;
@@ -11,21 +10,21 @@
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Serializers;
+    using Newtonsoft.Json;
 
     public class RetryDurableDefinitionBuilder
     {
-        private readonly IDependencyConfigurator dependencyConfigurator;
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
+        private JsonSerializerSettings jsonSerializerSettings;
+        private MessageSerializerStrategy messageSerializerStrategy = MessageSerializerStrategy.ProtobufNet;
         private Type messageType;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
         private RetryDurablePollingDefinition retryDurablePollingDefinition;
         private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
 
-        public RetryDurableDefinitionBuilder(IDependencyConfigurator dependencyConfigurator)
-        {
-            this.dependencyConfigurator = dependencyConfigurator;
-        }
+        internal RetryDurableDefinitionBuilder()
+        { }
 
         public RetryDurableDefinitionBuilder Handle<TException>()
             where TException : Exception
@@ -53,6 +52,18 @@
             configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
             return this;
+        }
+
+        public RetryDurableDefinitionBuilder WithMessageAdapterStrategy(MessageSerializerStrategy messageSerializerStrategy, JsonSerializerSettings jsonSerializerSettings)
+        {
+            this.jsonSerializerSettings = jsonSerializerSettings;
+            this.messageSerializerStrategy = messageSerializerStrategy;
+            return this;
+        }
+
+        public RetryDurableDefinitionBuilder WithMessageSerializerStrategy(MessageSerializerStrategy messageSerializerStrategy)
+        {
+            return this.WithMessageAdapterStrategy(messageSerializerStrategy, new JsonSerializerSettings());
         }
 
         public RetryDurableDefinitionBuilder WithMessageType(Type messageType)
@@ -92,10 +103,9 @@
             Guard.Argument(this.retryDurableRepositoryProvider).NotNull("A repository should be defined");
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
-            var gzipCompressor = new GzipCompressor();
-            var protobufNetSerializer = new ProtobufNetSerializer();
             var utf8Encoder = new Utf8Encoder();
-            var messageAdapter = new MessageAdapter(gzipCompressor, protobufNetSerializer);
+            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(jsonSerializerSettings);
+            var messageAdapter = GetMessageAdapter(this.messageSerializerStrategy, utf8Encoder, newtonsoftJsonSerializer);
             var messageHeadersAdapter = new MessageHeadersAdapter();
 
             var retryDurableQueueRepository =
@@ -116,6 +126,8 @@
                     this.messageType,
                     retryDurableQueueRepository,
                     utf8Encoder,
+                    newtonsoftJsonSerializer,
+                    this.messageSerializerStrategy,
                     messageAdapter,
                     messageHeadersAdapter,
                     this.retryDurablePollingDefinition
@@ -126,6 +138,27 @@
                 this.retryDurableRetryPlanBeforeDefinition,
                 retryDurableQueueRepository
             );
+        }
+
+        private IMessageAdapter GetMessageAdapter(
+            MessageSerializerStrategy messageSerializerStrategy,
+            IUtf8Encoder utf8Encoder,
+            INewtonsoftJsonSerializer newtonsoftJsonSerializer)
+        {
+            var gzipCompressor = new GzipCompressor();
+            var protobufNetSerializer = new ProtobufNetSerializer();
+
+            switch (messageSerializerStrategy)
+            {
+                case MessageSerializerStrategy.ProtobufNet:
+                    return new ProtobufNetMessageAdapter(gzipCompressor, protobufNetSerializer);
+
+                case MessageSerializerStrategy.NewtonsoftJson:
+                    return new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
+
+                default:
+                    throw new NotImplementedException($"{nameof(MessageSerializerStrategy)} not defined");
+            }
         }
     }
 }

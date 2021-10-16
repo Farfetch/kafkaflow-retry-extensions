@@ -103,7 +103,8 @@
                                 .RetryDurable(
                                     configure => configure
                                         .Handle<RetryDurableTestException>()
-                                        .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageType(typeof(RetryDurableAnotherTestMessage))
+                                        .WithMessageSerializerStrategy(MessageSerializerStrategy.NewtonsoftJson)
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -128,7 +129,7 @@
                                                 .WithRetryTypedHandlers(
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                        .AddHandler<RetryDurableTestHandler>()
+                                                        .AddHandler<RetryDurableAnotherTestHandler>()
                                                 )
                                                 .Enabled(true)
                                         )
@@ -143,7 +144,7 @@
                                 .AddTypedHandlers(
                                     handlers => handlers
                                         .WithHandlerLifetime(InstanceLifetime.Transient)
-                                        .AddHandler<RetryDurableTestHandler>())
+                                        .AddHandler<RetryDurableAnotherTestHandler>())
                         )
                 );
 
