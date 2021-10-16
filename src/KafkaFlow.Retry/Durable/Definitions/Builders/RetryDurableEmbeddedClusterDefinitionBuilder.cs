@@ -12,8 +12,6 @@
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Serializers;
-
-    //using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
 
     public class RetryDurableEmbeddedClusterDefinitionBuilder
