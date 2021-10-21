@@ -8,9 +8,9 @@ KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafk
 
 |Policy| Description | Aka| Required Packages|
 | ------------- | ------------- |:-------------: |------------- |
-|**Simple Retry** <br/>(policy family)<br/><sub>([quickstart](#retry)&nbsp;;&nbsp;[deep](https://github.com/App-vNext/Polly/wiki/Retry))</sub>|Many faults are transient and may self-correct after a short delay.| "Maybe it's just a blip" |   KafkaFlow.Retry |
-|**Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#circuit-breaker)&nbsp;;&nbsp;[deep](https://github.com/App-vNext/Polly/wiki/Circuit-Breaker))</sub>|Many faults are semi-transient and may self-correct after multiple retries. | "Never give up" | KafkaFlow.Retry | 
-|**Durable Retry**<br/><sub>([quickstart](#timeout)&nbsp;;&nbsp;[deep](https://github.com/App-vNext/Polly/wiki/Timeout))</sub>|Beyond a certain amount of retries and wait, you want to keep processing next-in-line messages but you can't loss the current offset message. As persistance databases, MongoDb or SqlServer are available. And you can manage in-retry messages through HTTP API.| "I can't stop processing messages but I can't loss messages"  | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb | 
+|**Simple Retry** <br/>(policy family)<br/><sub>([quickstart](#retry)&nbsp;;&nbsp;deep)</sub>|Many faults are transient and may self-correct after a short delay.| "Maybe it's just a blip" |   KafkaFlow.Retry |
+|**Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#circuit-breaker)&nbsp;;&nbsp;deep)</sub>|Many faults are semi-transient and may self-correct after multiple retries. | "Never give up" | KafkaFlow.Retry | 
+|**Durable Retry**<br/><sub>([quickstart](#timeout)&nbsp;;&nbsp;deep)</sub>|Beyond a certain amount of retries and wait, you want to keep processing next-in-line messages but you can't loss the current offset message. As persistance databases, MongoDb or SqlServer are available. And you can manage in-retry messages through HTTP API.| "I can't stop processing messages but I can't loss messages"  | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb | 
 
 # Installing via NuGet
 Install packages related to your context. The Core package is required for all other packages. 
@@ -72,6 +72,52 @@ Install packages related to your context. The Core package is required for all o
 ```
 
 # Usage &ndash; Durable retry policy
+
+```csharp
+.RetryDurable(
+        config => config
+            .Handle<NonBlockingException>()
+            .WithMessageType(typeof(TestMessage))
+            .WithEmbeddedRetryCluster(
+                cluster,
+                config => config
+                    .WithRetryTopicName("test-topic-retry")
+                    .WithRetryConsumerBufferSize(4)
+                    .WithRetryConsumerWorkersCount(2)
+                    .WithRetryConusmerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
+                    .WithRetryTypedHandlers(
+                        handlers => handlers
+                            .WithHandlerLifetime(InstanceLifetime.Transient)
+                            .AddHandler<Handler>()
+                    )
+                    .Enabled(true)
+            )
+            .WithQueuePollingJobConfiguration(
+                config => config
+                    .WithId("custom_search_key")
+                    .WithCronExpression("0 0/1 * 1/1 * ? *")
+                    .WithExpirationIntervalFactor(1)
+                    .WithFetchSize(10)
+                    .Enabled(true)
+            )                                                        
+            .WithMongoDbDataProvider(
+                mongoDbconnectionString,
+                mongoDbdatabaseName,
+                mongoDbretryQueueCollectionName,
+                mongoDbretryQueueItemCollectionName)
+            .WithRetryPlanBeforeRetryDurable(
+                config => config
+                    .TryTimes(3)
+                    .WithTimeBetweenTriesPlan(
+                        TimeSpan.FromMilliseconds(250),
+                        TimeSpan.FromMilliseconds(500),
+                        TimeSpan.FromMilliseconds(1000))
+                    .ShouldPauseConsumer(false)
+            )
+    )
+)
+```
+
 ```csharp
 public static void Main(string[] args)
 {
