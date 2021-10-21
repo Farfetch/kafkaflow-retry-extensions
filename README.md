@@ -39,55 +39,39 @@ Install packages related to your context. The Core package is required for all o
 ## SqlServer package
     Install-Package KafkaFlow.Retry.SqlServer
 
-# Usage &ndash; Simple and Forever retries
-// TODO: break in two blocks/steps (KafkaFlow basics and Retry middleware)
-<br />
-// TODO: add comments to explain what the line of code does 
-### Simple Retry
+# Usage &ndash; Simple and Forever retries policies
+### Simple
+
 ```csharp
-public static void Main(string[] args)
-{
-    Host
-        .CreateDefaultBuilder(args)
-        .ConfigureServices((hostContext, services) =>
-        {
-            services.AddKafkaFlowHostedService(kafka => kafka
-                .UseConsoleLog()
-                .AddCluster(cluster => cluster
-                    .WithBrokers(new[] { "localhost:9092" })
-                    .AddConsumer(consumer => consumer
-                        .Topic("sample-topic")
-                        .WithGroupId("sample-group")
-                        .WithBufferSize(100)
-                        .WithWorkersCount(10)
-                        .AddMiddlewares(middlewares => middlewares
-                            .AddSerializer<NewtonsoftJsonMessageSerializer>()
-                            .RetryForever(
-                                (configure) => configure
-                                    .Handle<CostumException>()
-                                    .Handle<TimeoutException>()
-                                    .WithTimeBetweenTriesPlan(
-                                        TimeSpan.FromMilliseconds(500),
-                                        TimeSpan.FromMilliseconds(1000))
-                            .AddTypedHandlers(handlers => handlers
-                                .AddHandler<SampleMessageHandler>())
-                        )
-                    )
-                    .AddProducer("producer-name", producer => producer
-                        .DefaultTopic("sample-topic")
-                        .AddMiddlewares(middlewares => middlewares
-                            .AddSerializer<NewtonsoftJsonMessageSerializer>()
-                        )
-                    )
-                )
-            );
-        })
-        .Build()
-        .Run();
-}
+ .AddMiddlewares(
+    middlewares => middlewares // KafkaFlow middlewares
+    .RetrySimple(
+        (config) => config
+            .Handle<ExternalGatewayException>() // Exceptions to be handled
+            .TryTimes(3)
+            .WithTimeBetweenTriesPlan((retryCount) => 
+                TimeSpan.FromMilliseconds(Math.Pow(2, retryCount)*1000) // exponential backoff
+            )
+    )
 ```
 
-# Usage &ndash; Durable retries
+### Forever
+
+```csharp
+ .AddMiddlewares( 
+    middlewares => middlewares // KafkaFlow middlewares
+    .RetryForever(
+        (config) => config
+            .Handle<DatabaseTimeoutException>() // Exceptions to be handled
+            .WithTimeBetweenTriesPlan(
+                TimeSpan.FromMilliseconds(500),
+                TimeSpan.FromMilliseconds(1000)
+            )
+    )
+ 
+```
+
+# Usage &ndash; Durable retry policy
 ```csharp
 public static void Main(string[] args)
 {
