@@ -86,7 +86,7 @@
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
+                                .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
                 .AddConsumer(
                     consumer => consumer
                         .Topic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db")
@@ -96,12 +96,11 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
-                                        .WithMessageSerializerStrategy(MessageSerializerStrategy.NewtonsoftJson)
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure
@@ -154,7 +153,7 @@
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
+                                .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
                 .AddConsumer(
                     consumer => consumer
                         .Topic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server")
@@ -164,7 +163,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -221,7 +220,7 @@
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
+                                .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
                 .AddConsumer(
                     consumer => consumer
                         .Topic("test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db")
@@ -231,7 +230,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -288,7 +287,7 @@
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<RetryDurableTestMessage, ProtobufNetSerializer>()))
+                                .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
                 .AddConsumer(
                     consumer => consumer
                         .Topic("test-kafka-flow-retry-retry-durable-latest-consumption-sql-server")
@@ -298,12 +297,11 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
-                                        .WithMessageSerializerStrategy(MessageSerializerStrategy.NewtonsoftJson)
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure

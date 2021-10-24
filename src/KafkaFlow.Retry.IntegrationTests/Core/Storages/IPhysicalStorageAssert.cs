@@ -4,7 +4,7 @@
     using System.Threading.Tasks;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
 
-    public interface IPhysicalStorageAssert
+    internal interface IPhysicalStorageAssert
     {
         Task AssertRetryDurableMessageCreationAsync(Type repositoryType, RetryDurableTestMessage message, int count);
 

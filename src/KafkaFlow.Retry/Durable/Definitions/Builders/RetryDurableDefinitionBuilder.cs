@@ -15,8 +15,7 @@
     public class RetryDurableDefinitionBuilder
     {
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-        private JsonSerializerSettings jsonSerializerSettings;
-        private MessageSerializerStrategy messageSerializerStrategy = MessageSerializerStrategy.ProtobufNet;
+        private MessageSerializerStrategy messageSerializerStrategy = MessageSerializerStrategy.NewtonsoftJson;
         private Type messageType;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
         private RetryDurablePollingDefinition retryDurablePollingDefinition;
@@ -52,18 +51,6 @@
             configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
             return this;
-        }
-
-        public RetryDurableDefinitionBuilder WithMessageAdapterStrategy(MessageSerializerStrategy messageSerializerStrategy, JsonSerializerSettings jsonSerializerSettings)
-        {
-            this.jsonSerializerSettings = jsonSerializerSettings;
-            this.messageSerializerStrategy = messageSerializerStrategy;
-            return this;
-        }
-
-        public RetryDurableDefinitionBuilder WithMessageSerializerStrategy(MessageSerializerStrategy messageSerializerStrategy)
-        {
-            return this.WithMessageAdapterStrategy(messageSerializerStrategy, new JsonSerializerSettings());
         }
 
         public RetryDurableDefinitionBuilder WithMessageType(Type messageType)
@@ -104,7 +91,7 @@
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
             var utf8Encoder = new Utf8Encoder();
-            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(jsonSerializerSettings);
+            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(new JsonSerializerSettings());
             var messageAdapter = GetMessageAdapter(this.messageSerializerStrategy, utf8Encoder, newtonsoftJsonSerializer);
             var messageHeadersAdapter = new MessageHeadersAdapter();
 
@@ -146,13 +133,9 @@
             INewtonsoftJsonSerializer newtonsoftJsonSerializer)
         {
             var gzipCompressor = new GzipCompressor();
-            var protobufNetSerializer = new ProtobufNetSerializer();
 
             switch (messageSerializerStrategy)
             {
-                case MessageSerializerStrategy.ProtobufNet:
-                    return new ProtobufNetMessageAdapter(gzipCompressor, protobufNetSerializer);
-
                 case MessageSerializerStrategy.NewtonsoftJson:
                     return new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
 

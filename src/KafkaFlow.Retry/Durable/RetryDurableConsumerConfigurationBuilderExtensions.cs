@@ -17,12 +17,6 @@
         {
             switch (messageSerializerStrategy)
             {
-                case MessageSerializerStrategy.ProtobufNet:
-                    {
-                        middlewareBuilder.AddSingleTypeSerializer<KafkaFlow.Serializer.ProtobufNetSerializer>(messageType);
-                    }
-                    break;
-
                 case MessageSerializerStrategy.NewtonsoftJson:
                     {
                         middlewareBuilder
