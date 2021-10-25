@@ -4,34 +4,9 @@
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Serializers;
 
     internal static class RetryDurableConsumerConfigurationBuilderExtensions
     {
-        public static IConsumerMiddlewareConfigurationBuilder WithMessageSerializerStrategy(
-            this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-            MessageSerializerStrategy messageSerializerStrategy,
-            Type messageType,
-            IUtf8Encoder utf8Encoder,
-            INewtonsoftJsonSerializer newtonsoftJsonSerializer)
-        {
-            switch (messageSerializerStrategy)
-            {
-                case MessageSerializerStrategy.NewtonsoftJson:
-                    {
-                        middlewareBuilder
-                            .Add(resolver => new RetryDurableConsumerUtf8EncoderMiddleware(utf8Encoder))
-                            .Add(resolver => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(newtonsoftJsonSerializer, messageType));
-                    }
-                    break;
-
-                default:
-                    throw new NotImplementedException($"{nameof(MessageSerializerStrategy)} not defined");
-            }
-
-            return middlewareBuilder;
-        }
-
         public static IConsumerMiddlewareConfigurationBuilder WithRetryConsumerStrategy(
                     this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
             RetryConsumerStrategy retryConsumerStrategy,

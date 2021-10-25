@@ -15,7 +15,6 @@
     public class RetryDurableDefinitionBuilder
     {
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-        private MessageSerializerStrategy messageSerializerStrategy = MessageSerializerStrategy.NewtonsoftJson;
         private Type messageType;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
         private RetryDurablePollingDefinition retryDurablePollingDefinition;
@@ -91,8 +90,9 @@
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
             var utf8Encoder = new Utf8Encoder();
+            var gzipCompressor = new GzipCompressor();
             var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(new JsonSerializerSettings());
-            var messageAdapter = GetMessageAdapter(this.messageSerializerStrategy, utf8Encoder, newtonsoftJsonSerializer);
+            var messageAdapter = new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
             var messageHeadersAdapter = new MessageHeadersAdapter();
 
             var retryDurableQueueRepository =
@@ -114,7 +114,6 @@
                     retryDurableQueueRepository,
                     utf8Encoder,
                     newtonsoftJsonSerializer,
-                    this.messageSerializerStrategy,
                     messageAdapter,
                     messageHeadersAdapter,
                     this.retryDurablePollingDefinition
@@ -125,23 +124,6 @@
                 this.retryDurableRetryPlanBeforeDefinition,
                 retryDurableQueueRepository
             );
-        }
-
-        private IMessageAdapter GetMessageAdapter(
-            MessageSerializerStrategy messageSerializerStrategy,
-            IUtf8Encoder utf8Encoder,
-            INewtonsoftJsonSerializer newtonsoftJsonSerializer)
-        {
-            var gzipCompressor = new GzipCompressor();
-
-            switch (messageSerializerStrategy)
-            {
-                case MessageSerializerStrategy.NewtonsoftJson:
-                    return new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
-
-                default:
-                    throw new NotImplementedException($"{nameof(MessageSerializerStrategy)} not defined");
-            }
         }
     }
 }
