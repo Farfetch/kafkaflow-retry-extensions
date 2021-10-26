@@ -43,6 +43,22 @@
                     }));
         }
 
+        public void Verbose(string message, object data)
+        {
+            Trace.TraceWarning(
+                   JsonSerializer.Serialize(
+                       new
+                       {
+                           Message = message,
+                           Data = data,
+                       }, new JsonSerializerOptions
+                       {
+                           MaxDepth = 0,
+                           IgnoreNullValues = true,
+                           IgnoreReadOnlyProperties = false
+                       }));
+        }
+
         public void Warning(string message, object data)
         {
             Trace.TraceWarning(
