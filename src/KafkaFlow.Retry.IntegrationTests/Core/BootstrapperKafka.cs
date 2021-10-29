@@ -318,7 +318,7 @@
                                             configure => configure
                                                 .Enabled(true)
                                                 .WithId("custom_search_key_durable_latest_consumption_sql_server")
-                                                .WithCronExpression("0 0/1 * * * ?")
+                                                .WithCronExpression("0/30 * * ? * * *")
                                                 .WithExpirationIntervalFactor(1)
                                                 .WithFetchSize(256))
                                         .WithSqlServerDataProvider(

@@ -25,7 +25,7 @@
 
             while (Message.Count(x => x.Key == message.Key && x.Value == message.Value) != count)
             {
-                if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
                 {
                     Assert.True(false, "Message not received.");
                     return;
