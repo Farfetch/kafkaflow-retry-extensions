@@ -20,16 +20,9 @@
             Mock<ILogHandler> mockILogHandler = new Mock<ILogHandler>();
             var retrySimpleDefinition = new RetrySimpleDefinition(1, Mock.Of<IReadOnlyCollection<Func<RetryContext, bool>>>(), false, (a) => { return TimeSpan.FromSeconds(1); });
 
-        [Theory]
-        [MemberData(nameof(DataTest))]
-        public void RetrySimpleMiddleware_Ctor_Tests(
-            object logHandler,
-            object retryForeverDefinition)
-        {
-            // Act
-            Action act = () => new RetrySimpleMiddleware(
-                (ILogHandler)logHandler,
-                (IRetrySimpleDefinition)retryForeverDefinition
+            var retrySimpleMiddleware = new RetrySimpleMiddleware(
+                mockILogHandler.Object,
+                retrySimpleDefinition
                 );
 
             Mock<IConsumerContext> mockIConsumerContext = new Mock<IConsumerContext>();

@@ -14,7 +14,7 @@
             new object[]
             {
                 null,
-                Mock.Of<IRetryForeverDefinition>()
+                Mock.Of<RetryForeverDefinition>()
             },
             new object[]
             {
@@ -32,7 +32,7 @@
             // Act
             Action act = () => new RetryForeverMiddleware(
                 (ILogHandler)logHandler,
-                (IRetryForeverDefinition)retryForeverDefinition
+                (RetryForeverDefinition)retryForeverDefinition
                 );
 
             // Assert

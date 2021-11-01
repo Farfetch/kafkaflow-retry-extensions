@@ -37,24 +37,24 @@
             KafkaHelper.CreateKafkaTopics(brokers, topics).GetAwaiter().GetResult();
 
             services.AddKafka(
-                kafka => kafka
-                    .UseConsoleLog()
-                    .AddCluster(
-                        cluster => cluster
-                            .WithBrokers(new[] { brokers })
-                            .EnableAdminMessages("kafka-flow.admin", Guid.NewGuid().ToString())
-                            .SetupRetrySimple()
-                            .SetupRetryForever()
-                            .SetupRetryDurableMongoDb(
-                                mongoDbConnectionString,
-                                mongoDbDatabaseName,
-                                mongoDbRetryQueueCollectionName,
-                                mongoDbRetryQueueItemCollectionName)
-                            .SetupRetryDurableSqlServer(
-                                sqlServerConnectionString,
-                                sqlServerDatabaseName)
-                    )
-                );
+                 kafka => kafka
+                     .UseConsoleLog()
+                     .AddCluster(
+                         cluster => cluster
+                             .WithBrokers(new[] { brokers })
+                             .EnableAdminMessages("kafka-flow.admin", Guid.NewGuid().ToString())
+                             .SetupRetrySimple()
+                             .SetupRetryForever()
+                             .SetupRetryDurableMongoDb(
+                                 mongoDbConnectionString,
+                                 mongoDbDatabaseName,
+                                 mongoDbRetryQueueCollectionName,
+                                 mongoDbRetryQueueItemCollectionName)
+                             .SetupRetryDurableSqlServer(
+                                 sqlServerConnectionString,
+                                 sqlServerDatabaseName)
+                     )
+                 );
 
             var provider = services.BuildServiceProvider();
 

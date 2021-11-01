@@ -2,7 +2,6 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Dawn;
     using KafkaFlow;
     using Polly;
 
@@ -17,9 +16,6 @@
             ILogHandler logHandler,
             RetrySimpleDefinition retrySimpleDefinition)
         {
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(kafkaRetryDefinition).NotNull();
-
             this.logHandler = logHandler;
             this.retrySimpleDefinition = retrySimpleDefinition;
         }

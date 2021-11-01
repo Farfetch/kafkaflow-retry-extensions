@@ -25,7 +25,7 @@
                 Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>(),
                 Mock.Of<IMessageProducer>(),
-                Mock.Of<IRetryDurablePollingDefinition>()
+                retryDurablePollingDefinition
             },
             new object[]
             {
@@ -35,7 +35,7 @@
                 Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>(),
                 Mock.Of<IMessageProducer>(),
-                Mock.Of<IRetryDurablePollingDefinition>()
+                retryDurablePollingDefinition
             },
             new object[]
             {
@@ -45,7 +45,7 @@
                 Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>(),
                 Mock.Of<IMessageProducer>(),
-                Mock.Of<IRetryDurablePollingDefinition>()
+                retryDurablePollingDefinition
             },
             new object[]
             {
@@ -55,7 +55,7 @@
                 null,
                 Mock.Of<IUtf8Encoder>(),
                 Mock.Of<IMessageProducer>(),
-                Mock.Of<IRetryDurablePollingDefinition>()
+                retryDurablePollingDefinition
             },
             new object[]
             {
@@ -65,7 +65,7 @@
                 Mock.Of<IMessageAdapter>(),
                 null,
                 Mock.Of<IMessageProducer>(),
-                Mock.Of<IRetryDurablePollingDefinition>()
+                retryDurablePollingDefinition
             },
             new object[]
             {
@@ -75,7 +75,7 @@
                 Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>(),
                 null,
-                Mock.Of<IRetryDurablePollingDefinition>()
+                retryDurablePollingDefinition
             },
             new object[]
             {
@@ -88,6 +88,8 @@
                 null
             }
         };
+
+        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100, "id");
 
         [Theory]
         [MemberData(nameof(DataTest))]
@@ -103,7 +105,7 @@
             Action act = () => new QueueTracker((IRetryDurableQueueRepository)retryDurableQueueRepository,
                 (ILogHandler)logHandler, (IMessageHeadersAdapter)messageHeadersAdapter,
                 (IMessageAdapter)messageAdapter, (IUtf8Encoder)utf8Encoder,
-                (IMessageProducer)retryDurableMessageProducer, (IRetryDurablePollingDefinition)retryDurablePollingDefinition);
+                (IMessageProducer)retryDurableMessageProducer, (RetryDurablePollingDefinition)retryDurablePollingDefinition);
 
             act.Should().Throw<ArgumentNullException>();
         }
