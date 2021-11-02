@@ -15,6 +15,7 @@
     public class RetryDurableDefinitionBuilder
     {
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
+        private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
         private Type messageType;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
         private RetryDurablePollingDefinition retryDurablePollingDefinition;
@@ -49,6 +50,12 @@
             this.retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
             configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
+            return this;
+        }
+
+        public RetryDurableDefinitionBuilder WithMessageSerializeSettings(JsonSerializerSettings jsonSerializerSettings)
+        {
+            this.jsonSerializerSettings = jsonSerializerSettings;
             return this;
         }
 
@@ -91,7 +98,7 @@
 
             var utf8Encoder = new Utf8Encoder();
             var gzipCompressor = new GzipCompressor();
-            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(new JsonSerializerSettings());
+            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(this.jsonSerializerSettings);
             var messageAdapter = new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
             var messageHeadersAdapter = new MessageHeadersAdapter();
 

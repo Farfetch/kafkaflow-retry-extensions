@@ -2,6 +2,7 @@
 {
     public enum MessageSerializerStrategy
     {
+        None = 0,
         NewtonsoftJson = 1
     }
 }

@@ -14,6 +14,7 @@
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
+    using Newtonsoft.Json;
 
     internal static class BootstrapperKafka
     {
@@ -101,6 +102,12 @@
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageSerializeSettings(
+                                            new JsonSerializerSettings
+                                            {
+                                                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                                                TypeNameHandling = TypeNameHandling.Auto
+                                            })
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure
@@ -168,6 +175,12 @@
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageSerializeSettings(
+                                            new JsonSerializerSettings
+                                            {
+                                                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                                                TypeNameHandling = TypeNameHandling.Auto
+                                            })
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure
@@ -235,6 +248,12 @@
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageSerializeSettings(
+                                            new JsonSerializerSettings
+                                            {
+                                                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                                                TypeNameHandling = TypeNameHandling.Auto
+                                            })
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure
@@ -302,6 +321,12 @@
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(RetryDurableTestMessage))
+                                        .WithMessageSerializeSettings(
+                                            new JsonSerializerSettings
+                                            {
+                                                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+                                                TypeNameHandling = TypeNameHandling.Auto
+                                            })
                                         .WithEmbeddedRetryCluster(
                                             cluster,
                                             configure => configure
