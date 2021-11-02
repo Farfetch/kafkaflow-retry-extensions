@@ -8,14 +8,14 @@
     internal static class RetryDurableConsumerConfigurationBuilderExtensions
     {
         public static IConsumerMiddlewareConfigurationBuilder WithRetryConsumerStrategy(
-            this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+                    this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
             RetryConsumerStrategy retryConsumerStrategy,
             IRetryDurableQueueRepository retryDurableQueueRepository,
             IUtf8Encoder utf8Encoder)
         {
             switch (retryConsumerStrategy)
             {
-                case Retry.RetryConsumerStrategy.GuaranteeOrderedConsumption:
+                case RetryConsumerStrategy.GuaranteeOrderedConsumption:
                     {
                         middlewareBuilder.Add(
                            resolver => new RetryDurableConsumerGuaranteeOrderedMiddleware(
@@ -26,7 +26,7 @@
                     }
                     break;
 
-                case Retry.RetryConsumerStrategy.LatestConsumption:
+                case RetryConsumerStrategy.LatestConsumption:
                     {
                         middlewareBuilder.Add(
                            resolver => new RetryDurableConsumerLatestMiddleware(
@@ -38,7 +38,7 @@
                     break;
 
                 default:
-                    throw new NotImplementedException("RetryConsumerStrategy not defined");
+                    throw new NotImplementedException($"{nameof(RetryConsumerStrategy)} not defined");
             }
 
             return middlewareBuilder;

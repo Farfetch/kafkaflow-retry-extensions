@@ -2,7 +2,7 @@
 {
     using System;
 
-    public interface IRepositoryProvider
+    internal interface IRepositoryProvider
     {
         IRepository GetRepositoryOfType(Type repositoryType);
     }

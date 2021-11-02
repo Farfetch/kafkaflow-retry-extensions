@@ -27,14 +27,13 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KafkaFlow" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Abstractions" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.Serializer.ProtobufNet" Version="2.1.2" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.1.2" />
+    <PackageReference Include="KafkaFlow" Version="2.1.18" />
+    <PackageReference Include="KafkaFlow.Abstractions" Version="2.1.18" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="2.1.18" />
+    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.1.18" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.1.18" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="Quartz" Version="3.3.2" />
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />
-    <PackageReference Include="protobuf-net" Version="2.4.6" />
   </ItemGroup>
 </Project>

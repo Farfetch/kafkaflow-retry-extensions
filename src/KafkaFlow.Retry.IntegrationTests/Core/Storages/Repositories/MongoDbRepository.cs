@@ -43,14 +43,14 @@
             RetryQueueDbo retryQueue = new RetryQueueDbo();
             do
             {
-                if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
                 {
                     return new RetryQueueTestModel();
                 }
 
                 await Task.Delay(100).ConfigureAwait(false);
 
-                var retryQueueCursor = await retryQueuesCollection.FindAsync(x => string.Equals(x.QueueGroupKey, message.Key)).ConfigureAwait(false);
+                var retryQueueCursor = await retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(message.Key)).ConfigureAwait(false);
                 var retryQueues = await retryQueueCursor.ToListAsync().ConfigureAwait(false);
                 if (retryQueues.Any())
                 {
@@ -74,7 +74,7 @@
             List<RetryQueueItemTestModel> retryQueueItems = null;
             do
             {
-                if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
                 {
                     return null;
                 }

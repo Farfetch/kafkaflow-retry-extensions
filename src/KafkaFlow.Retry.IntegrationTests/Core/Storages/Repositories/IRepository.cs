@@ -6,7 +6,7 @@
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Models;
 
-    public interface IRepository
+    internal interface IRepository
     {
         Type RepositoryType { get; }
 
