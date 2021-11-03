@@ -3,8 +3,7 @@ KafkaFlow Retry is a .NET framework to retry messages on consumers, simple to us
 
 KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafka-flow).
 
-
-# Resilience policies
+## Resilience policies
 
 |Policy| Description | Aka| Required Packages|
 | ------------- | ------------- |:-------------: |------------- |
@@ -12,7 +11,7 @@ KafkaFlow Retry is an extention of [Kafka Flow](https://github.com/Farfetch/kafk
 |**Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#forever)&nbsp;;&nbsp;deep)</sub>|Many faults are semi-transient and may self-correct after multiple retries. | "Never give up" | KafkaFlow.Retry | 
 |**Durable Retry**<br/><sub>([quickstart](#durable)&nbsp;;&nbsp;deep)</sub>|Beyond a certain amount of retries and wait, you want to keep processing next-in-line messages but you can't loss the current offset message. As persistance databases, MongoDb or SqlServer are available. And you can manage in-retry messages through HTTP API.| "I can't stop processing messages but I can't loss messages"  | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb | 
 
-# Installing via NuGet
+## Installing via NuGet
 Install packages related to your context. The Core package is required for all other packages. 
 
 ## Requirements
@@ -39,7 +38,7 @@ Install packages related to your context. The Core package is required for all o
 ## SqlServer package
     Install-Package KafkaFlow.Retry.SqlServer
 
-# Usage &ndash; Simple and Forever retries policies
+## Usage &ndash; Simple and Forever retries policies
 ### Simple
 
 ```csharp
@@ -71,7 +70,7 @@ Install packages related to your context. The Core package is required for all o
  
 ```
 
-# Usage &ndash; Durable retry policy
+## Usage &ndash; Durable retry policy
 
 ### Durable
 
@@ -121,7 +120,6 @@ Install packages related to your context. The Core package is required for all o
         )
     )
 ```
-
 
 See the [setup page](https://github.com/Farfetch/kafka-flow-retry-extensions/wiki/Setup) and [samples](https://github.com/Farfetch/kafka-flow-retry-extensions/tree/main/samples) for more details
 
