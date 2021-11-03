@@ -13,7 +13,7 @@
                this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
                Action<RetryDurableDefinitionBuilder> configure)
         {
-            var retryDurableDefinitionBuilder = new RetryDurableDefinitionBuilder(middlewareBuilder.DependencyConfigurator);
+            var retryDurableDefinitionBuilder = new RetryDurableDefinitionBuilder();
             configure(retryDurableDefinitionBuilder);
             var retryDurableDefinition = retryDurableDefinitionBuilder.Build();
 

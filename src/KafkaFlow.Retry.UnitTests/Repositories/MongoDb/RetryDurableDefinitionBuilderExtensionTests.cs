@@ -3,7 +3,6 @@
     using System;
     using FluentAssertions;
     using global::KafkaFlow.Retry.MongoDb;
-    using Moq;
     using Xunit;
 
     public class RetryDurableDefinitionBuilderExtensionTests
@@ -12,8 +11,7 @@
         public void RetryDurableDefinitionBuilder_WithMongoDbDataProvider_ConnectionStringInvalid_ThrowsException()
         {
             // Arrange
-            var iDependencyConfigurator = new Mock<IDependencyConfigurator>();
-            var builder = new RetryDurableDefinitionBuilder(iDependencyConfigurator.Object);
+            var builder = new RetryDurableDefinitionBuilder();
 
             // Act
             Action act = () => builder.WithMongoDbDataProvider(
@@ -31,8 +29,7 @@
         public void RetryDurableDefinitionBuilder_WithMongoDbDataProvider_Success()
         {
             // Arrange
-            var iDependencyConfigurator = new Mock<IDependencyConfigurator>();
-            var builder = new RetryDurableDefinitionBuilder(iDependencyConfigurator.Object);
+            var builder = new RetryDurableDefinitionBuilder();
 
             // Act
             var result = builder.WithMongoDbDataProvider(

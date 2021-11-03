@@ -9,7 +9,7 @@
     using MongoDB.Driver;
     using Xunit;
 
-    public class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalStorageAssert
+    internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalStorageAssert
     {
         private readonly IRepositoryProvider repositoryProvider;
 

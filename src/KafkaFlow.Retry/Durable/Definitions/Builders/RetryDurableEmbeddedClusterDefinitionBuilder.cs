@@ -11,7 +11,7 @@
     using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using KafkaFlow.Serializer;
+    using KafkaFlow.Retry.Durable.Serializers;
     using KafkaFlow.TypedHandler;
 
     public class RetryDurableEmbeddedClusterDefinitionBuilder
@@ -70,6 +70,7 @@
             Type messageType,
             IRetryDurableQueueRepository retryDurableQueueRepository,
             IUtf8Encoder utf8Encoder,
+            INewtonsoftJsonSerializer newtonsoftJsonSerializer,
             IMessageAdapter messageAdapter,
             IMessageHeadersAdapter messageHeadersAdapter,
             RetryDurablePollingDefinition retryDurablePollingDefinition
@@ -109,7 +110,7 @@
                     producer => producer
                         .DefaultTopic(this.retryTopicName)
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                        .WithAcks(Acks.All) // TODO: this settings should be reviewed
+                        .WithAcks(Acks.Leader)
                 )
                 .AddConsumer(
                     consumer => consumer
@@ -117,7 +118,7 @@
                         .WithGroupId(consumerGroupId)
                         .WithBufferSize(this.retryConsumerBufferSize)
                         .WithWorkersCount(this.retryConsumerWorkersCount)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest) // TODO: this settings should be reviewed
+                        .WithAutoOffsetReset(AutoOffsetReset.Earliest)
                         .WithPartitionsAssignedHandler(
                             (resolver, partitionsAssignedHandler) =>
                             {
@@ -138,7 +139,8 @@
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(messageType)
+                                .Add(resolver => new RetryDurableConsumerUtf8EncoderMiddleware(utf8Encoder))
+                                .Add(resolver => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(newtonsoftJsonSerializer, messageType))
                                 .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
                                 .Add(resolver =>
                                     new RetryDurableConsumerValidationMiddleware(

@@ -2,7 +2,6 @@
 {
     using FluentAssertions;
     using global::KafkaFlow.Retry.SqlServer;
-    using Moq;
     using Xunit;
 
     public class RetryDurableDefinitionBuilderExtensionTests
@@ -11,8 +10,7 @@
         public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProvider_Success()
         {
             // Arrange
-            Mock<IDependencyConfigurator> iDependencyConfigurator = new Mock<IDependencyConfigurator>();
-            var builder = new RetryDurableDefinitionBuilder(iDependencyConfigurator.Object);
+            var builder = new RetryDurableDefinitionBuilder();
 
             // Act
             var result = builder.WithSqlServerDataProvider("connectionString", "databaseName");

@@ -6,6 +6,14 @@
 
     internal class TraceLogHandler : ILogHandler
     {
+        private readonly JsonSerializerOptions jsonSerializerOptions =
+            new JsonSerializerOptions
+            {
+                MaxDepth = 0,
+                IgnoreNullValues = true,
+                IgnoreReadOnlyProperties = false
+            };
+
         public void Error(string message, Exception ex, object data)
         {
             Trace.TraceError(
@@ -19,12 +27,7 @@
                             ex.StackTrace
                         },
                         Data = data,
-                    }, new JsonSerializerOptions
-                    {
-                        MaxDepth = 0,
-                        IgnoreNullValues = true,
-                        IgnoreReadOnlyProperties = false
-                    }));
+                    }, jsonSerializerOptions));
         }
 
         public void Info(string message, object data)
@@ -35,12 +38,18 @@
                     {
                         Message = message,
                         Data = data,
-                    }, new JsonSerializerOptions
-                    {
-                        MaxDepth = 0,
-                        IgnoreNullValues = true,
-                        IgnoreReadOnlyProperties = false
-                    }));
+                    }, jsonSerializerOptions));
+        }
+
+        public void Verbose(string message, object data)
+        {
+            Trace.TraceWarning(
+                   JsonSerializer.Serialize(
+                       new
+                       {
+                           Message = message,
+                           Data = data,
+                       }, jsonSerializerOptions));
         }
 
         public void Warning(string message, object data)
@@ -51,12 +60,7 @@
                     {
                         Message = message,
                         Data = data,
-                    }, new JsonSerializerOptions
-                    {
-                        MaxDepth = 0,
-                        IgnoreNullValues = true,
-                        IgnoreReadOnlyProperties = false
-                    }));
+                    }, jsonSerializerOptions));
         }
     }
 }

@@ -54,7 +54,7 @@
             RetryQueueTestModel retryQueue = new RetryQueueTestModel();
             do
             {
-                if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
                 {
                     return retryQueue;
                 }
@@ -66,7 +66,7 @@
                     command.CommandType = System.Data.CommandType.Text;
                     command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
                                 FROM [RetryQueues]
-                                WHERE QueueGroupKey = @QueueGroupKey
+                                WHERE QueueGroupKey LIKE '%'+@QueueGroupKey
                                 ORDER BY Id";
 
                     command.Parameters.AddWithValue("QueueGroupKey", message.Key);
@@ -88,7 +88,7 @@
             IList<RetryQueueItemTestModel> retryQueueItems = null;
             do
             {
-                if (DateTime.Now.Subtract(start).Seconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
                 {
                     return null;
                 }

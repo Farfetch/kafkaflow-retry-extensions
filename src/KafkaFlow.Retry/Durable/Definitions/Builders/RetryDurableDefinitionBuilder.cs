@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using Dawn;
-    using KafkaFlow;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Definitions;
@@ -11,21 +10,20 @@
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Serializers;
+    using Newtonsoft.Json;
 
     public class RetryDurableDefinitionBuilder
     {
-        private readonly IDependencyConfigurator dependencyConfigurator;
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
+        private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
         private Type messageType;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
         private RetryDurablePollingDefinition retryDurablePollingDefinition;
         private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
 
-        public RetryDurableDefinitionBuilder(IDependencyConfigurator dependencyConfigurator)
-        {
-            this.dependencyConfigurator = dependencyConfigurator;
-        }
+        internal RetryDurableDefinitionBuilder()
+        { }
 
         public RetryDurableDefinitionBuilder Handle<TException>()
             where TException : Exception
@@ -52,6 +50,12 @@
             this.retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
             configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
+            return this;
+        }
+
+        public RetryDurableDefinitionBuilder WithMessageSerializeSettings(JsonSerializerSettings jsonSerializerSettings)
+        {
+            this.jsonSerializerSettings = jsonSerializerSettings;
             return this;
         }
 
@@ -92,10 +96,10 @@
             Guard.Argument(this.retryDurableRepositoryProvider).NotNull("A repository should be defined");
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
-            var gzipCompressor = new GzipCompressor();
-            var protobufNetSerializer = new ProtobufNetSerializer();
             var utf8Encoder = new Utf8Encoder();
-            var messageAdapter = new MessageAdapter(gzipCompressor, protobufNetSerializer);
+            var gzipCompressor = new GzipCompressor();
+            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(this.jsonSerializerSettings);
+            var messageAdapter = new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
             var messageHeadersAdapter = new MessageHeadersAdapter();
 
             var retryDurableQueueRepository =
@@ -116,6 +120,7 @@
                     this.messageType,
                     retryDurableQueueRepository,
                     utf8Encoder,
+                    newtonsoftJsonSerializer,
                     messageAdapter,
                     messageHeadersAdapter,
                     this.retryDurablePollingDefinition

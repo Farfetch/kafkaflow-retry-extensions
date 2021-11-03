@@ -72,7 +72,7 @@
                                 this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                             ),
                             this.retryDurablePollingDefinition.Id,
-                            this.utf8Encoder.Decode((byte[])context.Message.Key), // TODO: this worries me because this convertion can cause data loss.
+                            $"{this.retryDurablePollingDefinition.Id}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -172,7 +172,7 @@
                                     this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                                 ),
                             this.retryDurablePollingDefinition.Id,
-                            this.utf8Encoder.Decode((byte[])context.Message.Key), // TODO: this worries me because this convertion can cause data loss.
+                            $"{this.retryDurablePollingDefinition.Id}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
