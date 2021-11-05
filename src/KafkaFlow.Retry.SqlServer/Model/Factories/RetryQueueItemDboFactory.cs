@@ -6,12 +6,11 @@
 
     internal sealed class RetryQueueItemDboFactory : IRetryQueueItemDboFactory
     {
-        public RetryQueueItemDbo Create(SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId, int sort = 0)
+        public RetryQueueItemDbo Create(SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId)
         {
             Guard.Argument(input, nameof(input)).NotNull();
             Guard.Argument(retryQueueId, nameof(retryQueueId)).Positive();
             Guard.Argument(retryQueueDomainId, nameof(retryQueueDomainId)).NotDefault();
-            Guard.Argument(sort, nameof(sort)).NotNegative();
 
             return new RetryQueueItemDbo
             {
@@ -22,7 +21,6 @@
                 AttemptsCount = input.AttemptsCount,
                 RetryQueueId = retryQueueId,
                 DomainRetryQueueId = retryQueueDomainId,
-                Sort = sort,
                 Status = input.ItemStatus,
                 SeverityLevel = input.SeverityLevel,
                 Description = input.Description
