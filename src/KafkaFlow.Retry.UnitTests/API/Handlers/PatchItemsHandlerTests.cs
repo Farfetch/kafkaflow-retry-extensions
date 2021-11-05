@@ -87,11 +87,11 @@
             var httpResponse = new Mock<HttpResponse>();
             string actualData = null;
 
-            httpResponse
+            _ = httpResponse
                 .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .Callback((byte[] data, int _, int length, CancellationToken __) =>
+                .Callback((byte[] data, int _, int length, CancellationToken cancellation) =>
                 {
-                    if (length > 0)
+                    if (length > 0 && !cancellation.IsCancellationRequested)
                     {
                         actualData = Encoding.UTF8.GetString(data);
                     }
