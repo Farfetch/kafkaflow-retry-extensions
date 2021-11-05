@@ -18,7 +18,7 @@
 
             var context = new DefaultHttpContext();
 
-            static Task next(HttpContext _) => Task.CompletedTask;
+            RequestDelegate next = (HttpContext _) => Task.CompletedTask;
 
             var middleware = new RetryMiddleware(next, mockHttpRequestHandler.Object);
 
