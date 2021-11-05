@@ -89,7 +89,7 @@
 
             httpResponse
                 .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-                .Callback((byte[] data, int offset, int length, CancellationToken token) =>
+                .Callback((byte[] data, int _, int length, CancellationToken __) =>
                 {
                     if (length > 0)
                     {

@@ -18,7 +18,7 @@
             //Arrange
             string expectedConsumerName = "ConsumerName";
             Mock<ILogHandler> mockILogHandler = new Mock<ILogHandler>();
-            var retrySimpleDefinition = new RetrySimpleDefinition(1, Mock.Of<IReadOnlyCollection<Func<RetryContext, bool>>>(), false, (a) => { return TimeSpan.FromSeconds(1); });
+            var retrySimpleDefinition = new RetrySimpleDefinition(1, Mock.Of<IReadOnlyCollection<Func<RetryContext, bool>>>(), false, (_) => TimeSpan.FromSeconds(1));
 
             var retrySimpleMiddleware = new RetrySimpleMiddleware(
                 mockILogHandler.Object,
@@ -50,7 +50,6 @@
             string actualConsumerName = null;
             MiddlewareDelegate middlewareDelegate = delegate (IMessageContext context)
             {
-                Console.WriteLine($"Notification received for: {context.Message.Key}");
                 actualConsumerName = context.ConsumerContext.ConsumerName;
                 return Task.CompletedTask;
             };

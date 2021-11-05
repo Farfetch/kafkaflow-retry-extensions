@@ -4,7 +4,6 @@
     using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
-    using FluentAssertions;
     using global::KafkaFlow.Retry.Durable;
     using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Definitions;
@@ -23,101 +22,6 @@
     [ExcludeFromCodeCoverage]
     public class QueuePollingJobTests
     {
-        public readonly static IEnumerable<object[]> DataTest = new List<object[]>
-        {
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", null },
-                    { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
-                    { "LogHandler", Mock.Of<ILogHandler>() },
-                    { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
-                    { "MessageAdapter", Mock.Of<IMessageAdapter>() },
-                    { "Utf8Encoder", Mock.Of<IUtf8Encoder>() },
-                }
-            },
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
-                    { "RetryDurableProducer", null },
-                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
-                    { "LogHandler", Mock.Of<ILogHandler>() },
-                    { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
-                    { "MessageAdapter", Mock.Of<IMessageAdapter>() },
-                    { "Utf8Encoder", Mock.Of<IUtf8Encoder>() },
-                }
-            },
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
-                    { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", null},
-                    { "LogHandler", Mock.Of<ILogHandler>() },
-                    { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
-                    { "MessageAdapter", Mock.Of<IMessageAdapter>() },
-                    { "Utf8Encoder", Mock.Of<IUtf8Encoder>() },
-                }
-            },
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
-                    { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
-                    { "LogHandler", null },
-                    { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
-                    { "MessageAdapter", Mock.Of<IMessageAdapter>() },
-                    { "Utf8Encoder", Mock.Of<IUtf8Encoder>() },
-                }
-            },
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
-                    { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
-                    { "LogHandler", Mock.Of<ILogHandler>() },
-                    { "MessageHeadersAdapter", null },
-                    { "MessageAdapter", Mock.Of<IMessageAdapter>() },
-                    { "Utf8Encoder", Mock.Of<IUtf8Encoder>() },
-                }
-            },
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
-                    { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
-                    { "LogHandler", Mock.Of<ILogHandler>() },
-                    { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
-                    { "MessageAdapter", null },
-                    { "Utf8Encoder", Mock.Of<IUtf8Encoder>() },
-                }
-            },
-            new object[]
-            {
-                new Dictionary<string, object>
-                {
-                    { "RetryDurableQueueRepository", Mock.Of<IRetryDurableQueueRepository>() },
-                    { "RetryDurableProducer", Mock.Of<IMessageProducer>() },
-                    { "RetryDurablePollingDefinition", retryDurablePollingDefinition},
-                    { "LogHandler", Mock.Of<ILogHandler>() },
-                    { "MessageHeadersAdapter", Mock.Of<IMessageHeadersAdapter>() },
-                    { "MessageAdapter", Mock.Of<IMessageAdapter>() },
-                    { "Utf8Encoder", null },
-                }
-            }
-        };
-
         private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1, "id");
         private readonly IJob job = new QueuePollingJob();
         private readonly Mock<IJobExecutionContext> jobExecutionContext = new Mock<IJobExecutionContext>();
@@ -277,22 +181,6 @@
             retryDurableQueueRepository.Verify(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.UpdateItemAsync(It.IsAny<UpdateItemStatusInput>()), Times.Once);
             messageHeadersAdapter.Verify(d => d.AdaptMessageHeadersFromRepository(It.IsAny<IList<MessageHeader>>()), Times.Once);
-        }
-
-        [Theory]
-        [MemberData(nameof(DataTest))]
-        public async Task QueuePollingJob_Execute_WithArgumentNull_ThrowsException(IDictionary<string, object> data)
-        {
-            // Arrange
-            var jobDataMap = new JobDataMap(data);
-
-            jobExecutionContext.Setup(d => d.JobDetail).Returns(new JobDetailSurrogate(jobDataMap));
-
-            // Act
-            Func<Task> act = async () => await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
-
-            //Assert
-            _ = await act.Should().ThrowAsync<ArgumentException>().ConfigureAwait(false);
         }
     }
 }
