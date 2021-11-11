@@ -13,9 +13,11 @@
             this.repositories = repositories;
         }
 
-        public IRepository GetRepositoryOfType(Type repositoryType)
+        public IEnumerable<IRepository> GetAllRepositories() => this.repositories;
+
+        public IRepository GetRepositoryOfType(RepositoryType repositoryType)
         {
-            return this.repositories.Single(r => r.GetType().Equals(repositoryType));
+            return this.repositories.Single(r => r.RepositoryType == repositoryType);
         }
     }
 }

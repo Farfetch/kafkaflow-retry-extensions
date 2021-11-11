@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
 {
     using System;
     using System.Collections.Generic;
@@ -18,7 +18,7 @@
 
     internal static class BootstrapperKafka
     {
-        internal static async Task RecreateKafkaTopics(string kafkaBrokers, string[] topics)
+        internal static async Task RecreateKafkaTopicsAsync(string kafkaBrokers, string[] topics)
         {
             using (var adminClient = new Confluent.Kafka.AdminClientBuilder(new Confluent.Kafka.AdminClientConfig { BootstrapServers = kafkaBrokers }).Build())
             {

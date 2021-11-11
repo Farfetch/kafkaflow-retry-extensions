@@ -4,8 +4,12 @@
     using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Models;
+    using AutoFixture;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.MongoDb;
+    using KafkaFlow.Retry.MongoDb.Adapters;
     using KafkaFlow.Retry.MongoDb.Model;
     using MongoDB.Driver;
 
@@ -13,7 +17,11 @@
     {
         private const int TimeoutSec = 60;
         private readonly string databaseName;
+
+        private readonly Fixture fixture = new Fixture();
+
         private readonly MongoClient mongoClient;
+        private readonly QueuesAdapter queuesAdapter;
         private readonly IMongoCollection<RetryQueueItemDbo> retryQueueItemsCollection;
         private readonly IMongoCollection<RetryQueueDbo> retryQueuesCollection;
 
@@ -23,55 +31,131 @@
             string retryQueueCollectionName,
             string retryQueueItemCollectionName)
         {
-            databaseName = dbName;
-            mongoClient = new MongoClient(connectionString);
-            retryQueuesCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
-            retryQueueItemsCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
+            this.databaseName = dbName;
+            this.mongoClient = new MongoClient(connectionString);
+            this.retryQueuesCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
+            this.retryQueueItemsCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
+
+            var dataProviderCreationResult = new MongoDbDataProviderFactory().TryCreate(
+                new MongoDbSettings
+                {
+                    ConnectionString = connectionString,
+                    DatabaseName = dbName,
+                    RetryQueueCollectionName = retryQueueCollectionName,
+                    RetryQueueItemCollectionName = retryQueueItemCollectionName
+                });
+
+            this.queuesAdapter =
+                new QueuesAdapter(
+                    new ItemAdapter(
+                        new MessageAdapter(
+                            new HeaderAdapter())));
+
+            Guard.Argument(dataProviderCreationResult, nameof(dataProviderCreationResult)).NotNull();
+            Guard.Argument(dataProviderCreationResult.Success, nameof(dataProviderCreationResult.Success)).True(dataProviderCreationResult.Message);
+
+            this.RetryQueueDataProvider = dataProviderCreationResult.Result;
         }
 
-        public Type RepositoryType => typeof(MongoDbRepository);
+        public RepositoryType RepositoryType => RepositoryType.MongoDb;
+
+        public IRetryDurableQueueRepositoryProvider RetryQueueDataProvider { get; }
 
         public async Task CleanDatabaseAsync()
         {
             await mongoClient.DropDatabaseAsync(databaseName).ConfigureAwait(false);
         }
 
-        public async Task<RetryQueueTestModel> GetRetryQueueAsync(RetryDurableTestMessage message)
+        public async Task CreateQueueAsync(RetryQueue queue)
+        {
+            var queueDbo = new RetryQueueDbo
+            {
+                Id = queue.Id,
+                CreationDate = queue.CreationDate,
+                LastExecution = queue.LastExecution,
+                QueueGroupKey = queue.QueueGroupKey,
+                SearchGroupKey = queue.SearchGroupKey,
+                Status = queue.Status,
+            };
+
+            await this.retryQueuesCollection.InsertOneAsync(queueDbo);
+
+            foreach (var item in queue.Items)
+            {
+                var itemDbo = new RetryQueueItemDbo
+                {
+                    Id = item.Id,
+                    CreationDate = item.CreationDate,
+                    LastExecution = item.LastExecution,
+                    ModifiedStatusDate = item.ModifiedStatusDate,
+                    AttemptsCount = item.AttemptsCount,
+                    RetryQueueId = queue.Id,
+                    Status = item.Status,
+                    SeverityLevel = item.SeverityLevel,
+                    Description = item.Description,
+                    Message = this.fixture.Create<RetryQueueItemMessageDbo>()
+                };
+
+                await this.retryQueueItemsCollection.InsertOneAsync(itemDbo);
+            }
+        }
+
+        public async Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey)
+        {
+            var queueCursor = await this.retryQueuesCollection.FindAsync(x => x.QueueGroupKey == queueGroupKey);
+
+            var queue = await queueCursor.FirstOrDefaultAsync();
+
+            if (queue is null)
+            {
+                return null;
+            }
+
+            var itemsCursor = await this.retryQueueItemsCollection.FindAsync(x => x.RetryQueueId == queue.Id);
+
+            var items = await itemsCursor.ToListAsync();
+
+            return this.queuesAdapter.Adapt(new[] { queue }, items).First();
+        }
+
+        public async Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey)
         {
             var start = DateTime.Now;
             Guid retryQueueId = Guid.Empty;
-            RetryQueueDbo retryQueue = new RetryQueueDbo();
+            RetryQueueDbo retryQueueDbo = new RetryQueueDbo();
             do
             {
                 if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
                 {
-                    return new RetryQueueTestModel();
+                    return null;
                 }
 
                 await Task.Delay(100).ConfigureAwait(false);
 
-                var retryQueueCursor = await retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(message.Key)).ConfigureAwait(false);
+                var retryQueueCursor = await this.retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey)).ConfigureAwait(false);
                 var retryQueues = await retryQueueCursor.ToListAsync().ConfigureAwait(false);
                 if (retryQueues.Any())
                 {
-                    retryQueue = retryQueues.Single();
-                    retryQueueId = retryQueue.Id;
+                    retryQueueDbo = retryQueues.Single();
+                    retryQueueId = retryQueueDbo.Id;
                 }
             } while (retryQueueId == Guid.Empty);
 
-            return new RetryQueueTestModel
-            {
-                Id = retryQueue.Id,
-                Status = (RetryQueueStatusTestModel)retryQueue.Status
-            };
+            return new RetryQueue(
+                retryQueueDbo.Id,
+                retryQueueDbo.SearchGroupKey,
+                retryQueueDbo.QueueGroupKey,
+                retryQueueDbo.CreationDate,
+                retryQueueDbo.LastExecution,
+                retryQueueDbo.Status);
         }
 
-        public async Task<IList<RetryQueueItemTestModel>> GetRetryQueueItemsAsync(
+        public async Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(
             Guid retryQueueId,
-            Func<IList<RetryQueueItemTestModel>, bool> stopCondition)
+            Func<IList<RetryQueueItem>, bool> stopCondition)
         {
             var start = DateTime.Now;
-            List<RetryQueueItemTestModel> retryQueueItems = null;
+            List<RetryQueueItem> retryQueueItems = null;
             do
             {
                 if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
@@ -90,17 +174,20 @@
                     .Select(
                         x =>
                         {
-                            return new RetryQueueItemTestModel
-                            {
-                                AttemptsCount = x.AttemptsCount,
-                                Sort = x.Sort,
-                                LastExecution = x.LastExecution,
-                                Status = (RetryQueueItemStatusTestModel)x.Status
-                            };
+                            return new RetryQueueItem(
+                                x.Id,
+                                x.AttemptsCount,
+                                x.CreationDate,
+                                x.Sort,
+                                x.LastExecution,
+                                x.ModifiedStatusDate,
+                                x.Status,
+                                x.SeverityLevel,
+                                x.Description);
                         }).ToList();
             } while (stopCondition(retryQueueItems));
 
-            return retryQueueItems ?? new List<RetryQueueItemTestModel>();
+            return retryQueueItems ?? new List<RetryQueueItem>();
         }
     }
 }

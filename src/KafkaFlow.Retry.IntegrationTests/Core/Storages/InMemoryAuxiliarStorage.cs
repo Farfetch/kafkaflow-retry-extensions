@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Concurrent;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
@@ -25,7 +26,7 @@
 
             while (Message.Count(x => x.Key == message.Key && x.Value == message.Value) != count)
             {
-                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
                 {
                     Assert.True(false, "Message not received.");
                     return;
