@@ -94,7 +94,8 @@
                     Status = item.Status,
                     SeverityLevel = item.SeverityLevel,
                     Description = item.Description,
-                    Message = this.fixture.Create<RetryQueueItemMessageDbo>()
+                    Message = this.fixture.Create<RetryQueueItemMessageDbo>(),
+                    Sort = item.Sort
                 };
 
                 await this.retryQueueItemsCollection.InsertOneAsync(itemDbo);

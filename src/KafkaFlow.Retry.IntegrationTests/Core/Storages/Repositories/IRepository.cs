@@ -6,7 +6,7 @@
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal interface IRepository
+    public interface IRepository
     {
         RepositoryType RepositoryType { get; }
 

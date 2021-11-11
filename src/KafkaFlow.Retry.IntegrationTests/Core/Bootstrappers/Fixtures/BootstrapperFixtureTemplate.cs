@@ -17,13 +17,13 @@
 
         private IRepositoryProvider repositoryProvider;
 
+        internal KafkaSettings KafkaSettings { get; private set; }
+
+        internal MongoDbRepositorySettings MongoDbSettings { get; private set; }
+
         internal IRepositoryProvider RepositoryProvider => this.repositoryProvider ?? this.CreateRepositoryProvider();
 
-        private protected KafkaSettings KafkaSettings { get; private set; }
-
-        private protected MongoDbRepositorySettings MongoDbSettings { get; private set; }
-
-        private protected SqlServerRepositorySettings SqlServerSettings { get; private set; }
+        internal SqlServerRepositorySettings SqlServerSettings { get; private set; }
 
         public abstract void Dispose();
 

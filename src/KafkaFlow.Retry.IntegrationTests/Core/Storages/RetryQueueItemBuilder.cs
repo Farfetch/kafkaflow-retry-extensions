@@ -7,20 +7,21 @@
 
     internal class RetryQueueItemBuilder
     {
+        public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(DefaultTopicName, new byte[1], new byte[2], 0, 0, RetryQueueBuilder.DefaultDateTime);
         private const string DefaultTopicName = "DefaultTopicNameForTests";
         private readonly int attemptsCount;
         private readonly DateTime creationDate;
+        private readonly string description;
         private readonly Guid id;
+        private readonly RetryQueueItemMessage message;
         private readonly RetryQueueBuilder retryQueueBuilder;
         private readonly int sort;
-        private readonly string description;
         private DateTime? lastExecution;
-        private readonly RetryQueueItemMessage message;
         private DateTime? modifiedStatusDate;
         private SeverityLevel severityLevel;
         private RetryQueueItemStatus status;
 
-        public RetryQueueItemBuilder(RetryQueueBuilder retryQueueBuilder)
+        public RetryQueueItemBuilder(RetryQueueBuilder retryQueueBuilder, int sort)
         {
             Guard.Argument(retryQueueBuilder, nameof(retryQueueBuilder)).NotNull();
 
@@ -31,13 +32,13 @@
             this.id = Guid.NewGuid();
             this.attemptsCount = 0;
             this.creationDate = RetryQueueBuilder.DefaultDateTime;
-            this.sort = 0;
+            this.sort = sort;
             this.lastExecution = RetryQueueBuilder.DefaultDateTime;
             this.modifiedStatusDate = RetryQueueBuilder.DefaultDateTime;
             this.status = RetryQueueItemStatus.Waiting;
             this.severityLevel = SeverityLevel.Medium;
             this.description = string.Empty;
-            this.message = new RetryQueueItemMessage(DefaultTopicName, new byte[1], new byte[2], 0, 0, RetryQueueBuilder.DefaultDateTime);
+            this.message = DefaultItemMessage;
         }
 
         public RetryQueueBuilder AddItem()
