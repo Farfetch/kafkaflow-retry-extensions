@@ -13,41 +13,39 @@
     [ExcludeFromCodeCoverage]
     public class RetryDurableConsumerValidationMiddlewareTests
     {
-        public static readonly IEnumerable<object[]> DataTest = new List<object[]>
+        public static IEnumerable<object[]> DataTest()
         {
-            new object[]
+            yield return new object[]
             {
                 null,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IUtf8Encoder>()
-            },
-            new object[]
+            };
+            yield return new object[]
             {
                 Mock.Of<ILogHandler>(),
                 null,
                 Mock.Of<IUtf8Encoder>()
-            },
-            new object[]
+            };
+            yield return new object[]
             {
                 Mock.Of<ILogHandler>(),
                 Mock.Of<IRetryDurableQueueRepository>(),
                 null
-            }
-        };
+            };
+        }
 
         [Theory]
         [MemberData(nameof(DataTest))]
-        public void RetryDurableConsumerValidationMiddleware_Ctor_Tests(
-            object logHandler,
-            object retryDurableQueueRepository,
-            object utf8Encoder)
+        internal void RetryDurableConsumerValidationMiddleware_Ctor_Tests(
+            ILogHandler logHandler,
+            IRetryDurableQueueRepository retryDurableQueueRepository,
+            IUtf8Encoder utf8Encoder)
         {
             // Act
-            Action act = () => new RetryDurableConsumerValidationMiddleware(
-                (ILogHandler)logHandler,
-                (IRetryDurableQueueRepository)retryDurableQueueRepository,
-                (IUtf8Encoder)utf8Encoder
-                );
+            Action act = () => new RetryDurableConsumerValidationMiddleware(logHandler,
+                                                                            retryDurableQueueRepository,
+                                                                            utf8Encoder);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common
 {
     using System;
+    using System.Collections.Generic;
     using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.Common;
@@ -11,9 +12,7 @@
     [ExcludeFromCodeCoverage]
     public class RetryQueueItemAdapterTests
     {
-        private readonly IRetryQueueItemAdapter adapter = new RetryQueueItemAdapter();
-
-        private readonly RetryQueueItem retryQueueItem = new RetryQueueItem(
+        private static readonly RetryQueueItem retryQueueItem = new RetryQueueItem(
                             id: Guid.NewGuid(),
                     attemptsCount: 3,
                     creationDate: DateTime.UtcNow,
@@ -23,6 +22,20 @@
                     status: RetryQueueItemStatus.Waiting,
                     severityLevel: SeverityLevel.Low,
                     description: "test");
+
+        private readonly IRetryQueueItemAdapter adapter = new RetryQueueItemAdapter();
+
+        public static IEnumerable<object[]> DataTest()
+        {
+            yield return new object[]
+            {
+                 null
+            };
+            yield return new object[]
+            {
+                retryQueueItem
+            };
+        }
 
         [Fact]
         public void RetryQueueItemAdapter_Adapt_Success()
@@ -50,21 +63,12 @@
                     .Excluding(o => o.Message));
         }
 
-        [Fact]
-        public void RetryQueueItemAdapter_Adapt_WithNullArg_ThrowsException()
+        [Theory]
+        [MemberData(nameof(DataTest))]
+        public void RetryQueueItemAdapter_Adapt_ThrowsException(RetryQueueItem retryQueueItem)
         {
             // Act
-            Action act = () => this.adapter.Adapt(null, "");
-
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
-
-        [Fact]
-        public void RetryQueueItemAdapter_Adapt_WithNullMessageArg_ThrowsException()
-        {
-            // Act
-            Action act = () => this.adapter.Adapt(retryQueueItem, "");
+            Action act = () => this.adapter.Adapt(retryQueueItem, string.Empty);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

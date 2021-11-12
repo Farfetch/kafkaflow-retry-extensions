@@ -14,7 +14,6 @@
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using global::KafkaFlow.Retry.Durable.Repository.Adapters;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Surrogate;
     using Moq;
     using Quartz;
     using Xunit;
@@ -29,8 +28,16 @@
         private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();
         private readonly Mock<IMessageHeadersAdapter> messageHeadersAdapter = new Mock<IMessageHeadersAdapter>();
         private readonly Mock<IMessageProducer> messageProducer = new Mock<IMessageProducer>();
+        private readonly Mock<IJobDetail> mockIJobDetail = new Mock<IJobDetail>();
         private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
         private readonly Mock<IUtf8Encoder> utf8Encoder = new Mock<IUtf8Encoder>();
+
+        public QueuePollingJobTests()
+        {
+            jobExecutionContext
+                .Setup(d => d.JobDetail)
+                .Returns(mockIJobDetail.Object);
+        }
 
         [Fact]
         public async Task QueuePollingJob_Execute_ProduceMessageFailed_LogError()
@@ -76,9 +83,10 @@
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
             };
-            var jobDataMap = new JobDataMap(data);
 
-            jobExecutionContext.Setup(d => d.JobDetail).Returns(new JobDetailSurrogate(jobDataMap));
+            mockIJobDetail
+                .SetupGet(jd => jd.JobDataMap)
+                .Returns(new JobDataMap(data));
 
             // Act
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
@@ -111,9 +119,10 @@
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
             };
-            var jobDataMap = new JobDataMap(data);
 
-            jobExecutionContext.Setup(d => d.JobDetail).Returns(new JobDetailSurrogate(jobDataMap));
+            mockIJobDetail
+                .SetupGet(jd => jd.JobDataMap)
+                .Returns(new JobDataMap(data));
 
             // Act
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
@@ -169,9 +178,9 @@
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
             };
-            var jobDataMap = new JobDataMap(data);
-
-            jobExecutionContext.Setup(d => d.JobDetail).Returns(new JobDetailSurrogate(jobDataMap));
+            mockIJobDetail
+                .SetupGet(jd => jd.JobDataMap)
+                .Returns(new JobDataMap(data));
 
             // Act
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);

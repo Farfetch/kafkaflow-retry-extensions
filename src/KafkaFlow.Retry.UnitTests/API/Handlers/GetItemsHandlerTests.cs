@@ -25,14 +25,12 @@
     [ExcludeFromCodeCoverage]
     public class GetItemsHandlerTests
     {
-        private readonly Mock<IGetItemsInputAdapter> getItemsInputAdapter = new Mock<IGetItemsInputAdapter>();
-        private readonly Mock<IGetItemsRequestDtoReader> getItemsRequestDtoReader = new Mock<IGetItemsRequestDtoReader>();
-        private readonly Mock<IGetItemsResponseDtoAdapter> getItemsResponseDtoReader = new Mock<IGetItemsResponseDtoAdapter>();
         private readonly string httpMethod = "GET";
+        private readonly Mock<IGetItemsInputAdapter> mockGetItemsInputAdapter = new Mock<IGetItemsInputAdapter>();
+        private readonly Mock<IGetItemsRequestDtoReader> mockGetItemsRequestDtoReader = new Mock<IGetItemsRequestDtoReader>();
+        private readonly Mock<IGetItemsResponseDtoAdapter> mockGetItemsResponseDtoReader = new Mock<IGetItemsResponseDtoAdapter>();
         private readonly string resourcePath = "/retry/items";
         private readonly Mock<IRetryDurableQueueRepositoryProvider> retryDurableQueueRepositoryProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
-
-        public Mock<IGetItemsRequestDtoReader> GetItemsRequestDtoReader => getItemsRequestDtoReader;
 
         [Fact]
         public async Task GetItemsHandler_HandleAsync_Success()
@@ -45,11 +43,11 @@
             var getQueuesResult = this.CreateResult();
             var expectedGetItemsResponseDto = this.CreateResponseDto();
 
-            GetItemsRequestDtoReader
+            mockGetItemsRequestDtoReader
                 .Setup(mock => mock.Read(httpContext.Request))
                 .Returns(getItemsRequestDto);
 
-            getItemsInputAdapter
+            mockGetItemsInputAdapter
                 .Setup(mock => mock.Adapt(getItemsRequestDto))
                 .Returns(getQueuesInput);
 
@@ -57,15 +55,15 @@
                 .Setup(mock => mock.GetQueuesAsync(getQueuesInput))
                 .ReturnsAsync(getQueuesResult);
 
-            getItemsResponseDtoReader
+            mockGetItemsResponseDtoReader
                 .Setup(mock => mock.Adapt(getQueuesResult))
                 .Returns(expectedGetItemsResponseDto);
 
             var handler = new GetItemsHandler(
                 retryDurableQueueRepositoryProvider.Object,
-                GetItemsRequestDtoReader.Object,
-                getItemsInputAdapter.Object,
-                getItemsResponseDtoReader.Object
+                mockGetItemsRequestDtoReader.Object,
+                mockGetItemsInputAdapter.Object,
+                mockGetItemsResponseDtoReader.Object
                 );
 
             // Act
@@ -73,12 +71,12 @@
 
             // Assert
             handled.Should().BeTrue();
-            GetItemsRequestDtoReader.Verify(mock => mock.Read(httpContext.Request), Times.Once());
-            getItemsInputAdapter.Verify(mock => mock.Adapt(getItemsRequestDto), Times.Once());
+            mockGetItemsRequestDtoReader.Verify(mock => mock.Read(httpContext.Request), Times.Once());
+            mockGetItemsInputAdapter.Verify(mock => mock.Adapt(getItemsRequestDto), Times.Once());
             retryDurableQueueRepositoryProvider.Verify(mock => mock.GetQueuesAsync(getQueuesInput), Times.Once());
-            getItemsResponseDtoReader.Verify(mock => mock.Adapt(getQueuesResult), Times.Once());
+            mockGetItemsResponseDtoReader.Verify(mock => mock.Adapt(getQueuesResult), Times.Once());
 
-            await this.AssertResponse(httpContext.Response, expectedGetItemsResponseDto).ConfigureAwait(false);
+            await this.AssertResponseAsync(httpContext.Response, expectedGetItemsResponseDto).ConfigureAwait(false);
         }
 
         [Theory]
@@ -107,7 +105,7 @@
             httpContext.Response.StatusCode.Should().Be(expectedStatusCode);
         }
 
-        private async Task AssertResponse(HttpResponse response, GetItemsResponseDto expectedResponseDto)
+        private async Task AssertResponseAsync(HttpResponse response, GetItemsResponseDto expectedResponseDto)
         {
             //Rewind the stream
             response.Body.Seek(0, SeekOrigin.Begin);

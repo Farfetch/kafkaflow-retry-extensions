@@ -177,11 +177,11 @@
 
         [Theory]
         [MemberData(nameof(DataTest))]
-        public void RetryQueueReader_Read_Validation(
-            object wrapper)
+        internal void RetryQueueReader_Read_Validation(
+            RetryQueuesDboWrapper wrapper)
         {
             // Act
-            Action act = () => reader.Read((RetryQueuesDboWrapper)wrapper);
+            Action act = () => reader.Read(wrapper);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

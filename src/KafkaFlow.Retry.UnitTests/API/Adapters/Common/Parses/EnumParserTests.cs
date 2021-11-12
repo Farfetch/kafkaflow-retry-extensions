@@ -7,18 +7,19 @@
     using global::KafkaFlow.Retry.API.Adapters.Common.Parsers;
     using Xunit;
 
-    internal enum EnumTests
-    {
-        Value1 = 1,
-        Value2 = 2,
-        Value3 = 3
-    }
-
     [ExcludeFromCodeCoverage]
     public class EnumParserTests
     {
         private readonly EnumTests[] defaultEnum = new[] { EnumTests.Value1 };
+
         private readonly EnumParser<EnumTests> enumParser = new EnumParser<EnumTests>();
+
+        private enum EnumTests
+        {
+            Value1 = 1,
+            Value2 = 2,
+            Value3 = 3
+        }
 
         [Fact]
         public void EnumParser_Parse_Success()

@@ -84,19 +84,6 @@
             dboCollectionNavigator = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dbos, dboDomainAdapter.Object);
         }
 
-        [Theory]
-        [MemberData(nameof(DataTestCtor))]
-        public void DboCollectionNavigator_Ctor_Validations(
-            IList<RetryQueueItemDbo> dbos,
-            object dboDomainAdapter)
-        {
-            // Act
-            Action act = () => new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dbos, (IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>)dboDomainAdapter);
-
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
-
         [Fact]
         public void DboCollectionNavigator_Navigate_Success()
         {
@@ -123,6 +110,19 @@
         {
             // Act
             Action act = () => dboCollectionNavigator.Navigate(action, navigatingCondition);
+
+            // Assert
+            act.Should().Throw<ArgumentNullException>();
+        }
+
+        [Theory]
+        [MemberData(nameof(DataTestCtor))]
+        internal void DboCollectionNavigator_Ctor_Validations(
+            IList<RetryQueueItemDbo> dbos,
+            IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem> dboDomainAdapter)
+        {
+            // Act
+            Action act = () => new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dbos, dboDomainAdapter);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

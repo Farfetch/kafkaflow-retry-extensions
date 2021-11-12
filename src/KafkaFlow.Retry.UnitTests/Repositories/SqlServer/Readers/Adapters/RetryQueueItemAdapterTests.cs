@@ -42,7 +42,7 @@
         }
 
         [Fact]
-        public void RetryQueueItemAdapter_Adapt_WithoutRRetryQueueItemDbo_ThrowsException()
+        public void RetryQueueItemAdapter_Adapt_WithoutRetryQueueItemDbo_ThrowsException()
         {
             // Arrange
             RetryQueueItemDbo retryQueue = null;
