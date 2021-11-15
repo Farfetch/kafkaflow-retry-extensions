@@ -2,14 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
     using global::KafkaFlow.Retry.Durable.Repository;
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryDurableDefinitionTests
     {
         private static readonly RetryContext retry = new RetryContext(new Exception());

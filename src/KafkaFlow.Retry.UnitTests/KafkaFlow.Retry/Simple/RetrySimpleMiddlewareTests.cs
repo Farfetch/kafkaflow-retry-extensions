@@ -2,14 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading;
     using System.Threading.Tasks;
     using global::KafkaFlow.Retry.Simple;
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetrySimpleMiddlewareTests
     {
         [Fact]

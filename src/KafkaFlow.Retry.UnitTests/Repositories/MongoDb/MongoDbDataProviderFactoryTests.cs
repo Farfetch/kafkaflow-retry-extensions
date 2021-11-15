@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.MongoDb;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class MongoDbDataProviderFactoryTests
     {
         private readonly MongoDbDataProviderFactory mongoDbDataProviderFactory = new MongoDbDataProviderFactory();

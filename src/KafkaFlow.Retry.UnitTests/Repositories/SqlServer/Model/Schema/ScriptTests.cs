@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Schema
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.SqlServer.Model.Schema;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class ScriptTests
     {
         [Fact]

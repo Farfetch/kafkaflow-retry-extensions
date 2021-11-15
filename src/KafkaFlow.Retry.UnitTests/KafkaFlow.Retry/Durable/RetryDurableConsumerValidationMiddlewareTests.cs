@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable;
     using global::KafkaFlow.Retry.Durable.Encoders;
@@ -10,7 +9,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryDurableConsumerValidationMiddlewareTests
     {
         public static IEnumerable<object[]> DataTest()

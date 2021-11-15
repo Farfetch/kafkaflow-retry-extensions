@@ -3,6 +3,8 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <IsPackable>false</IsPackable>
+
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\SolutionItems\CodeCoverage.runsettings</RunSettingsFilePath>
   </PropertyGroup>
 
   <ItemGroup>

@@ -9,6 +9,8 @@
     <ApplicationIcon />
 
     <OutputType>Library</OutputType>
+    
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\SolutionItems\CodeCoverage.runsettings</RunSettingsFilePath>
 
     <StartupObject />
   </PropertyGroup>

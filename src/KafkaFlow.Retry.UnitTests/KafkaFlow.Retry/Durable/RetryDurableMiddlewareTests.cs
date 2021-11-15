@@ -2,14 +2,12 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable;
     using global::KafkaFlow.Retry.Durable.Definitions;
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryDurableMiddlewareTests
     {
         public static readonly IEnumerable<object[]> DataTest = new List<object[]>

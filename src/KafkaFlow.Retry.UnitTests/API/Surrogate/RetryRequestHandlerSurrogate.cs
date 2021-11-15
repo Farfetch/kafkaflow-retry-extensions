@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Surrogate
 {
-    using System.Diagnostics.CodeAnalysis;
     using System.Net;
     using System.Threading.Tasks;
     using global::KafkaFlow.Retry.API;
     using Microsoft.AspNetCore.Http;
 
-    [ExcludeFromCodeCoverage]
     internal class RetryRequestHandlerSurrogate : RetryRequestHandlerBase
     {
         protected override HttpMethod HttpMethod => HttpMethod.GET;

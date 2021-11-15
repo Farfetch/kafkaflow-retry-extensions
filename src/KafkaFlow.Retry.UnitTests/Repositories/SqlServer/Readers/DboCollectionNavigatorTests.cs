@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
@@ -11,7 +10,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class DboCollectionNavigatorTests
     {
         public static readonly IEnumerable<object[]> DataTestCtor = new List<object[]>

@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.GetItems;
     using global::KafkaFlow.Retry.Durable.Common;
@@ -9,7 +8,6 @@
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class GetItemsResponseDtoAdapterTests
     {
         private readonly IGetItemsResponseDtoAdapter adapter = new GetItemsResponseDtoAdapter();

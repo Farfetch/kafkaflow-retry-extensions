@@ -2,14 +2,12 @@
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Factories
 {
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using global::KafkaFlow.Retry.SqlServer.Model;
     using global::KafkaFlow.Retry.SqlServer.Model.Factories;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryQueueItemMessageDboFactoryTests
     {
         private readonly RetryQueueItemMessageDboFactory factory = new RetryQueueItemMessageDboFactory();

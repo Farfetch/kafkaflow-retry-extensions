@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Model.Factories
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Create;
@@ -10,7 +9,6 @@
     using global::KafkaFlow.Retry.MongoDb.Model.Factories;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryQueueDboFactoryTests
     {
         [Fact]

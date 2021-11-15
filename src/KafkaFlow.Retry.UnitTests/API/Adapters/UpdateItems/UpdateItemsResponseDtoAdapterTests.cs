@@ -1,13 +1,11 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class UpdateItemsResponseDtoAdapterTests
     {
         private readonly IUpdateItemsResponseDtoAdapter adapter = new UpdateItemsResponseDtoAdapter();

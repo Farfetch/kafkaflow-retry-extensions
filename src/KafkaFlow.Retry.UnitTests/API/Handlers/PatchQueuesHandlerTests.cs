@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Net;
     using System.Threading.Tasks;
     using FluentAssertions;
@@ -17,7 +16,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class PatchQueuesHandlerTests
     {
         private readonly string httpMethod = "PATCH";

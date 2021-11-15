@@ -1,13 +1,11 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common
 {
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.Common;
     using global::KafkaFlow.Retry.API.Dtos.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryQueueItemStatusDtoAdapterTests
     {
         [Theory]

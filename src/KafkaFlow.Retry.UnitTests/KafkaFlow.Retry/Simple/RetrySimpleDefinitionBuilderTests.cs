@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Simple
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Simple;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetrySimpleDefinitionBuilderTests
     {
         [Fact]

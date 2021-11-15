@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems
 {
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Linq;
     using FluentAssertions;
@@ -11,7 +10,6 @@
     using Microsoft.AspNetCore.Http;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class GetItemsRequestDtoReaderTests
     {
         private const int DefaultTopItemsByQueueValue = 100;

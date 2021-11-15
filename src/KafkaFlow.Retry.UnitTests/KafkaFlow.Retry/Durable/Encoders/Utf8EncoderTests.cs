@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Encoders
 {
-    using System.Diagnostics.CodeAnalysis;
     using System.Text;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Encoders;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class Utf8EncoderTests
     {
         private readonly Utf8Encoder utf8Encoder = new Utf8Encoder();

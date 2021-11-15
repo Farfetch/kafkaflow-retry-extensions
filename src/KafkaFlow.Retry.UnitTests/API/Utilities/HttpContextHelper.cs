@@ -1,6 +1,5 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Utilities
 {
-    using System.Diagnostics.CodeAnalysis;
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
@@ -8,7 +7,6 @@
     using Moq;
     using Newtonsoft.Json;
 
-    [ExcludeFromCodeCoverage]
     internal static class HttpContextHelper
     {
         public static async Task<HttpContext> CreateContext(string path, string method, object requestBody = null)

@@ -1,13 +1,11 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API
 {
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using global::KafkaFlow.Retry.API;
     using Microsoft.AspNetCore.Http;
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryMiddlewareTests
     {
         [Fact]

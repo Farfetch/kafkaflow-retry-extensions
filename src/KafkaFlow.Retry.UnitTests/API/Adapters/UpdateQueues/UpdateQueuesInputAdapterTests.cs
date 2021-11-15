@@ -1,14 +1,12 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateQueues
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API.Adapters.UpdateQueues;
     using global::KafkaFlow.Retry.API.Dtos;
     using global::KafkaFlow.Retry.API.Dtos.Common;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class UpdateQueuesInputAdapterTests
     {
         private readonly IUpdateQueuesInputAdapter adapter = new UpdateQueuesInputAdapter();

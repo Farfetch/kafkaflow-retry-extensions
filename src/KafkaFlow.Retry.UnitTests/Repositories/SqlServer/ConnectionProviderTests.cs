@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.SqlServer;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class ConnectionProviderTests
     {
         private readonly ConnectionProvider provider = new ConnectionProvider();

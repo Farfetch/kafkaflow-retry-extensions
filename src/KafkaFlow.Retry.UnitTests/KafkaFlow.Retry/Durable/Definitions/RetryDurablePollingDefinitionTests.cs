@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Definitions
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryDurablePollingDefinitionTests
     {
         [Fact]

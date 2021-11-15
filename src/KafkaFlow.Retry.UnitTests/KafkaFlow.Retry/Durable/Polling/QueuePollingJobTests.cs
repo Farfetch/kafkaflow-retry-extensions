@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Threading.Tasks;
     using global::KafkaFlow.Retry.Durable;
     using global::KafkaFlow.Retry.Durable.Common;
@@ -18,7 +17,6 @@
     using Quartz;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class QueuePollingJobTests
     {
         private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1, "id");

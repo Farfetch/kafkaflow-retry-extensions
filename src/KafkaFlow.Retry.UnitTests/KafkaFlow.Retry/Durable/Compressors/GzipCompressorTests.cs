@@ -1,12 +1,10 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Compressors
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Compression;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class GzipCompressorTests
     {
         private readonly IGzipCompressor gzipCompressor = new GzipCompressor();

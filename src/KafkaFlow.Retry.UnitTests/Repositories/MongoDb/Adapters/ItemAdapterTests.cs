@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using global::KafkaFlow.Retry.MongoDb.Adapters;
@@ -11,7 +10,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class ItemAdapterTests
     {
         private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();

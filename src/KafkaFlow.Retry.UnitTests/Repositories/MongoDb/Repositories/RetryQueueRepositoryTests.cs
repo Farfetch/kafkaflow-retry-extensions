@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using System.Threading;
     using System.Threading.Tasks;
@@ -17,7 +16,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryQueueRepositoryTests
     {
         private readonly Mock<IMongoCollection<RetryQueueDbo>> collection = new Mock<IMongoCollection<RetryQueueDbo>>();

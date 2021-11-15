@@ -2,7 +2,6 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
@@ -10,7 +9,6 @@
     using global::KafkaFlow.Retry.SqlServer.Model.Factories;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryQueueItemMessageHeaderDboFactoryTests
     {
         private readonly RetryQueueItemMessageHeaderDboFactory factory = new RetryQueueItemMessageHeaderDboFactory();

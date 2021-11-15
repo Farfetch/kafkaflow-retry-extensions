@@ -1,11 +1,9 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetryContextTests
     {
         [Fact]

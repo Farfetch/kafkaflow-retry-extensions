@@ -25,9 +25,14 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API", "Kafk
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API.Sample", "..\samples\KafkaFlow.Retry.API.Sample\KafkaFlow.Retry.API.Sample.csproj", "{F27309CD-D796-425B-B5D6-780B7B57E9C7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.UnitTests", "KafkaFlow.Retry.UnitTests\KafkaFlow.Retry.UnitTests.csproj", "{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.UnitTests", "KafkaFlow.Retry.UnitTests\KafkaFlow.Retry.UnitTests.csproj", "{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.IntegrationTests", "KafkaFlow.Retry.IntegrationTests\KafkaFlow.Retry.IntegrationTests.csproj", "{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.IntegrationTests", "KafkaFlow.Retry.IntegrationTests\KafkaFlow.Retry.IntegrationTests.csproj", "{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9557F908-472F-4872-BCF8-8EC028EFDA9B}"
+	ProjectSection(SolutionItems) = preProject
+		CodeCoverage.runsettings = CodeCoverage.runsettings
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

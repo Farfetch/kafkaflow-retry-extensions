@@ -2,12 +2,10 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Simple;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class RetrySimpleDefinitionTests
     {
         public static readonly IEnumerable<object[]> DataTest = new List<object[]>

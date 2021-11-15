@@ -1,6 +1,5 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb
 {
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.MongoDb;
     using global::KafkaFlow.Retry.MongoDb.Model;
@@ -8,7 +7,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class DbContextTests
     {
         private readonly Mock<IMongoCollection<RetryQueueDbo>> collectionRetryQueueDbo = new Mock<IMongoCollection<RetryQueueDbo>>();

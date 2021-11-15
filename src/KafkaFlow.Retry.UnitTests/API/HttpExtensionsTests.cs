@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API
 {
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using System.Linq;
     using FluentAssertions;
     using global::KafkaFlow.Retry.API;
@@ -9,7 +8,6 @@
     using Microsoft.AspNetCore.Http.Internal;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class HttpExtensionsTests
     {
         [Fact]

@@ -1,7 +1,6 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
     using global::KafkaFlow.Retry.Durable.Encoders;
@@ -11,7 +10,6 @@
     using Moq;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class QueueTrackerCoordinatorTests
     {
         private readonly Mock<ILogHandler> mockILogHandler = new Mock<ILogHandler>();

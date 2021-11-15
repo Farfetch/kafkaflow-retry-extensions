@@ -1,13 +1,11 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Repository.Adapters
 {
     using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Repository.Adapters;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using Xunit;
 
-    [ExcludeFromCodeCoverage]
     public class MessageHeadersAdapterTests
     {
         private readonly MessageHeadersAdapter adapter = new MessageHeadersAdapter();
