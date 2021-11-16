@@ -35,16 +35,16 @@
 
         [Theory]
         [MemberData(nameof(DataTest))]
-        public void RetryDurableConsumerGuaranteeOrderedMiddleware_Ctor_Tests(
-            object logHandler,
-            object retryDurableQueueRepository,
-            object utf8Encoder)
+        internal void RetryDurableConsumerGuaranteeOrderedMiddleware_Ctor_Tests(
+            ILogHandler logHandler,
+            IRetryDurableQueueRepository retryDurableQueueRepository,
+            IUtf8Encoder utf8Encoder)
         {
             // Act
             Action act = () => new RetryDurableConsumerGuaranteeOrderedMiddleware(
-                (ILogHandler)logHandler,
-                (IRetryDurableQueueRepository)retryDurableQueueRepository,
-                (IUtf8Encoder)utf8Encoder
+                logHandler,
+                retryDurableQueueRepository,
+                utf8Encoder
                 );
 
             // Assert

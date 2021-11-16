@@ -8,21 +8,6 @@
     public class RetryDurablePollingDefinitionTests
     {
         [Fact]
-        public void RetryDurablePollingDefinition__Ctor_WithArgumentException_ThrowsException()
-        {
-            // Act
-            Action act = () => new RetryDurablePollingDefinition(
-                enabled: true,
-                cronExpression: "",
-                fetchSize: 1,
-                expirationIntervalFactor: 2,
-                id: "id");
-
-            // Assert
-            act.Should().Throw<ArgumentException>();
-        }
-
-        [Fact]
         public void RetryDurablePollingDefinition__Ctor_WithArgumentNullException_ThrowsException()
         {
             // Act
@@ -52,6 +37,21 @@
 
             // Assert
             act.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void RetryDurablePollingDefinition_Ctor_WithArgumentException_ThrowsException()
+        {
+            // Act
+            Action act = () => new RetryDurablePollingDefinition(
+                enabled: true,
+                cronExpression: "",
+                fetchSize: 1,
+                expirationIntervalFactor: 2,
+                id: "id");
+
+            // Assert
+            act.Should().Throw<ArgumentException>();
         }
     }
 }

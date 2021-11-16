@@ -21,14 +21,14 @@
 
         [Theory]
         [MemberData(nameof(DataTest))]
-        public void RetryDurableMiddleware_Ctor_Tests(
-            object logHandler,
-            object retryDurableDefinition)
+        internal void RetryDurableMiddleware_Ctor_Tests(
+            ILogHandler logHandler,
+            RetryDurableDefinition retryDurableDefinition)
         {
             // Act
             Action act = () => new RetryDurableMiddleware(
-                (ILogHandler)logHandler,
-                (RetryDurableDefinition)retryDurableDefinition
+                logHandler,
+                retryDurableDefinition
                 );
 
             // Assert
