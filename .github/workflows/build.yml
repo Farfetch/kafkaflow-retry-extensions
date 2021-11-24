@@ -46,19 +46,16 @@ jobs:
     - name: Force fetch tags
       run: git fetch --tags --force
 
-    - name: Find Tag
+    - name: Find last tag
       id: prev-version-tag
-      uses: jimschubert/query-tag-action@v1
-      with:
-        include: '*.*.*'
-        exclude: '*-rc*'
-        commit-ish: 'HEAD~'
-        skip-unshallow: true
+      run: |
+        last_tag=$(git tag -l "*[0-9].*[0-9].*[0-9]*" --sort "-version:refname" | head -n 1)
+        echo "::set-output name=tag::$last_tag"
 
     - name: Find last commit message
       id: last-commit-message
       run: |
-        last_commit_message=$(git log -1 --pretty=%B $BRANCH_NAME --)
+        last_commit_message=$(git log -1 --pretty=%s $BRANCH_NAME --)
         echo "Last commit message found:"
         echo " $last_commit_message"
         echo "LAST_COMMIT_MESSAGE=$last_commit_message" >> $GITHUB_ENV
@@ -81,13 +78,13 @@ jobs:
 
         if [[ $LAST_COMMIT_MESSAGE =~ ^major:.*$ ]]; then
           echo "Bumping to next major version."
-          NEXT_VERSION="v$MAJOR"
+          NEXT_VERSION="$MAJOR"
         elif [[ $LAST_COMMIT_MESSAGE =~ ^feat:.*$ ]]; then
           echo "Bumping to next minor version."
-          NEXT_VERSION="v$MINOR"
-        elif [[ $LAST_COMMIT_MESSAGE =~ ^(fix|ci|refactor):.*$ ]]; then
+          NEXT_VERSION="$MINOR"
+        elif [[ $LAST_COMMIT_MESSAGE =~ ^(fix|ci|refactor|chore):.*$ ]]; then
           echo "Bumping to next patch version."
-          NEXT_VERSION="v$PATCH"
+          NEXT_VERSION="$PATCH"
         else
           echo "Skipping version bump."
           NEXT_VERSION="$CURRENT"
@@ -109,12 +106,6 @@ jobs:
 
     - name: Print build version
       run: echo "Build version will be $BUILD_VERSION"
-    
-    - name: Get changed files using defaults
-      id: changed-files
-      uses: tj-actions/changed-files@v6.3
-      with:
-        fetch-depth: 2
         
     - name: Update project version
       uses: roryprimrose/set-vs-sdk-project-version@v1
@@ -182,6 +173,14 @@ jobs:
     # - name: SonarScanner analysis end
     #   run: dotnet sonarscanner end /d:sonar.login=8f9e9412fb5ebcf5ea6f9a6b285b288e4645f866
     
+    - name: Delete build tag if exists
+      uses: dev-drprasad/delete-tag-and-release@v0.2.0
+      with:
+        delete_release: false
+        tag_name: ${{ env.BUILD_VERSION }}
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
     - name: Delete build tag if exists
       uses: dev-drprasad/delete-tag-and-release@v0.2.0
       with:
