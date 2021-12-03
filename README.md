@@ -21,6 +21,7 @@ Install packages related to your context. The Core package is required for all o
 
 |Name                             |nuget.org|
 |---------------------------------|----|
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/076e73c10ed441b4a78ce41767d302dc)](https://app.codacy.com/gh/Farfetch/kafka-flow-retry-extensions?utm_source=github.com&utm_medium=referral&utm_content=Farfetch/kafka-flow-retry-extensions&utm_campaign=Badge_Grade_Settings)
 |KafkaFlow.Retry|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.svg)
 |KafkaFlow.Retry.API|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.API.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.API/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.API.svg)
 |KafkaFlow.Retry.MongoDb|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.MongoDb.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.MongoDb/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.MongoDb.svg)
