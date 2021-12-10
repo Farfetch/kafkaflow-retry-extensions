@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Data.SqlClient;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
@@ -37,7 +38,6 @@
 
             this.RetryQueueDataProvider = new SqlServerDbDataProviderFactory().Create(this.sqlServerDbSettings);
 
-            // TODO: FIX-61: refactor to not use repositories. Use sql statements and selects from the tests projetct. Also applied for adapters and adapters in mongo repository too.
             this.retryQueueItemMessageHeaderRepository = new RetryQueueItemMessageHeaderRepository();
             this.retryQueueItemMessageRepository = new RetryQueueItemMessageRepository();
             this.retryQueueItemRepository = new RetryQueueItemRepository();
@@ -161,7 +161,7 @@
             RetryQueue retryQueue;
             do
             {
-                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
                 {
                     return null;
                 }
@@ -196,7 +196,7 @@
             IList<RetryQueueItem> retryQueueItems = null;
             do
             {
-                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
                 {
                     return null;
                 }

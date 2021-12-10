@@ -2,6 +2,7 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
@@ -125,7 +126,7 @@
             RetryQueueDbo retryQueueDbo = new RetryQueueDbo();
             do
             {
-                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
                 {
                     return null;
                 }
@@ -158,7 +159,7 @@
             List<RetryQueueItem> retryQueueItems = null;
             do
             {
-                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec)
+                if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
                 {
                     return null;
                 }
