@@ -27,12 +27,12 @@
 
         public static IEnumerable<object[]> GetSortedQueuesData() => new List<object[]>
         {
-            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new int[] { 0, 1 } },
-            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new int[] { 0, 1 } },
-            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new int[] { 0, 1 } },
-            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new int[] { 0, 1 } },
-            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new int[] { 0, 1 } },
-            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new int[] { 0, 1 } }
+            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } },
+            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } },
+            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new [] { 0, 1 } },
+            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new [] { 0, 1 } },
+            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } },
+            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } }
         };
 
         [Theory]

@@ -34,7 +34,6 @@
                 .Build();
 
             await repository.CreateQueueAsync(queue);
-            var item = queue.Items.Single();
 
             var inputUpdate = new UpdateQueuesInput(new[] { queue.QueueGroupKey }, RetryQueueItemStatus.Cancelled);
 
