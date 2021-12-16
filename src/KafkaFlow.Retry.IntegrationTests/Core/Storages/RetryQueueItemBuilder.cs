@@ -8,9 +8,16 @@
 
     internal class RetryQueueItemBuilder
     {
-        public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(DefaultTopicName, new byte[1], new byte[2], 0, 0, RetryQueueBuilder.DefaultDateTime, DefaultMessageHeaders);
-        private const string DefaultTopicName = "DefaultTopicNameForTests";
-        private static readonly IEnumerable<MessageHeader> DefaultMessageHeaders = new List<MessageHeader> { new MessageHeader("headerKey1", new byte[3]) };
+        public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(
+            "DefaultTopicNameForTests",
+            new byte[1],
+            new byte[2],
+            0,
+            0,
+            RetryQueueBuilder.DefaultDateTime,
+            new List<MessageHeader> { new MessageHeader("headerKey1", new byte[3]) }
+            );
+
         private readonly int attemptsCount;
         private readonly DateTime creationDate;
         private readonly string description;
