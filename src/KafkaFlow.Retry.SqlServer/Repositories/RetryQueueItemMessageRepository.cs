@@ -58,15 +58,6 @@
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                // TODO: REUSE THIS
-                //var idColumn = reader.GetOrdinal("IdRetryQueueItem");
-                //var keyColumn = reader.GetOrdinal("Key");
-                //var offSetColumn = reader.GetOrdinal("OffSet");
-                //var partitionColumn = reader.GetOrdinal("Partition");
-                //var topicNameColumn = reader.GetOrdinal("TopicName");
-                //var utcTimeStampColumn = reader.GetOrdinal("UtcTimeStamp");
-                //var valueColumn = reader.GetOrdinal("Value");
-
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     messages.Add(FillDbo(reader));

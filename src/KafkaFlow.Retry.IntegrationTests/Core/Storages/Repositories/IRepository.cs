@@ -3,19 +3,23 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Models;
+    using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Model;
 
     internal interface IRepository
     {
-        Type RepositoryType { get; }
+        RepositoryType RepositoryType { get; }
+
+        IRetryDurableQueueRepositoryProvider RetryQueueDataProvider { get; }
 
         Task CleanDatabaseAsync();
 
-        Task<RetryQueueTestModel> GetRetryQueueAsync(RetryDurableTestMessage message);
+        Task CreateQueueAsync(RetryQueue queue);
 
-        Task<IList<RetryQueueItemTestModel>> GetRetryQueueItemsAsync(
-           Guid retryQueueId,
-           Func<IList<RetryQueueItemTestModel>, bool> stopCondition);
+        Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey);
+
+        Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey);
+
+        Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItem>, bool> stopCondition);
     }
 }
