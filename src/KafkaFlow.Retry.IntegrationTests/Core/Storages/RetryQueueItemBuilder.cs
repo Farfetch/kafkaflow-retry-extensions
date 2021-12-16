@@ -1,14 +1,16 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages
 {
     using System;
+    using System.Collections.Generic;
     using Dawn;
     using KafkaFlow.Retry.Durable.Common;
     using KafkaFlow.Retry.Durable.Repository.Model;
 
     internal class RetryQueueItemBuilder
     {
-        public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(DefaultTopicName, new byte[1], new byte[2], 0, 0, RetryQueueBuilder.DefaultDateTime);
+        public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(DefaultTopicName, new byte[1], new byte[2], 0, 0, RetryQueueBuilder.DefaultDateTime, DefaultMessageHeaders);
         private const string DefaultTopicName = "DefaultTopicNameForTests";
+        private static readonly IEnumerable<MessageHeader> DefaultMessageHeaders = new List<MessageHeader> { new MessageHeader("headerKey1", new byte[3]) };
         private readonly int attemptsCount;
         private readonly DateTime creationDate;
         private readonly string description;
