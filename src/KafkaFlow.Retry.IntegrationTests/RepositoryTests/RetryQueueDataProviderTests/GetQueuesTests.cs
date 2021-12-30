@@ -25,15 +25,15 @@
         {
         }
 
-        public static IEnumerable<object[]> GetSortedQueuesData() => new List<object[]>
+        public static IEnumerable<object[]> GetSortedQueuesData()
         {
-            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } },
-            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } },
-            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new [] { 0, 1 } },
-            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new [] { 0, 1 } },
-            new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } },
-            new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new [] { 0, 1 } }
-        };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new[] { 0, 1 } };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new[] { 0, 1 } };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
+        }
 
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
