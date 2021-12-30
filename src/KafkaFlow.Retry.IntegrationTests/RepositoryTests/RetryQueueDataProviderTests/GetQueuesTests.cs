@@ -27,12 +27,12 @@
 
         public static IEnumerable<object[]> GetSortedQueuesData()
         {
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new[] { 0, 1 } };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new[] { 0, 1 } };
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new[] { 0, 1 } };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new List<int> { 0, 1 } };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new List<int> { 0, 1 } };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
         }
 
         [Theory]
