@@ -27,12 +27,12 @@
 
         public static IEnumerable<object[]> GetSortedQueuesData()
         {
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new List<int> { 0, 1 } };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, new List<int> { 0, 1 } };
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, new List<int> { 0, 1 } };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, 1 };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, 1 };
+            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
+            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
         }
 
         [Theory]
@@ -415,7 +415,7 @@
             GetQueuesSortOption sortOption,
             DateTime expectedCreationDate,
             DateTime expectedLastExecution,
-            IEnumerable<int> expectedSorts
+            int maxExpectedSort
             )
         {
             // Arrange
@@ -459,7 +459,7 @@
             actualQueues.First().LastExecution.Should().Be(expectedLastExecution);
 
             actualQueues.First().Items.Count().Should().Be(topItemsByQueue);
-            actualQueues.First().Items.Should().OnlyContain(i => expectedSorts.Contains(i.Sort));
+            actualQueues.First().Items.Should().OnlyContain(i => i.Sort <= maxExpectedSort);
         }
 
         private GetQueuesInput GetQueuesInput(string searchGroupKey)
