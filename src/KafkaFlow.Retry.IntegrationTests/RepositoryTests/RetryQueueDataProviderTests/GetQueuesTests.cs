@@ -15,24 +15,9 @@
 
     public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     {
-        private static readonly DateTime creationDateA = new DateTime(2018, 1, 5);
-        private static readonly DateTime creationDateB = new DateTime(2018, 1, 1);
-        private static readonly DateTime lastExecutionA = new DateTime(2019, 12, 20);
-        private static readonly DateTime lastExecutionB = new DateTime(2019, 12, 10);
-
         public GetQueuesTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
               : base(bootstrapperRepositoryFixture)
         {
-        }
-
-        public static IEnumerable<object[]> GetSortedQueuesData()
-        {
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, 1 };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByLastExecution_Ascending, creationDateB, lastExecutionB, 1 };
-            yield return new object[] { RepositoryType.MongoDb, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
-            yield return new object[] { RepositoryType.SqlServer, GetQueuesSortOption.ByCreationDate_Descending, creationDateA, lastExecutionA, 1 };
         }
 
         [Theory]
@@ -408,60 +393,6 @@
             actualQueue.Items.Should().HaveCount(itemsObtainedByStatus.Count() + stuckedItems.Count());
         }
 
-        [Theory]
-        [MemberData(nameof(GetSortedQueuesData))]
-        public async Task GetQueuesAsync_WithTopResultsAndSortStrategy_ReturnsFirstSortedElements(
-            RepositoryType repositoryType,
-            GetQueuesSortOption sortOption,
-            DateTime expectedCreationDate,
-            DateTime expectedLastExecution,
-            int maxExpectedSort
-            )
-        {
-            // Arrange
-            var repository = this.GetRepository(repositoryType);
-
-            var topQueues = 1;
-            var topItemsByQueue = 2;
-
-            var input = this.GetQueuesInputWithSorts(topQueues, topItemsByQueue, sortOption);
-
-            var queueA = new RetryQueueBuilder()
-                .WithCreationDate(creationDateA)
-                .WithLastExecution(lastExecutionA)
-                .WithSearchGroupKey(input.SearchGroupKey)
-                .WithStatus(RetryQueueStatus.Active)
-                .CreateItem().WithWaitingStatus().AddItem()
-                .CreateItem().WithWaitingStatus().AddItem()
-                .CreateItem().WithWaitingStatus().AddItem()
-                .Build();
-
-            var queueB = new RetryQueueBuilder()
-                .WithCreationDate(creationDateB)
-                .WithLastExecution(lastExecutionB)
-                .WithSearchGroupKey(input.SearchGroupKey)
-                .WithStatus(RetryQueueStatus.Active)
-                .CreateItem().WithWaitingStatus().AddItem()
-                .CreateItem().WithWaitingStatus().AddItem()
-                .Build();
-
-            await repository.CreateQueueAsync(queueA);
-            await repository.CreateQueueAsync(queueB);
-
-            // Act
-            var result = await repository.RetryQueueDataProvider.GetQueuesAsync(input);
-
-            // Assert
-            var actualQueues = result.RetryQueues.Where(r => r.SearchGroupKey == input.SearchGroupKey);
-
-            actualQueues.Count().Should().Be(topQueues);
-            actualQueues.First().CreationDate.Should().Be(expectedCreationDate);
-            actualQueues.First().LastExecution.Should().Be(expectedLastExecution);
-
-            actualQueues.First().Items.Count().Should().Be(topItemsByQueue);
-            actualQueues.First().Items.Should().OnlyContain(i => i.Sort <= maxExpectedSort);
-        }
-
         private GetQueuesInput GetQueuesInput(string searchGroupKey)
         {
             return new GetQueuesInput(
@@ -483,19 +414,6 @@
                100)
             {
                 SeverityLevels = severities
-            };
-        }
-
-        private GetQueuesInput GetQueuesInputWithSorts(int topQueues, int topItemsByQueue, GetQueuesSortOption sortOption)
-        {
-            return new GetQueuesInput(
-               RetryQueueStatus.Active,
-               new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-               sortOption,
-               topQueues)
-            {
-                SearchGroupKey = "searchGroupKey_dummy",
-                TopItemsByQueue = topItemsByQueue
             };
         }
 
