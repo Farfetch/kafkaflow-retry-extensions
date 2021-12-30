@@ -415,7 +415,7 @@
             GetQueuesSortOption sortOption,
             DateTime expectedCreationDate,
             DateTime expectedLastExecution,
-            int[] expectedSorts
+            IEnumerable<int> expectedSorts
             )
         {
             // Arrange
