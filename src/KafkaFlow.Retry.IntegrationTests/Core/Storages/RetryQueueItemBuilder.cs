@@ -21,10 +21,10 @@
         private readonly int attemptsCount;
         private readonly DateTime creationDate;
         private readonly string description;
-        private readonly Guid id;
         private readonly RetryQueueItemMessage message;
         private readonly RetryQueueBuilder retryQueueBuilder;
         private readonly int sort;
+        private Guid id;
         private DateTime? lastExecution;
         private DateTime? modifiedStatusDate;
         private SeverityLevel severityLevel;
@@ -37,8 +37,6 @@
             this.retryQueueBuilder = retryQueueBuilder;
 
             // defaults
-
-            this.id = Guid.NewGuid();
             this.attemptsCount = 0;
             this.creationDate = RetryQueueBuilder.DefaultDateTime;
             this.sort = sort;
@@ -93,6 +91,8 @@
 
         private RetryQueueItem Build()
         {
+            this.id = this.id == default ? Guid.NewGuid() : this.id;
+
             return new RetryQueueItem(
                this.id,
                this.attemptsCount,
