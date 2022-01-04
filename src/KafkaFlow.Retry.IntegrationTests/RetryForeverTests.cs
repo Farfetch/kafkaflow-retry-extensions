@@ -3,7 +3,7 @@ namespace KafkaFlow.Retry.IntegrationTests
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+    using KafkaFlow.Retry.IntegrationTests.Core;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;

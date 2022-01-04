@@ -5,11 +5,10 @@ namespace KafkaFlow.Retry.IntegrationTests
     using System.Linq;
     using System.Threading.Tasks;
     using AutoFixture;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+    using KafkaFlow.Retry.IntegrationTests.Core;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
@@ -17,6 +16,7 @@ namespace KafkaFlow.Retry.IntegrationTests
     [Collection("BootstrapperHostCollection")]
     public class RetryDurableTests
     {
+        private readonly BootstrapperHostFixture bootstrapperHostFixture;
         private readonly Fixture fixture = new Fixture();
         private readonly IRepositoryProvider repositoryProvider;
         private readonly IServiceProvider serviceProvider;
@@ -33,28 +33,28 @@ namespace KafkaFlow.Retry.IntegrationTests
         {
             yield return new object[]
             {
-                RepositoryType.MongoDb,
+                typeof(MongoDbRepository),
                 typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>),
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 10
             };
             yield return new object[]
             {
-                RepositoryType.SqlServer,
+                typeof(SqlServerRepository),
                 typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>),
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 10
             };
             yield return new object[]
             {
-                RepositoryType.MongoDb,
+                typeof(MongoDbRepository),
                 typeof(IMessageProducer<RetryDurableLatestConsumptionMongoDbProducer>),
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
             };
             yield return new object[]
             {
-                RepositoryType.SqlServer,
+                typeof(SqlServerRepository),
                 typeof(IMessageProducer<RetryDurableLatestConsumptionSqlServerProducer>),
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
@@ -64,7 +64,7 @@ namespace KafkaFlow.Retry.IntegrationTests
         [Theory]
         [MemberData(nameof(Scenarios))]
         internal async Task RetryDurableTest(
-            RepositoryType repositoryType,
+            Type repositoryType,
             Type producerType,
             Type physicalStorageType,
             int numberOfTimesThatEachMessageIsTriedWhenDone)

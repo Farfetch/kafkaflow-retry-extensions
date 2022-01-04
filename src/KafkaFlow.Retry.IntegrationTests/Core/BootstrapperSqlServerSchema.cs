@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
