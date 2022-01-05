@@ -9,8 +9,15 @@
 
     internal static class BootstrapperSqlServerSchema
     {
+        private static bool schemaInitialized;
+
         internal static async Task RecreateSqlSchema(string databaseName, string connectionString)
         {
+            if (schemaInitialized)
+            {
+                return;
+            }
+
             using (SqlConnection openCon = new SqlConnection(connectionString))
             {
                 openCon.Open();
@@ -32,6 +39,8 @@
                     }
                 }
             }
+
+            schemaInitialized = true;
         }
 
         private static IEnumerable<string> GetScriptsForSchemaCreation()
