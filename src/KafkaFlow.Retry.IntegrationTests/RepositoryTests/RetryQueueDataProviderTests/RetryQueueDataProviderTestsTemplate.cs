@@ -10,9 +10,9 @@
     [Collection("BootstrapperRepositoryCollection")]
     public abstract class RetryQueueDataProviderTestsTemplate
     {
-        protected readonly BootstrapperRepositoryFixture bootstrapperRepositoryFixture;
+        protected readonly BootstrapperHostFixture bootstrapperRepositoryFixture;
 
-        protected RetryQueueDataProviderTestsTemplate(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        protected RetryQueueDataProviderTestsTemplate(BootstrapperHostFixture bootstrapperRepositoryFixture)
         {
             this.bootstrapperRepositoryFixture = bootstrapperRepositoryFixture;
         }
