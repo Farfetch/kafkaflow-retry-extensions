@@ -11,7 +11,7 @@
 
     public class CheckQueueTests : RetryQueueDataProviderTestsTemplate
     {
-        public CheckQueueTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        public CheckQueueTests(BootstrapperHostFixture bootstrapperRepositoryFixture)
                    : base(bootstrapperRepositoryFixture)
         {
         }

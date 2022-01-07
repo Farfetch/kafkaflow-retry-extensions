@@ -12,7 +12,7 @@
 
     public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
     {
-        public CheckQueuePendingItemsTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        public CheckQueuePendingItemsTests(BootstrapperHostFixture bootstrapperRepositoryFixture)
             : base(bootstrapperRepositoryFixture)
         {
         }

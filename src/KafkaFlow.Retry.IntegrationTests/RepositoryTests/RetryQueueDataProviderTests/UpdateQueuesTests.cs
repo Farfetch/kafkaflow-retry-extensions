@@ -13,7 +13,7 @@
 
     public class UpdateQueuesTests : RetryQueueDataProviderTestsTemplate
     {
-        public UpdateQueuesTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        public UpdateQueuesTests(BootstrapperHostFixture bootstrapperRepositoryFixture)
                  : base(bootstrapperRepositoryFixture)
         {
         }

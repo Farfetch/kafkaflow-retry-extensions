@@ -13,7 +13,7 @@
 
     public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
     {
-        public UpdateItemExecutionInfoTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        public UpdateItemExecutionInfoTests(BootstrapperHostFixture bootstrapperRepositoryFixture)
                  : base(bootstrapperRepositoryFixture)
         {
         }

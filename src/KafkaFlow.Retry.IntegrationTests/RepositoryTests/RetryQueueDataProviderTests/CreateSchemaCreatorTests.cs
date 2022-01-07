@@ -7,7 +7,7 @@
 
     public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
     {
-        public CreateSchemaCreatorTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        public CreateSchemaCreatorTests(BootstrapperHostFixture bootstrapperRepositoryFixture)
                 : base(bootstrapperRepositoryFixture)
         {
         }
