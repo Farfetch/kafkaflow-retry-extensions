@@ -61,6 +61,14 @@
 
             try
             {
+                logHandler.Info(
+                    "PollingJob starts execution",
+                    new 
+                    {
+                        Name = context.Trigger.Key.Name
+                    }
+                );
+
                 var queueItemsInput =
                    new GetQueuesInput(
                        RetryQueueStatus.Active,
@@ -80,10 +88,27 @@
                     .GetRetryQueuesAsync(queueItemsInput)
                     .ConfigureAwait(false);
 
+                logHandler.Verbose(
+                    "PollingJob number of active queues",
+                    new
+                    {
+                        activeQueues
+                    }
+                );
+
                 foreach (var queue in activeQueues)
                 {
                     if (!queue.Items.Any())
                     {
+                        logHandler.Verbose(
+                            "PollingJob queue with no items",
+                            new
+                            {
+                                QueueId = queue.Id,
+                                QueueGroupKey = queue.QueueGroupKey
+                            }
+                        );
+
                         continue;
                     }
 
@@ -91,6 +116,18 @@
                     {
                         if (!this.IsAbleToBeProduced(item, retryDurablePollingDefinition))
                         {
+                            logHandler.Verbose(
+                                "PollingJob queue item is not able to be produced",
+                                new
+                                {
+                                    QueueId = queue.Id,
+                                    QueueGroupKey = queue.QueueGroupKey,
+                                    ItemId = item.Id,
+                                    LastExecution = item.LastExecution,
+                                    Status = item.Status
+                                }
+                            );
+
                             continue;
                         }
 
@@ -109,14 +146,35 @@
                                     messageAdapter.AdaptMessageFromRepository(item.Message.Value),
                                     this.GetMessageHeaders(messageHeadersAdapter, utf8Encoder, queue.Id, item)
                                 ).ConfigureAwait(false);
+
+                            logHandler.Verbose(
+                                "PollingJob queue item produced",
+                                new
+                                {
+                                    QueueId = queue.Id,
+                                    QueueGroupKey = queue.QueueGroupKey,
+                                    ItemId = item.Id,
+                                    LastExecution = item.LastExecution,
+                                    Status = item.Status
+                                }
+                            );
                         }
-                        catch (Exception)
+                        catch (Exception ex)
                         {
+                            logHandler.Error(
+                                "Exception on queue PollingJob execution producing to retry topic", 
+                                ex, 
+                                new 
+                                {
+                                    ItemId = item.Id,
+                                    QueueId = queue.Id
+                                });
+
                             await retryDurableQueueRepository
                                 .UpdateItemAsync(
                                     new UpdateItemStatusInput(
-                                        item.Id, RetryQueueItemStatus
-                                        .Waiting))
+                                        item.Id, 
+                                        RetryQueueItemStatus.Waiting))
                                 .ConfigureAwait(false);
 
                             throw;
@@ -126,11 +184,11 @@
             }
             catch (RetryDurableException rdex)
             {
-                logHandler.Error("Retry Durable Exception on queue polling job execution", rdex, null);
+                logHandler.Error("RetryDurableException on queue PollingJob execution", rdex, null);
             }
             catch (Exception ex)
             {
-                logHandler.Error("Exception on queue polling job execution", ex, null);
+                logHandler.Error("Exception on queue PollingJob execution", ex, null);
             }
         }
 
