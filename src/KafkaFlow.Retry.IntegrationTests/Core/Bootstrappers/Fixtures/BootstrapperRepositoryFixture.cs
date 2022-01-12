@@ -15,7 +15,9 @@
               .AddJsonFile(ConfigurationFilePath)
               .Build();
 
-            this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
+            //this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
+
+            this.InitializeMongoDb(config);
         }
 
         public override void Dispose()

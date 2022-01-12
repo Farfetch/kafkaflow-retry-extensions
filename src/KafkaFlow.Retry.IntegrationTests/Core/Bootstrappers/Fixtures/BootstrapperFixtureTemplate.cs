@@ -56,6 +56,13 @@
             await BootstrapperKafka.RecreateKafkaTopicsAsync(this.KafkaSettings.Brokers, topics);
         }
 
+        protected void InitializeMongoDb(IConfiguration configuration)
+        {
+            this.MongoDbSettings = configuration.GetSection("MongoDbRepository").Get<MongoDbRepositorySettings>();
+
+            this.databasesInitialized = true;
+        }
+
         private IRepositoryProvider CreateRepositoryProvider()
         {
             Guard.Argument(this.databasesInitialized, nameof(this.databasesInitialized)).True($"Call {nameof(this.InitializeDatabasesAsync)} first.");
@@ -69,11 +76,6 @@
             this.repositoryProvider = new RepositoryProvider(repositories);
 
             return this.repositoryProvider;
-        }
-
-        private void InitializeMongoDb(IConfiguration configuration)
-        {
-            this.MongoDbSettings = configuration.GetSection("MongoDbRepository").Get<MongoDbRepositorySettings>();
         }
 
         private async Task InitializeSqlServerAsync(IConfiguration configuration)
