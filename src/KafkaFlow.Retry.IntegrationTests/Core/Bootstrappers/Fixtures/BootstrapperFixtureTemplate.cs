@@ -90,9 +90,9 @@
             }
             this.SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
-            Console.WriteLine($"[User LOG] db: {this.SqlServerSettings.DatabaseName} connStringSql: {this.SqlServerSettings.ConnectionString}");
+            await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString).ConfigureAwait(false);
 
-            await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString);
+            System.Console.WriteLine($"[User LOG] SqlServer Initialized.");
         }
     }
 }

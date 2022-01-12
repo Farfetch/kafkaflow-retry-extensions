@@ -15,12 +15,13 @@
 
         internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
         {
-            await semaphoreOneThreadAtTime.WaitAsync();
+            System.Console.WriteLine($"[User LOG] SqlServerSchema init. SchemaInitialized: {schemaInitialized}");
+            await semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
             try
             {
-                System.Console.WriteLine($"[User LOG] SqlServerSchema init. SchemaInitialized: {schemaInitialized}");
                 if (schemaInitialized)
                 {
+                    System.Console.WriteLine($"[User LOG] SqlServerSchema already initialized");
                     return;
                 }
 
