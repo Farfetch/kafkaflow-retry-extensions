@@ -81,10 +81,10 @@
             this.SqlServerSettings = configuration.GetSection("SqlServerRepository").Get<SqlServerRepositorySettings>();
 
             var sqlServerConnectionStringBuilder = new SqlConnectionStringBuilder(this.SqlServerSettings.ConnectionString);
-            if (Environment.GetEnvironmentVariable("SQLSERVER_INTEGRATED_SECURITY") != null)
-            {
-                sqlServerConnectionStringBuilder.IntegratedSecurity = false;
-            }
+            //if (Environment.GetEnvironmentVariable("SQLSERVER_INTEGRATED_SECURITY") != null)
+            //{
+            //    sqlServerConnectionStringBuilder.IntegratedSecurity = false;
+            //}
             this.SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
             await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString);
