@@ -37,6 +37,8 @@
         [Fact]
         public void RetryQueueItemMessageAdapter_Adapt_WithoutRetryQueueItemMessageDbo_ThrowsException()
         {
+            System.Console.WriteLine("TestUnitOutput");
+
             // Arrange
             RetryQueueItemMessageDbo retryQueue = null;
 
