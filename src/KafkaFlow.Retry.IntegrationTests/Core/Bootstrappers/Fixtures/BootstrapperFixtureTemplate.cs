@@ -29,10 +29,13 @@
 
         protected async Task InitializeDatabasesAsync(IConfiguration configuration)
         {
+            Console.WriteLine("[User LOG] Initializing databases");
+
             this.InitializeMongoDb(configuration);
             await this.InitializeSqlServerAsync(configuration).ConfigureAwait(false);
 
             this.databasesInitialized = true;
+            Console.WriteLine("[User LOG] databases initialized!");
         }
 
         protected async Task InitializeKafkaAsync(IConfiguration configuration)
@@ -86,6 +89,8 @@
                 sqlServerConnectionStringBuilder.IntegratedSecurity = false;
             }
             this.SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
+
+            Console.WriteLine($"[User LOG] db: {this.SqlServerSettings.DatabaseName} connStringSql: {this.SqlServerSettings.ConnectionString}");
 
             await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString);
         }

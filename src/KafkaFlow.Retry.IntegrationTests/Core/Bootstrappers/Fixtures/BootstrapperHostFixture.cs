@@ -21,7 +21,13 @@
 
         public BootstrapperHostFixture()
         {
-            System.Console.WriteLine("TesttHostiFixture");
+            System.Console.WriteLine("[User LOG] BootstrapperHostFixture ctor");
+
+            var config = new ConfigurationBuilder()
+              .AddJsonFile(ConfigurationFilePath)
+              .Build();
+
+            this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
 
             var builder = Host
                 .CreateDefaultBuilder()
@@ -70,8 +76,6 @@
 
         private void SetupServices(HostBuilderContext context, IServiceCollection services)
         {
-            this.InitializeDatabasesAsync(context.Configuration).GetAwaiter().GetResult();
-
             this.InitializeKafkaAsync(context.Configuration).GetAwaiter().GetResult();
 
             services.AddKafka(

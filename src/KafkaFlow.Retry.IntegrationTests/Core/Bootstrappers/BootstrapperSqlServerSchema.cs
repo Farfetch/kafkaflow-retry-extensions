@@ -18,6 +18,7 @@
             await semaphoreOneThreadAtTime.WaitAsync();
             try
             {
+                System.Console.WriteLine($"[User LOG] SqlServerSchema init. SchemaInitialized: {schemaInitialized}");
                 if (schemaInitialized)
                 {
                     return;
@@ -26,8 +27,9 @@
                 using (SqlConnection openCon = new SqlConnection(connectionString))
                 {
                     openCon.Open();
-
-                    foreach (var script in GetScriptsForSchemaCreation())
+                    var scripts = GetScriptsForSchemaCreation();
+                    System.Console.WriteLine($"[User LOG] SqlServerSchema executing {scripts.Count()} scripts.");
+                    foreach (var script in scripts)
                     {
                         string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
 
@@ -43,6 +45,7 @@
                             }
                         }
                     }
+                    System.Console.WriteLine($"[User LOG] SqlServerSchema {scripts.Count()} scripts executed.");
                 }
 
                 schemaInitialized = true;
