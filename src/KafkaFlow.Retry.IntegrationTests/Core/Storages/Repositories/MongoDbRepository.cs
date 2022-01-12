@@ -5,7 +5,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using AutoFixture;
     using Dawn;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Model;
@@ -18,8 +17,6 @@
     {
         private const int TimeoutSec = 60;
         private readonly string databaseName;
-
-        private readonly Fixture fixture = new Fixture();
 
         private readonly MongoClient mongoClient;
         private readonly QueuesAdapter queuesAdapter;
@@ -94,7 +91,22 @@
                     Status = item.Status,
                     SeverityLevel = item.SeverityLevel,
                     Description = item.Description,
-                    Message = this.fixture.Create<RetryQueueItemMessageDbo>()
+                    Message = new RetryQueueItemMessageDbo
+                    {
+                        Headers = item.Message.Headers
+                        .Select(h => new RetryQueueHeaderDbo
+                        {
+                            Key = h.Key,
+                            Value = h.Value
+                        }),
+                        Key = item.Message.Key,
+                        Offset = item.Message.Offset,
+                        Partition = item.Message.Partition,
+                        TopicName = item.Message.TopicName,
+                        UtcTimeStamp = item.Message.UtcTimeStamp,
+                        Value = item.Message.Value
+                    },
+                    Sort = item.Sort
                 };
 
                 await this.retryQueueItemsCollection.InsertOneAsync(itemDbo);

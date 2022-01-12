@@ -9,7 +9,7 @@
 
     internal class RetryQueueBuilder
     {
-        public static readonly DateTime DefaultDateTime = new DateTime(2020, 5, 25);
+        public static readonly DateTime DefaultDateTime = new DateTime(2020, 5, 25).ToUniversalTime();
 
         private readonly List<RetryQueueItem> items;
         private DateTime creationDate;
@@ -68,7 +68,7 @@
 
         public RetryQueueItemBuilder CreateItem()
         {
-            return new RetryQueueItemBuilder(this);
+            return new RetryQueueItemBuilder(this, this.items.Count);
         }
 
         public RetryQueueBuilder WithCreationDate(DateTime creationDate)

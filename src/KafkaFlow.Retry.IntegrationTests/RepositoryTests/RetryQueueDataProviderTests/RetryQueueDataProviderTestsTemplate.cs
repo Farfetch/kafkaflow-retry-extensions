@@ -1,5 +1,6 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests
 {
+    using System.Linq;
     using KafkaFlow.Retry.Durable.Repository.Model;
     using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;
@@ -9,7 +10,7 @@
     [Collection("BootstrapperRepositoryCollection")]
     public abstract class RetryQueueDataProviderTestsTemplate
     {
-        private readonly BootstrapperRepositoryFixture bootstrapperRepositoryFixture;
+        protected readonly BootstrapperRepositoryFixture bootstrapperRepositoryFixture;
 
         protected RetryQueueDataProviderTestsTemplate(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
         {
@@ -23,7 +24,19 @@
                 .Build();
         }
 
-        private protected IRepository GetRepository(RepositoryType repositoryType)
+        protected RetryQueueItem GetQueueFirstItem(RetryQueue queue)
+        {
+            var minSort = queue.Items.Min(i => i.Sort);
+            return queue.Items.Single(i => i.Sort == minSort);
+        }
+
+        protected RetryQueueItem GetQueueLastItem(RetryQueue queue)
+        {
+            var maxSort = queue.Items.Max(i => i.Sort);
+            return queue.Items.Single(i => i.Sort == maxSort);
+        }
+
+        protected IRepository GetRepository(RepositoryType repositoryType)
         {
             return this.bootstrapperRepositoryFixture.RepositoryProvider.GetRepositoryOfType(repositoryType);
         }

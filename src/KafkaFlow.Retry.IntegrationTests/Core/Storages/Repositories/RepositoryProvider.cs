@@ -1,6 +1,5 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
 {
-    using System;
     using System.Collections.Generic;
     using System.Linq;
 

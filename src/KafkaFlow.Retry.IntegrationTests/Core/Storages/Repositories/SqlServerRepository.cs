@@ -6,7 +6,6 @@
     using System.Diagnostics;
     using System.Linq;
     using System.Threading.Tasks;
-    using AutoFixture;
     using KafkaFlow.Retry.Durable.Common;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Model;
@@ -20,8 +19,6 @@
     {
         private const int TimeoutSec = 60;
         private readonly ConnectionProvider connectionProvider;
-
-        private readonly Fixture fixture = new Fixture();
 
         private readonly IRetryQueueItemMessageHeaderRepository retryQueueItemMessageHeaderRepository;
         private readonly IRetryQueueItemMessageRepository retryQueueItemMessageRepository;
@@ -101,25 +98,34 @@
                     DomainRetryQueueId = queue.Id,
                     Status = item.Status,
                     SeverityLevel = item.SeverityLevel,
-                    Description = item.Description
+                    Description = item.Description,
+                    Sort = item.Sort // TODO: FIX-30: remove this after fix https://github.com/Farfetch/kafka-flow-retry-extensions/issues/30
                 };
 
                 var itemId = await this.retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
 
                 // item message
-                var messageDbo = this.fixture.Build<RetryQueueItemMessageDbo>()
-                    .With(x => x.IdRetryQueueItem, itemId)
-                    .Create();
+                var messageDbo = new RetryQueueItemMessageDbo
+                {
+                    IdRetryQueueItem = itemId,
+                    Key = item.Message.Key,
+                    Offset = item.Message.Offset,
+                    Partition = item.Message.Partition,
+                    TopicName = item.Message.TopicName,
+                    UtcTimeStamp = item.Message.UtcTimeStamp,
+                    Value = item.Message.Value
+                };
 
                 await this.retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo);
 
                 // message headers
-                var messageHeadersDbos = new List<RetryQueueItemMessageHeaderDbo>
-                {
-                    this.fixture.Build<RetryQueueItemMessageHeaderDbo>()
-                    .With(x => x.RetryQueueItemMessageId, itemId)
-                    .Create()
-                };
+                var messageHeadersDbos = item.Message.Headers
+                        .Select(h => new RetryQueueItemMessageHeaderDbo
+                        {
+                            RetryQueueItemMessageId = itemId,
+                            Key = h.Key,
+                            Value = h.Value
+                        });
 
                 await this.retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos);
             }

@@ -1,43 +1,51 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages
 {
     using System;
+    using System.Collections.Generic;
     using Dawn;
     using KafkaFlow.Retry.Durable.Common;
     using KafkaFlow.Retry.Durable.Repository.Model;
 
     internal class RetryQueueItemBuilder
     {
-        private const string DefaultTopicName = "DefaultTopicNameForTests";
+        public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(
+            "DefaultTopicNameForTests",
+            new byte[1],
+            new byte[2],
+            0,
+            0,
+            RetryQueueBuilder.DefaultDateTime,
+            new List<MessageHeader> { new MessageHeader("headerKey1", new byte[3]) }
+            );
+
         private readonly int attemptsCount;
         private readonly DateTime creationDate;
-        private readonly Guid id;
+        private readonly string description;
+        private readonly RetryQueueItemMessage message;
         private readonly RetryQueueBuilder retryQueueBuilder;
         private readonly int sort;
-        private readonly string description;
+        private Guid id;
         private DateTime? lastExecution;
-        private readonly RetryQueueItemMessage message;
         private DateTime? modifiedStatusDate;
         private SeverityLevel severityLevel;
         private RetryQueueItemStatus status;
 
-        public RetryQueueItemBuilder(RetryQueueBuilder retryQueueBuilder)
+        public RetryQueueItemBuilder(RetryQueueBuilder retryQueueBuilder, int sort)
         {
             Guard.Argument(retryQueueBuilder, nameof(retryQueueBuilder)).NotNull();
 
             this.retryQueueBuilder = retryQueueBuilder;
 
             // defaults
-
-            this.id = Guid.NewGuid();
             this.attemptsCount = 0;
             this.creationDate = RetryQueueBuilder.DefaultDateTime;
-            this.sort = 0;
+            this.sort = sort;
             this.lastExecution = RetryQueueBuilder.DefaultDateTime;
             this.modifiedStatusDate = RetryQueueBuilder.DefaultDateTime;
             this.status = RetryQueueItemStatus.Waiting;
             this.severityLevel = SeverityLevel.Medium;
             this.description = string.Empty;
-            this.message = new RetryQueueItemMessage(DefaultTopicName, new byte[1], new byte[2], 0, 0, RetryQueueBuilder.DefaultDateTime);
+            this.message = DefaultItemMessage;
         }
 
         public RetryQueueBuilder AddItem()
@@ -83,6 +91,8 @@
 
         private RetryQueueItem Build()
         {
+            this.id = this.id == default ? Guid.NewGuid() : this.id;
+
             return new RetryQueueItem(
                this.id,
                this.attemptsCount,
