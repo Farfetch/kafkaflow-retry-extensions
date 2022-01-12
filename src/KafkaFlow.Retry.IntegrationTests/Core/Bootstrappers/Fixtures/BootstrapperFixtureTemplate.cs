@@ -56,13 +56,6 @@
             await BootstrapperKafka.RecreateKafkaTopicsAsync(this.KafkaSettings.Brokers, topics);
         }
 
-        protected void InitializeMongoDb(IConfiguration configuration)
-        {
-            this.MongoDbSettings = configuration.GetSection("MongoDbRepository").Get<MongoDbRepositorySettings>();
-
-            this.databasesInitialized = true;
-        }
-
         private IRepositoryProvider CreateRepositoryProvider()
         {
             Guard.Argument(this.databasesInitialized, nameof(this.databasesInitialized)).True($"Call {nameof(this.InitializeDatabasesAsync)} first.");
@@ -70,12 +63,17 @@
             var repositories = new List<IRepository>
             {
                 new MongoDbRepository( this.MongoDbSettings.ConnectionString, this.MongoDbSettings.DatabaseName, this.MongoDbSettings.RetryQueueCollectionName, this.MongoDbSettings.RetryQueueItemCollectionName),
-                //new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName)
+                new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName)
             };
 
             this.repositoryProvider = new RepositoryProvider(repositories);
 
             return this.repositoryProvider;
+        }
+
+        private void InitializeMongoDb(IConfiguration configuration)
+        {
+            this.MongoDbSettings = configuration.GetSection("MongoDbRepository").Get<MongoDbRepositorySettings>();
         }
 
         private async Task InitializeSqlServerAsync(IConfiguration configuration)
@@ -89,7 +87,7 @@
             }
             this.SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
-            await BootstrapperSqlServerSchema.RecreateSqlSchema(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString);
+            await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString);
         }
     }
 }

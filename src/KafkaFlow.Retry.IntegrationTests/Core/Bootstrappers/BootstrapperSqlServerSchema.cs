@@ -5,42 +5,52 @@
     using System.IO;
     using System.Linq;
     using System.Reflection;
+    using System.Threading;
     using System.Threading.Tasks;
 
     internal static class BootstrapperSqlServerSchema
     {
+        private static readonly SemaphoreSlim semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
         private static bool schemaInitialized;
 
-        internal static async Task RecreateSqlSchema(string databaseName, string connectionString)
+        internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
         {
-            if (schemaInitialized)
+            await semaphoreOneThreadAtTime.WaitAsync();
+            try
             {
-                return;
-            }
-
-            using (SqlConnection openCon = new SqlConnection(connectionString))
-            {
-                openCon.Open();
-
-                foreach (var script in GetScriptsForSchemaCreation())
+                if (schemaInitialized)
                 {
-                    string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    return;
+                }
 
-                    foreach (var batch in batches)
+                using (SqlConnection openCon = new SqlConnection(connectionString))
+                {
+                    openCon.Open();
+
+                    foreach (var script in GetScriptsForSchemaCreation())
                     {
-                        string replacedBatch = batch.Replace("@dbname", databaseName);
+                        string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
 
-                        using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
+                        foreach (var batch in batches)
                         {
-                            queryCommand.Connection = openCon;
+                            string replacedBatch = batch.Replace("@dbname", databaseName);
 
-                            await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
+                            {
+                                queryCommand.Connection = openCon;
+
+                                await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                            }
                         }
                     }
                 }
-            }
 
-            schemaInitialized = true;
+                schemaInitialized = true;
+            }
+            finally
+            {
+                semaphoreOneThreadAtTime.Release();
+            }
         }
 
         private static IEnumerable<string> GetScriptsForSchemaCreation()

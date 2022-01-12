@@ -15,9 +15,7 @@
               .AddJsonFile(ConfigurationFilePath)
               .Build();
 
-            //this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
-
-            this.InitializeMongoDb(config);
+            this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
         }
 
         public override void Dispose()
@@ -26,10 +24,7 @@
 
             foreach (var repository in repositories)
             {
-                if (repository.RepositoryType == Storages.Repositories.RepositoryType.MongoDb)
-                {
-                    repository.CleanDatabaseAsync().GetAwaiter().GetResult();
-                }
+                repository.CleanDatabaseAsync().GetAwaiter().GetResult();
             }
         }
     }
