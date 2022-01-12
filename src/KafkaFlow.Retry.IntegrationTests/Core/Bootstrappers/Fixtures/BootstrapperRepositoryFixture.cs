@@ -26,7 +26,10 @@
 
             foreach (var repository in repositories)
             {
-                repository.CleanDatabaseAsync().GetAwaiter().GetResult();
+                if (repository.RepositoryType == Storages.Repositories.RepositoryType.MongoDb)
+                {
+                    repository.CleanDatabaseAsync().GetAwaiter().GetResult();
+                }
             }
         }
     }
