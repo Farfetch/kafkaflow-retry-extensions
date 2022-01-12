@@ -15,21 +15,20 @@
 
         internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
         {
-            System.Console.WriteLine($"[User LOG] SqlServerSchema init. SchemaInitialized: {schemaInitialized}");
             await semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
             try
             {
                 if (schemaInitialized)
                 {
-                    System.Console.WriteLine($"[User LOG] SqlServerSchema already initialized");
                     return;
                 }
 
                 using (SqlConnection openCon = new SqlConnection(connectionString))
                 {
                     openCon.Open();
+
                     var scripts = GetScriptsForSchemaCreation();
-                    System.Console.WriteLine($"[User LOG] SqlServerSchema executing {scripts.Count()} scripts.");
+
                     foreach (var script in scripts)
                     {
                         string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
@@ -46,7 +45,6 @@
                             }
                         }
                     }
-                    System.Console.WriteLine($"[User LOG] SqlServerSchema {scripts.Count()} scripts executed.");
                 }
 
                 schemaInitialized = true;

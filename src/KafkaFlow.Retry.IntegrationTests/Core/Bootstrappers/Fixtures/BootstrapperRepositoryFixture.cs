@@ -15,8 +15,6 @@
               .AddJsonFile(ConfigurationFilePath)
               .Build();
 
-            System.Console.WriteLine("[User LOG] BootstrapperRepositoryFixture ctor");
-
             this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
         }
 

@@ -21,8 +21,6 @@
 
         public BootstrapperHostFixture()
         {
-            System.Console.WriteLine("[User LOG] BootstrapperHostFixture ctor");
-
             var config = new ConfigurationBuilder()
               .AddJsonFile(ConfigurationFilePath)
               .Build();
