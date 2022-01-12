@@ -15,6 +15,8 @@
               .AddJsonFile(ConfigurationFilePath)
               .Build();
 
+            System.Console.WriteLine("TesttReposiFixture");
+
             this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
         }
 

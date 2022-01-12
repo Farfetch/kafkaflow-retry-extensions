@@ -21,6 +21,8 @@
 
         public BootstrapperHostFixture()
         {
+            System.Console.WriteLine("TesttHostiFixture");
+
             var builder = Host
                 .CreateDefaultBuilder()
                 .ConfigureAppConfiguration(
