@@ -70,7 +70,7 @@
             var repositories = new List<IRepository>
             {
                 new MongoDbRepository( this.MongoDbSettings.ConnectionString, this.MongoDbSettings.DatabaseName, this.MongoDbSettings.RetryQueueCollectionName, this.MongoDbSettings.RetryQueueItemCollectionName),
-                new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName)
+                //new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName)
             };
 
             this.repositoryProvider = new RepositoryProvider(repositories);
