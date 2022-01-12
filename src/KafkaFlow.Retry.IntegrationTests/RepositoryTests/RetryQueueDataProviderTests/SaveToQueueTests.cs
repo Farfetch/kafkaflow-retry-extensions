@@ -13,7 +13,7 @@
 
     public class SaveToQueueTests : RetryQueueDataProviderTestsTemplate
     {
-        public SaveToQueueTests(BootstrapperHostFixture bootstrapperRepositoryFixture)
+        public SaveToQueueTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
                    : base(bootstrapperRepositoryFixture)
         {
         }
