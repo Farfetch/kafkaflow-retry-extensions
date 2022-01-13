@@ -58,16 +58,6 @@
         }
 
         [Fact]
-        public void RetryQueueItemDboFactory_Create_WithNegativeSort_ThrowsException()
-        {
-            // Act
-            Action act = () => factory.Create(saveToQueueInput, 1, default);
-
-            // Assert
-            act.Should().Throw<ArgumentException>();
-        }
-
-        [Fact]
         public void RetryQueueItemDboFactory_Create_WithoutSaveToQueueInput_ThrowsException()
         {
             //Arrange
