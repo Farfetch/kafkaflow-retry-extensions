@@ -84,7 +84,7 @@
             ITrigger trigger = TriggerBuilder
                 .Create()
                 .WithIdentity($"pollingJob_{this.retryDurablePollingDefinition.Id}", "queueTrackerGroup")
-                .WithCronSchedule(retryDurablePollingDefinition.CronExpression)
+                .WithCronSchedule(this.retryDurablePollingDefinition.CronExpression)
                 .StartNow()
                 .WithPriority(1)
                 .Build();
@@ -94,6 +94,14 @@
                 .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
+
+            this.logHandler.Info(
+                "PollingJob Schedule", 
+                new 
+                {
+                    PollingId = this.retryDurablePollingDefinition.Id,
+                    CronExpression = this.retryDurablePollingDefinition.CronExpression
+                });
         }
 
         internal void Shutdown(CancellationToken cancellationToken = default)
@@ -109,6 +117,8 @@
                         .GetResult();
                 }
             }
+
+            this.logHandler.Info("PollingJob Shutdown", new {});
         }
     }
 }

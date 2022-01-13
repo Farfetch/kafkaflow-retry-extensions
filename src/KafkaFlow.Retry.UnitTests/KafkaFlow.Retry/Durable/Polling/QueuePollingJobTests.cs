@@ -27,6 +27,7 @@
         private readonly Mock<IMessageHeadersAdapter> messageHeadersAdapter = new Mock<IMessageHeadersAdapter>();
         private readonly Mock<IMessageProducer> messageProducer = new Mock<IMessageProducer>();
         private readonly Mock<IJobDetail> mockIJobDetail = new Mock<IJobDetail>();
+        private readonly Mock<ITrigger> mockITrigger = new Mock<ITrigger>();
         private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
         private readonly Mock<IUtf8Encoder> utf8Encoder = new Mock<IUtf8Encoder>();
 
@@ -35,6 +36,14 @@
             jobExecutionContext
                 .Setup(d => d.JobDetail)
                 .Returns(mockIJobDetail.Object);
+
+            mockITrigger
+                .SetupGet(t => t.Key)
+                .Returns(new TriggerKey(string.Empty));
+
+            jobExecutionContext
+                .Setup(d => d.Trigger)
+                .Returns(mockITrigger.Object);
         }
 
         [Fact]
@@ -90,7 +99,7 @@
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
 
             //Assert
-            logHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()), Times.Once);
+            logHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()), Times.Exactly(2));
             retryDurableQueueRepository.Verify(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.UpdateItemAsync(It.IsAny<UpdateItemStatusInput>()), Times.Exactly(2));
             messageHeadersAdapter.Verify(d => d.AdaptMessageHeadersFromRepository(It.IsAny<IList<MessageHeader>>()), Times.Once);
