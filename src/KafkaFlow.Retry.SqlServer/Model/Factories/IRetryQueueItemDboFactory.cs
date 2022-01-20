@@ -5,6 +5,6 @@
 
     internal interface IRetryQueueItemDboFactory
     {
-        RetryQueueItemDbo Create(SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId, int sort = 0);
+        RetryQueueItemDbo Create(SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId);
     }
 }

@@ -14,8 +14,6 @@
 
         Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid retryQueueId);
 
-        Task<int> CountAsync(IDbConnection dbConnection, Guid retryQueueId);
-
         Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId);
 
         Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid retryQueueId);

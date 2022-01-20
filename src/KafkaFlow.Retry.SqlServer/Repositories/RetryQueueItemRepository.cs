@@ -24,7 +24,9 @@
                 command.CommandText = @"INSERT INTO [RetryQueueItems]
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
-                                            (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount, @sort, @creationDate, @lastExecution, @modifiedStatusDate, @description);
+                                            (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount,
+                                             (SELECT COUNT(1) FROM [RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
+                                             @creationDate, @lastExecution, @modifiedStatusDate, @description);
 
                                       SELECT SCOPE_IDENTITY()";
 
@@ -34,7 +36,6 @@
                 command.Parameters.AddWithValue("idItemStatus", (byte)retryQueueItemDbo.Status);
                 command.Parameters.AddWithValue("idSeverityLevel", retryQueueItemDbo.SeverityLevel);
                 command.Parameters.AddWithValue("attemptsCount", retryQueueItemDbo.AttemptsCount);
-                command.Parameters.AddWithValue("sort", retryQueueItemDbo.Sort);
                 command.Parameters.AddWithValue("creationDate", retryQueueItemDbo.CreationDate);
                 command.Parameters.AddWithValue("lastExecution", retryQueueItemDbo.LastExecution ?? (object)DBNull.Value);
                 command.Parameters.AddWithValue("modifiedStatusDate", retryQueueItemDbo.ModifiedStatusDate ?? (object)DBNull.Value);
@@ -65,25 +66,6 @@
                 var result = await command.ExecuteScalarAsync().ConfigureAwait(false);
 
                 return result is object;
-            }
-        }
-
-        public async Task<int> CountAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
-        {
-            Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
-            Guard.Argument(domainRetryQueueId).NotDefault();
-
-            using (var command = dbConnection.CreateCommand())
-            {
-                command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT COUNT(1)
-                                        FROM [RetryQueueItems]
-                                        WITH (NOLOCK)
-                                        WHERE IdDomainRetryQueue = @IdDomainRetryQueue";
-
-                command.Parameters.AddWithValue("IdDomainRetryQueue", domainRetryQueueId);
-
-                return Convert.ToInt32(await command.ExecuteScalarAsync().ConfigureAwait(false));
             }
         }
 

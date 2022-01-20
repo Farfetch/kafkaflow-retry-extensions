@@ -164,22 +164,26 @@
         {
             Guard.Argument(input).NotNull();
 
-            RetryQueueDbo retryQueueDbo;
-
             using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
             {
-                retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
+                var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
+
+                SaveToQueueResultStatus resultStatus;
 
                 if (retryQueueDbo is null)
                 {
                     await this.CreateItemIntoANewQueueAsync(dbConnection, input).ConfigureAwait(false);
-                    dbConnection.Commit();
-                    return new SaveToQueueResult(SaveToQueueResultStatus.Created);
+                    resultStatus = SaveToQueueResultStatus.Created;
+                }
+                else
+                {
+                    await this.AddItemIntoAnExistingQueueAsync(dbConnection, input, retryQueueDbo).ConfigureAwait(false);
+                    resultStatus = SaveToQueueResultStatus.Added;
                 }
 
-                await this.AddItemIntoAnExistingQueueAsync(dbConnection, input, retryQueueDbo).ConfigureAwait(false);
                 dbConnection.Commit();
-                return new SaveToQueueResult(SaveToQueueResultStatus.Added);
+
+                return new SaveToQueueResult(resultStatus);
             }
         }
 
@@ -242,8 +246,10 @@
             return new UpdateQueuesResult(results);
         }
 
-        private async Task AddItemAsync(IDbConnection dbConnection, SaveToQueueInput input, RetryQueueItemDbo retryQueueItemDbo)
+        private async Task AddItemAsync(IDbConnection dbConnection, SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId)
         {
+            var retryQueueItemDbo = this.retryQueueItemDboFactory.Create(input, retryQueueId, retryQueueDomainId);
+
             var retryQueueItemId = await this.retryQueueItemRepository.AddAsync(dbConnection, retryQueueItemDbo).ConfigureAwait(false);
 
             // queue item message
@@ -257,14 +263,10 @@
 
         private async Task AddItemIntoAnExistingQueueAsync(IDbConnection dbConnection, SaveToQueueInput input, RetryQueueDbo retryQueueDbo)
         {
-            // Gets the total items in the queue.
-            var totalItemsInQueue = await this.retryQueueItemRepository.CountAsync(dbConnection, retryQueueDbo.IdDomain).ConfigureAwait(false);
-
             // Inserts the new item at the last position in the queue.
 
             // queue item
-            var retryQueueItemDbo = this.retryQueueItemDboFactory.Create(input, retryQueueDbo.Id, retryQueueDbo.IdDomain, totalItemsInQueue);
-            await this.AddItemAsync(dbConnection, input, retryQueueItemDbo).ConfigureAwait(false);
+            await this.AddItemAsync(dbConnection, input, retryQueueDbo.Id, retryQueueDbo.IdDomain).ConfigureAwait(false);
 
             // Verifies whether to change the queue status.
             if (retryQueueDbo.Status == RetryQueueStatus.Done)
@@ -282,8 +284,7 @@
             var retryQueueId = await this.retryQueueRepository.AddAsync(dbConnection, retryQueueDbo).ConfigureAwait(false);
 
             // queue item
-            var retryQueueItemDbo = this.retryQueueItemDboFactory.Create(input, retryQueueId, retryQueueDbo.IdDomain);
-            await this.AddItemAsync(dbConnection, input, retryQueueItemDbo).ConfigureAwait(false);
+            await this.AddItemAsync(dbConnection, input, retryQueueId, retryQueueDbo.IdDomain).ConfigureAwait(false);
         }
 
         private bool IsItemInWaitingState(RetryQueueItemDbo item)
