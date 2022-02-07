@@ -119,6 +119,7 @@
                 .Build(
                     this.messageType,
                     retryDurableQueueRepository,
+                    gzipCompressor,
                     utf8Encoder,
                     newtonsoftJsonSerializer,
                     messageAdapter,

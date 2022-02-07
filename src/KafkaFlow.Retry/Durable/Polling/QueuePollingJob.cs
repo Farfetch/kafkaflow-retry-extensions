@@ -63,7 +63,7 @@
             {
                 logHandler.Info(
                     "PollingJob starts execution",
-                    new 
+                    new
                     {
                         Name = context.Trigger.Key.Name
                     }
@@ -143,7 +143,7 @@
                             await retryDurableProducer
                                 .ProduceAsync(
                                     item.Message.Key,
-                                    messageAdapter.AdaptMessageFromRepository(item.Message.Value),
+                                    item.Message.Value,
                                     this.GetMessageHeaders(messageHeadersAdapter, utf8Encoder, queue.Id, item)
                                 ).ConfigureAwait(false);
 
@@ -162,9 +162,9 @@
                         catch (Exception ex)
                         {
                             logHandler.Error(
-                                "Exception on queue PollingJob execution producing to retry topic", 
-                                ex, 
-                                new 
+                                "Exception on queue PollingJob execution producing to retry topic",
+                                ex,
+                                new
                                 {
                                     ItemId = item.Id,
                                     QueueId = queue.Id
@@ -173,7 +173,7 @@
                             await retryDurableQueueRepository
                                 .UpdateItemAsync(
                                     new UpdateItemStatusInput(
-                                        item.Id, 
+                                        item.Id,
                                         RetryQueueItemStatus.Waiting))
                                 .ConfigureAwait(false);
 
