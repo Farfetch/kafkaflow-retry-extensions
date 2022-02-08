@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using System.Threading.Tasks;
+    using Dawn;
     using KafkaFlow.Retry.Durable.Compression;
 
     internal class RetryDurableConsumerCompressorMiddleware : IMessageMiddleware
@@ -9,6 +10,8 @@
 
         public RetryDurableConsumerCompressorMiddleware(IGzipCompressor gzipCompressor)
         {
+            Guard.Argument(gzipCompressor).NotNull();
+
             this.gzipCompressor = gzipCompressor;
         }
 

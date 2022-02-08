@@ -2,6 +2,7 @@
 {
     using System;
     using System.Threading.Tasks;
+    using Dawn;
     using KafkaFlow.Retry.Durable.Serializers;
 
     internal class RetryDurableConsumerNewtonsoftJsonSerializerMiddleware : IMessageMiddleware
@@ -11,7 +12,11 @@
 
         public RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(INewtonsoftJsonSerializer newtonsoftJsonSerializer, Type type)
         {
-            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer; this.type = type;
+            Guard.Argument(newtonsoftJsonSerializer).NotNull();
+            Guard.Argument(type).NotNull();
+
+            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+            this.type = type;
         }
 
         public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
