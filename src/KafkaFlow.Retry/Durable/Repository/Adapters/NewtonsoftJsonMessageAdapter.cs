@@ -20,11 +20,6 @@
             this.utf8Encoder = utf8Encoder;
         }
 
-        public byte[] AdaptMessageFromRepository(byte[] message)
-        {
-            return this.gzipCompressor.Decompress(message);
-        }
-
         public byte[] AdaptMessageToRepository(object message)
         {
             var messageSerialized = this.newtonsoftJsonSerializer.SerializeObject(message);

@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.Durable
 {
     using System.Threading.Tasks;
+    using Dawn;
     using KafkaFlow.Retry.Durable.Encoders;
 
     internal class RetryDurableConsumerUtf8EncoderMiddleware : IMessageMiddleware
@@ -9,6 +10,8 @@
 
         public RetryDurableConsumerUtf8EncoderMiddleware(IUtf8Encoder utf8Encoder)
         {
+            Guard.Argument(utf8Encoder).NotNull();
+
             this.utf8Encoder = utf8Encoder;
         }
 

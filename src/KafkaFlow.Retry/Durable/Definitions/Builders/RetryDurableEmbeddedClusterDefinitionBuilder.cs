@@ -6,6 +6,7 @@
     using KafkaFlow.Configuration;
     using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
+    using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Polling;
@@ -69,6 +70,7 @@
         internal void Build(
             Type messageType,
             IRetryDurableQueueRepository retryDurableQueueRepository,
+            IGzipCompressor gzipCompressor,
             IUtf8Encoder utf8Encoder,
             INewtonsoftJsonSerializer newtonsoftJsonSerializer,
             IMessageAdapter messageAdapter,
@@ -139,6 +141,7 @@
                             })
                         .AddMiddlewares(
                             middlewares => middlewares
+                                .Add(resolver => new RetryDurableConsumerCompressorMiddleware(gzipCompressor))
                                 .Add(resolver => new RetryDurableConsumerUtf8EncoderMiddleware(utf8Encoder))
                                 .Add(resolver => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(newtonsoftJsonSerializer, messageType))
                                 .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
