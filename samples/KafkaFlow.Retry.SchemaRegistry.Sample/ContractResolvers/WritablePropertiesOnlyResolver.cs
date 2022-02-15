@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.Durable.Serializers.Resolvers
+﻿namespace KafkaFlow.Retry.SchemaRegistry.Sample.ContractResolvers
 {
     using System;
     using System.Collections.Generic;
@@ -6,7 +6,7 @@
     using Newtonsoft.Json;
     using Newtonsoft.Json.Serialization;
 
-    public class WritablePropertiesOnlyResolver : DefaultContractResolver
+    internal class WritablePropertiesOnlyResolver : DefaultContractResolver
     {
         protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
         {

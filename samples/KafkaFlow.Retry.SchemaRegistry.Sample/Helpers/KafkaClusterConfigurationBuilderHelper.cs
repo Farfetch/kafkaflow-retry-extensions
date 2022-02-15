@@ -5,11 +5,12 @@
     using Confluent.SchemaRegistry.Serdes;
     using global::SchemaRegistry;
     using KafkaFlow.Configuration;
-    using KafkaFlow.Retry.Durable.Serializers.Resolvers;
     using KafkaFlow.Retry.MongoDb;
+    using KafkaFlow.Retry.SchemaRegistry.Sample.ContractResolvers;
     using KafkaFlow.Retry.SchemaRegistry.Sample.Exceptions;
     using KafkaFlow.Retry.SchemaRegistry.Sample.Handlers;
     using KafkaFlow.TypedHandler;
+    using Newtonsoft.Json;
 
     internal static class KafkaClusterConfigurationBuilderHelper
     {
@@ -51,7 +52,7 @@
                                     configure => configure
                                         .Handle<RetryDurableTestException>()
                                         .WithMessageType(typeof(AvroLogMessage))
-                                        .WithMessageSerializeSettings(new Newtonsoft.Json.JsonSerializerSettings
+                                        .WithMessageSerializeSettings(new JsonSerializerSettings
                                         {
                                             ContractResolver = new WritablePropertiesOnlyResolver()
                                         })
