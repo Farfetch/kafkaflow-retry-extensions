@@ -2,7 +2,7 @@ name: Build
 
 on:
   push:
-    branches: [ master ]
+    branches: [ main ]
     paths-ignore:
       - '**/README.md'
   pull_request:
@@ -91,7 +91,7 @@ jobs:
         fi
 
         
-        if [[ $BRANCH_NAME = 'master' ]]; then
+        if [[ $BRANCH_NAME = 'main' ]]; then
           echo '::set-output name=context::release'
         elif [[ $NEXT_VERSION != $CURRENT ]]; then
           NEXT_VERSION="$NEXT_VERSION-beta"
