@@ -23,6 +23,5 @@
     <ProjectReference Include="..\..\src\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj" />
     <ProjectReference Include="..\..\src\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj" />
     <ProjectReference Include="..\..\src\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
-    <ProjectReference Include="..\KafkaFlow.Retry.Common.Sample\KafkaFlow.Retry.Common.Sample.csproj" />
   </ItemGroup>
 </Project>
