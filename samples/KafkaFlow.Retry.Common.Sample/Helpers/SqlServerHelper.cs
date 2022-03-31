@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.Sample.Helpers
+﻿namespace KafkaFlow.Retry.Common.Sample.Helpers
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
@@ -7,9 +7,9 @@
     using System.Reflection;
     using System.Threading.Tasks;
 
-    internal static class SqlServerHelper
+    public static class SqlServerHelper
     {
-        internal static async Task RecreateSqlSchema(string databaseName, string connectionString)
+        public static async Task RecreateSqlSchema(string databaseName, string connectionString)
         {
             using (SqlConnection openCon = new SqlConnection(connectionString))
             {

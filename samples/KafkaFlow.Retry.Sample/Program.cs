@@ -8,6 +8,7 @@
     using global::Microsoft.Extensions.DependencyInjection;
     using KafkaFlow;
     using KafkaFlow.Producers;
+    using KafkaFlow.Retry.Common.Sample.Helpers;
     using KafkaFlow.Retry.Sample.Helpers;
     using KafkaFlow.Retry.Sample.Messages;
 
