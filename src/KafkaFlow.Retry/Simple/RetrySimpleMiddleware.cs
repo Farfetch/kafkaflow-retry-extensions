@@ -51,9 +51,8 @@
                             }
                         }
 
-                        this.logHandler.Error(
+                        this.logHandler.Verbose(
                             $"Exception captured by {nameof(RetrySimpleMiddleware)}. Retry in process.",
-                            exception,
                             new
                             {
                                 AttemptNumber = attemptNumber,
@@ -63,7 +62,7 @@
                                 //Headers = context.HeadersAsJson(),
                                 //Message = context.Message.ToJson(),
                                 ExceptionType = exception.GetType().FullName,
-                                //ExceptionMessage = exception.Message
+                                ExceptionMessage = exception.Message
                             });
                     }
                 );
