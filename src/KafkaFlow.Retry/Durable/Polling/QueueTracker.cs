@@ -11,7 +11,7 @@
 
     internal class QueueTracker
     {
-        private static object internalLock = new object();
+        private static readonly object internalLock = new object();
         private readonly ILogHandler logHandler;
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
@@ -67,14 +67,16 @@
                 .GetAwaiter()
                 .GetResult();
 
-            JobDataMap dataMap = new JobDataMap();
-            dataMap.Add(QueuePollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
-            dataMap.Add(QueuePollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer);
-            dataMap.Add(QueuePollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition);
-            dataMap.Add(QueuePollingJobConstants.LogHandler, this.logHandler);
-            dataMap.Add(QueuePollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter);
-            dataMap.Add(QueuePollingJobConstants.MessageAdapter, this.messageAdapter);
-            dataMap.Add(QueuePollingJobConstants.Utf8Encoder, this.utf8Encoder);
+            JobDataMap dataMap = new JobDataMap
+            {
+                { QueuePollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository },
+                { QueuePollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer },
+                { QueuePollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition },
+                { QueuePollingJobConstants.LogHandler, this.logHandler },
+                { QueuePollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter },
+                { QueuePollingJobConstants.MessageAdapter, this.messageAdapter },
+                { QueuePollingJobConstants.Utf8Encoder, this.utf8Encoder }
+            };
 
             IJobDetail job = JobBuilder
                 .Create<QueuePollingJob>()
@@ -96,8 +98,8 @@
                 .GetResult();
 
             this.logHandler.Info(
-                "PollingJob Schedule", 
-                new 
+                "PollingJob Schedule",
+                new
                 {
                     PollingId = this.retryDurablePollingDefinition.Id,
                     CronExpression = this.retryDurablePollingDefinition.CronExpression
@@ -118,7 +120,7 @@
                 }
             }
 
-            this.logHandler.Info("PollingJob Shutdown", new {});
+            this.logHandler.Info("PollingJob Shutdown", new { });
         }
     }
 }

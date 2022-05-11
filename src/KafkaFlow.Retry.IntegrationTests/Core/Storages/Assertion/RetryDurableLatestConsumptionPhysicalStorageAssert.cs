@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Threading.Tasks;
     using KafkaFlow.Retry.Durable.Repository.Model;
@@ -16,6 +17,37 @@
         public RetryDurableLatestConsumptionPhysicalStorageAssert(IRepositoryProvider repositoryProvider)
         {
             this.repositoryProvider = repositoryProvider;
+        }
+
+        public async Task AssertEmptyKeyRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int retryCount)
+        {
+            var retryQueue = await this
+                .repositoryProvider
+                .GetRepositoryOfType(repositoryType)
+                .GetRetryQueueAsync(message.Key).ConfigureAwait(false);
+
+            Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Retrying Get Retry Queue cannot be asserted.");
+
+            var retryQueueItems = await this
+                .repositoryProvider
+                .GetRepositoryOfType(repositoryType)
+                .GetRetryQueueItemsAsync(
+                retryQueue.Id,
+                rqi =>
+                {
+                    return rqi.Count(item => item.Status == RetryQueueItemStatus.Waiting) != retryCount;
+                }).ConfigureAwait(false);
+
+            var lastRetryItem = retryQueueItems.OrderBy(x => x.Sort).Last();
+            var numberOrRetryItems = retryQueueItems.Count();
+            var maxSortValue = retryQueueItems.Max(i => i.Sort);
+            var cancelledRetryItems = retryQueueItems.Except(new List<RetryQueueItem> { lastRetryItem });
+
+            Assert.True(retryQueueItems != null, "Retry Durable Retrying Get Retry Queue Item Message cannot be asserted.");
+            Assert.True(Enum.Equals(retryQueue.Status, RetryQueueStatus.Active), "Actual retry queue should be in active state");
+            Assert.Equal(numberOrRetryItems - 1, maxSortValue);
+            Assert.Equal(RetryQueueItemStatus.Waiting, lastRetryItem.Status);
+            Assert.All(cancelledRetryItems, i => Enum.Equals(i.Status, RetryQueueItemStatus.Cancelled));
         }
 
         public async Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int count)

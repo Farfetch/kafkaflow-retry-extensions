@@ -89,7 +89,7 @@ Install packages related to your context. The Core package is required for all o
                         .WithRetryTopicName("test-topic-retry")
                         .WithRetryConsumerBufferSize(4)
                         .WithRetryConsumerWorkersCount(2)
-                        .WithRetryConusmerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
+                        .WithRetryConsumerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
                         .WithRetryTypedHandlers(
                             handlers => handlers
                                 .WithHandlerLifetime(InstanceLifetime.Transient)

@@ -1,6 +1,8 @@
 namespace KafkaFlow.Retry.IntegrationTests
 {
-    using AutoFixture;
+    using System;
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
     using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
@@ -8,20 +10,16 @@ namespace KafkaFlow.Retry.IntegrationTests
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
     using Microsoft.Extensions.DependencyInjection;
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
     using Xunit;
 
     [Collection("BootstrapperHostCollection")]
-    public class RetryDurableTests
+    public class EmptyPartitionKeyRetryDurableTests
     {
-        private readonly Fixture fixture = new Fixture();
+        private const int defaultWaitingTimeSeconds = 120;
         private readonly IRepositoryProvider repositoryProvider;
         private readonly IServiceProvider serviceProvider;
 
-        public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
+        public EmptyPartitionKeyRetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
             this.serviceProvider = bootstrapperHostFixture.ServiceProvider;
             this.repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
@@ -29,21 +27,21 @@ namespace KafkaFlow.Retry.IntegrationTests
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
         }
 
-        public static IEnumerable<object[]> Scenarios()
+        public static IEnumerable<object[]> EmptyKeyScenarios()
         {
             yield return new object[]
             {
                 RepositoryType.MongoDb,
                 typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>),
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
-                10
+                3 //numberOfMessagesToBeProduced
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
                 typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>),
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
-                10
+                3
             };
             yield return new object[]
             {
@@ -62,69 +60,61 @@ namespace KafkaFlow.Retry.IntegrationTests
         }
 
         [Theory]
-        [MemberData(nameof(Scenarios))]
-        internal async Task RetryDurableTest(
+        [MemberData(nameof(EmptyKeyScenarios))]
+        internal async Task EmptyKeyRetryDurableTest(
             RepositoryType repositoryType,
             Type producerType,
             Type physicalStorageType,
-            int numberOfTimesThatEachMessageIsTriedWhenDone)
+            int numberOfMessagesToBeProduced)
         {
             // Arrange
-            var numberOfMessages = 5;
-            var numberOfMessagesByEachSameKey = 10;
-            var numberOfTimesThatEachMessageIsTriedBeforeDurable = 4;
-            var numberOfTimesThatEachMessageIsTriedDuringDurable = 2;
+            var numberOfMessagesByEachSameKey = 1;
+            var numberOfTimesThatEachMessageIsTriedWhenDone = 1;
+            var numberOfTimesThatEachMessageIsTriedDuringDurable = 1;
             var producer = this.serviceProvider.GetRequiredService(producerType) as IMessageProducer;
             var physicalStorageAssert = this.serviceProvider.GetRequiredService(physicalStorageType) as IPhysicalStorageAssert;
-            var messages = this.fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
+            var messages = new List<RetryDurableTestMessage>();
+            for (int i = 0; i < numberOfMessagesToBeProduced; i++)
+            {
+                messages.Add(new RetryDurableTestMessage { Key = string.Empty, Value = $"Message_{i + 1}" });
+            }
+
             await this.repositoryProvider.GetRepositoryOfType(repositoryType).CleanDatabaseAsync().ConfigureAwait(false);
+
             // Act
-            messages.ForEach(
-                m =>
-                {
-                    for (int i = 0; i < numberOfMessagesByEachSameKey; i++)
-                    {
-                        producer.Produce(m.Key, m);
-                    }
-                });
-
-            // Assert - Creation
             foreach (var message in messages)
             {
-                await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedBeforeDurable).ConfigureAwait(false);
+                await producer.ProduceAsync(message.Key, message).ConfigureAwait(false);
             }
 
-            foreach (var message in messages)
-            {
-                await physicalStorageAssert.AssertRetryDurableMessageCreationAsync(repositoryType, message, numberOfMessagesByEachSameKey).ConfigureAwait(false);
-            }
+            RetryDurableTestMessage messageToValidate = messages[0];
+
+            await physicalStorageAssert
+                .AssertEmptyKeyRetryDurableMessageRetryingAsync(repositoryType, messageToValidate, numberOfMessagesByEachSameKey)
+                .ConfigureAwait(false);
 
             // Assert - Retrying
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
 
-            foreach (var message in messages)
-            {
-                await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
-            }
+            await InMemoryAuxiliarStorage<RetryDurableTestMessage>
+                .AssertEmptyPartitionKeyCountMessageAsync(messageToValidate, numberOfTimesThatEachMessageIsTriedDuringDurable, defaultWaitingTimeSeconds)
+                .ConfigureAwait(false);
 
-            foreach (var message in messages)
-            {
-                await physicalStorageAssert.AssertRetryDurableMessageRetryingAsync(repositoryType, message, numberOfTimesThatEachMessageIsTriedDuringDurable).ConfigureAwait(false);
-            }
+            await physicalStorageAssert
+                .AssertEmptyKeyRetryDurableMessageRetryingAsync(repositoryType, messageToValidate, numberOfTimesThatEachMessageIsTriedDuringDurable)
+                .ConfigureAwait(false);
 
             // Assert - Done
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = false;
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
 
-            foreach (var message in messages)
-            {
-                await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedWhenDone).ConfigureAwait(false);
-            }
+            await InMemoryAuxiliarStorage<RetryDurableTestMessage>
+                .AssertEmptyPartitionKeyCountMessageAsync(messageToValidate, numberOfTimesThatEachMessageIsTriedWhenDone, defaultWaitingTimeSeconds)
+                .ConfigureAwait(false);
 
-            foreach (var message in messages)
-            {
-                await physicalStorageAssert.AssertRetryDurableMessageDoneAsync(repositoryType, message).ConfigureAwait(false);
-            }
+            await physicalStorageAssert
+                .AssertRetryDurableMessageDoneAsync(repositoryType, messageToValidate)
+                .ConfigureAwait(false);
         }
     }
 }

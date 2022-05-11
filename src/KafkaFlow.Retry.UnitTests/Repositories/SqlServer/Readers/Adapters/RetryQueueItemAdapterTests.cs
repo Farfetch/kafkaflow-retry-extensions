@@ -1,10 +1,11 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers.Adapters
 {
-    using System;
     using FluentAssertions;
+    using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using global::KafkaFlow.Retry.SqlServer.Model;
     using global::KafkaFlow.Retry.SqlServer.Readers.Adapters;
+    using System;
     using Xunit;
 
     public class RetryQueueItemAdapterTests
@@ -26,7 +27,7 @@
                 ModifiedStatusDate = DateTime.UtcNow,
                 AttemptsCount = 1,
                 RetryQueueId = 1,
-                SeverityLevel = Durable.Common.SeverityLevel.High,
+                SeverityLevel = SeverityLevel.High,
                 Sort = 1,
                 Status = RetryQueueItemStatus.InRetry
             };

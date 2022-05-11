@@ -11,24 +11,24 @@
     internal static class InMemoryAuxiliarStorage<T> where T : ITestMessage
     {
         private const int TimeoutSec = 60;
-        private static readonly ConcurrentBag<T> Message = new ConcurrentBag<T>();
+        private static readonly ConcurrentBag<T> Messages = new ConcurrentBag<T>();
 
         public static bool ThrowException { get; set; }
 
         public static void Add(T message)
         {
-            Message.Add(message);
+            Messages.Add(message);
         }
 
         public static async Task AssertCountMessageAsync(T message, int count)
         {
             var start = DateTime.Now;
 
-            while (Message.Count(x => x.Key == message.Key && x.Value == message.Value) != count)
+            while (Messages.Count(x => x.Key == message.Key && x.Value == message.Value) != count)
             {
                 if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
                 {
-                    Assert.True(false, "Message not received.");
+                    Assert.True(false, $"Message not received - {message.Key}:{message.Value}.");
                     return;
                 }
 
@@ -36,9 +36,27 @@
             }
         }
 
+        public static async Task AssertEmptyPartitionKeyCountMessageAsync(T message, int count, int timoutSeconds = TimeoutSec)
+        {
+            var start = DateTime.Now;
+            int numberOfMessages = 0;
+            do
+            {
+                numberOfMessages = Messages.Count(x => x.Value == message.Value);
+
+                if (DateTime.Now.Subtract(start).TotalSeconds > timoutSeconds && !Debugger.IsAttached)
+                {
+                    Assert.True(false, $"Message {message.Key}:{message.Value} not received. Expected {count}, messages received {numberOfMessages}");
+                    return;
+                }
+
+                await Task.Delay(1000).ConfigureAwait(false);
+            } while (numberOfMessages != count);
+        }
+
         public static void Clear()
         {
-            Message.Clear();
+            Messages.Clear();
         }
     }
 }

@@ -1,13 +1,14 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Adapters
 {
-    using System;
-    using System.Collections.Generic;
     using FluentAssertions;
+    using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
     using global::KafkaFlow.Retry.MongoDb.Adapters;
     using global::KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
     using global::KafkaFlow.Retry.MongoDb.Model;
     using Moq;
+    using System;
+    using System.Collections.Generic;
     using Xunit;
 
     public class ItemAdapterTests
@@ -48,7 +49,7 @@
                     Value = new byte[] { 2, 4, 6 }
                 },
                 RetryQueueId = Guid.NewGuid(),
-                SeverityLevel = Durable.Common.SeverityLevel.High,
+                SeverityLevel = SeverityLevel.High,
                 Sort = 0
             };
 
