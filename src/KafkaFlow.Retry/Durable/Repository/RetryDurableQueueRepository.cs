@@ -289,15 +289,7 @@
 
         private string GetQueueGroupKey(object messageKey)
         {
-            string messageKeyAsString;
-            if (messageKey is null)
-            {
-                messageKeyAsString = string.Empty;
-            }
-            else
-            {
-                messageKeyAsString = utf8Encoder.Decode((byte[])messageKey);
-            }
+            var messageKeyAsString = messageKey is null ? string.Empty : utf8Encoder.Decode((byte[])messageKey);
 
             return $"{this.retryDurablePollingDefinition.Id}-{messageKeyAsString}";
         }
