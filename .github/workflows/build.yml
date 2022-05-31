@@ -35,7 +35,8 @@ jobs:
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        ref: ${{ env.BRANCH_NAME }}
+        ref: ${{github.event.pull_request.head.ref}}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
       
     - name: Commit Lint
       uses: wagoid/commitlint-github-action@v3.1.4
