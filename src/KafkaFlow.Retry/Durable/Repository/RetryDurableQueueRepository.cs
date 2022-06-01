@@ -245,11 +245,7 @@
 
         private RetryQueueItemMessage CreateRetryQueueItemMessage(IMessageContext context)
         {
-            var partitionKey = default(byte[]);
-            if (context.Message.Key is object)
-            {
-                partitionKey = Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(context.Message.Key));
-            }
+            var partitionKey = context.Message.Key is object ? Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(context.Message.Key)) : new byte[0];
 
             var message = this.messageAdapter.AdaptMessageToRepository(context.Message.Value);
             var headers = this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers);
@@ -311,7 +307,7 @@
 
                 return result;
             }
-            catch (System.Text.DecoderFallbackException ex)
+            catch (DecoderFallbackException ex)
             {
                 var unrecoverableException = new RetryDurableException(
                     new RetryError(RetryErrorCode.DataProvider_UnrecoverableException),
