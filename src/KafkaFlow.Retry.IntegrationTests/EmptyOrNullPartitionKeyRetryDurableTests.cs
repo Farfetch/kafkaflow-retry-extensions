@@ -239,6 +239,8 @@ namespace KafkaFlow.Retry.IntegrationTests
         {
             public byte[] Serialize(RetryDurableTestMessage data, SerializationContext context)
             {
+                _ = context;
+
                 if (data == null)
                 {
                     return null;
