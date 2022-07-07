@@ -31,7 +31,7 @@ namespace KafkaFlow.Retry.IntegrationTests
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
             this.bootstrapperHostFixture = bootstrapperHostFixture;
 
-            BootstrapperKafka.RecreateKafkaTopicsAsync(bootstrapperHostFixture.KafkaSettings.Brokers, new string[] {
+            BootstrapperKafka.RecreateKafkaTopicsAsync(bootstrapperHostFixture.KafkaSettings.Brokers, new[] {
                 "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
                 "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
                 "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
@@ -172,7 +172,7 @@ namespace KafkaFlow.Retry.IntegrationTests
             Error actualError = null;
             var producer = new ProducerBuilder<string, RetryDurableTestMessage>(config)
                 .SetValueSerializer(new RetryDurableTestMessageSerializer())
-                .SetErrorHandler((producer, error) =>
+                .SetErrorHandler((_, error) =>
                 {
                     actualError = error;
                 })
