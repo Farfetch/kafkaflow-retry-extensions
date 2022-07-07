@@ -16,25 +16,21 @@ namespace KafkaFlow.Retry.IntegrationTests
     using Xunit;
 
     [Collection("BootstrapperHostCollection")]
-    public class EmptyPartitionKeyRetryDurableTests
+    public class EmptyOrNullPartitionKeyRetryDurableTests
     {
         private const int defaultWaitingTimeSeconds = 240;
         private readonly BootstrapperHostFixture bootstrapperHostFixture;
         private readonly IRepositoryProvider repositoryProvider;
         private readonly IServiceProvider serviceProvider;
-        private RepositoryType testRepositoryType;
 
-        public EmptyPartitionKeyRetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
+        public EmptyOrNullPartitionKeyRetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
             this.serviceProvider = bootstrapperHostFixture.ServiceProvider;
             this.repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
             this.bootstrapperHostFixture = bootstrapperHostFixture;
-        }
 
-        ~EmptyPartitionKeyRetryDurableTests()
-        {
             BootstrapperKafka.RecreateKafkaTopicsAsync(bootstrapperHostFixture.KafkaSettings.Brokers, new string[] {
                 "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
                 "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
@@ -48,7 +44,8 @@ namespace KafkaFlow.Retry.IntegrationTests
             .GetAwaiter()
             .GetResult();
 
-            repositoryProvider.GetRepositoryOfType(testRepositoryType).CleanDatabaseAsync().GetAwaiter().GetResult();
+            repositoryProvider.GetRepositoryOfType(RepositoryType.MongoDb).CleanDatabaseAsync().GetAwaiter().GetResult();
+            repositoryProvider.GetRepositoryOfType(RepositoryType.SqlServer).CleanDatabaseAsync().GetAwaiter().GetResult();
         }
 
         public static IEnumerable<object[]> EmptyKeyScenarios()
@@ -124,7 +121,6 @@ namespace KafkaFlow.Retry.IntegrationTests
             int numberOfMessagesToBeProduced)
         {
             // Arrange
-            testRepositoryType = repositoryType;
             var numberOfMessagesByEachSameKey = 1;
             var numberOfTimesThatEachMessageIsTriedWhenDone = 1;
             var numberOfTimesThatEachMessageIsTriedDuringDurable = 1;
@@ -164,7 +160,6 @@ namespace KafkaFlow.Retry.IntegrationTests
             int numberOfMessagesToBeProduced)
         {
             // Arrange
-            testRepositoryType = repositoryType;
             var numberOfMessagesByEachSameKey = 1;
             var numberOfTimesThatEachMessageIsTriedWhenDone = 1;
             var numberOfTimesThatEachMessageIsTriedDuringDurable = 1;
@@ -240,7 +235,7 @@ namespace KafkaFlow.Retry.IntegrationTests
                 .ConfigureAwait(false);
         }
 
-        private class RetryDurableTestMessageSerializer : Confluent.Kafka.ISerializer<RetryDurableTestMessage>
+        private class RetryDurableTestMessageSerializer : ISerializer<RetryDurableTestMessage>
         {
             public byte[] Serialize(RetryDurableTestMessage data, SerializationContext context)
             {
