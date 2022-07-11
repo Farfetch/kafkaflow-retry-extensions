@@ -21,6 +21,15 @@ Here are a few things you can do that will increase the likelihood of your pull 
 -   Write [good commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 -   Open a pull request with a title following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
+## Merging a pull request
+
+In order to merge the pull request, you need to ensure:
+
+- Have at least 2 approvals
+- Last build pipeline must be successful
+- Set the pull request to squash the commits to the `main` branch
+- Write a [good squash commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+
 ## Resources
 
 -   [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
