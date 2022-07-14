@@ -50,7 +50,25 @@
                 "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
                 "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db-retry",
                 "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
-                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry"
+                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry",
+
+                "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-mongo-db",
+                "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-sql-server",
+                "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+                "test-kafka-flow-retry-empty-retry-durable-latest-consumption-mongo-db",
+                "test-kafka-flow-retry-empty-retry-durable-latest-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-empty-retry-durable-latest-consumption-sql-server",
+                "test-kafka-flow-retry-empty-retry-durable-latest-consumption-sql-server-retry",
+
+                "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db",
+                "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server",
+                "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+                "test-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db",
+                "test-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server",
+                "test-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server-retry"
             };
 
             await BootstrapperKafka.RecreateKafkaTopicsAsync(this.KafkaSettings.Brokers, topics);

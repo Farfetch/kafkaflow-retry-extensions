@@ -5,7 +5,6 @@ namespace KafkaFlow.Retry.IntegrationTests
     using System.Text;
     using System.Threading.Tasks;
     using Confluent.Kafka;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers;
     using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
@@ -13,6 +12,7 @@ namespace KafkaFlow.Retry.IntegrationTests
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
     using Microsoft.Extensions.DependencyInjection;
+    using Newtonsoft.Json;
     using Xunit;
 
     [Collection("BootstrapperHostCollection")]
@@ -31,19 +31,6 @@ namespace KafkaFlow.Retry.IntegrationTests
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
             this.bootstrapperHostFixture = bootstrapperHostFixture;
 
-            BootstrapperKafka.RecreateKafkaTopicsAsync(bootstrapperHostFixture.KafkaSettings.Brokers, new[] {
-                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
-                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
-                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
-                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server-retry",
-                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
-                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db-retry",
-                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
-                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry"
-            })
-            .GetAwaiter()
-            .GetResult();
-
             repositoryProvider.GetRepositoryOfType(RepositoryType.MongoDb).CleanDatabaseAsync().GetAwaiter().GetResult();
             repositoryProvider.GetRepositoryOfType(RepositoryType.SqlServer).CleanDatabaseAsync().GetAwaiter().GetResult();
         }
@@ -53,28 +40,28 @@ namespace KafkaFlow.Retry.IntegrationTests
             yield return new object[]
             {
                 RepositoryType.MongoDb,
-                typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>),
+                typeof(IMessageProducer<EmptyRetryDurableGuaranteeOrderedConsumptionMongoDbProducer>),
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 3 //numberOfMessagesToBeProduced
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
-                typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>),
+                typeof(IMessageProducer<EmptyRetryDurableGuaranteeOrderedConsumptionSqlServerProducer>),
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 3
             };
             yield return new object[]
             {
                 RepositoryType.MongoDb,
-                typeof(IMessageProducer<RetryDurableLatestConsumptionMongoDbProducer>),
+                typeof(IMessageProducer<EmptyRetryDurableLatestConsumptionMongoDbProducer>),
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
-                typeof(IMessageProducer<RetryDurableLatestConsumptionSqlServerProducer>),
+                typeof(IMessageProducer<EmptyRetryDurableLatestConsumptionSqlServerProducer>),
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
             };
@@ -85,29 +72,29 @@ namespace KafkaFlow.Retry.IntegrationTests
             yield return new object[]
             {
                 RepositoryType.MongoDb,
-                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
-                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
+                typeof(NullRetryDurableGuaranteeOrderedConsumptionMongoDbProducer),
+                "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db",
                 2 //numberOfMessagesToBeProduced
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
-                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
-                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
+                typeof(NullRetryDurableGuaranteeOrderedConsumptionSqlServerProducer),
+                "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server",
                 2
             };
             yield return new object[]
             {
                 RepositoryType.MongoDb,
-                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
-                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
+                typeof(NullRetryDurableLatestConsumptionMongoDbProducer),
+                "test-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db",
                 1
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
-                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
-                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
+                typeof(NullRetryDurableLatestConsumptionSqlServerProducer),
+                "test-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server",
                 1
             };
         }
@@ -246,7 +233,7 @@ namespace KafkaFlow.Retry.IntegrationTests
                     return null;
                 }
 
-                return Encoding.UTF8.GetBytes(Newtonsoft.Json.JsonConvert.SerializeObject(data));
+                return Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(data));
             }
         }
     }
