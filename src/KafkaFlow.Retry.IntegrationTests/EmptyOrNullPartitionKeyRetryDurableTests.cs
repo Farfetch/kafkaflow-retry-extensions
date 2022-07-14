@@ -72,28 +72,28 @@ namespace KafkaFlow.Retry.IntegrationTests
             yield return new object[]
             {
                 RepositoryType.MongoDb,
-                typeof(NullRetryDurableGuaranteeOrderedConsumptionMongoDbProducer),
+                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db",
                 2 //numberOfMessagesToBeProduced
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
-                typeof(NullRetryDurableGuaranteeOrderedConsumptionSqlServerProducer),
+                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server",
                 2
             };
             yield return new object[]
             {
                 RepositoryType.MongoDb,
-                typeof(NullRetryDurableLatestConsumptionMongoDbProducer),
+                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 "test-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db",
                 1
             };
             yield return new object[]
             {
                 RepositoryType.SqlServer,
-                typeof(NullRetryDurableLatestConsumptionSqlServerProducer),
+                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 "test-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server",
                 1
             };
