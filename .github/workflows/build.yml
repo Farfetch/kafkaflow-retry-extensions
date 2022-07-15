@@ -162,7 +162,7 @@ jobs:
         auto create topic: "true" # Optional, auto create kafka topic
 
     - name: Test
-      run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
+      run: dotnet test --no-build  -c Release --verbosity detailed --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
       
     # - name: Merge coverage results
     #   run: |
