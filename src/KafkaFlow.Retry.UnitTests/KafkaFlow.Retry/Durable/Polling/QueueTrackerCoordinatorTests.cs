@@ -3,11 +3,9 @@
     using System;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions;
-    using global::KafkaFlow.Retry.Durable.Encoders;
     using global::KafkaFlow.Retry.Durable.Polling;
-    using global::KafkaFlow.Retry.Durable.Repository;
-    using global::KafkaFlow.Retry.Durable.Repository.Adapters;
     using Moq;
+    using Quartz;
     using Xunit;
 
     public class QueueTrackerCoordinatorTests
@@ -34,19 +32,16 @@
             queueTrackerFactory
                 .Setup(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new QueueTracker(
-                    Mock.Of<IRetryDurableQueueRepository>(),
                     Mock.Of<ILogHandler>(),
-                    Mock.Of<IMessageHeadersAdapter>(),
-                    Mock.Of<IMessageAdapter>(),
-                    Mock.Of<IUtf8Encoder>(),
-                    Mock.Of<IMessageProducer>(),
-                    retryDurablePollingDefinition
+                    retryDurablePollingDefinition,
+                    Mock.Of<IJobDetailProvider>(),
+                    Mock.Of<ITriggerProvider>()
                     ));
 
             var coordinator = new QueueTrackerCoordinator(queueTrackerFactory.Object);
 
             // Act
-            coordinator.Initialize(retryDurablePollingDefinition,
+            coordinator.ScheduleJob(retryDurablePollingDefinition,
                                 mockIMessageProducer.Object,
                                 mockILogHandler.Object);
 
@@ -58,26 +53,38 @@
         public void QueueTrackerCoordinator_Shutdown_Success()
         {
             // Arrange
+            var mockIJobDetailProvider = new Mock<IJobDetailProvider>();
+            mockIJobDetailProvider
+                .Setup(x => x.GetQueuePollingJobDetail())
+                .Returns(Mock.Of<IJobDetail>());
+
+            var mockITrigger = new Mock<ITrigger>();
+            mockITrigger
+                .SetupGet(x => x.Key)
+                .Returns(new TriggerKey(String.Empty));
+
+            var mockITriggerProvider = new Mock<ITriggerProvider>();
+            mockITriggerProvider
+                .Setup(x => x.GetQueuePollingTrigger())
+                .Returns(mockITrigger.Object);
+
             queueTrackerFactory
                 .Setup(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new QueueTracker(
-                    Mock.Of<IRetryDurableQueueRepository>(),
                     Mock.Of<ILogHandler>(),
-                    Mock.Of<IMessageHeadersAdapter>(),
-                    Mock.Of<IMessageAdapter>(),
-                    Mock.Of<IUtf8Encoder>(),
-                    Mock.Of<IMessageProducer>(),
-                    retryDurablePollingDefinition
+                    retryDurablePollingDefinition,
+                    mockIJobDetailProvider.Object,
+                    mockITriggerProvider.Object
                     ));
 
             var coordinator = new QueueTrackerCoordinator(queueTrackerFactory.Object);
 
             // Act
-            coordinator.Initialize(
+            coordinator.ScheduleJob(
                         retryDurablePollingDefinition,
                         mockIMessageProducer.Object,
                         mockILogHandler.Object);
-            coordinator.Shutdown();
+            coordinator.UnscheduleJob();
 
             //Assert
             queueTrackerFactory.Verify(d => d.Create(It.IsAny<RetryDurablePollingDefinition>(), It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);

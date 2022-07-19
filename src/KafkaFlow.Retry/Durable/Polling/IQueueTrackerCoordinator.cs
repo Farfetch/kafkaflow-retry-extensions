@@ -4,11 +4,11 @@
 
     internal interface IQueueTrackerCoordinator
     {
-        void Initialize(
+        void ScheduleJob(
             RetryDurablePollingDefinition retryDurablePollingDefinition,
             IMessageProducer retryDurableMessageProducer,
             ILogHandler logHandler);
 
-        void Shutdown();
+        void UnscheduleJob();
     }
 }
