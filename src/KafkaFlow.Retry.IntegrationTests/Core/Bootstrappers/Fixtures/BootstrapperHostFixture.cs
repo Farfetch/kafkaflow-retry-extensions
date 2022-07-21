@@ -21,8 +21,13 @@
 
         public BootstrapperHostFixture()
         {
+            DotNetEnv.Env.Load();
+
+            // TODO refactor this code to allow connectionString to be overriden by .env file
+
             var config = new ConfigurationBuilder()
               .AddJsonFile(ConfigurationFilePath)
+              //.AddEnvironmentVariables()
               .Build();
 
             this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
