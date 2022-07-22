@@ -26,7 +26,7 @@
         }
 
         [Fact]
-        public void QueueTrackerCoordinator_Initialize_Success()
+        public void QueueTrackerCoordinator_ScheduleJob_Success()
         {
             // Arrange
             queueTrackerFactory
@@ -50,7 +50,7 @@
         }
 
         [Fact]
-        public void QueueTrackerCoordinator_Shutdown_Success()
+        public void QueueTrackerCoordinator_UnscheduleJob_Success()
         {
             // Arrange
             var mockIJobDetailProvider = new Mock<IJobDetailProvider>();

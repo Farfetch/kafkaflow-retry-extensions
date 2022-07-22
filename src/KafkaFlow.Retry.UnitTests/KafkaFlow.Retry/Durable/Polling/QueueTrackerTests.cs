@@ -25,25 +25,25 @@
     public class QueueTrackerTests
     {
         [Fact]
-        public async Task QueueTracker_Create_Success()
+        public async Task QueueTracker_ScheduleAndUnscheduleJobs_Success()
         {
             // arrange
-            var mockITriggerProvider = new Mock<ITriggerProvider>();
-            mockITriggerProvider
+            var mockITriggerProvider1 = new Mock<ITriggerProvider>();
+            mockITriggerProvider1
                 .Setup(x => x.GetQueuePollingTrigger())
                 .Returns(() =>
                     TriggerBuilder
                     .Create()
-                    .WithIdentity("Trigger", "queueTrackerGroup")
+                    .WithIdentity("Trigger1", "queueTrackerGroup")
                     .WithCronSchedule("*/5 * * ? * * *")
                     .StartNow()
                     .WithPriority(1)
                     .Build()
                 );
 
-            IList<IJobExecutionContext> jobExecutionContexts = new List<IJobExecutionContext>();
-            JobDataMap dataMap = new JobDataMap();
-            dataMap.Add("JobExecution", jobExecutionContexts);
+            var jobExecutionContexts = new List<IJobExecutionContext>();
+            var dataMap = new JobDataMap { { "JobExecution", jobExecutionContexts } };
+
             var mockIJobDetailProvider = new Mock<IJobDetailProvider>();
             mockIJobDetailProvider
                 .Setup(x => x.GetQueuePollingJobDetail())
@@ -66,35 +66,6 @@
                     id: "pollingId"
                 );
 
-            var queueTracker = new QueueTracker(
-                mockILogHandler.Object,
-                retryDurablePollingDefinition,
-                mockIJobDetailProvider.Object,
-                mockITriggerProvider.Object
-                );
-
-            // act
-            queueTracker.ScheduleJob();
-
-            await WaitForSeconds(6).ConfigureAwait(false);
-
-            queueTracker.UnscheduleJob();
-
-            await WaitForSeconds(15).ConfigureAwait(false);
-
-            var mockITriggerProvider1 = new Mock<ITriggerProvider>();
-            mockITriggerProvider1
-                .Setup(x => x.GetQueuePollingTrigger())
-                .Returns(() =>
-                    TriggerBuilder
-                    .Create()
-                    .WithIdentity("Trigger1", "queueTrackerGroup")
-                    .WithCronSchedule("*/5 * * ? * * *")
-                    .StartNow()
-                    .WithPriority(1)
-                    .Build()
-                );
-
             var queueTracker1 = new QueueTracker(
                 mockILogHandler.Object,
                 retryDurablePollingDefinition,
@@ -102,6 +73,7 @@
                 mockITriggerProvider1.Object
                 );
 
+            // act
             queueTracker1.ScheduleJob();
 
             await WaitForSeconds(6).ConfigureAwait(false);
@@ -110,22 +82,52 @@
 
             await WaitForSeconds(15).ConfigureAwait(false);
 
+            var mockITriggerProvider2 = new Mock<ITriggerProvider>();
+            mockITriggerProvider2
+                .Setup(x => x.GetQueuePollingTrigger())
+                .Returns(() =>
+                    TriggerBuilder
+                    .Create()
+                    .WithIdentity("Trigger2", "queueTrackerGroup")
+                    .WithCronSchedule("*/5 * * ? * * *")
+                    .StartNow()
+                    .WithPriority(1)
+                    .Build()
+                );
+
+            var queueTracker2 = new QueueTracker(
+                mockILogHandler.Object,
+                retryDurablePollingDefinition,
+                mockIJobDetailProvider.Object,
+                mockITriggerProvider2.Object
+                );
+
+            queueTracker2.ScheduleJob();
+
+            await WaitForSeconds(6).ConfigureAwait(false);
+
+            queueTracker2.UnscheduleJob();
+
+            await WaitForSeconds(15).ConfigureAwait(false);
+
             jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null).Count().Should().Be(2);
-            jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null && x.Trigger.Key.Name == "Trigger").Count().Should().Be(1);
             jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null && x.Trigger.Key.Name == "Trigger1").Count().Should().Be(1);
-            (
+            jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null && x.Trigger.Key.Name == "Trigger2").Count().Should().Be(1);
+
+            var timeBetweenJobExecutionsWhileJobWasUnscheduled =
                 jobExecutionContexts
-                    .Where(x => x.Trigger.Key.Name == "Trigger1")
+                    .Where(x => x.Trigger.Key.Name == "Trigger2")
                     .OrderBy(x => x.FireTimeUtc)
                     .First()
                     .FireTimeUtc
                     -
                 jobExecutionContexts
-                    .Where(x => x.Trigger.Key.Name == "Trigger")
+                    .Where(x => x.Trigger.Key.Name == "Trigger1")
                     .OrderBy(x => x.FireTimeUtc)
                     .Last()
-                    .FireTimeUtc
-            ).Should().BeGreaterThan(TimeSpan.FromSeconds(15));
+                    .FireTimeUtc;
+
+            timeBetweenJobExecutionsWhileJobWasUnscheduled.Should().BeGreaterThan(TimeSpan.FromSeconds(15));
         }
 
         private static async Task WaitForSeconds(int seconds)

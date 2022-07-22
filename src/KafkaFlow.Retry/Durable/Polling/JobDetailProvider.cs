@@ -45,7 +45,7 @@ namespace KafkaFlow.Retry.Durable.Polling
 
         public IJobDetail GetQueuePollingJobDetail()
         {
-            JobDataMap dataMap = new JobDataMap();
+            var dataMap = new JobDataMap();
             dataMap.Add(QueuePollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
             dataMap.Add(QueuePollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer);
             dataMap.Add(QueuePollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition);

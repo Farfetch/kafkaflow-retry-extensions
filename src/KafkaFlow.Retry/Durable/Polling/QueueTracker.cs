@@ -63,7 +63,6 @@
                 {
                     this.scheduler
                         .Start(cancellationToken)
-                        .ConfigureAwait(false)
                         .GetAwaiter()
                         .GetResult();
 
@@ -76,28 +75,8 @@
                         });
                 }
 
-                var triggerAlreadyDefined = this.scheduler
-                    .GetTrigger(this.trigger.Key)
-                    .ConfigureAwait(false)
-                    .GetAwaiter()
-                    .GetResult();
-
-                if (triggerAlreadyDefined is object)
-                {
-                    this.logHandler.Info(
-                        "PollingJob Scheduler Already Started",
-                        new
-                        {
-                            PollingId = this.retryDurablePollingDefinition.Id,
-                            CronExpression = this.retryDurablePollingDefinition.CronExpression
-                        });
-
-                    return;
-                }
-
                 var scheduledJob = this.scheduler
                     .ScheduleJob(this.job, this.trigger, cancellationToken)
-                    .ConfigureAwait(false)
                     .GetAwaiter()
                     .GetResult();
 
@@ -134,14 +113,13 @@
 
             var unscheduledJob = this.scheduler
                 .UnscheduleJob(this.trigger.Key)
-                .ConfigureAwait(false)
                 .GetAwaiter()
                 .GetResult();
 
             this.logHandler.Info("PollingJob Unscheduler Finished",
                 new
                 {
-                    UnscheduleJob = unscheduledJob,
+                    UnscheduledJob = unscheduledJob,
                     TriggerKey = this.trigger.Key.ToString()
                 });
         }
