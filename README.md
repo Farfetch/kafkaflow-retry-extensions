@@ -107,8 +107,8 @@ Install packages related to your context. The Core package is required for all o
                 .WithMongoDbDataProvider( // Persistence configuration
                     mongoDbconnectionString,
                     mongoDbdatabaseName,
-                    mongoDbretryQueueCollectionName,
-                    mongoDbretryQueueItemCollectionName
+                    mongoDbretryQueueCollectionName, // Should use the same QueueCollectionName in each RetryDurable config
+                    mongoDbretryQueueItemCollectionName // Should use the same QueueItemCollectionName in each RetryDurable config
                 )          
                 .WithRetryPlanBeforeRetryDurable( // Chained simple retry before triggering durable 
                     config => config
