@@ -30,6 +30,12 @@ In order to merge the pull request, you need to ensure:
 - Set the pull request to squash the commits to the `main` branch
 - Write a [good squash commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
+## Creating and publishing a release
+
+- Maintainers agree by majority the next release version.
+- A release is created with naming pattern: {Major}.{Minor}.{Patch}-{RC|beta(optional)}
+- A release contains at least 1 new feature/bugfix to be published.
+
 ## Resources
 
 -   [How to Contribute to Open Source](https://opensource.guide/how-to-contribute/)
