@@ -25,16 +25,16 @@ Here are a few things you can do that will increase the likelihood of your pull 
 
 In order to merge the pull request, you need to ensure:
 
-- Have at least 2 approvals
-- Last build pipeline must be successful
-- Set the pull request to squash the commits to the `main` branch
-- Write a [good squash commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+-   Have at least 2 approvals
+-   Last build pipeline must be successful
+-   Set the pull request to squash the commits to the `main` branch
+-   Write a [good squash commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 
 ## Creating and publishing a release
 
-- Maintainers agree by majority the next release version.
-- A release is created with naming pattern: {Major}.{Minor}.{Patch}-{RC|beta(optional)}
-- A release contains at least 1 new feature/bugfix to be published.
+-   Maintainers agree by majority the next release version.
+-   A release is created with naming pattern: {Major}.{Minor}.{Patch}-{RC|beta(optional)}
+-   A release contains at least 1 new feature/bugfix to be published.
 
 ## Resources
 
