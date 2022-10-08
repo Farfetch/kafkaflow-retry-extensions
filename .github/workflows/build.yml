@@ -55,7 +55,7 @@ jobs:
         git fetch --tags --force
 
         # deal with forked repositories
-        git remote add upstream $REPOSITORY_NAME
+        git remote add upstream https://github.com/${{ github.repository }}
         git fetch --tags upstream
 
     - name: Find last tag
