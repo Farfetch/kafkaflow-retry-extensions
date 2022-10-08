@@ -20,22 +20,28 @@ jobs:
       
     steps:
 
-    - name: Find branch name
-      id: extract-branch-name
+    - name: Determine Git Checkout information
+      id: checkout-info
       run: |
         if [ $GITHUB_EVENT_NAME == 'pull_request' ]; then
-          BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})
+          BRANCH_NAME=$(echo ${{ github.event.pull_request.head.ref }})
+          REPOSITORY_NAME=$(echo ${{ github.event.pull_request.head.repo.full_name }})
         else
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+          REPOSITORY_NAME=$(echo ${{ github.repository }})
         fi
 
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        echo "Extracted branch name: $BRANCH_NAME"
+        echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $GITHUB_ENV
+        echo "Git checkout information:"
+        echo "Branch name: $BRANCH_NAME"
+        echo "Repository name: $REPOSITORY_NAME"
 
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        ref: ${{ env.BRANCH_NAME }}
+        ref: ${{github.event.pull_request.head.ref}}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
       
     - name: Commit Lint
       uses: wagoid/commitlint-github-action@v3.1.4
@@ -44,7 +50,13 @@ jobs:
         failOnWarnings: true
 
     - name: Force fetch tags
-      run: git fetch --tags --force
+      run: |
+        # get current repository tags
+        git fetch --tags --force
+
+        # deal with forked repositories
+        git remote add upstream $REPOSITORY_NAME
+        git fetch --tags upstream
 
     - name: Find last tag
       id: prev-version-tag
@@ -121,22 +133,6 @@ jobs:
       with:
         dotnet-version: 3.1.x
         
-    # - name: Setup SonarScanner
-    #   run: dotnet tool install --global dotnet-sonarscanner
-      
-    # - name: Setup Report Generator
-    #   run: dotnet tool install --global dotnet-reportgenerator-globaltool
-      
-    # - name: Setup Java
-    #   run: |
-    #     sudo update-alternatives --query java
-    #     sudo update-alternatives --auto java
-    #     export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
-    #     export PATH=$PATH:$JAVA_HOME
-        
-    # - name: SonarScanner analysis begin
-    #   run: dotnet sonarscanner begin /k:<TBD> /v:$BUILD_VERSION /o:<TBD> /d:sonar.host.url=https://sonarcloud.io /d:sonar.login=<TBD> /d:sonar.coverage.exclusions="tests/*Tests/**" /d:sonar.coverageReportPaths="../../coverage-outputs/SonarQube.xml" /d:sonar.branch.name=$BRANCH_NAME
-      
     - name: Restore dependencies
       run: dotnet restore src/KafkaFlow.Retry.sln
       
@@ -163,24 +159,7 @@ jobs:
 
     - name: Test
       run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
-      
-    # - name: Merge coverage results
-    #   run: |
-    #     reportgenerator -reports:"../../coverage-outputs/**/*.xml" -targetdir:"../../coverage-outputs" -reporttypes:SonarQube
-    #     rm -rfv ../../coverage-outputs/*/
-    #     ls -la ../../coverage-outputs
-        
-    # - name: SonarScanner analysis end
-    #   run: dotnet sonarscanner end /d:sonar.login=8f9e9412fb5ebcf5ea6f9a6b285b288e4645f866
     
-    - name: Delete build tag if exists
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
-      with:
-        delete_release: false
-        tag_name: ${{ env.BUILD_VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
     - name: Delete build tag if exists
       uses: dev-drprasad/delete-tag-and-release@v0.2.0
       with:
