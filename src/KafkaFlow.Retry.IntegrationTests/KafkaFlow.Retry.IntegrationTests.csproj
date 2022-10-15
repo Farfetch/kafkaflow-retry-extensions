@@ -18,14 +18,14 @@
     <PackageReference Include="xunit.runner.visualstudio" Version="2.4.0" />
     <PackageReference Include="coverlet.collector" Version="1.3.0" />
 
-    <PackageReference Include="KafkaFlow" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Admin" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Compressor" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.5" />
+    <PackageReference Include="KafkaFlow" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Admin" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Compressor" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.9" />
   </ItemGroup>
 
   <ItemGroup>
