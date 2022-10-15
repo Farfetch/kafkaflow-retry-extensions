@@ -1,12 +1,12 @@
-﻿using Dawn;
-using KafkaFlow.Retry.Durable.Definitions;
-using KafkaFlow.Retry.Durable.Encoders;
-using KafkaFlow.Retry.Durable.Repository;
-using KafkaFlow.Retry.Durable.Repository.Adapters;
-using Quartz;
-
-namespace KafkaFlow.Retry.Durable.Polling
+﻿namespace KafkaFlow.Retry.Durable.Polling
 {
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Encoders;
+    using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Adapters;
+    using Quartz;
+
     internal class JobDetailProvider : IJobDetailProvider
     {
         private readonly ILogHandler logHandler;
