@@ -37,14 +37,17 @@
             ILogHandler logHandler)
         {
             return new QueueTracker(
-                this.retryDurableQueueRepository,
                 logHandler,
-                this.messageHeadersAdapter,
-                this.messageAdapter,
-                this.utf8Encoder,
-                retryDurableMessageProducer,
-                retryDurablePollingDefinition
-                );
+                retryDurablePollingDefinition,
+                new JobDetailProvider(
+                    this.retryDurableQueueRepository,
+                    logHandler,
+                    this.messageHeadersAdapter,
+                    this.messageAdapter,
+                    this.utf8Encoder,
+                    retryDurableMessageProducer,
+                    retryDurablePollingDefinition),
+                new TriggerProvider(retryDurablePollingDefinition));
         }
     }
 }

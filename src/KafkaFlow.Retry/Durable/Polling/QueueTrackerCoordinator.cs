@@ -15,7 +15,7 @@
             this.queueTrackerFactory = queueTrackerFactory;
         }
 
-        public void Initialize(
+        public void ScheduleJob(
             RetryDurablePollingDefinition retryDurablePollingDefinition,
             IMessageProducer retryDurableMessageProducer,
             ILogHandler logHandler)
@@ -30,14 +30,15 @@
                     retryDurablePollingDefinition,
                     retryDurableMessageProducer,
                     logHandler);
+
             this.queueTracker.ScheduleJob();
         }
 
-        public void Shutdown()
+        public void UnscheduleJob()
         {
             if (this.queueTracker is object)
             {
-                this.queueTracker.Shutdown();
+                this.queueTracker.UnscheduleJob();
             }
         }
     }

@@ -1,22 +1,22 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <TargetFramework>net6.0</TargetFramework>
     <IsPackable>false</IsPackable>
     <GenerateDocumentationFile>false</GenerateDocumentationFile>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KafkaFlow" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Admin" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Compressor" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer.ProtobufNet" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentAvro" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.5" />
+    <PackageReference Include="KafkaFlow" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Admin" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Compressor" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer.ProtobufNet" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer.SchemaRegistry.ConfluentAvro" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.9" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
   </ItemGroup>
 
