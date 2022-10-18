@@ -1,9 +1,9 @@
 # KafkaFlow Retry Extensions
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2a86b45f0ec2487fb63dfd581071465a)](https://www.codacy.com/gh/Farfetch/kafka-flow-retry-extensions/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Farfetch/kafka-flow-retry-extensions&amp;utm_campaign=Badge_Grade)
+[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2a86b45f0ec2487fb63dfd581071465a)](https://www.codacy.com/gh/Farfetch/kafkaflow-retry-extensions/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Farfetch/kafkaflow-retry-extensions&amp;utm_campaign=Badge_Grade)
 
 KafkaFlow Retry is a .NET framework to implement easy resilience on consumers.
 
-KafkaFlow Retry is an extension of [Kafka Flow](https://github.com/Farfetch/kafka-flow).
+KafkaFlow Retry is an extension of [Kafka Flow](https://github.com/Farfetch/kafkaflow).
 
 ## Resilience policies
 
@@ -123,11 +123,11 @@ Install packages related to your context. The Core package is required for all o
     )
 ```
 
-See the [setup page](https://github.com/Farfetch/kafka-flow-retry-extensions/wiki/Setup) and [samples](https://github.com/Farfetch/kafka-flow-retry-extensions/tree/main/samples) for more details
+See the [setup page](https://github.com/Farfetch/kafkaflow-retry-extensions/wiki/Setup) and [samples](https://github.com/Farfetch/kafkaflow-retry-extensions/tree/main/samples) for more details
 
 ## Documentation
 
-[Wiki Page](https://github.com/Farfetch/kafka-flow-retry-extensions/wiki)
+[Wiki Page](https://github.com/Farfetch/kafkaflow-retry-extensions/wiki)
 
 ## Contributing
 
