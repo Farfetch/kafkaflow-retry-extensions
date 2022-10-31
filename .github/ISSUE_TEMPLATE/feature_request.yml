@@ -9,8 +9,7 @@ body:
     id: problem
     attributes:
       label: Is your request related to a problem you have?
-      description: >-
-        A description of the problem you are trying to address.
+      description: A description of the problem you are trying to address.
   - type: textarea
     id: solution
     attributes:
