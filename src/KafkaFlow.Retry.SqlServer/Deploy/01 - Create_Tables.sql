@@ -135,7 +135,7 @@ IF (NOT EXISTS (SELECT *
 				WHERE is_table_type = 1 
 				AND name = 'TY_RetryQueueItemsIds'))
 BEGIN
-	CREATE TYPE TY_RetryQueueItemsIds AS TABLE (Id BIGINT)
+	CREATE TYPE [dbo].[TY_RetryQueueItemsIds] AS TABLE (Id BIGINT)
 END
 GO
 
@@ -151,9 +151,9 @@ AS
 	SET NOCOUNT ON;
 
 	SELECT *
-	FROM [ItemMessages] IM 
+	FROM [dbo].[ItemMessages] IM 
 	INNER JOIN @RetryQueueItemsIds RI ON IM.[IdRetryQueueItem] = RI.[Id]
-	INNER JOIN [RetryQueueItems] RQI ON RQI.[Id] = IM.[IdRetryQueueItem]
+	INNER JOIN [dbo].[RetryQueueItems] RQI ON RQI.[Id] = IM.[IdRetryQueueItem]
 	ORDER BY RQI.IdRetryQueue, IM.IdRetryQueueItem
 GO
 
