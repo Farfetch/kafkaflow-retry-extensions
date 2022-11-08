@@ -2,7 +2,6 @@
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
-    using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
     using KafkaFlow.Retry.SqlServer.Model;
@@ -41,12 +40,21 @@
 
             using (var command = dbConnection.CreateCommand())
             {
+                var entriesToLoad = new System.Data.DataTable("TY_RetryQueueItemsIds");
+                entriesToLoad.Columns.Add("Id", typeof(int));
+                foreach (var retryQueueItemDbo in retryQueueItemsDbo)
+                {
+                    System.Data.DataRow dr = entriesToLoad.NewRow();
+                    dr["Id"] = retryQueueItemDbo.Id;
+                    entriesToLoad.Rows.Add(dr);
+                }
+                var parameter = new SqlParameter("@RetryQueueItemsIds", entriesToLoad);
+                parameter.Direction = System.Data.ParameterDirection.Input;
+                parameter.TypeName = "dbo.TY_RetryQueueItemsIds";
+
+                command.Parameters.Add(parameter);
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"SELECT *
-                                         FROM [ItemMessages] im
-                                         INNER JOIN [RetryQueueItems] rqi ON rqi.Id = im.IdRetryQueueItem
-                                         WHERE im.IdRetryQueueItem in ({string.Join(",", retryQueueItemsDbo.Select(x => $"'{x.Id}'"))})
-                                         ORDER BY rqi.IdRetryQueue, im.IdRetryQueueItem";
+                command.CommandText = $@"EXEC P_LoadItemMessages @RetryQueueItemsIds";
 
                 return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
             }
