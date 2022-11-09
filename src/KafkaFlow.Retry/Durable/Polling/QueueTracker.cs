@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
     using System;
+    using System.Collections.Specialized;
     using System.Threading;
     using Dawn;
     using KafkaFlow.Retry.Durable.Definitions;
@@ -48,7 +49,9 @@
 
                 lock (internalLock)
                 {
-                    this.scheduler = StdSchedulerFactory.GetDefaultScheduler(cancellationToken).GetAwaiter().GetResult();
+                    StdSchedulerFactory fact = new StdSchedulerFactory();
+                    fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", this.retryDurablePollingDefinition.Id } });
+                    this.scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();
 
                     this.logHandler.Info(
                         "PollingJob Scheduler Acquired",

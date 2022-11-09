@@ -130,6 +130,41 @@ BEGIN
 END
 GO
 
+IF(NOT EXISTS(SELECT *
+              FROM sys.types
+              WHERE is_table_type=1 AND name='TY_RetryQueueItemsIds'))
+BEGIN
+    CREATE TYPE [dbo].[TY_RetryQueueItemsIds]
+    AS 
+    TABLE
+    (
+     Id BIGINT
+    );
+END;
+GO
+
+IF(EXISTS(SELECT *
+          FROM sys.objects
+          WHERE type='P' AND OBJECT_ID=OBJECT_ID('[dbo].[P_LoadItemMessages]')))
+BEGIN
+    DROP PROCEDURE [dbo].[P_LoadItemMessages];
+END;
+GO
+
+CREATE PROCEDURE [dbo].[P_LoadItemMessages]
+ @RetryQueueItemsIds [dbo].[TY_RetryQueueItemsIds] READONLY
+AS 
+BEGIN
+    SET NOCOUNT ON;
+
+    SELECT [IdRetryQueueItem],[Key],[Value],[TopicName],[Partition],[Offset],[UtcTimeStamp]
+    FROM [dbo].[ItemMessages] IM
+    INNER JOIN @RetryQueueItemsIds RI ON IM.[IdRetryQueueItem]=RI.[Id]
+    INNER JOIN [dbo].[RetryQueueItems] RQI ON RQI.[Id]=IM.[IdRetryQueueItem]
+    ORDER BY RQI.IdRetryQueue,IM.IdRetryQueueItem;
+END;
+GO
+
 -- CREATE INDEXES
 
 -- Table [RetryQueues]
