@@ -124,20 +124,43 @@
                         .WithPartitionsAssignedHandler(
                             (resolver, partitionsAssignedHandler) =>
                             {
+                                var log = resolver.Resolve<ILogHandler>();
+                                log.Info(
+                                    "Partitions Assigned",
+                                    new
+                                    {
+                                        PartitionsAssigned = partitionsAssignedHandler
+                                    });
+
                                 if (partitionsAssignedHandler is object
                                  && partitionsAssignedHandler.Any(tp => tp.Partition == DefaultPartitionElection))
                                 {
+                                    log.Info(
+                                        "Default Partition Assigned",
+                                        new
+                                        {
+                                            DefaultPartitionElection
+                                        });
+
                                     queueTrackerCoordinator
-                                        .Initialize(
+                                        .ScheduleJob(
                                             retryDurablePollingDefinition,
                                             resolver.Resolve<IProducerAccessor>().GetProducer(producerName),
-                                            resolver.Resolve<ILogHandler>());
+                                            log);
                                 }
                             })
                         .WithPartitionsRevokedHandler(
                             (resolver, partitionsRevokedHandler) =>
                             {
-                                queueTrackerCoordinator.Shutdown();
+                                var log = resolver.Resolve<ILogHandler>();
+                                log.Info(
+                                    "Partitions Revoked",
+                                    new
+                                    {
+                                        PartitionsRevoked = partitionsRevokedHandler
+                                    });
+
+                                queueTrackerCoordinator.UnscheduleJob();
                             })
                         .AddMiddlewares(
                             middlewares => middlewares

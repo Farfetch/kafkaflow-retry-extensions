@@ -27,11 +27,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KafkaFlow" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Abstractions" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.2.5" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.5" />
+    <PackageReference Include="KafkaFlow" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Abstractions" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.2.9" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.9" />
     <PackageReference Include="Polly" Version="7.2.2" />
     <PackageReference Include="Quartz" Version="3.3.2" />
     <PackageReference Include="Dawn.Guard" Version="1.12.0" />

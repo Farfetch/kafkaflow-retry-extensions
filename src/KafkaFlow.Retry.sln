@@ -34,9 +34,15 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		CodeCoverage.runsettings = CodeCoverage.runsettings
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.SchemaRegistry.Sample", "..\samples\KafkaFlow.Retry.SchemaRegistry.Sample\KafkaFlow.Retry.SchemaRegistry.Sample.csproj", "{510D65E8-B62C-402C-9CE3-47C7055A29FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SchemaRegistry.Sample", "..\samples\KafkaFlow.Retry.SchemaRegistry.Sample\KafkaFlow.Retry.SchemaRegistry.Sample.csproj", "{510D65E8-B62C-402C-9CE3-47C7055A29FF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.Common.Sample", "..\samples\KafkaFlow.Retry.Common.Sample\KafkaFlow.Retry.Common.Sample.csproj", "{B14C5859-85C5-4E2F-80C7-D8B29E36481A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Common.Sample", "..\samples\KafkaFlow.Retry.Common.Sample\KafkaFlow.Retry.Common.Sample.csproj", "{B14C5859-85C5-4E2F-80C7-D8B29E36481A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{2A0BC610-E0FE-4BC3-B232-A8B918BE7381}"
+	ProjectSection(SolutionItems) = preProject
+		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
+		..\.github\workflows\publish.yml = ..\.github\workflows\publish.yml
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -99,6 +105,7 @@ Global
 		{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0} = {F92E5E32-4611-44A1-9EF6-0091F337877B}
 		{510D65E8-B62C-402C-9CE3-47C7055A29FF} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
 		{B14C5859-85C5-4E2F-80C7-D8B29E36481A} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+		{2A0BC610-E0FE-4BC3-B232-A8B918BE7381} = {9557F908-472F-4872-BCF8-8EC028EFDA9B}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A953E534-FBCA-4F30-9CA5-96F67C1A49D8}
