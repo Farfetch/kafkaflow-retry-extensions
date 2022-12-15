@@ -1,137 +1,30 @@
-# KafkaFlow Retry Extensions
-[![Codacy Badge](https://app.codacy.com/project/badge/Grade/2a86b45f0ec2487fb63dfd581071465a)](https://www.codacy.com/gh/Farfetch/kafkaflow-retry-extensions/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Farfetch/kafkaflow-retry-extensions&amp;utm_campaign=Badge_Grade)
+# KafkaFlow Retry Extensions &middot; [![GitHub license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/farfetch/kafkaflow-retry-extensions/blob/main/LICENSE) [![nuget version](https://img.shields.io/nuget/v/kafkaflow.retry.svg?style=flat)](https://www.nuget.org/packages/KafkaFlow.Retry/) ![Build Main](https://github.com/Farfetch/kafkaflow-retry-extensions/workflows/Build/badge.svg?branch=main) [![Codacy Badge](https://app.codacy.com/project/badge/Grade/2a86b45f0ec2487fb63dfd581071465a)](https://www.codacy.com/gh/Farfetch/kafkaflow-retry-extensions/dashboard?utm_source=github.com&amp;utm_medium=referral&amp;utm_content=Farfetch/kafkaflow-retry-extensions&amp;utm_campaign=Badge_Grade) 
 
-KafkaFlow Retry is a .NET framework to implement easy resilience on consumers.
 
-KafkaFlow Retry is an extension of [Kafka Flow](https://github.com/Farfetch/kafkaflow).
+## Introduction
 
-## Resilience policies
+🔁 KafkaFlow Retry is an extension to [KafkaFlow](https://github.com/Farfetch/kafkaflow) that implements resilience on Apache Kafka consumers.
+
+Want to give it a try? Check out our [Quickstart](https://farfetch.github.io/kafkaflow-retry-extensions/docs/getting-started/quickstart)!
+### Resilience policies
 
 |Policy| Description | Aka| Required Packages|
 | ------------- | ------------- |:-------------: |------------- |
 |**Simple Retry** <br/>(policy family)<br/><sub>([quickstart](#simple)&nbsp;;&nbsp;deep)</sub>|Many faults are transient and may self-correct after a short delay.| "Maybe it's just a blip" |   KafkaFlow.Retry |
 |**Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#forever)&nbsp;;&nbsp;deep)</sub>|Many faults are semi-transient and may self-correct after multiple retries. | "Never give up" | KafkaFlow.Retry | 
-|**Durable Retry**<br/><sub>([quickstart](#durable)&nbsp;;&nbsp;deep)</sub>|Beyond a certain amount of retries and wait, you want to keep processing next-in-line messages but you can't loss the current offset message. As persistance databases, MongoDb or SqlServer are available. And you can manage in-retry messages through HTTP API.| "I can't stop processing messages but I can't loss messages"  | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb | 
+|**Durable Retry**<br/><sub>([quickstart](#durable)&nbsp;;&nbsp;deep)</sub>|Beyond a certain amount of retries and waiting, you want to keep processing next-in-line messages but you can't lose the current offset message. As persistence databases, MongoDb or SqlServer is available. And you can manage in-retry messages through HTTP API."I can't stop processing messages but I can't lose messages"  | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb | 
 
-## Installing via NuGet
-Install packages related to your context. The Core package is required for all other packages. 
+## Installation
 
-## Requirements
-**.NET Core 2.1 and later using Hosted Service**
-
-## Packages
-
-|Name                             |nuget.org|
-|---------------------------------|----|
-|KafkaFlow.Retry|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.svg)
-|KafkaFlow.Retry.API|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.API.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.API/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.API.svg)
-|KafkaFlow.Retry.MongoDb|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.MongoDb.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.MongoDb/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.MongoDb.svg)
-|KafkaFlow.Retry.SqlServer|[![Nuget Package](https://img.shields.io/nuget/v/KafkaFlow.Retry.SqlServer.svg?logo=nuget)](https://www.nuget.org/packages/KafkaFlow.Retry.SqlServer/) ![Nuget downloads](https://img.shields.io/nuget/dt/KafkaFlow.Retry.SqlServer.svg)
-
-## Core package 
-    Install-Package KafkaFlow.Retry
-
-## HTTP API package
-    Install-Package KafkaFlow.Retry.API
-
-## MongoDb package 
-    Install-Package KafkaFlow.Retry.MongoDb
-
-## SqlServer package
-    Install-Package KafkaFlow.Retry.SqlServer
-
-## Usage &ndash; Simple and Forever retries policies
-### Simple
-
-```csharp
-.AddMiddlewares(
-    middlewares => middlewares // KafkaFlow middlewares
-    .RetrySimple(
-        (config) => config
-            .Handle<ExternalGatewayException>() // Exceptions to be handled
-            .TryTimes(3)
-            .WithTimeBetweenTriesPlan((retryCount) => 
-                TimeSpan.FromMilliseconds(Math.Pow(2, retryCount)*1000) // exponential backoff
-            )
-    )
-```
-
-### Forever
-
-```csharp
-.AddMiddlewares( 
-    middlewares => middlewares // KafkaFlow middlewares
-    .RetryForever(
-        (config) => config
-            .Handle<DatabaseTimeoutException>() // Exceptions to be handled
-            .WithTimeBetweenTriesPlan(
-                TimeSpan.FromMilliseconds(500),
-                TimeSpan.FromMilliseconds(1000)
-            )
-    )
- 
-```
-
-## Usage &ndash; Durable retry policy
-
-### Durable
-
-```csharp
-.AddMiddlewares( 
-    middlewares => middlewares // KafkaFlow middlewares
-    .RetryDurable(
-            config => config
-                .Handle<NonBlockingException>() // Exceptions to be handled
-                .WithMessageType(typeof(TestMessage)) // Message type to be consumed
-                .WithEmbeddedRetryCluster( // Retry consumer config
-                    cluster,
-                    config => config
-                        .WithRetryTopicName("test-topic-retry")
-                        .WithRetryConsumerBufferSize(4)
-                        .WithRetryConsumerWorkersCount(2)
-                        .WithRetryConusmerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
-                        .WithRetryTypedHandlers(
-                            handlers => handlers
-                                .WithHandlerLifetime(InstanceLifetime.Transient)
-                                .AddHandler<Handler>()
-                        ).Enabled(true)
-                )
-                .WithQueuePollingJobConfiguration( // Polling configuration
-                    config => config
-                        .WithId("custom_search_key")
-                        .WithCronExpression("0 0/1 * 1/1 * ? *")
-                        .WithExpirationIntervalFactor(1)
-                        .WithFetchSize(10)
-                        .Enabled(true)
-                )                      
-                .WithMongoDbDataProvider( // Persistence configuration
-                    mongoDbconnectionString,
-                    mongoDbdatabaseName,
-                    mongoDbretryQueueCollectionName,
-                    mongoDbretryQueueItemCollectionName
-                )          
-                .WithRetryPlanBeforeRetryDurable( // Chained simple retry before triggering durable 
-                    config => config
-                        .TryTimes(3)
-                        .WithTimeBetweenTriesPlan(
-                            TimeSpan.FromMilliseconds(250),
-                            TimeSpan.FromMilliseconds(500),
-                            TimeSpan.FromMilliseconds(1000))
-                        .ShouldPauseConsumer(false)
-                )
-        )
-    )
-```
-
-See the [setup page](https://github.com/Farfetch/kafkaflow-retry-extensions/wiki/Setup) and [samples](https://github.com/Farfetch/kafkaflow-retry-extensions/tree/main/samples) for more details
+[Read the docs](https://farfetch.github.io/kafkaflow-retry-extensions/docs/getting-started/installation) for any further information.
 
 ## Documentation
 
-[Wiki Page](https://github.com/Farfetch/kafkaflow-retry-extensions/wiki)
+Learn more about using KafkaFlow Retry Extensions [here](https://farfetch.github.io/kafkaflow-retry-extensions/docs/)!
 
 ## Contributing
 
-Read the [Contributing guidelines](CONTRIBUTING.md)
+Read our [contributing guidelines](CONTRIBUTING.md) to learn about our development process, how to propose bugfixes and improvements, and how to build and test your changes.
 
 ## Maintainers
 
@@ -145,6 +38,13 @@ Read the [Contributing guidelines](CONTRIBUTING.md)
 -   [Sérgio Ribeiro](https://github.com/sergioamribeiro)
 
 
+## Get in touch
+
+You can find us at:
+
+-   [GitHub Issues](https://github.com/Farfetch/kafkaflow-retry-extensions/issues)
+
 ## License
 
-[MIT](LICENSE.md)
+KafkaFlow Retry is a free and open source project, released under the permissible [MIT license](LICENSE).
+
