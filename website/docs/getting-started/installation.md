@@ -30,7 +30,7 @@ You can quickly install it using .NET CLI 👇
 dotnet add package KafkaFlow.Retry
 ```
 
-You can find a complete list of the available packages [here](packages.md).
+You can find a complete list of the available packages [here](packages).
 
 ## Setup
 
@@ -57,6 +57,6 @@ The Retry Extensions library exposes a middleware. To use them, edit your KafkaF
     )
 ```
 
-You can use other types of retry policies such as [Forever](../guides/forever-retries.md) or [Durable](../guides/durable-retries.md).
+You can use other types of retry policies such as [Forever](../guides/forever-retries) or [Durable](../guides/durable-retries).
 
 

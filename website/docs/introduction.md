@@ -16,9 +16,9 @@ Get started by installing [KafkaFlow Retry Extensions](getting-started/installat
 Our goal is to simplify building resilient Apache Kafka consumers when using KafkaFlow. 
 
 To do that, KafkaFlow Retry Extensions gives you access to retry policies like:
- - Simple Retry
- - Forever Retry
- - Durable Retry
+ - [Simple Retry](guides/simple-retries)
+ - [Forever Retry](guides/forever-retries)
+ - [Durable Retry](guides/durable-retries)
 
 **Durable Retries** let you keep processing while keeping the faulty message offset persisted on **SqlServer** or **MongoDb**.You can also expose an HTTP API to manage those messages.
 
