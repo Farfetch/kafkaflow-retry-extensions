@@ -4,7 +4,7 @@
 
 🔁 KafkaFlow Retry is an extension to [KafkaFlow](https://github.com/Farfetch/kafkaflow) that implements resilience on Apache Kafka consumers.
 
-Want to give it a try? Check out our [Quickstart](https://farfetch.github.io/kafkaflow-retry-extensions/docs/getting-started/quickstart)!
+Want to give it a try? Check out our [Quickstart](https://farfetch.github.io/kafkaflow-retry-extensions/getting-started/quickstart)!
 
 ### Resilience policies
 
@@ -16,11 +16,11 @@ Want to give it a try? Check out our [Quickstart](https://farfetch.github.io/kaf
 
 ## Installation
 
-[Read the docs](https://farfetch.github.io/kafkaflow-retry-extensions/docs/getting-started/installation) for any further information.
+[Read the docs](https://farfetch.github.io/kafkaflow-retry-extensions/getting-started/installation) for any further information.
 
 ## Documentation
 
-Learn more about using KafkaFlow Retry Extensions [here](https://farfetch.github.io/kafkaflow-retry-extensions/docs/)!
+Learn more about using KafkaFlow Retry Extensions [here](https://farfetch.github.io/kafkaflow-retry-extensions/)!
 
 ## Contributing
 
