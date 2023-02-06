@@ -1,0 +1,16 @@
+<svg version="1.2" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1280 320" width="1280" height="320">
+	<title>KafkaFlow-Retry-Extensions-Logo</title>
+	<style>
+		tspan { white-space:pre } 
+		.t0 { font-size: 90px;fill: #000000;font-weight: 700;font-family: "NimbusSansExtdD-Bold", "Nimbus Sans Extd D" } 
+		.t1 { font-size: 200px;fill: #000000;font-weight: 700;font-family: "NimbusSansExtdD-Bold", "Nimbus Sans Extd D" } 
+	</style>
+	<text id="RETRY EXTENSIONS" style="transform: matrix(1,0,0,1,203,278.366)" >
+		<tspan x="0" y="0" class="t0">R</tspan><tspan  y="0" class="t0">E</tspan><tspan  y="0" class="t0">T</tspan><tspan  y="0" class="t0">R</tspan><tspan  y="0" class="t0">Y</tspan><tspan  y="0" class="t0"> </tspan><tspan  y="0" class="t0">E</tspan><tspan  y="0" class="t0">X</tspan><tspan  y="0" class="t0">T</tspan><tspan  y="0" class="t0">E</tspan><tspan  y="0" class="t0">N</tspan><tspan  y="0" class="t0">S</tspan><tspan  y="0" class="t0">I</tspan><tspan  y="0" class="t0">O</tspan><tspan  y="0" class="t0">N</tspan><tspan  y="0" class="t0">S
+</tspan>
+	</text>
+	<text id="KafkaFlow" style="transform: matrix(1,0,0,1,62.814,196)" >
+		<tspan x="0" y="0" class="t1">K</tspan><tspan  y="0" class="t1">a</tspan><tspan  y="0" class="t1">f</tspan><tspan  y="0" class="t1">k</tspan><tspan  y="0" class="t1">a</tspan><tspan  y="0" class="t1">F</tspan><tspan  y="0" class="t1">l</tspan><tspan  y="0" class="t1">o</tspan><tspan  y="0" class="t1">w</tspan><tspan  y="0" class="t1">
+</tspan>
+	</text>
+</svg>
