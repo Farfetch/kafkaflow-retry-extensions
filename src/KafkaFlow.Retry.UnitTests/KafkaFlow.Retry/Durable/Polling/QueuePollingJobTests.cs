@@ -77,7 +77,7 @@
                 .Returns(new MessageHeaders());
 
             messageProducer
-                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()))
+                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()))
                 .Throws(new Exception());
 
             IDictionary<string, object> data = new Dictionary<string, object>
@@ -135,7 +135,7 @@
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
 
             //Assert
-            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()), Times.Never);
+            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()), Times.Never);
             logHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<RetryDurableException>(), It.IsAny<object>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.UpdateItemAsync(It.IsAny<UpdateItemStatusInput>()), Times.Never);
@@ -173,7 +173,7 @@
                 .Returns(new MessageHeaders());
 
             messageProducer
-                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()));
+                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()));
 
             IDictionary<string, object> data = new Dictionary<string, object>
             {
@@ -193,7 +193,7 @@
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
 
             //Assert
-            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()), Times.Once);
+            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.UpdateItemAsync(It.IsAny<UpdateItemStatusInput>()), Times.Once);
             messageHeadersAdapter.Verify(d => d.AdaptMessageHeadersFromRepository(It.IsAny<IList<MessageHeader>>()), Times.Once);
