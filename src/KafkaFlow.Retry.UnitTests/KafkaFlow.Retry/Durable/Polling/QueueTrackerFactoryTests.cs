@@ -13,7 +13,17 @@
 
     public class QueueTrackerFactoryTests
     {
-        public static readonly IEnumerable<object[]> DataTest = new List<object[]>
+        private static readonly PollingDefinitionsAggregator pollingDefinitionsAggregator =
+            new PollingDefinitionsAggregator(
+                "id",
+                new PollingDefinition[]
+                {
+                    new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100),
+                    new CleanupPollingDefinition(true, "*/30 * * ? * *", 10, 100)
+                }
+            );
+
+        public static IEnumerable<object[]> DataTest() => new List<object[]>
         {
             new object[]
             {
@@ -56,16 +66,6 @@
                 null
             }
         };
-
-        private static readonly PollingDefinitionsAggregator pollingDefinitionsAggregator =
-            new PollingDefinitionsAggregator(
-                "id",
-                new PollingDefinition[]
-                {
-                    new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100),
-                    new CleanupPollingDefinition(true, "*/30 * * ? * *", 10, 100)
-                }
-            );
 
         [Fact]
         public void QueueTrackerFactory_Create_Success()

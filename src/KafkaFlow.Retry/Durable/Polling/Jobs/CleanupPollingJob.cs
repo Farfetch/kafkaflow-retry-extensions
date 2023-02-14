@@ -9,7 +9,7 @@
     using KafkaFlow.Retry.Durable.Repository.Model;
     using Quartz;
 
-    [Quartz.DisallowConcurrentExecutionAttribute()]
+    [DisallowConcurrentExecutionAttribute]
     internal class CleanupPollingJob : IJob
     {
         public async Task Execute(IJobExecutionContext context)

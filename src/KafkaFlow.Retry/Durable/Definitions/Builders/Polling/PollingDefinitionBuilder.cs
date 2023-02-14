@@ -5,9 +5,9 @@
         protected string cronExpression;
         protected bool enabled;
 
-        public SELF Enabled(bool enabled)
+        public SELF Enabled(bool value)
         {
-            this.enabled = enabled;
+            this.enabled = value;
             return (SELF)this;
         }
 
