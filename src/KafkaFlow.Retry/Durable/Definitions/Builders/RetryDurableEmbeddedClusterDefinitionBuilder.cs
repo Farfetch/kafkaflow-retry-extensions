@@ -7,7 +7,7 @@
     using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Compression;
-    using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
@@ -75,7 +75,7 @@
             INewtonsoftJsonSerializer newtonsoftJsonSerializer,
             IMessageAdapter messageAdapter,
             IMessageHeadersAdapter messageHeadersAdapter,
-            RetryDurablePollingDefinition retryDurablePollingDefinition
+            PollingDefinitionsAggregator pollingDefinitionsAggregator
             )
         {
             if (!enabled)
@@ -99,6 +99,7 @@
             var queueTrackerCoordinator =
                 new QueueTrackerCoordinator(
                     new QueueTrackerFactory(
+                        pollingDefinitionsAggregator,
                         retryDurableQueueRepository,
                         messageHeadersAdapter,
                         messageAdapter,
@@ -143,8 +144,7 @@
                                         });
 
                                     queueTrackerCoordinator
-                                        .ScheduleJob(
-                                            retryDurablePollingDefinition,
+                                        .ScheduleJobs(
                                             resolver.Resolve<IProducerAccessor>().GetProducer(producerName),
                                             log);
                                 }
@@ -160,7 +160,7 @@
                                         PartitionsRevoked = partitionsRevokedHandler
                                     });
 
-                                queueTrackerCoordinator.UnscheduleJob();
+                                queueTrackerCoordinator.UnscheduleJobs();
                             })
                         .AddMiddlewares(
                             middlewares => middlewares

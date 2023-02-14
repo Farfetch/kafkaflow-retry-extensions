@@ -3,7 +3,7 @@
     using System;
     using System.Collections.Generic;
     using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
     using global::KafkaFlow.Retry.Durable.Encoders;
     using global::KafkaFlow.Retry.Durable.Polling;
     using global::KafkaFlow.Retry.Durable.Repository;
@@ -18,19 +18,30 @@
             new object[]
             {
                 null,
+                Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IMessageHeadersAdapter>() ,
                 Mock.Of<IMessageAdapter>() ,
                 Mock.Of<IUtf8Encoder>() ,
             },
             new object[]
             {
+                pollingDefinitionsAggregator,
+                null,
+                Mock.Of<IMessageHeadersAdapter>() ,
+                Mock.Of<IMessageAdapter>() ,
+                Mock.Of<IUtf8Encoder>() ,
+            },
+            new object[]
+            {
+                pollingDefinitionsAggregator,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 null ,
-                Mock.Of<IMessageAdapter>() ,
+                Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>()
             },
             new object[]
             {
+                pollingDefinitionsAggregator,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IMessageHeadersAdapter>() ,
                 null ,
@@ -38,6 +49,7 @@
             },
             new object[]
             {
+                pollingDefinitionsAggregator,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IMessageHeadersAdapter>() ,
                 Mock.Of<IMessageAdapter>() ,
@@ -45,20 +57,29 @@
             }
         };
 
-        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100, "id");
+        private static readonly PollingDefinitionsAggregator pollingDefinitionsAggregator =
+            new PollingDefinitionsAggregator(
+                "id",
+                new PollingDefinition[]
+                {
+                    new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100),
+                    new CleanupPollingDefinition(true, "*/30 * * ? * *", 10, 100)
+                }
+            );
 
         [Fact]
         public void QueueTrackerFactory_Create_Success()
         {
             // Arrange
             var factory = new QueueTrackerFactory(
+                pollingDefinitionsAggregator,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IMessageHeadersAdapter>(),
                 Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>());
 
             // Act
-            var queueTracker = factory.Create(retryDurablePollingDefinition, Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
+            var queueTracker = factory.Create(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
             // Arrange
             queueTracker.Should().NotBeNull();
@@ -67,6 +88,7 @@
         [Theory]
         [MemberData(nameof(DataTest))]
         public void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
+            object pollingDefinitionsAggregator,
             object retryDurableQueueRepository,
             object messageHeadersAdapter,
             object messageAdapter,
@@ -74,10 +96,11 @@
         {
             // Arrange & Act
             Action act = () => new QueueTrackerFactory(
-            (IRetryDurableQueueRepository)retryDurableQueueRepository,
-            (IMessageHeadersAdapter)messageHeadersAdapter,
-            (IMessageAdapter)messageAdapter,
-            (IUtf8Encoder)utf8Encoder);
+                (PollingDefinitionsAggregator)pollingDefinitionsAggregator,
+                (IRetryDurableQueueRepository)retryDurableQueueRepository,
+                (IMessageHeadersAdapter)messageHeadersAdapter,
+                (IMessageAdapter)messageAdapter,
+                (IUtf8Encoder)utf8Encoder);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

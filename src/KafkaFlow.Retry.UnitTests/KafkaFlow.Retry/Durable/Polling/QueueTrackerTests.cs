@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Threading.Tasks;
     using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
     using global::KafkaFlow.Retry.Durable.Polling;
     using Moq;
     using Quartz;
@@ -28,9 +28,19 @@
         public async Task QueueTracker_ScheduleAndUnscheduleJobs_Success()
         {
             // arrange
+            var schedulerId = "pollingId";
+
+            var retryDurablePollingDefinition =
+                new RetryDurablePollingDefinition(
+                    enabled: true,
+                    cronExpression: "*/5 * * ? * * *",
+                    fetchSize: 100,
+                    expirationIntervalFactor: 1
+                );
+
             var mockITriggerProvider1 = new Mock<ITriggerProvider>();
             mockITriggerProvider1
-                .Setup(x => x.GetQueuePollingTrigger())
+                .Setup(x => x.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()))
                 .Returns(() =>
                     TriggerBuilder
                     .Create()
@@ -44,9 +54,9 @@
             var jobExecutionContexts = new List<IJobExecutionContext>();
             var dataMap = new JobDataMap { { "JobExecution", jobExecutionContexts } };
 
-            var mockIJobDetailProvider = new Mock<IJobDetailProvider>();
-            mockIJobDetailProvider
-                .Setup(x => x.GetQueuePollingJobDetail())
+            var mockIJobDataProvider = new Mock<IJobDataProvider>();
+            mockIJobDataProvider
+                .Setup(x => x.GetPollingJobDetail())
                 .Returns(
                     JobBuilder
                     .Create<MockIJob>()
@@ -54,37 +64,33 @@
                     .Build()
                 );
 
+            mockIJobDataProvider
+                .SetupGet(m => m.PollingDefinition)
+                .Returns(retryDurablePollingDefinition);
+
             var mockILogHandler = new Mock<ILogHandler>();
             mockILogHandler.Setup(x => x.Info(It.IsAny<string>(), It.IsAny<object>()));
             mockILogHandler.Setup(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()));
-            var retryDurablePollingDefinition =
-                new RetryDurablePollingDefinition(
-                    enabled: true,
-                    cronExpression: "*/5 * * ? * * *",
-                    fetchSize: 100,
-                    expirationIntervalFactor: 1,
-                    id: "pollingId"
-                );
 
             var queueTracker1 = new QueueTracker(
                 mockILogHandler.Object,
-                retryDurablePollingDefinition,
-                mockIJobDetailProvider.Object,
+                schedulerId,
+                new[] { mockIJobDataProvider.Object },
                 mockITriggerProvider1.Object
                 );
 
             // act
-            queueTracker1.ScheduleJob();
+            queueTracker1.ScheduleJobs();
 
             await WaitForSeconds(6).ConfigureAwait(false);
 
-            queueTracker1.UnscheduleJob();
+            queueTracker1.UnscheduleJobs();
 
             await WaitForSeconds(15).ConfigureAwait(false);
 
             var mockITriggerProvider2 = new Mock<ITriggerProvider>();
             mockITriggerProvider2
-                .Setup(x => x.GetQueuePollingTrigger())
+                .Setup(x => x.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()))
                 .Returns(() =>
                     TriggerBuilder
                     .Create()
@@ -97,16 +103,16 @@
 
             var queueTracker2 = new QueueTracker(
                 mockILogHandler.Object,
-                retryDurablePollingDefinition,
-                mockIJobDetailProvider.Object,
+                schedulerId,
+                new[] { mockIJobDataProvider.Object },
                 mockITriggerProvider2.Object
                 );
 
-            queueTracker2.ScheduleJob();
+            queueTracker2.ScheduleJobs();
 
             await WaitForSeconds(6).ConfigureAwait(false);
 
-            queueTracker2.UnscheduleJob();
+            queueTracker2.UnscheduleJobs();
 
             await WaitForSeconds(15).ConfigureAwait(false);
 

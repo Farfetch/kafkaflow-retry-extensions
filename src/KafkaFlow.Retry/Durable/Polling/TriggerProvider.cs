@@ -1,29 +1,38 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions;
+    using System.Collections.Generic;
+    using KafkaFlow.Retry.Durable.Definitions.Polling;
     using Quartz;
 
     internal class TriggerProvider : ITriggerProvider
     {
-        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly IDictionary<string, ITrigger> triggers;
 
-        public TriggerProvider(RetryDurablePollingDefinition retryDurablePollingDefinition)
+        public TriggerProvider()
         {
-            Guard.Argument(retryDurablePollingDefinition).NotNull();
-
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
+            this.triggers = new Dictionary<string, ITrigger>();
         }
 
-        public ITrigger GetQueuePollingTrigger()
+        public ITrigger GetPollingTrigger(string schedulerId, PollingDefinition pollingDefinition)
         {
-            return TriggerBuilder
-                .Create()
-                .WithIdentity($"pollingJob_{this.retryDurablePollingDefinition.Id}", "queueTrackerGroup")
-                .WithCronSchedule(this.retryDurablePollingDefinition.CronExpression)
-                .StartNow()
-                .WithPriority(1)
-                .Build();
+            var triggerId = $"pollingJobTrigger_{schedulerId}_{pollingDefinition.PollingJobType}";
+
+            if (this.triggers.TryGetValue(triggerId, out var triggerAlreadyCreated))
+            {
+                return triggerAlreadyCreated;
+            }
+
+            var trigger = TriggerBuilder
+                            .Create()
+                            .WithIdentity(triggerId, "queueTrackerGroup")
+                            .WithCronSchedule(pollingDefinition.CronExpression)
+                            .StartNow()
+                            .WithPriority(1)
+                            .Build();
+
+            this.triggers.Add(triggerId, trigger);
+
+            return trigger;
         }
     }
 }

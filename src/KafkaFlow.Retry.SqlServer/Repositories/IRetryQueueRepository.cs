@@ -11,6 +11,8 @@
     {
         Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo);
 
+        Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete);
+
         Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey);
 
         Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey);

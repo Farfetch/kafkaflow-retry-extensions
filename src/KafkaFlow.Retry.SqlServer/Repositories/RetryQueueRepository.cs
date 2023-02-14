@@ -33,6 +33,31 @@
             }
         }
 
+        public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
+        {
+            using (var command = dbConnection.CreateCommand())
+            {
+                command.CommandType = System.Data.CommandType.Text;
+                command.CommandText = @"DELETE FROM [RetryQueues] WHERE Id IN
+                                        (
+                                            SELECT Id FROM [RetryQueues] rq
+                                                WHERE rq.SearchGroupKey = @SearchGroupKey
+                                                AND rq.LastExecution < @MaxLastExecutionDateToBeKept
+                                                AND rq.IdStatus = @IdStatus
+                                                ORDER BY 1
+                                                OFFSET 0 ROWS
+                                                FETCH NEXT @MaxRowsToDelete ROWS ONLY
+                                        )";
+
+                command.Parameters.AddWithValue("SearchGroupKey", searchGroupKey);
+                command.Parameters.AddWithValue("MaxLastExecutionDateToBeKept", maxLastExecutionDateToBeKept);
+                command.Parameters.AddWithValue("IdStatus", (byte)retryQueueStatus);
+                command.Parameters.AddWithValue("MaxRowsToDelete", maxRowsToDelete);
+
+                return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
+            }
+        }
+
         public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey)
         {
             using (var command = dbConnection.CreateCommand())

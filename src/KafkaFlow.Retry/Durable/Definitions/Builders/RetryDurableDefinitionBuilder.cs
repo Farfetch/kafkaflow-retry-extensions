@@ -6,6 +6,7 @@
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
@@ -17,8 +18,8 @@
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
         private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
         private Type messageType;
+        private PollingDefinitionsAggregator pollingDefinitionsAggregator;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
-        private RetryDurablePollingDefinition retryDurablePollingDefinition;
         private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
 
@@ -65,11 +66,11 @@
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithQueuePollingJobConfiguration(Action<RetryDurableQueuePollingJobDefinitionBuilder> configure)
+        public RetryDurableDefinitionBuilder WithPollingJobsConfiguration(Action<PollingDefinitionsAggregatorBuilder> configure)
         {
-            var retryDurablePollingDefinitionBuilder = new RetryDurableQueuePollingJobDefinitionBuilder();
-            configure(retryDurablePollingDefinitionBuilder);
-            this.retryDurablePollingDefinition = retryDurablePollingDefinitionBuilder.Build();
+            var pollingDefinitionsAggregatorBuilder = new PollingDefinitionsAggregatorBuilder();
+            configure(pollingDefinitionsAggregatorBuilder);
+            this.pollingDefinitionsAggregator = pollingDefinitionsAggregatorBuilder.Build();
 
             return this;
         }
@@ -113,7 +114,7 @@
                     messageHeadersAdapter,
                     messageAdapter,
                     utf8Encoder,
-                    this.retryDurablePollingDefinition);
+                    this.pollingDefinitionsAggregator);
 
             this.retryDurableEmbeddedClusterDefinitionBuilder
                 .Build(
@@ -124,7 +125,7 @@
                     newtonsoftJsonSerializer,
                     messageAdapter,
                     messageHeadersAdapter,
-                    this.retryDurablePollingDefinition
+                    this.pollingDefinitionsAggregator
                 );
 
             return new RetryDurableDefinition(

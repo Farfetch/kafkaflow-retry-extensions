@@ -1,10 +1,10 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿namespace KafkaFlow.Retry.Durable.Polling.Jobs
 {
     using System;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
@@ -14,7 +14,7 @@
     using Quartz;
 
     [Quartz.DisallowConcurrentExecutionAttribute()]
-    internal class QueuePollingJob : IJob
+    internal class RetryDurablePollingJob : IJob
     {
         private TimeSpan expirationInterval = TimeSpan.Zero;
 
@@ -22,34 +22,35 @@
         {
             var jobDataMap = context.JobDetail.JobDataMap;
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.RetryDurableQueueRepository), QueuePollingJobConstants.RetryDurableQueueRepository)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurableQueueRepository), PollingJobConstants.RetryDurableQueueRepository)
                 .True("Argument RetryDurableQueueRepository wasn't found and is required for this job");
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.RetryDurableMessageProducer), QueuePollingJobConstants.RetryDurableMessageProducer)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurableMessageProducer), PollingJobConstants.RetryDurableMessageProducer)
                 .True("Argument RetryDurableProducer wasn't found and is required for this job");
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.RetryDurablePollingDefinition), QueuePollingJobConstants.RetryDurablePollingDefinition)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurablePollingDefinition), PollingJobConstants.RetryDurablePollingDefinition)
                 .True("Argument RetryDurablePollingDefinition wasn't found and is required for this job");
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.LogHandler), QueuePollingJobConstants.LogHandler)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.LogHandler), PollingJobConstants.LogHandler)
                 .True("Argument LogHandler wasn't found and is required for this job");
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.MessageHeadersAdapter), QueuePollingJobConstants.MessageHeadersAdapter)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.MessageHeadersAdapter), PollingJobConstants.MessageHeadersAdapter)
                 .True("Argument MessageHeadersAdapter wasn't found and is required for this job");
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.MessageAdapter), QueuePollingJobConstants.MessageAdapter)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.MessageAdapter), PollingJobConstants.MessageAdapter)
                 .True("Argument MessageAdapter wasn't found and is required for this job");
 
-            Guard.Argument(jobDataMap.ContainsKey(QueuePollingJobConstants.Utf8Encoder), QueuePollingJobConstants.Utf8Encoder)
+            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.Utf8Encoder), PollingJobConstants.Utf8Encoder)
                 .True("Argument Utf8Encoder wasn't found and is required for this job");
 
-            var retryDurableQueueRepository = jobDataMap[QueuePollingJobConstants.RetryDurableQueueRepository] as IRetryDurableQueueRepository;
-            var retryDurableProducer = jobDataMap[QueuePollingJobConstants.RetryDurableMessageProducer] as IMessageProducer;
-            var retryDurablePollingDefinition = jobDataMap[QueuePollingJobConstants.RetryDurablePollingDefinition] as RetryDurablePollingDefinition;
-            var logHandler = jobDataMap[QueuePollingJobConstants.LogHandler] as ILogHandler;
-            var messageHeadersAdapter = jobDataMap[QueuePollingJobConstants.MessageHeadersAdapter] as IMessageHeadersAdapter;
-            var messageAdapter = jobDataMap[QueuePollingJobConstants.MessageAdapter] as IMessageAdapter;
-            var utf8Encoder = jobDataMap[QueuePollingJobConstants.Utf8Encoder] as IUtf8Encoder;
+            var retryDurableQueueRepository = jobDataMap[PollingJobConstants.RetryDurableQueueRepository] as IRetryDurableQueueRepository;
+            var retryDurableProducer = jobDataMap[PollingJobConstants.RetryDurableMessageProducer] as IMessageProducer;
+            var retryDurablePollingDefinition = jobDataMap[PollingJobConstants.RetryDurablePollingDefinition] as RetryDurablePollingDefinition;
+            var logHandler = jobDataMap[PollingJobConstants.LogHandler] as ILogHandler;
+            var messageHeadersAdapter = jobDataMap[PollingJobConstants.MessageHeadersAdapter] as IMessageHeadersAdapter;
+            var messageAdapter = jobDataMap[PollingJobConstants.MessageAdapter] as IMessageAdapter;
+            var utf8Encoder = jobDataMap[PollingJobConstants.Utf8Encoder] as IUtf8Encoder;
+            var schedulerId = jobDataMap[PollingJobConstants.SchedulerId] as string;
 
             Guard.Argument(retryDurableQueueRepository).NotNull();
             Guard.Argument(retryDurableProducer).NotNull();
@@ -58,11 +59,12 @@
             Guard.Argument(messageHeadersAdapter).NotNull();
             Guard.Argument(messageAdapter).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
+            Guard.Argument(schedulerId).NotNull().NotEmpty();
 
             try
             {
                 logHandler.Info(
-                    "PollingJob starts execution",
+                    $"{nameof(RetryDurablePollingJob)} starts execution",
                     new
                     {
                         Name = context.Trigger.Key.Name
@@ -81,7 +83,7 @@
                        )
                    )
                    {
-                       SearchGroupKey = retryDurablePollingDefinition.Id
+                       SearchGroupKey = schedulerId
                    };
 
                 var activeQueues = await retryDurableQueueRepository
@@ -89,7 +91,7 @@
                     .ConfigureAwait(false);
 
                 logHandler.Verbose(
-                    "PollingJob number of active queues",
+                    $"{nameof(RetryDurablePollingJob)} number of active queues",
                     new
                     {
                         activeQueues
@@ -101,7 +103,7 @@
                     if (!queue.Items.Any())
                     {
                         logHandler.Verbose(
-                            "PollingJob queue with no items",
+                            $"{nameof(RetryDurablePollingJob)} queue with no items",
                             new
                             {
                                 QueueId = queue.Id,
@@ -117,7 +119,7 @@
                         if (!this.IsAbleToBeProduced(item, retryDurablePollingDefinition))
                         {
                             logHandler.Verbose(
-                                "PollingJob queue item is not able to be produced",
+                                $"{nameof(RetryDurablePollingJob)} queue item is not able to be produced",
                                 new
                                 {
                                     QueueId = queue.Id,
@@ -148,7 +150,7 @@
                                 ).ConfigureAwait(false);
 
                             logHandler.Verbose(
-                                "PollingJob queue item produced",
+                                $"{nameof(RetryDurablePollingJob)} queue item produced",
                                 new
                                 {
                                     QueueId = queue.Id,
@@ -162,7 +164,7 @@
                         catch (Exception ex)
                         {
                             logHandler.Error(
-                                "Exception on queue PollingJob execution producing to retry topic",
+                                $"Exception on queue {nameof(RetryDurablePollingJob)} execution producing to retry topic",
                                 ex,
                                 new
                                 {
@@ -184,11 +186,11 @@
             }
             catch (RetryDurableException rdex)
             {
-                logHandler.Error("RetryDurableException on queue PollingJob execution", rdex, null);
+                logHandler.Error($"RetryDurableException on queue {nameof(RetryDurablePollingJob)} execution", rdex, null);
             }
             catch (Exception ex)
             {
-                logHandler.Error("Exception on queue PollingJob execution", ex, null);
+                logHandler.Error($"Exception on queue {nameof(RetryDurablePollingJob)} execution", ex, null);
             }
         }
 
