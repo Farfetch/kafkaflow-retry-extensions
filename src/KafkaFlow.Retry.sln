@@ -44,6 +44,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{
 		..\.github\workflows\publish.yml = ..\.github\workflows\publish.yml
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.Postgres", "KafkaFlow.Retry.Postgres\KafkaFlow.Retry.Postgres.csproj", "{B7E4C23D-48DC-4056-8658-19D54AF7008A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,10 @@ Global
 		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -106,6 +112,7 @@ Global
 		{510D65E8-B62C-402C-9CE3-47C7055A29FF} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
 		{B14C5859-85C5-4E2F-80C7-D8B29E36481A} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
 		{2A0BC610-E0FE-4BC3-B232-A8B918BE7381} = {9557F908-472F-4872-BCF8-8EC028EFDA9B}
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A} = {90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A953E534-FBCA-4F30-9CA5-96F67C1A49D8}

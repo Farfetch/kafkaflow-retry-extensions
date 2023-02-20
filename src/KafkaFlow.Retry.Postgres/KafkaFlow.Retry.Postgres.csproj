@@ -1,0 +1,45 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <Authors>FARFETCH</Authors>
+    <Version></Version>
+    <PackageVersion></PackageVersion>
+    <AssemblyVersion></AssemblyVersion>
+    <FileVersion></FileVersion>
+    <InformationalVersion></InformationalVersion>
+    <PackageLicenseFile>LICENSE.md</PackageLicenseFile>
+    <PackageProjectUrl></PackageProjectUrl>
+    <RepositoryType>Git</RepositoryType>
+    <PackageTags>kafka flow kafkaflow extension extensions retry postgres</PackageTags>
+    <Description>A durable persistence adapter for PostgreSQL for KafkaFlow.Retry extension.</Description>
+    <Copyright>Copyright (c) FARFETCH 2021</Copyright>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Remove="Deploy\00 - Create_Database.sql" />
+    <None Remove="Deploy\01 - Create_Tables.sql" />
+    <None Remove="Deploy\02 - Populate_Tables.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Deploy\00 - Create_Database.sql" />
+    <EmbeddedResource Include="Deploy\01 - Create_Tables.sql" />
+    <EmbeddedResource Include="Deploy\02 - Populate_Tables.sql" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\..\LICENSE.md" Pack="true" Link="LICENSE.md" PackagePath=".">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Npgsql" Version="7.0.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
+  </ItemGroup>
+</Project>
