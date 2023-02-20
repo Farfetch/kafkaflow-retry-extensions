@@ -11,11 +11,11 @@ using KafkaFlow.Retry.Postgres.Repositories;
 
 namespace KafkaFlow.Retry.Postgres
 {
-    public sealed class SqlServerDbDataProviderFactory
+    public sealed class PostgresDbDataProviderFactory
     {
-        public IRetryDurableQueueRepositoryProvider Create(SqlServerDbSettings sqlServerDbSettings)
+        public IRetryDurableQueueRepositoryProvider Create(PostgresDbSettings postgresDbSettings)
         {
-            Guard.Argument(sqlServerDbSettings)
+            Guard.Argument(postgresDbSettings)
                 .NotNull("It is mandatory to config the factory before creating new instances of IRetryQueueDataProvider. Make sure the Config method is executed before the Create method.");
 
             var retryQueueItemMessageAdapter =
@@ -29,7 +29,7 @@ namespace KafkaFlow.Retry.Postgres
                 );
 
             return new RetryQueueDataProvider(
-                sqlServerDbSettings,
+                postgresDbSettings,
                 new ConnectionProvider(),
                 new RetryQueueItemMessageHeaderRepository(),
                 new RetryQueueItemMessageRepository(),
@@ -42,7 +42,7 @@ namespace KafkaFlow.Retry.Postgres
                 new RetryQueueItemMessageHeaderDboFactory());
         }
 
-        public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings) => new RetrySchemaCreator(sqlServerDbSettings, this.GetScriptsForSchemaCreation());
+        public IRetrySchemaCreator CreateSchemaCreator(PostgresDbSettings postgresDbSettings) => new RetrySchemaCreator(postgresDbSettings, this.GetScriptsForSchemaCreation());
 
         private IEnumerable<Script> GetScriptsForSchemaCreation()
         {
@@ -51,7 +51,7 @@ namespace KafkaFlow.Retry.Postgres
             Script createTables = null;
             Script populateTables = null;
 
-            using (Stream s = thisAssembly.GetManifestResourceStream("KafkaFlow.Retry.SqlServer.Deploy.01 - Create_Tables.sql"))
+            using (Stream s = thisAssembly.GetManifestResourceStream("KafkaFlow.Retry.Postgres.Deploy.01 - Create_Tables.sql"))
             {
                 using (StreamReader sr = new StreamReader(s))
                 {
@@ -59,7 +59,7 @@ namespace KafkaFlow.Retry.Postgres
                 }
             }
 
-            using (Stream s = thisAssembly.GetManifestResourceStream("KafkaFlow.Retry.SqlServer.Deploy.02 - Populate_Tables.sql"))
+            using (Stream s = thisAssembly.GetManifestResourceStream("KafkaFlow.Retry.Postgres.Deploy.02 - Populate_Tables.sql"))
             {
                 using (StreamReader sr = new StreamReader(s))
                 {

@@ -7,16 +7,16 @@ namespace KafkaFlow.Retry.Postgres
     [ExcludeFromCodeCoverage]
     internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
     {
-        private readonly SqlServerDbSettings sqlServerDbSettings;
+        private readonly PostgresDbSettings postgresDbSettings;
         private readonly bool withinTransaction;
         private bool committed = false;
-        private SqlConnection sqlConnection;
-        private SqlTransaction sqlTransaction;
+        private NpgsqlConnection sqlConnection;
+        private NpgsqlTransaction sqlTransaction;
 
-        public DbConnectionContext(SqlServerDbSettings sqlServerDbSettings, bool withinTransaction)
+        public DbConnectionContext(PostgresDbSettings postgresDbSettings, bool withinTransaction)
         {
-            Guard.Argument(sqlServerDbSettings).NotNull();
-            this.sqlServerDbSettings = sqlServerDbSettings;
+            Guard.Argument(postgresDbSettings).NotNull();
+            this.postgresDbSettings = postgresDbSettings;
             this.withinTransaction = withinTransaction;
         }
 
@@ -29,7 +29,7 @@ namespace KafkaFlow.Retry.Postgres
             }
         }
 
-        public SqlCommand CreateCommand()
+        public NpgsqlCommand CreateCommand()
         {
             var dbCommand = this.GetDbConnection().CreateCommand();
 
@@ -66,18 +66,18 @@ namespace KafkaFlow.Retry.Postgres
             }
         }
 
-        private SqlConnection GetDbConnection()
+        private NpgsqlConnection GetDbConnection()
         {
             if (this.sqlConnection is null)
             {
-                this.sqlConnection = new SqlConnection(this.postgresDbSettings.ConnectionString);
+                this.sqlConnection = new NpgsqlConnection(this.postgresDbSettings.ConnectionString);
                 this.sqlConnection.Open();
-                this.sqlConnection.ChangeDatabase(this.sqlServerDbSettings.DatabaseName);
+                this.sqlConnection.ChangeDatabase(this.postgresDbSettings.DatabaseName);
             }
             return this.sqlConnection;
         }
 
-        private SqlTransaction GetDbTransaction()
+        private NpgsqlTransaction GetDbTransaction()
         {
             if (this.sqlTransaction is null)
             {

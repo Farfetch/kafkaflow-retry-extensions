@@ -2,8 +2,8 @@
 {
     internal interface IConnectionProvider
     {
-        IDbConnection Create(SqlServerDbSettings sqlServerDbSettings);
+        IDbConnection Create(PostgresDbSettings postgresDbSettings);
 
-        IDbConnectionWithinTransaction CreateWithinTransaction(SqlServerDbSettings sqlServerDbSettings);
+        IDbConnectionWithinTransaction CreateWithinTransaction(PostgresDbSettings postgresDbSettings);
     }
 }

@@ -27,10 +27,10 @@ namespace KafkaFlow.Retry.Postgres
         private readonly IRetryQueueItemRepository retryQueueItemRepository;
         private readonly IRetryQueueReader retryQueueReader;
         private readonly IRetryQueueRepository retryQueueRepository;
-        private readonly SqlServerDbSettings sqlServerDbSettings;
+        private readonly PostgresDbSettings postgresDbSettings;
 
         public RetryQueueDataProvider(
-            SqlServerDbSettings sqlServerDbSettings,
+            PostgresDbSettings postgresDbSettings,
             IConnectionProvider connectionProvider,
             IRetryQueueItemMessageHeaderRepository retryQueueItemMessageHeaderRepository,
             IRetryQueueItemMessageRepository retryQueueItemMessageRepository,
@@ -42,7 +42,7 @@ namespace KafkaFlow.Retry.Postgres
             IRetryQueueItemMessageDboFactory retryQueueItemMessageDboFactory,
             IRetryQueueItemMessageHeaderDboFactory retryQueueItemMessageHeaderDboFactory)
         {
-            this.sqlServerDbSettings = sqlServerDbSettings;
+            this.postgresDbSettings = postgresDbSettings;
             this.connectionProvider = connectionProvider;
             this.retryQueueItemMessageHeaderRepository = retryQueueItemMessageHeaderRepository;
             this.retryQueueItemMessageRepository = retryQueueItemMessageRepository;
@@ -60,7 +60,7 @@ namespace KafkaFlow.Retry.Postgres
             Guard.Argument(input).NotNull();
 
             // Tries to find an active queue for the GroupKey
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
             {
                 var exists = await this.retryQueueRepository.ExistsActiveAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
@@ -75,7 +75,7 @@ namespace KafkaFlow.Retry.Postgres
         {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
             {
                 var itemsDbo = await this.retryQueueItemRepository.GetNewestItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
 
@@ -92,7 +92,7 @@ namespace KafkaFlow.Retry.Postgres
         {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
             {
                 var itemsDbo = await this.retryQueueItemRepository.GetPendingItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
 
@@ -111,7 +111,7 @@ namespace KafkaFlow.Retry.Postgres
 
             RetryQueuesDboWrapper dboWrapper = new RetryQueuesDboWrapper();
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
             {
                 dboWrapper.QueuesDbos = await this.retryQueueRepository.GetTopSortedQueuesOrderedAsync(
                     dbConnection,
@@ -164,7 +164,7 @@ namespace KafkaFlow.Retry.Postgres
         {
             Guard.Argument(input).NotNull();
 
-            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.postgresDbSettings))
             {
                 var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
@@ -200,7 +200,7 @@ namespace KafkaFlow.Retry.Postgres
 
             var results = new List<UpdateItemResult>();
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
             {
                 foreach (var itemId in input.ItemIds)
                 {
@@ -217,7 +217,7 @@ namespace KafkaFlow.Retry.Postgres
         {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
             {
                 var totalItemsUpdated = await this.retryQueueItemRepository
                     .UpdateStatusAsync(dbConnection, input.ItemId, input.Status).ConfigureAwait(false);
@@ -318,7 +318,7 @@ namespace KafkaFlow.Retry.Postgres
                 return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.UpdateIsNotAllowed);
             }
 
-            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.postgresDbSettings))
             {
                 var item = await this.retryQueueItemRepository.GetItemAsync(dbConnection, input.ItemId).ConfigureAwait(false);
 
@@ -359,7 +359,7 @@ namespace KafkaFlow.Retry.Postgres
 
         private async Task<UpdateItemResult> UpdateItemAndTryUpdateQueueToDoneAsync(UpdateItemExecutionInfoInput input)
         {
-            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.postgresDbSettings))
             {
                 //update item
                 var itemRowsAffected = await this.retryQueueItemRepository.UpdateAsync(dbConnection, input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description).ConfigureAwait(false);
@@ -387,7 +387,7 @@ namespace KafkaFlow.Retry.Postgres
 
         private async Task<UpdateQueueResult> UpdateQueueAndAllItemsAsync(UpdateItemsInQueueInput input)
         {
-            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
+            using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.postgresDbSettings))
             {
                 var queue = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 

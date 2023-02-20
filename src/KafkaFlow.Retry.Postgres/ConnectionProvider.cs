@@ -4,18 +4,18 @@ namespace KafkaFlow.Retry.Postgres
 {
     internal sealed class ConnectionProvider : IConnectionProvider
     {
-        public IDbConnection Create(SqlServerDbSettings sqlServerDbSettings)
+        public IDbConnection Create(PostgresDbSettings postgresDbSettings)
         {
-            Guard.Argument(sqlServerDbSettings).NotNull();
+            Guard.Argument(postgresDbSettings).NotNull();
 
-            return new DbConnectionContext(sqlServerDbSettings, false);
+            return new DbConnectionContext(postgresDbSettings, false);
         }
 
-        public IDbConnectionWithinTransaction CreateWithinTransaction(SqlServerDbSettings sqlServerDbSettings)
+        public IDbConnectionWithinTransaction CreateWithinTransaction(PostgresDbSettings postgresDbSettings)
         {
-            Guard.Argument(sqlServerDbSettings).NotNull();
+            Guard.Argument(postgresDbSettings).NotNull();
 
-            return new DbConnectionContext(sqlServerDbSettings, true);
+            return new DbConnectionContext(postgresDbSettings, true);
         }
     }
 }

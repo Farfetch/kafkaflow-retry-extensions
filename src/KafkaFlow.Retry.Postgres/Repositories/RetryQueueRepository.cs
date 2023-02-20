@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using KafkaFlow.Retry.Durable.Repository.Actions.Read;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.Postgres.Model;
+using Npgsql;
 
 namespace KafkaFlow.Retry.Postgres.Repositories
 {
@@ -141,7 +142,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             }
         }
 
-        private async Task<IList<RetryQueueDbo>> ExecuteReaderAsync(SqlCommand command)
+        private async Task<IList<RetryQueueDbo>> ExecuteReaderAsync(NpgsqlCommand command)
         {
             var queues = new List<RetryQueueDbo>();
 
@@ -156,7 +157,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             return queues;
         }
 
-        private async Task<RetryQueueDbo> ExecuteSingleLineReaderAsync(SqlCommand command)
+        private async Task<RetryQueueDbo> ExecuteSingleLineReaderAsync(NpgsqlCommand command)
         {
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
             {
@@ -169,7 +170,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             return null;
         }
 
-        private RetryQueueDbo FillDbo(SqlDataReader reader)
+        private RetryQueueDbo FillDbo(NpgsqlDataReader reader)
         {
             return new RetryQueueDbo
             {

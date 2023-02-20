@@ -3,6 +3,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Dawn;
 using KafkaFlow.Retry.Postgres.Model;
+using Npgsql;
 
 namespace KafkaFlow.Retry.Postgres.Repositories
 {
@@ -58,7 +59,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             }
         }
 
-        private async Task<IList<RetryQueueItemMessageHeaderDbo>> ExecuteReaderAsync(SqlCommand command)
+        private async Task<IList<RetryQueueItemMessageHeaderDbo>> ExecuteReaderAsync(NpgsqlCommand command)
         {
             var headers = new List<RetryQueueItemMessageHeaderDbo>();
 
@@ -78,7 +79,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             return headers;
         }
 
-        private RetryQueueItemMessageHeaderDbo FillDbo(SqlDataReader reader, int idColumn, int keyColumn, int retryQueueItemMessageColumn, int valueColumn)
+        private RetryQueueItemMessageHeaderDbo FillDbo(NpgsqlDataReader reader, int idColumn, int keyColumn, int retryQueueItemMessageColumn, int valueColumn)
         {
             return new RetryQueueItemMessageHeaderDbo
             {

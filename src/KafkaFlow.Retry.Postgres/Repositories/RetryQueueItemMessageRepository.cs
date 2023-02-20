@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using Dawn;
 using KafkaFlow.Retry.Postgres.Model;
+using Npgsql;
 
 namespace KafkaFlow.Retry.Postgres.Repositories
 {
@@ -47,9 +48,9 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                     dr["Id"] = retryQueueItemDbo.Id;
                     entriesToLoad.Rows.Add(dr);
                 }
-                var parameter = new SqlParameter("@RetryQueueItemsIds", entriesToLoad);
+                var parameter = new NpgsqlParameter("@RetryQueueItemsIds", entriesToLoad);
                 parameter.Direction = System.Data.ParameterDirection.Input;
-                parameter.TypeName = "dbo.TY_RetryQueueItemsIds";
+                parameter.DataTypeName = "dbo.TY_RetryQueueItemsIds";
 
                 command.Parameters.Add(parameter);
                 command.CommandType = System.Data.CommandType.Text;
@@ -59,7 +60,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             }
         }
 
-        private async Task<IList<RetryQueueItemMessageDbo>> ExecuteReaderAsync(SqlCommand command)
+        private async Task<IList<RetryQueueItemMessageDbo>> ExecuteReaderAsync(NpgsqlCommand command)
         {
             var messages = new List<RetryQueueItemMessageDbo>();
 
@@ -74,7 +75,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             return messages;
         }
 
-        private RetryQueueItemMessageDbo FillDbo(SqlDataReader reader)
+        private RetryQueueItemMessageDbo FillDbo(NpgsqlDataReader reader)
         {
             return new RetryQueueItemMessageDbo
             {

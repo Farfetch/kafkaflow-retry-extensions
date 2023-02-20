@@ -10,7 +10,7 @@ IF (NOT EXISTS (SELECT *
                  AND  TABLE_NAME = 'QueueStatus'))
 BEGIN
     CREATE TABLE [dbo].[QueueStatus] (
-	[Code] [tinyint] PRIMARY KEY NOT NULL,
+	[Code] [smallint] PRIMARY KEY NOT NULL,
 	[Name] [varchar](255) NOT NULL,
 	[Description] [varchar](255) NOT NULL)
 
@@ -25,7 +25,7 @@ IF (NOT EXISTS (SELECT *
 BEGIN
 
 	CREATE TABLE [dbo].[QueueItemStatus] (
-		[Code] [tinyint] PRIMARY KEY NOT NULL,
+		[Code] [smallint] PRIMARY KEY NOT NULL,
 		[Name] [varchar](255) NOT NULL,
 		[Description] [varchar](255) NOT NULL)
 
@@ -40,7 +40,7 @@ IF (NOT EXISTS (SELECT *
 BEGIN
 
 	CREATE TABLE [dbo].[QueueItemSeverity] (
-		[Code] [tinyint] PRIMARY KEY NOT NULL,
+		[Code] [smallint] PRIMARY KEY NOT NULL,
 		[Name] [varchar](255) NOT NULL,
 		[Description] [varchar](255) NOT NULL)
 
@@ -56,12 +56,12 @@ BEGIN
 
 	CREATE TABLE [dbo].[RetryQueues] (
 		[Id] [bigint] PRIMARY KEY IDENTITY(1,1),
-		[IdDomain] [uniqueidentifier] UNIQUE,
-		[IdStatus] [tinyint] NOT NULL,
-		[SearchGroupKey] [nvarchar](255) NOT NULL,
-		[QueueGroupKey] [nvarchar](255) NOT NULL,
-		[CreationDate] [datetime2](7) NOT NULL,
-		[LastExecution] [datetime2](7) NOT NULL,
+		[IdDomain] [uuid] UNIQUE,
+		[IdStatus] [smallint] NOT NULL,
+		[SearchGroupKey] [varchar](255) NOT NULL,
+		[QueueGroupKey] [varchar](255) NOT NULL,
+		[CreationDate] [timestamp](7) NOT NULL,
+		[LastExecution] [timestamp](7) NOT NULL,
 		CONSTRAINT [FK_RetryQueueStatus_RetryQueues] FOREIGN KEY ([IdStatus]) REFERENCES [dbo].[QueueStatus]([Code]),
 		)
 	PRINT 'Created table [RetryQueues]'
@@ -75,17 +75,17 @@ IF (NOT EXISTS (SELECT *
 BEGIN
 	CREATE TABLE [dbo].[RetryQueueItems] (
 		[Id] [bigint] PRIMARY KEY IDENTITY(1,1),
-		[IdDomain] [uniqueidentifier] NOT NULL,
+		[IdDomain] [uuid] NOT NULL,
 		[IdRetryQueue] [bigint] NOT NULL, 
-		[IdDomainRetryQueue] [uniqueidentifier] NOT NULL,
-		[IdItemStatus] [tinyint] NOT NULL,
-		[IdSeverityLevel] [tinyint] NOT NULL,
+		[IdDomainRetryQueue] [uuid] NOT NULL,
+		[IdItemStatus] [smallint] NOT NULL,
+		[IdSeverityLevel] [smallint] NOT NULL,
 		[AttemptsCount] [int] NOT NULL,
 		[Sort] [int] NOT NULL,
-		[CreationDate] [datetime2](7) NOT NULL,
-		[LastExecution] [datetime2](7),
-		[ModifiedStatusDate] [datetime2](7),
-		[Description] [nvarchar](MAX) NULL,
+		[CreationDate] [timestamp](7) NOT NULL,
+		[LastExecution] [timestamp](7),
+		[ModifiedStatusDate] [timestamp](7),
+		[Description] [varchar](MAX) NULL,
 		CONSTRAINT [FK_RetryQueues_RetryQueueItems_IdRetryQueue] FOREIGN KEY ([IdRetryQueue]) REFERENCES [dbo].[RetryQueues]([Id]) ON DELETE CASCADE,
 		CONSTRAINT [FK_RetryQueues_RetryQueueItems_IdDomainRetryQueue] FOREIGN KEY ([IdDomainRetryQueue]) REFERENCES [dbo].[RetryQueues]([IdDomain]),
 		CONSTRAINT [FK_QueueItemStatus_RetryQueueItems] FOREIGN KEY ([IdItemStatus]) REFERENCES [dbo].[QueueItemStatus]([Code]),
@@ -102,12 +102,12 @@ IF (NOT EXISTS (SELECT *
 BEGIN
 	CREATE TABLE [dbo].[ItemMessages] (
 		[IdRetryQueueItem] [bigint] PRIMARY KEY,		
-		[Key] [varbinary](8000) NOT NULL,
-		[Value] [varbinary](MAX) NOT NULL,
-		[TopicName] [nvarchar](300) NOT NULL,
+		[Key] [bytea] NOT NULL,
+		[Value] [bytea] NOT NULL,
+		[TopicName] [varchar](300) NOT NULL,
 		[Partition] [int] NOT NULL,
 		[Offset] [bigint] NOT NULL,
-		[UtcTimeStamp] [datetime2](7) NOT NULL,
+		[UtcTimeStamp] [timestamp](7) NOT NULL,
 		CONSTRAINT [FK_RetryQueueItems_ItemMessages] FOREIGN KEY ([IdRetryQueueItem]) REFERENCES [dbo].[RetryQueueItems]([Id]) ON DELETE CASCADE,
 		)
 	PRINT 'Created table [ItemMessages]'
@@ -122,8 +122,8 @@ BEGIN
 	CREATE TABLE [dbo].[RetryItemMessageHeaders] (
 		[Id] [bigint] PRIMARY KEY IDENTITY(1,1) NOT NULL,
 		[IdItemMessage] [bigint] NOT NULL,
-		[Key] [nvarchar](255) NOT NULL,
-		[Value] [varbinary](8000) NOT NULL,
+		[Key] [varchar](255) NOT NULL,
+		[Value] [bytea] NOT NULL,
 		CONSTRAINT [FK_ItemMessages_RetryItemMessageHeaders] FOREIGN KEY ([IdItemMessage]) REFERENCES [dbo].[ItemMessages]([IdRetryQueueItem]) ON DELETE CASCADE,
 		)
 	PRINT 'Created table [RetryItemMessageHeaders]'

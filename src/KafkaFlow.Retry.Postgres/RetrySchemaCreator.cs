@@ -2,26 +2,27 @@
 using System.Threading.Tasks;
 using Dawn;
 using KafkaFlow.Retry.Postgres.Model.Schema;
+using Npgsql;
 
 namespace KafkaFlow.Retry.Postgres
 {
     internal class RetrySchemaCreator : IRetrySchemaCreator
     {
         private readonly IEnumerable<Script> schemaScripts;
-        private readonly SqlServerDbSettings sqlServerDbSettings;
+        private readonly PostgresDbSettings postgresDbSettings;
 
-        public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
+        public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
         {
-            Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
+            Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
             Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-            this.sqlServerDbSettings = sqlServerDbSettings;
+            this.postgresDbSettings = postgresDbSettings;
             this.schemaScripts = schemaScripts;
         }
 
         public async Task CreateOrUpdateSchemaAsync(string databaseName)
         {
-            using (SqlConnection openCon = new SqlConnection(this.sqlServerDbSettings.ConnectionString))
+            using (NpgsqlConnection openCon = new NpgsqlConnection(this.postgresDbSettings.ConnectionString))
             {
                 openCon.Open();
 
@@ -33,7 +34,7 @@ namespace KafkaFlow.Retry.Postgres
                     {
                         string replacedBatch = batch.Replace("@dbname", databaseName);
 
-                        using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
+                        using (NpgsqlCommand queryCommand = new NpgsqlCommand(replacedBatch))
                         {
                             queryCommand.Connection = openCon;
 

@@ -2,15 +2,15 @@
 {
     public static class RetryDurableDefinitionBuilderExtension
     {
-        public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
+        public static RetryDurableDefinitionBuilder WithPostgresDataProvider(
             this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
             string connectionString,
             string databaseName)
         {
             retryDurableDefinitionBuilder.WithRepositoryProvider(
-                new SqlServerDbDataProviderFactory()
+                new PostgresDbDataProviderFactory()
                     .Create(
-                        new SqlServerDbSettings(
+                        new PostgresDbSettings(
                             connectionString,
                             databaseName)
                     )

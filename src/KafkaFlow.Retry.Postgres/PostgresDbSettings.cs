@@ -4,9 +4,9 @@ using Dawn;
 namespace KafkaFlow.Retry.Postgres
 {
     [ExcludeFromCodeCoverage]
-    public class SqlServerDbSettings
+    public class PostgresDbSettings
     {
-        public SqlServerDbSettings(string connectionString, string databaseName)
+        public PostgresDbSettings(string connectionString, string databaseName)
         {
             Guard.Argument(connectionString).NotNull().NotEmpty();
             Guard.Argument(databaseName).NotNull().NotEmpty();
