@@ -1,8 +1,10 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using Dawn;
 using KafkaFlow.Retry.Postgres.Model;
 using Npgsql;
+using NpgsqlTypes;
 
 namespace KafkaFlow.Retry.Postgres.Repositories
 {
@@ -26,7 +28,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                 command.Parameters.AddWithValue("value", retryQueueItemMessageDbo.Value);
                 command.Parameters.AddWithValue("topicName", retryQueueItemMessageDbo.TopicName);
                 command.Parameters.AddWithValue("partition", retryQueueItemMessageDbo.Partition);
-                command.Parameters.AddWithValue("offSet", retryQueueItemMessageDbo.Offset);
+                command.Parameters.AddWithValue("OffSet", retryQueueItemMessageDbo.Offset);
                 command.Parameters.AddWithValue("utcTimeStamp", retryQueueItemMessageDbo.UtcTimeStamp);
 
                 await command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -40,21 +42,11 @@ namespace KafkaFlow.Retry.Postgres.Repositories
 
             using (var command = dbConnection.CreateCommand())
             {
-                var entriesToLoad = new System.Data.DataTable("TY_RetryQueueItemsIds");
-                entriesToLoad.Columns.Add("Id", typeof(int));
-                foreach (var retryQueueItemDbo in retryQueueItemsDbo)
-                {
-                    System.Data.DataRow dr = entriesToLoad.NewRow();
-                    dr["Id"] = retryQueueItemDbo.Id;
-                    entriesToLoad.Rows.Add(dr);
-                }
-                var parameter = new NpgsqlParameter("@RetryQueueItemsIds", entriesToLoad);
-                parameter.Direction = System.Data.ParameterDirection.Input;
-                parameter.DataTypeName = "dbo.TY_RetryQueueItemsIds";
-
-                command.Parameters.Add(parameter);
+                var retryQueueItemIds = retryQueueItemsDbo.Select(x => x.Id);
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"EXEC P_LoadItemMessages @RetryQueueItemsIds";
+                command.CommandText = $@"SELECT * FROM dbo.P_LoadItemMessages(@retryQueueItemIds)";
+                command.Parameters.AddWithValue("retryQueueItemIds", 
+                    NpgsqlDbType.Array | NpgsqlDbType.Bigint, retryQueueItemIds.ToArray());
 
                 return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
             }

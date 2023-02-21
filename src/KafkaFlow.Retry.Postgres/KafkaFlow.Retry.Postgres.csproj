@@ -18,13 +18,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Deploy\00 - Create_Database.sql" />
     <None Remove="Deploy\01 - Create_Tables.sql" />
     <None Remove="Deploy\02 - Populate_Tables.sql" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Deploy\00 - Create_Database.sql" />
     <EmbeddedResource Include="Deploy\01 - Create_Tables.sql" />
     <EmbeddedResource Include="Deploy\02 - Populate_Tables.sql" />
   </ItemGroup>
