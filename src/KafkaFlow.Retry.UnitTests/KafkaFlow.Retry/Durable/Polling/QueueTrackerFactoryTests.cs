@@ -3,67 +3,31 @@
     using System;
     using System.Collections.Generic;
     using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-    using global::KafkaFlow.Retry.Durable.Encoders;
     using global::KafkaFlow.Retry.Durable.Polling;
-    using global::KafkaFlow.Retry.Durable.Repository;
-    using global::KafkaFlow.Retry.Durable.Repository.Adapters;
     using Moq;
     using Xunit;
 
     public class QueueTrackerFactoryTests
     {
-        private static readonly PollingDefinitionsAggregator pollingDefinitionsAggregator =
-            new PollingDefinitionsAggregator(
-                "id",
-                new PollingDefinition[]
-                {
-                    new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100),
-                    new CleanupPollingDefinition(true, "*/30 * * ? * *", 10, 100)
-                }
-            );
-
         public static IEnumerable<object[]> DataTest() => new List<object[]>
         {
             new object[]
             {
                 null,
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>() ,
-                Mock.Of<IMessageAdapter>() ,
-                Mock.Of<IUtf8Encoder>() ,
+                Mock.Of<IJobDataProvidersFactory>(),
+                typeof(ArgumentNullException)
             },
             new object[]
             {
-                pollingDefinitionsAggregator,
+                string.Empty,
+                Mock.Of<IJobDataProvidersFactory>(),
+                typeof(ArgumentException)
+            },
+            new object[]
+            {
+                "id",
                 null,
-                Mock.Of<IMessageHeadersAdapter>() ,
-                Mock.Of<IMessageAdapter>() ,
-                Mock.Of<IUtf8Encoder>() ,
-            },
-            new object[]
-            {
-                pollingDefinitionsAggregator,
-                Mock.Of<IRetryDurableQueueRepository>(),
-                null ,
-                Mock.Of<IMessageAdapter>(),
-                Mock.Of<IUtf8Encoder>()
-            },
-            new object[]
-            {
-                pollingDefinitionsAggregator,
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>() ,
-                null ,
-                Mock.Of<IUtf8Encoder>()
-            },
-            new object[]
-            {
-                pollingDefinitionsAggregator,
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>() ,
-                Mock.Of<IMessageAdapter>() ,
-                null
+                typeof(ArgumentNullException)
             }
         };
 
@@ -71,12 +35,12 @@
         public void QueueTrackerFactory_Create_Success()
         {
             // Arrange
-            var factory = new QueueTrackerFactory(
-                pollingDefinitionsAggregator,
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>(),
-                Mock.Of<IMessageAdapter>(),
-                Mock.Of<IUtf8Encoder>());
+            var mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
+            mockJobDataProvidersFactory
+                .Setup(m => m.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
+                .Returns(new[] { Mock.Of<IJobDataProvider>() });
+
+            var factory = new QueueTrackerFactory("id", mockJobDataProvidersFactory.Object);
 
             // Act
             var queueTracker = factory.Create(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
@@ -87,23 +51,13 @@
 
         [Theory]
         [MemberData(nameof(DataTest))]
-        public void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
-            object pollingDefinitionsAggregator,
-            object retryDurableQueueRepository,
-            object messageHeadersAdapter,
-            object messageAdapter,
-            object utf8Encoder)
+        internal void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
+            string schedulerId,
+            IJobDataProvidersFactory jobDataProvidersFactory,
+            Type expectedExceptionType)
         {
-            // Arrange & Act
-            Action act = () => new QueueTrackerFactory(
-                (PollingDefinitionsAggregator)pollingDefinitionsAggregator,
-                (IRetryDurableQueueRepository)retryDurableQueueRepository,
-                (IMessageHeadersAdapter)messageHeadersAdapter,
-                (IMessageAdapter)messageAdapter,
-                (IUtf8Encoder)utf8Encoder);
-
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
+            // Act & Assert
+            Assert.Throws(expectedExceptionType, () => new QueueTrackerFactory(schedulerId, jobDataProvidersFactory));
         }
     }
 }

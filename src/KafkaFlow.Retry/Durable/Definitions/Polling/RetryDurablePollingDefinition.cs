@@ -9,7 +9,7 @@
             string cronExpression,
             int fetchSize,
             int expirationIntervalFactor)
-            : base(PollingJobType.RetryDurable, enabled, cronExpression)
+            : base(enabled, cronExpression)
         {
             Guard.Argument(fetchSize, nameof(fetchSize)).Positive();
             Guard.Argument(expirationIntervalFactor, nameof(expirationIntervalFactor)).Positive();
@@ -21,5 +21,7 @@
         public int ExpirationIntervalFactor { get; }
 
         public int FetchSize { get; }
+
+        public override PollingJobType PollingJobType => PollingJobType.RetryDurable;
     }
 }

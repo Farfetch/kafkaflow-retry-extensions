@@ -84,6 +84,13 @@
                                                         .WithFetchSize(10)
                                                         .Enabled(true)
                                                 )
+                                                .WithCleanupPollingConfiguration(
+                                                    configure => configure
+                                                        .WithCronExpression("0 0 * 1/1 * ? *")
+                                                        .WithRowsPerRequest(1048)
+                                                        .WithTimeToLiveInDays(60)
+                                                        .Enabled(true)
+                                                )
                                         ))
                                 .AddTypedHandlers(
                                     handlers => handlers

@@ -25,7 +25,67 @@
     public class QueueTrackerTests
     {
         [Fact]
-        public async Task QueueTracker_ScheduleAndUnscheduleJobs_Success()
+        public async Task QueueTracker_ScheduleAndUnscheduleDifferentJobs_Success()
+        {
+            // arrange
+            var schedulerId = "twoJobsSchedulerId";
+
+            var retryDurablePollingDefinition =
+               new RetryDurablePollingDefinition(
+                   enabled: true,
+                   cronExpression: "*/2 * * ? * * *",
+                   fetchSize: 100,
+                   expirationIntervalFactor: 1
+               );
+
+            var cleanupPollingDefinition =
+               new CleanupPollingDefinition(
+                   enabled: true,
+                   cronExpression: "*/4 * * ? * * *",
+                   timeToLiveInDays: 1,
+                   rowsPerRequest: 10
+               );
+
+            var retryDurableTriggerKeyName = $"Trigger_{schedulerId}_{retryDurablePollingDefinition.PollingJobType}";
+            var cleanupTriggerKeyName = $"Trigger_{schedulerId}_{cleanupPollingDefinition.PollingJobType}";
+
+            var jobExecutionContexts = new List<IJobExecutionContext>();
+
+            var mockRetryDurableJobDataProvider = new Mock<IJobDataProvider>();
+            this.SetupMockJobDataProvider(
+                mockRetryDurableJobDataProvider,
+                retryDurablePollingDefinition,
+                retryDurableTriggerKeyName,
+                jobExecutionContexts);
+
+            var mockCleanupJobDataProvider = new Mock<IJobDataProvider>();
+            this.SetupMockJobDataProvider(
+                mockCleanupJobDataProvider,
+                cleanupPollingDefinition,
+                cleanupTriggerKeyName,
+                jobExecutionContexts);
+
+            var queueTracker = new QueueTracker(
+              schedulerId,
+              new[] { mockRetryDurableJobDataProvider.Object, mockCleanupJobDataProvider.Object },
+              Mock.Of<ILogHandler>()
+              );
+
+            // act
+            queueTracker.ScheduleJobs();
+
+            await WaitForSeconds(5);
+
+            queueTracker.UnscheduleJobs();
+
+            // assert
+            jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null).Count().Should().Be(2);
+            jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null && x.Trigger.Key.Name == retryDurableTriggerKeyName).Count().Should().Be(1);
+            jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null && x.Trigger.Key.Name == cleanupTriggerKeyName).Count().Should().Be(1);
+        }
+
+        [Fact]
+        public async Task QueueTracker_ScheduleAndUnscheduleRetryDurableJobs_Success()
         {
             // arrange
             var schedulerId = "pollingId";
@@ -36,19 +96,6 @@
                     cronExpression: "*/5 * * ? * * *",
                     fetchSize: 100,
                     expirationIntervalFactor: 1
-                );
-
-            var mockITriggerProvider1 = new Mock<ITriggerProvider>();
-            mockITriggerProvider1
-                .Setup(x => x.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()))
-                .Returns(() =>
-                    TriggerBuilder
-                    .Create()
-                    .WithIdentity("Trigger1", "queueTrackerGroup")
-                    .WithCronSchedule("*/5 * * ? * * *")
-                    .StartNow()
-                    .WithPriority(1)
-                    .Build()
                 );
 
             var jobExecutionContexts = new List<IJobExecutionContext>();
@@ -68,15 +115,25 @@
                 .SetupGet(m => m.PollingDefinition)
                 .Returns(retryDurablePollingDefinition);
 
+            mockIJobDataProvider
+                .SetupGet(m => m.Trigger)
+                .Returns(
+                    TriggerBuilder
+                        .Create()
+                        .WithIdentity("Trigger1", "queueTrackerGroup")
+                        .WithCronSchedule("*/5 * * ? * * *")
+                        .StartNow()
+                        .WithPriority(1)
+                        .Build());
+
             var mockILogHandler = new Mock<ILogHandler>();
             mockILogHandler.Setup(x => x.Info(It.IsAny<string>(), It.IsAny<object>()));
             mockILogHandler.Setup(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()));
 
             var queueTracker1 = new QueueTracker(
-                mockILogHandler.Object,
                 schedulerId,
                 new[] { mockIJobDataProvider.Object },
-                mockITriggerProvider1.Object
+                mockILogHandler.Object
                 );
 
             // act
@@ -88,24 +145,21 @@
 
             await WaitForSeconds(15).ConfigureAwait(false);
 
-            var mockITriggerProvider2 = new Mock<ITriggerProvider>();
-            mockITriggerProvider2
-                .Setup(x => x.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()))
-                .Returns(() =>
+            mockIJobDataProvider
+                .SetupGet(m => m.Trigger)
+                .Returns(
                     TriggerBuilder
-                    .Create()
-                    .WithIdentity("Trigger2", "queueTrackerGroup")
-                    .WithCronSchedule("*/5 * * ? * * *")
-                    .StartNow()
-                    .WithPriority(1)
-                    .Build()
-                );
+                        .Create()
+                        .WithIdentity("Trigger2", "queueTrackerGroup")
+                        .WithCronSchedule("*/5 * * ? * * *")
+                        .StartNow()
+                        .WithPriority(1)
+                        .Build());
 
             var queueTracker2 = new QueueTracker(
-                mockILogHandler.Object,
                 schedulerId,
                 new[] { mockIJobDataProvider.Object },
-                mockITriggerProvider2.Object
+                mockILogHandler.Object
                 );
 
             queueTracker2.ScheduleJobs();
@@ -142,6 +196,39 @@
             {
                 await Task.Delay(100).ConfigureAwait(false);
             }
+        }
+
+        private void SetupMockJobDataProvider(
+            Mock<IJobDataProvider> mockJobDataProvider,
+            PollingDefinition pollingDefinition,
+            string triggerKeyName,
+            List<IJobExecutionContext> jobExecutionContexts)
+        {
+            var dataMap = new JobDataMap { { "JobExecution", jobExecutionContexts } };
+
+            mockJobDataProvider
+                .Setup(x => x.GetPollingJobDetail())
+                .Returns(
+                    JobBuilder
+                    .Create<MockIJob>()
+                    .SetJobData(dataMap)
+                    .Build()
+                );
+
+            mockJobDataProvider
+                .SetupGet(m => m.PollingDefinition)
+                .Returns(pollingDefinition);
+
+            mockJobDataProvider
+                .SetupGet(m => m.Trigger)
+                .Returns(
+                    TriggerBuilder
+                        .Create()
+                        .WithIdentity(triggerKeyName, "queueTrackerGroupTest")
+                        .WithCronSchedule(pollingDefinition.CronExpression)
+                        .StartNow()
+                        .WithPriority(1)
+                        .Build());
         }
     }
 }

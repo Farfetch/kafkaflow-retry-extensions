@@ -1,12 +1,13 @@
 ﻿namespace KafkaFlow.Retry
 {
-    using Dawn;
     using KafkaFlow.Retry.Durable.Definitions.Polling;
 
     public class CleanupPollingDefinitionBuilder : PollingDefinitionBuilder<CleanupPollingDefinitionBuilder>
     {
         private int rowsPerRequest = 256;
-        private int timeToLiveInDays;
+        private int timeToLiveInDays = 30;
+
+        internal override bool Required => false;
 
         public CleanupPollingDefinitionBuilder WithRowsPerRequest(int rowsPerRequest)
         {
@@ -22,11 +23,6 @@
 
         internal CleanupPollingDefinition Build()
         {
-            if (this.enabled)
-            {
-                Guard.Argument(this.timeToLiveInDays, nameof(this.timeToLiveInDays)).Positive(n => $"A positive {nameof(this.timeToLiveInDays)} must be defined.");
-            }
-
             return new CleanupPollingDefinition(
                 this.enabled,
                 this.cronExpression,

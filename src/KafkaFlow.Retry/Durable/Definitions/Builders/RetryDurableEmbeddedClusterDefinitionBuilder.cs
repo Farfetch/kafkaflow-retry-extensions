@@ -75,8 +75,8 @@
             INewtonsoftJsonSerializer newtonsoftJsonSerializer,
             IMessageAdapter messageAdapter,
             IMessageHeadersAdapter messageHeadersAdapter,
-            PollingDefinitionsAggregator pollingDefinitionsAggregator
-            )
+            PollingDefinitionsAggregator pollingDefinitionsAggregator,
+            ITriggerProvider triggerProvider)
         {
             if (!enabled)
             {
@@ -99,11 +99,15 @@
             var queueTrackerCoordinator =
                 new QueueTrackerCoordinator(
                     new QueueTrackerFactory(
-                        pollingDefinitionsAggregator,
-                        retryDurableQueueRepository,
-                        messageHeadersAdapter,
-                        messageAdapter,
-                        utf8Encoder
+                        pollingDefinitionsAggregator.SchedulerId,
+                        new JobDataProvidersFactory(
+                            pollingDefinitionsAggregator,
+                            triggerProvider,
+                            retryDurableQueueRepository,
+                            messageHeadersAdapter,
+                            messageAdapter,
+                            utf8Encoder
+                        )
                     )
                 );
 

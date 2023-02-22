@@ -7,6 +7,8 @@
     {
         PollingDefinition PollingDefinition { get; }
 
+        ITrigger Trigger { get; }
+
         IJobDetail GetPollingJobDetail();
     }
 }

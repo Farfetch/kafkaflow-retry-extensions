@@ -13,7 +13,6 @@
     {
         private readonly Mock<IJobDataProvider> mockJobDataProvider;
         private readonly Mock<IQueueTrackerFactory> mockQueueTrackerFactory;
-        private readonly Mock<ITriggerProvider> mockTriggerProvider;
         private readonly QueueTrackerCoordinator queueTrackerCoordinator;
 
         public QueueTrackerCoordinatorTests()
@@ -21,28 +20,27 @@
             var pollingDefinition = new RetryDurablePollingDefinition(true, "0 0/1 * 1/1 * ? *", 1, 1);
 
             this.mockJobDataProvider = new Mock<IJobDataProvider>();
+
             this.mockJobDataProvider
                 .SetupGet(m => m.PollingDefinition)
                 .Returns(pollingDefinition);
 
             var mockTrigger = new Mock<ITrigger>();
             mockTrigger
-                .SetupGet(x => x.Key)
-                .Returns(new TriggerKey(string.Empty));
+                .SetupGet(m => m.Key)
+                .Returns(new TriggerKey("someTriggerKey"));
 
-            this.mockTriggerProvider = new Mock<ITriggerProvider>();
-            mockTriggerProvider
-                .Setup(x => x.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()))
+            this.mockJobDataProvider
+                .SetupGet(m => m.Trigger)
                 .Returns(mockTrigger.Object);
 
             this.mockQueueTrackerFactory = new Mock<IQueueTrackerFactory>();
             mockQueueTrackerFactory
                 .Setup(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new QueueTracker(
-                    Mock.Of<ILogHandler>(),
                     "id",
                     new[] { this.mockJobDataProvider.Object },
-                    mockTriggerProvider.Object));
+                    Mock.Of<ILogHandler>()));
 
             this.queueTrackerCoordinator = new QueueTrackerCoordinator(mockQueueTrackerFactory.Object);
         }
@@ -66,7 +64,7 @@
             //Assert
             this.mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
             this.mockJobDataProvider.Verify(m => m.GetPollingJobDetail(), Times.Once);
-            this.mockTriggerProvider.Verify(m => m.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()), Times.Once);
+            this.mockJobDataProvider.Verify(m => m.Trigger, Times.Once);
         }
 
         [Fact]
@@ -88,7 +86,7 @@
             //Assert
             this.mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
             this.mockJobDataProvider.Verify(m => m.GetPollingJobDetail(), Times.Once);
-            this.mockTriggerProvider.Verify(m => m.GetPollingTrigger(It.IsAny<string>(), It.IsAny<PollingDefinition>()), Times.Exactly(2));
+            this.mockJobDataProvider.Verify(m => m.Trigger, Times.Exactly(2));
         }
     }
 }

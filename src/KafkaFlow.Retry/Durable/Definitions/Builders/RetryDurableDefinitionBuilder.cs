@@ -8,6 +8,7 @@
     using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
+    using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Serializers;
@@ -97,6 +98,7 @@
             Guard.Argument(this.retryDurableRepositoryProvider).NotNull("A repository should be defined");
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
+            var triggerProvider = new TriggerProvider();
             var utf8Encoder = new Utf8Encoder();
             var gzipCompressor = new GzipCompressor();
             var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(this.jsonSerializerSettings);
@@ -125,7 +127,8 @@
                     newtonsoftJsonSerializer,
                     messageAdapter,
                     messageHeadersAdapter,
-                    this.pollingDefinitionsAggregator
+                    this.pollingDefinitionsAggregator,
+                    triggerProvider
                 );
 
             return new RetryDurableDefinition(

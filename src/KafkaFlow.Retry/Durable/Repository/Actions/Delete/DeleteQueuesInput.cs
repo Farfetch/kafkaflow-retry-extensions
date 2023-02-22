@@ -1,11 +1,9 @@
 ﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Delete
 {
     using System;
-    using System.Diagnostics.CodeAnalysis;
     using Dawn;
     using KafkaFlow.Retry.Durable.Repository.Model;
 
-    [ExcludeFromCodeCoverage]
     public class DeleteQueuesInput
     {
         public DeleteQueuesInput(

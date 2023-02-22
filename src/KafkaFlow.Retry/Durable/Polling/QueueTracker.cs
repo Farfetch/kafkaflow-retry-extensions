@@ -14,25 +14,21 @@
         private readonly IEnumerable<IJobDataProvider> jobDataProviders;
         private readonly ILogHandler logHandler;
         private readonly string schedulerId;
-        private readonly ITriggerProvider triggerProvider;
         private IScheduler scheduler;
 
         public QueueTracker(
-            ILogHandler logHandler,
             string schedulerId,
             IEnumerable<IJobDataProvider> jobDataProviders,
-            ITriggerProvider triggerProvider
+            ILogHandler logHandler
         )
         {
-            Guard.Argument(logHandler).NotNull();
             Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
             Guard.Argument(jobDataProviders).NotNull().NotEmpty();
-            Guard.Argument(triggerProvider).NotNull();
+            Guard.Argument(logHandler).NotNull();
 
-            this.logHandler = logHandler;
             this.schedulerId = schedulerId;
             this.jobDataProviders = jobDataProviders;
-            this.triggerProvider = triggerProvider;
+            this.logHandler = logHandler;
         }
 
         private bool IsSchedulerActive
@@ -81,7 +77,7 @@
                     continue;
                 }
 
-                var trigger = this.triggerProvider.GetPollingTrigger(this.schedulerId, jobDataProvider.PollingDefinition);
+                var trigger = jobDataProvider.Trigger;
 
                 this.logHandler.Info(
                     "PollingJob unscheduler started",
@@ -113,7 +109,7 @@
             try
             {
                 var job = jobDataProvider.GetPollingJobDetail();
-                var trigger = this.triggerProvider.GetPollingTrigger(this.schedulerId, jobDataProvider.PollingDefinition);
+                var trigger = jobDataProvider.Trigger;
 
                 var scheduledJob = this.scheduler
                     .ScheduleJob(job, trigger, cancellationToken)
@@ -146,10 +142,10 @@
 
         private void StartScheduler(CancellationToken cancellationToken)
         {
-            Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
-
             lock (internalLock)
             {
+                Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
+
                 StdSchedulerFactory fact = new StdSchedulerFactory();
                 fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", this.schedulerId } });
                 this.scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();

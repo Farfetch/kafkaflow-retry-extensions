@@ -9,7 +9,7 @@
             string cronExpression,
             int timeToLiveInDays,
             int rowsPerRequest)
-            : base(PollingJobType.Cleanup, enabled, cronExpression)
+            : base(enabled, cronExpression)
         {
             if (enabled)
             {
@@ -20,6 +20,8 @@
             this.TimeToLiveInDays = timeToLiveInDays;
             this.RowsPerRequest = rowsPerRequest;
         }
+
+        public override PollingJobType PollingJobType => PollingJobType.Cleanup;
 
         public int RowsPerRequest { get; }
 
