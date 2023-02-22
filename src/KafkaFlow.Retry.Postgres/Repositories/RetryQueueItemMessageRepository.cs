@@ -18,8 +18,8 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO dbo.ItemMessages
-                                            (IdRetryQueueItem, ""key"", Value, TopicName, Partition, ""Offset"", UtcTimeStamp)
+                command.CommandText = @"INSERT INTO item_messages
+                                            (IdRetryQueueItem, ""key"", Value, TopicName, Partition, ""offset"", UtcTimeStamp)
                                         VALUES
                                             (@idRetryQueueItem, @key, @value, @topicName, @partition, @offSet, @utcTimeStamp)";
 
@@ -28,7 +28,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                 command.Parameters.AddWithValue("value", retryQueueItemMessageDbo.Value);
                 command.Parameters.AddWithValue("topicName", retryQueueItemMessageDbo.TopicName);
                 command.Parameters.AddWithValue("partition", retryQueueItemMessageDbo.Partition);
-                command.Parameters.AddWithValue("OffSet", retryQueueItemMessageDbo.Offset);
+                command.Parameters.AddWithValue("offset", retryQueueItemMessageDbo.Offset);
                 command.Parameters.AddWithValue("utcTimeStamp", retryQueueItemMessageDbo.UtcTimeStamp);
 
                 await command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -44,7 +44,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 var retryQueueItemIds = retryQueueItemsDbo.Select(x => x.Id);
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"SELECT * FROM dbo.P_LoadItemMessages(@retryQueueItemIds)";
+                command.CommandText = $@"SELECT * FROM f_load_item_messages(@retryQueueItemIds)";
                 command.Parameters.AddWithValue("retryQueueItemIds", 
                     NpgsqlDbType.Array | NpgsqlDbType.Bigint, retryQueueItemIds.ToArray());
 
@@ -73,7 +73,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 IdRetryQueueItem = reader.GetInt64(reader.GetOrdinal("IdRetryQueueItem")),
                 Key = (byte[])reader["Key"],
-                Offset = reader.GetInt64(reader.GetOrdinal("Offset")),
+                Offset = reader.GetInt64(reader.GetOrdinal("offset")),
                 Partition = reader.GetInt32(reader.GetOrdinal("Partition")),
                 TopicName = reader.GetString(reader.GetOrdinal("TopicName")),
                 UtcTimeStamp = reader.GetDateTime(reader.GetOrdinal("UtcTimeStamp")),

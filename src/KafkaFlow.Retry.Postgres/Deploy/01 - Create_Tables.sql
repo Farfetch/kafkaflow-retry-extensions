@@ -1,25 +1,22 @@
 -- Create Tables and Indexes
-
-CREATE SCHEMA IF NOT EXISTS dbo;
-
 -- CREATE TABLES
 
-CREATE TABLE IF NOT EXISTS dbo.QueueStatus (
+CREATE TABLE IF NOT EXISTS queue_status (
     Code smallint PRIMARY KEY NOT NULL,
     Name varchar(255) NOT NULL,
     Description varchar(255) NOT NULL);
 
-CREATE TABLE IF NOT EXISTS dbo.QueueItemStatus (
+CREATE TABLE IF NOT EXISTS queue_item_status (
     Code smallint PRIMARY KEY NOT NULL,
     Name varchar(255) NOT NULL,
     Description varchar(255) NOT NULL);
 
-CREATE TABLE IF NOT EXISTS dbo.QueueItemSeverity (
+CREATE TABLE IF NOT EXISTS queue_item_severity (
     Code smallint PRIMARY KEY NOT NULL,
     Name varchar(255) NOT NULL,
     Description varchar(255) NOT NULL);
 
-CREATE TABLE IF NOT EXISTS dbo.RetryQueues (
+CREATE TABLE IF NOT EXISTS retry_queues (
     Id bigint PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY,
     IdDomain uuid UNIQUE,
     IdStatus smallint NOT NULL,
@@ -27,10 +24,10 @@ CREATE TABLE IF NOT EXISTS dbo.RetryQueues (
     QueueGroupKey varchar(255) NOT NULL,
     CreationDate TIMESTAMP NOT NULL,
     LastExecution TIMESTAMP NOT NULL,
-    CONSTRAINT FK_RetryQueueStatus_RetryQueues FOREIGN KEY (IdStatus) REFERENCES dbo.QueueStatus(Code)
+    CONSTRAINT FK_RetryQueueStatus_RetryQueues FOREIGN KEY (IdStatus) REFERENCES queue_status(Code)
     );
 
-CREATE TABLE IF NOT EXISTS dbo.RetryQueueItems (
+CREATE TABLE IF NOT EXISTS retry_queue_items (
     Id bigint PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY,
     IdDomain uuid NOT NULL,
     IdRetryQueue bigint NOT NULL, 
@@ -43,70 +40,70 @@ CREATE TABLE IF NOT EXISTS dbo.RetryQueueItems (
     LastExecution TIMESTAMP,
     ModifiedStatusDate TIMESTAMP,
     Description varchar NULL,
-    CONSTRAINT FK_RetryQueues_RetryQueueItems_IdRetryQueue FOREIGN KEY (IdRetryQueue) REFERENCES dbo.RetryQueues(Id) ON DELETE CASCADE,
-    CONSTRAINT FK_RetryQueues_RetryQueueItems_IdDomainRetryQueue FOREIGN KEY (IdDomainRetryQueue) REFERENCES dbo.RetryQueues(IdDomain),
-    CONSTRAINT FK_QueueItemStatus_RetryQueueItems FOREIGN KEY (IdItemStatus) REFERENCES dbo.QueueItemStatus(Code),
-    CONSTRAINT FK_QueueItemSeverity_RetryQueueItems FOREIGN KEY (IdSeverityLevel) REFERENCES dbo.QueueItemSeverity(Code)
+    CONSTRAINT FK_RetryQueues_RetryQueueItems_IdRetryQueue FOREIGN KEY (IdRetryQueue) REFERENCES retry_queues(Id) ON DELETE CASCADE,
+    CONSTRAINT FK_RetryQueues_RetryQueueItems_IdDomainRetryQueue FOREIGN KEY (IdDomainRetryQueue) REFERENCES retry_queues(IdDomain),
+    CONSTRAINT FK_QueueItemStatus_RetryQueueItems FOREIGN KEY (IdItemStatus) REFERENCES queue_item_status(Code),
+    CONSTRAINT FK_QueueItemSeverity_RetryQueueItems FOREIGN KEY (IdSeverityLevel) REFERENCES queue_item_severity(Code)
     );
 
-CREATE TABLE IF NOT EXISTS dbo.ItemMessages (
+CREATE TABLE IF NOT EXISTS item_messages (
     IdRetryQueueItem bigint PRIMARY KEY,		
     Key bytea NOT NULL,
     Value bytea NOT NULL,
     TopicName varchar(300) NOT NULL,
     Partition int NOT NULL,
-    "Offset" bigint NOT NULL,
+    "offset" bigint NOT NULL,
     UtcTimeStamp TIMESTAMP NOT NULL,
-    CONSTRAINT FK_RetryQueueItems_ItemMessages FOREIGN KEY (IdRetryQueueItem) REFERENCES dbo.RetryQueueItems(Id) ON DELETE CASCADE
+    CONSTRAINT FK_RetryQueueItems_ItemMessages FOREIGN KEY (IdRetryQueueItem) REFERENCES retry_queue_items(Id) ON DELETE CASCADE
     );
 
-CREATE TABLE IF NOT EXISTS dbo.RetryItemMessageHeaders (
+CREATE TABLE IF NOT EXISTS retry_item_message_headers (
     Id bigint PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY NOT NULL,
     IdItemMessage bigint NOT NULL,
     Key varchar(255) NOT NULL,
     Value bytea NOT NULL,
-    CONSTRAINT FK_ItemMessages_RetryItemMessageHeaders FOREIGN KEY (IdItemMessage) REFERENCES dbo.ItemMessages(IdRetryQueueItem) ON DELETE CASCADE
+    CONSTRAINT FK_ItemMessages_RetryItemMessageHeaders FOREIGN KEY (IdItemMessage) REFERENCES item_messages(IdRetryQueueItem) ON DELETE CASCADE
     );
 
-CREATE OR REPLACE FUNCTION dbo.P_LoadItemMessages(retryQueueItemsIds bigint[])
+CREATE OR REPLACE FUNCTION f_load_item_messages(retryQueueItemsIds bigint[])
     RETURNS TABLE (
       IdRetryQueueItem bigint,
       Key bytea,
       Value bytea,
       TopicName varchar(300),
       Partition int,
-      "Offset" bigint,
+      "offset" bigint,
       UtcTimeStamp TIMESTAMP
     )
     LANGUAGE plpgsql
     AS $$
     BEGIN
     RETURN QUERY
-        SELECT IM.IdRetryQueueItem, IM.Key, IM.Value, IM.TopicName, IM.Partition, IM."Offset", IM.UtcTimeStamp
-        FROM dbo.ItemMessages IM
-                 INNER JOIN dbo.RetryQueueItems RQI ON RQI.Id = IM.IdRetryQueueItem
+        SELECT IM.IdRetryQueueItem, IM.Key, IM.Value, IM.TopicName, IM.Partition, IM."offset", IM.UtcTimeStamp
+        FROM item_messages IM
+                 INNER JOIN retry_queue_items RQI ON RQI.Id = IM.IdRetryQueueItem
                  INNER JOIN UNNEST(retryQueueItemsIds) AS RI(Id) ON IM.IdRetryQueueItem=RI.Id
         ORDER BY RQI.IdRetryQueue, IM.IdRetryQueueItem;
     END $$;
 
 -- CREATE INDEXES
 
--- Table RetryQueues
-CREATE INDEX IF NOT EXISTS IX_RetryQueues_SearchGroupKey ON dbo.RetryQueues (SearchGroupKey);
+-- Table retry_queues
+CREATE INDEX IF NOT EXISTS ix_retry_queues_SearchGroupKey ON retry_queues (SearchGroupKey);
 
-CREATE UNIQUE INDEX IF NOT EXISTS IX_RetryQueues_QueueGroupKey ON dbo.RetryQueues (QueueGroupKey);
+CREATE UNIQUE INDEX IF NOT EXISTS ix_retry_queues_QueueGroupKey ON retry_queues (QueueGroupKey);
 
-CREATE INDEX IF NOT EXISTS IX_RetryQueues_IdStatus ON dbo.RetryQueues (IdStatus);
+CREATE INDEX IF NOT EXISTS ix_retry_queues_IdStatus ON retry_queues (IdStatus);
 
-CREATE INDEX IF NOT EXISTS IX_RetryQueues_CreationDate ON dbo.RetryQueues (CreationDate);
+CREATE INDEX IF NOT EXISTS ix_retry_queues_CreationDate ON retry_queues (CreationDate);
 
-CREATE INDEX IF NOT EXISTS IX_RetryQueues_LastExecution ON dbo.RetryQueues (LastExecution);
+CREATE INDEX IF NOT EXISTS ix_retry_queues_LastExecution ON retry_queues (LastExecution);
 
--- Table RetryQueuesItems
-CREATE UNIQUE INDEX IF NOT EXISTS IX_RetryQueueItems_IdDomain ON dbo.RetryQueueItems (IdDomain);
+-- Table retry_queue_items
+CREATE UNIQUE INDEX IF NOT EXISTS ix_retry_queue_items_IdDomain ON retry_queue_items (IdDomain);
 
-CREATE INDEX IF NOT EXISTS IX_RetryQueueItems_Sort ON dbo.RetryQueueItems (Sort);
+CREATE INDEX IF NOT EXISTS ix_retry_queue_items_Sort ON retry_queue_items (Sort);
 
-CREATE INDEX IF NOT EXISTS IX_RetryQueueItems_IdItemStatus ON dbo.RetryQueueItems (IdItemStatus);
+CREATE INDEX IF NOT EXISTS ix_retry_queue_items_IdItemStatus ON retry_queue_items (IdItemStatus);
 
-CREATE INDEX IF NOT EXISTS IX_RetryQueueItems_IdSeverityLevel ON dbo.RetryQueueItems (IdSeverityLevel);	
+CREATE INDEX IF NOT EXISTS ix_retry_queue_items_IdSeverityLevel ON retry_queue_items (IdSeverityLevel);	

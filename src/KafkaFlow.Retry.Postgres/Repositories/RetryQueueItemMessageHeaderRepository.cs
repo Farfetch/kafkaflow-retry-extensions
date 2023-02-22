@@ -29,8 +29,8 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM dbo.RetryItemMessageHeaders h
-                                         INNER JOIN dbo.RetryQueueItems rqi ON rqi.Id = h.IdItemMessage
+                                         FROM retry_item_message_headers h
+                                         INNER JOIN retry_queue_items rqi ON rqi.Id = h.IdItemMessage
                                          WHERE h.IdItemMessage IN ({string.Join(",", retryQueueItemMessagesDbo.Select(x => $"'{x.IdRetryQueueItem}'"))})
                                          ORDER BY rqi.IdRetryQueue, h.IdItemMessage";
 
@@ -46,7 +46,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO dbo.RetryItemMessageHeaders
+                command.CommandText = @"INSERT INTO retry_item_message_headers
                                             (IdItemMessage, ""key"", Value)
                                         VALUES
                                             (@IdItemMessage, @Key, @Value)";

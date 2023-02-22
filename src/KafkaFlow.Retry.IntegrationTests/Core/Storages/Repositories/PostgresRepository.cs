@@ -62,10 +62,10 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
             using var command = dbConnection.CreateCommand();
             command.CommandType = System.Data.CommandType.Text;
             command.CommandText = @"
-                    delete from dbo.RetryItemMessageHeaders;
-                    delete from dbo.ItemMessages;
-                    delete from dbo.RetryQueues;
-                    delete from dbo.RetryQueueItems;
+                    delete from retry_item_message_headers;
+                    delete from item_messages;
+                    delete from retry_queues;
+                    delete from retry_queue_items;
                 ";
             await command.ExecuteNonQueryAsync();
         }
@@ -181,7 +181,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
                 {
                     command.CommandType = System.Data.CommandType.Text;
                     command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                FROM dbo.RetryQueues
+                                FROM retry_queues
                                 WHERE QueueGroupKey LIKE '%'||@QueueGroupKey
                                 ORDER BY Id";
 
@@ -216,7 +216,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
                 {
                     command.CommandType = System.Data.CommandType.Text;
                     command.CommandText = @"SELECT *
-                                FROM dbo.RetryQueueItems
+                                FROM retry_queue_items
                                 WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                 ORDER BY Sort ASC";
 

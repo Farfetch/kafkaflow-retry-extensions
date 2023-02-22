@@ -15,7 +15,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO dbo.RetryQueues
+                command.CommandText = @"INSERT INTO retry_queues
                                             (IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution)
                                         VALUES
                                             (@idDomain, @idStatus, @searchGroupKey, @queueGroupKey, @creationDate, @lastExecution)
@@ -38,7 +38,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT COUNT(1)
-                                        FROM dbo.RetryQueues
+                                        FROM retry_queues
                                         WHERE QueueGroupKey = @QueueGroupKey AND IdStatus <> @IdStatus";
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
@@ -54,7 +54,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM dbo.RetryQueues
+                                        FROM retry_queues
                                         WHERE QueueGroupKey = @QueueGroupKey
                                         ORDER BY Id";
 
@@ -71,7 +71,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                 command.CommandType = System.Data.CommandType.Text;
 
                 var innerQuery = $@" SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM dbo.RetryQueues
+                                        FROM retry_queues
                                         WHERE IdStatus = @IdStatus";
 
                 if (searchGroupKey is object)
@@ -97,7 +97,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE dbo.RetryQueues
+                command.CommandText = @"UPDATE retry_queues
                                       SET IdStatus = @IdStatus,
                                           LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
@@ -115,7 +115,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE dbo.RetryQueues
+                command.CommandText = @"UPDATE retry_queues
                                       SET LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
 
@@ -131,7 +131,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE dbo.RetryQueues
+                command.CommandText = @"UPDATE retry_queues
                                       SET IdStatus = @IdStatus
                                       WHERE IdDomain = @IdDomain";
 

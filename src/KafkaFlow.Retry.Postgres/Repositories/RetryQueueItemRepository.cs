@@ -21,11 +21,11 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO dbo.RetryQueueItems
+                command.CommandText = @"INSERT INTO retry_queue_items
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
                                             (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount,
-                                             (SELECT COUNT(1) FROM dbo.RetryQueueItems WHERE IdDomainRetryQueue = @idDomainRetryQueue),
+                                             (SELECT COUNT(1) FROM retry_queue_items WHERE IdDomainRetryQueue = @idDomainRetryQueue),
                                              @creationDate, @lastExecution, @modifiedStatusDate, @description)
                                       RETURNING id";
 
@@ -53,7 +53,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT 1 WHERE EXISTS(
-                                        SELECT * FROM dbo.RetryQueueItems
+                                        SELECT * FROM retry_queue_items
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
                                         LIMIT 1)";
@@ -77,7 +77,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT *
-                                        FROM dbo.RetryQueueItems
+                                        FROM retry_queue_items
                                         WHERE IdDomain = @IdDomain";
 
                 command.Parameters.AddWithValue("IdDomain", domainId);
@@ -95,7 +95,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT *
-                                        FROM dbo.RetryQueueItems
+                                        FROM retry_queue_items
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         ORDER BY Sort ASC";
 
@@ -124,7 +124,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                 string query = $@"SELECT ";
 
                 query = string.Concat(query, $@" *
-                                    FROM dbo.RetryQueueItems
+                                    FROM retry_queue_items
                                     WHERE IdDomainRetryQueue IN ({string.Join(",", retryQueueIds.Select(x => $"'{x}'"))})");
 
                 if (stuckStatusFilter is null)
@@ -170,7 +170,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM dbo.RetryQueueItems
+                                         FROM retry_queue_items
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
                                          AND Sort > @Sort
@@ -194,7 +194,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM dbo.RetryQueueItems
+                                         FROM retry_queue_items
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
                                          AND Sort < @Sort
@@ -232,7 +232,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE dbo.RetryQueueItems
+                command.CommandText = @"UPDATE retry_queue_items
                                         SET IdItemStatus = @IdItemStatus,
                                             AttemptsCount = @AttemptsCount,
                                             LastExecution = @LastExecution,
@@ -260,7 +260,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE dbo.RetryQueueItems
+                command.CommandText = @"UPDATE retry_queue_items
                                         SET IdItemStatus = @IdItemStatus,
                                             ModifiedStatusDate = @DateTimeUtcNow
                                         WHERE IdDomain = @IdDomain";
