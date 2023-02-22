@@ -8,7 +8,7 @@ namespace KafkaFlow.Retry.Postgres.Readers
     {
         private readonly IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter;
         private readonly IList<TDbo> dbos;
-        private int currentIndex = 0;
+        private int currentIndex;
 
         public DboCollectionNavigator(IList<TDbo> dbos, IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter)
         {
@@ -24,7 +24,7 @@ namespace KafkaFlow.Retry.Postgres.Readers
             Guard.Argument(action).NotNull();
             Guard.Argument(navigatingCondition).NotNull();
 
-            this.Navigate((domain, dbo) => action(domain), navigatingCondition);
+            this.Navigate((domain, _) => action(domain), navigatingCondition);
         }
 
         public void Navigate(Action<TDomain, TDbo> action, Predicate<TDbo> navigatingCondition)
@@ -45,8 +45,6 @@ namespace KafkaFlow.Retry.Postgres.Readers
 
                 this.currentIndex++;
             }
-
-            return;
         }
     }
 }

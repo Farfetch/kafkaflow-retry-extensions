@@ -22,24 +22,19 @@ namespace KafkaFlow.Retry.Postgres
 
         public async Task CreateOrUpdateSchemaAsync(string databaseName)
         {
-            using (NpgsqlConnection openCon = new NpgsqlConnection(this.postgresDbSettings.ConnectionString))
+            using (var openCon = new NpgsqlConnection(this.postgresDbSettings.ConnectionString))
             {
                 openCon.Open();
 
                 foreach (var script in this.schemaScripts)
                 {
-                    string[] batches = script.Value.Split(new string[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var batch = script.Value;
 
-                    foreach (var batch in batches)
+                    using (var queryCommand = new NpgsqlCommand(batch))
                     {
-                        string replacedBatch = batch.Replace("@dbname", databaseName);
+                        queryCommand.Connection = openCon;
 
-                        using (NpgsqlCommand queryCommand = new NpgsqlCommand(replacedBatch))
-                        {
-                            queryCommand.Connection = openCon;
-
-                            await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        }
+                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }

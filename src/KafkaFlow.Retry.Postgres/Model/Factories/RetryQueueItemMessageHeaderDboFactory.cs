@@ -19,7 +19,7 @@ namespace KafkaFlow.Retry.Postgres.Model.Factories
         {
             Guard.Argument(header).NotNull();
 
-            return new RetryQueueItemMessageHeaderDbo()
+            return new RetryQueueItemMessageHeaderDbo
             {
                 Key = header.Key,
                 Value = header.Value,

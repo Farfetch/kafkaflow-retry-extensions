@@ -9,7 +9,7 @@ namespace KafkaFlow.Retry.Postgres
     {
         private readonly PostgresDbSettings postgresDbSettings;
         private readonly bool withinTransaction;
-        private bool committed = false;
+        private bool committed;
         private NpgsqlConnection sqlConnection;
         private NpgsqlTransaction sqlTransaction;
 

@@ -10,7 +10,7 @@ namespace KafkaFlow.Retry.Postgres.Model.Factories
             Guard.Argument(retryQueueItemMessage, nameof(retryQueueItemMessage)).NotNull();
             Guard.Argument(retryQueueItemId, nameof(retryQueueItemId)).Positive();
 
-            return new RetryQueueItemMessageDbo()
+            return new RetryQueueItemMessageDbo
             {
                 IdRetryQueueItem = retryQueueItemId,
                 Key = retryQueueItemMessage.Key,
