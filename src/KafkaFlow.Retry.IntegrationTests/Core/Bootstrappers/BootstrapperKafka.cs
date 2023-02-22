@@ -1,4 +1,6 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
+﻿using KafkaFlow.Retry.Postgres;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
 {
     using System;
     using Confluent.Kafka;
@@ -194,8 +196,8 @@
 
         internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionPostgresCluster(
             this IClusterConfigurationBuilder cluster,
-            string sqlServerConnectionString,
-            string sqlServerDatabaseName)
+            string postgresConnectionString,
+            string postgresDatabaseName)
         {
             cluster
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>(
@@ -244,9 +246,9 @@
                                                 .WithCronExpression("0/30 * * ? * * *")
                                                 .WithExpirationIntervalFactor(1)
                                                 .WithFetchSize(256))
-                                        .WithSqlServerDataProvider(
-                                            sqlServerConnectionString,
-                                            sqlServerDatabaseName)
+                                        .WithPostgresDataProvider(
+                                            postgresConnectionString,
+                                            postgresDatabaseName)
                                         .WithRetryPlanBeforeRetryDurable(
                                             configure => configure
                                                 .TryTimes(3)
@@ -411,8 +413,8 @@
 
         internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionPostgresCluster(
             this IClusterConfigurationBuilder cluster,
-            string sqlServerConnectionString,
-            string sqlServerDatabaseName)
+            string postgresConnectionString,
+            string postgresDatabaseName)
         {
             cluster
                 .AddProducer<RetryDurableLatestConsumptionPostgresProducer>(
@@ -461,9 +463,9 @@
                                                 .WithCronExpression("0/30 * * ? * * *")
                                                 .WithExpirationIntervalFactor(1)
                                                 .WithFetchSize(256))
-                                        .WithSqlServerDataProvider(
-                                            sqlServerConnectionString,
-                                            sqlServerDatabaseName)
+                                        .WithPostgresDataProvider(
+                                            postgresConnectionString,
+                                            postgresDatabaseName)
                                         .WithRetryPlanBeforeRetryDurable(
                                             configure => configure
                                                 .TryTimes(3)

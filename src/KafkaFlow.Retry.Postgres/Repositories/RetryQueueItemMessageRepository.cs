@@ -18,8 +18,8 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [ItemMessages]
-                                            (IdRetryQueueItem, [Key], Value, TopicName, Partition, Offset, UtcTimeStamp)
+                command.CommandText = @"INSERT INTO dbo.ItemMessages
+                                            (IdRetryQueueItem, ""key"", Value, TopicName, Partition, ""Offset"", UtcTimeStamp)
                                         VALUES
                                             (@idRetryQueueItem, @key, @value, @topicName, @partition, @offSet, @utcTimeStamp)";
 

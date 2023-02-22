@@ -181,8 +181,8 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
                 {
                     command.CommandType = System.Data.CommandType.Text;
                     command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                FROM [RetryQueues]
-                                WHERE QueueGroupKey LIKE '%'+@QueueGroupKey
+                                FROM dbo.RetryQueues
+                                WHERE QueueGroupKey LIKE '%'||@QueueGroupKey
                                 ORDER BY Id";
 
                     command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
@@ -216,7 +216,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
                 {
                     command.CommandType = System.Data.CommandType.Text;
                     command.CommandText = @"SELECT *
-                                FROM [RetryQueueItems]
+                                FROM dbo.RetryQueueItems
                                 WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                 ORDER BY Sort ASC";
 

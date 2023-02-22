@@ -21,20 +21,19 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryQueueItems]
+                command.CommandText = @"INSERT INTO dbo.RetryQueueItems
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
                                             (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount,
-                                             (SELECT COUNT(1) FROM [RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
-                                             @creationDate, @lastExecution, @modifiedStatusDate, @description);
-
-                                      SELECT SCOPE_IDENTITY()";
+                                             (SELECT COUNT(1) FROM dbo.RetryQueueItems WHERE IdDomainRetryQueue = @idDomainRetryQueue),
+                                             @creationDate, @lastExecution, @modifiedStatusDate, @description)
+                                      RETURNING id";
 
                 command.Parameters.AddWithValue("idDomain", retryQueueItemDbo.IdDomain);
                 command.Parameters.AddWithValue("idRetryQueue", retryQueueItemDbo.RetryQueueId);
                 command.Parameters.AddWithValue("idDomainRetryQueue", retryQueueItemDbo.DomainRetryQueueId);
                 command.Parameters.AddWithValue("idItemStatus", (byte)retryQueueItemDbo.Status);
-                command.Parameters.AddWithValue("idSeverityLevel", retryQueueItemDbo.SeverityLevel);
+                command.Parameters.AddWithValue("idSeverityLevel", (byte)retryQueueItemDbo.SeverityLevel);
                 command.Parameters.AddWithValue("attemptsCount", retryQueueItemDbo.AttemptsCount);
                 command.Parameters.AddWithValue("creationDate", retryQueueItemDbo.CreationDate);
                 command.Parameters.AddWithValue("lastExecution", retryQueueItemDbo.LastExecution ?? (object)DBNull.Value);
@@ -54,10 +53,10 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT 1 WHERE EXISTS(
-                                        SELECT TOP 1 * FROM [RetryQueueItems]
-                                        WITH (NOLOCK)
+                                        SELECT * FROM dbo.RetryQueueItems
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
-                                        AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry))";
+                                        AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
+                                        LIMIT 1)";
 
                 command.Parameters.AddWithValue("IdDomainRetryQueue", domainRetryQueueId);
                 command.Parameters.AddWithValue("IdItemStatusWaiting", (byte)RetryQueueItemStatus.Waiting);
@@ -78,8 +77,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT *
-                                        FROM [RetryQueueItems]
-                                        WITH (NOLOCK)
+                                        FROM dbo.RetryQueueItems
                                         WHERE IdDomain = @IdDomain";
 
                 command.Parameters.AddWithValue("IdDomain", domainId);
@@ -97,8 +95,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = @"SELECT *
-                                        FROM [RetryQueueItems]
-                                        WITH (NOLOCK)
+                                        FROM dbo.RetryQueueItems
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         ORDER BY Sort ASC";
 
@@ -124,17 +121,10 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
 
-                string query = $@"SET DEADLOCK_PRIORITY HIGH
-                               SELECT ";
-
-                if (top is object)
-                {
-                    query = string.Concat(query, $"TOP({top})");
-                }
+                string query = $@"SELECT ";
 
                 query = string.Concat(query, $@" *
-                                    FROM [RetryQueueItems]
-                                    WITH (NOLOCK)
+                                    FROM dbo.RetryQueueItems
                                     WHERE IdDomainRetryQueue IN ({string.Join(",", retryQueueIds.Select(x => $"'{x}'"))})");
 
                 if (stuckStatusFilter is null)
@@ -147,7 +137,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                                         IdItemStatus IN({ string.Join(",", statuses.Select(x => (byte)x))})
                                         OR(
                                             IdItemStatus = { (byte)stuckStatusFilter.ItemStatus}
-                                            AND DATEADD(SECOND, {Math.Floor(stuckStatusFilter.ExpirationInterval.TotalSeconds)}, ModifiedStatusDate) < @DateTimeUtcNow
+                                            AND ModifiedStatusDate + interval '{Math.Floor(stuckStatusFilter.ExpirationInterval.TotalSeconds)} second' < @DateTimeUtcNow
                                             )
                                         )");
                 }
@@ -157,7 +147,14 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                     query = string.Concat(query, $" AND (IdSeverityLevel IN ({string.Join(",", severities.Select(x => (byte)x))}))");
                 }
 
-                command.CommandText = string.Concat(query, " ORDER BY IdRetryQueue, Id");
+                query = string.Concat(query, " ORDER BY IdRetryQueue, Id");
+
+                if (top is object)
+                {
+                    query = string.Concat(query, $" LIMIT {top}");
+                }
+
+                command.CommandText = query;
                 command.Parameters.AddWithValue("DateTimeUtcNow", DateTime.UtcNow);
 
                 return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
@@ -173,8 +170,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryQueueItems]
-                                         WITH (NOLOCK)
+                                         FROM dbo.RetryQueueItems
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
                                          AND Sort > @Sort
@@ -198,8 +194,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryQueueItems]
-                                         WITH (NOLOCK)
+                                         FROM dbo.RetryQueueItems
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
                                          AND Sort < @Sort
@@ -237,11 +232,11 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueueItems]
+                command.CommandText = @"UPDATE dbo.RetryQueueItems
                                         SET IdItemStatus = @IdItemStatus,
                                             AttemptsCount = @AttemptsCount,
                                             LastExecution = @LastExecution,
-                                            Description = ISNULL(@Description, Description),
+                                            Description = COALESCE(@Description, Description),
                                             ModifiedStatusDate = @DateTimeUtcNow
                                         WHERE IdDomain = @IdDomain";
 
@@ -249,7 +244,7 @@ namespace KafkaFlow.Retry.Postgres.Repositories
                 command.Parameters.AddWithValue("IdItemStatus", (byte)status);
                 command.Parameters.AddWithValue("AttemptsCount", attemptsCount);
                 command.Parameters.AddWithValue("LastExecution", lastExecution);
-                command.Parameters.AddWithValue("DateTimeUtcNow ", DateTime.UtcNow);
+                command.Parameters.AddWithValue("DateTimeUtcNow", DateTime.UtcNow);
                 command.Parameters.AddWithValue("Description", string.IsNullOrEmpty(description) ? (object)DBNull.Value : description);
 
                 return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -265,14 +260,14 @@ namespace KafkaFlow.Retry.Postgres.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueueItems]
+                command.CommandText = @"UPDATE dbo.RetryQueueItems
                                         SET IdItemStatus = @IdItemStatus,
                                             ModifiedStatusDate = @DateTimeUtcNow
                                         WHERE IdDomain = @IdDomain";
 
                 command.Parameters.AddWithValue("IdItemStatus", (byte)status);
                 command.Parameters.AddWithValue("IdDomain", idDomain);
-                command.Parameters.AddWithValue("DateTimeUtcNow ", DateTime.UtcNow);
+                command.Parameters.AddWithValue("DateTimeUtcNow", DateTime.UtcNow);
 
                 return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
             }
