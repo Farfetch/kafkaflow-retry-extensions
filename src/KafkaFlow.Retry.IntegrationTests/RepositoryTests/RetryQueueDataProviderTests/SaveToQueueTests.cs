@@ -21,6 +21,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task SaveToQueueAsync_ExistingQueueWithOneItem_ReturnsAddedStatus(RepositoryType repositoryType)
         {
             // Arrange
@@ -63,6 +64,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task SaveToQueueAsync_ExistingQueueWithStatusDone_ReturnsAddedStatus(RepositoryType repositoryType)
         {
             // Arrange
@@ -102,6 +104,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task SaveToQueueAsync_NonExistingQueue_ReturnsCreatedStatus(RepositoryType repositoryType)
         {
             // Arrange

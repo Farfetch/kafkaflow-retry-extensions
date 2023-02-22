@@ -25,8 +25,8 @@ CREATE TABLE IF NOT EXISTS dbo.RetryQueues (
     IdStatus smallint NOT NULL,
     SearchGroupKey varchar(255) NOT NULL,
     QueueGroupKey varchar(255) NOT NULL,
-    CreationDate TIMESTAMP(6) NOT NULL,
-    LastExecution TIMESTAMP(6) NOT NULL,
+    CreationDate TIMESTAMP NOT NULL,
+    LastExecution TIMESTAMP NOT NULL,
     CONSTRAINT FK_RetryQueueStatus_RetryQueues FOREIGN KEY (IdStatus) REFERENCES dbo.QueueStatus(Code)
     );
 
@@ -39,9 +39,9 @@ CREATE TABLE IF NOT EXISTS dbo.RetryQueueItems (
     IdSeverityLevel smallint NOT NULL,
     AttemptsCount int NOT NULL,
     Sort int NOT NULL,
-    CreationDate TIMESTAMP(6) NOT NULL,
-    LastExecution TIMESTAMP(6),
-    ModifiedStatusDate TIMESTAMP(6),
+    CreationDate TIMESTAMP NOT NULL,
+    LastExecution TIMESTAMP,
+    ModifiedStatusDate TIMESTAMP,
     Description varchar NULL,
     CONSTRAINT FK_RetryQueues_RetryQueueItems_IdRetryQueue FOREIGN KEY (IdRetryQueue) REFERENCES dbo.RetryQueues(Id) ON DELETE CASCADE,
     CONSTRAINT FK_RetryQueues_RetryQueueItems_IdDomainRetryQueue FOREIGN KEY (IdDomainRetryQueue) REFERENCES dbo.RetryQueues(IdDomain),
@@ -56,11 +56,11 @@ CREATE TABLE IF NOT EXISTS dbo.ItemMessages (
     TopicName varchar(300) NOT NULL,
     Partition int NOT NULL,
     "Offset" bigint NOT NULL,
-    UtcTimeStamp TIMESTAMP(6) NOT NULL,
+    UtcTimeStamp TIMESTAMP NOT NULL,
     CONSTRAINT FK_RetryQueueItems_ItemMessages FOREIGN KEY (IdRetryQueueItem) REFERENCES dbo.RetryQueueItems(Id) ON DELETE CASCADE
     );
 
-CREATE TABLE IF NOT EXISTS  dbo.RetryItemMessageHeaders (
+CREATE TABLE IF NOT EXISTS dbo.RetryItemMessageHeaders (
     Id bigint PRIMARY KEY NOT NULL GENERATED ALWAYS AS IDENTITY NOT NULL,
     IdItemMessage bigint NOT NULL,
     Key varchar(255) NOT NULL,
@@ -76,7 +76,7 @@ CREATE OR REPLACE FUNCTION dbo.P_LoadItemMessages(retryQueueItemsIds bigint[])
       TopicName varchar(300),
       Partition int,
       "Offset" bigint,
-      UtcTimeStamp TIMESTAMP(6)
+      UtcTimeStamp TIMESTAMP
     )
     LANGUAGE plpgsql
     AS $$

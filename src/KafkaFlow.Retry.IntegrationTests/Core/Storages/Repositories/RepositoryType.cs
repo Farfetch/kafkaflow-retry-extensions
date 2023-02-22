@@ -6,5 +6,6 @@
 
         SqlServer = 1,
         MongoDb = 2,
+        Postgres = 3
     }
 }

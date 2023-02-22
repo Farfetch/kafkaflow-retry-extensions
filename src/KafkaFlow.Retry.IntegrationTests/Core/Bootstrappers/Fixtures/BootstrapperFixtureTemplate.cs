@@ -1,4 +1,6 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures
+﻿using Npgsql;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures
 {
     using System;
     using System.Collections.Generic;
@@ -24,6 +26,8 @@
         internal IRepositoryProvider RepositoryProvider => this.repositoryProvider ?? this.CreateRepositoryProvider();
 
         internal SqlServerRepositorySettings SqlServerSettings { get; private set; }
+      
+        internal PostgresRepositorySettings PostgresSettings { get; private set; }
 
         public abstract void Dispose();
 
@@ -31,6 +35,7 @@
         {
             this.InitializeMongoDb(configuration);
             await this.InitializeSqlServerAsync(configuration).ConfigureAwait(false);
+            await this.InitializePostgresAsync(configuration).ConfigureAwait(false);
 
             this.databasesInitialized = true;
         }
@@ -47,7 +52,8 @@
             var repositories = new List<IRepository>
             {
                 new MongoDbRepository( this.MongoDbSettings.ConnectionString, this.MongoDbSettings.DatabaseName, this.MongoDbSettings.RetryQueueCollectionName, this.MongoDbSettings.RetryQueueItemCollectionName),
-                new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName)
+                new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName),
+                new PostgresRepository(this.PostgresSettings.ConnectionString, this.PostgresSettings.DatabaseName)
             };
 
             this.repositoryProvider = new RepositoryProvider(repositories);
@@ -72,6 +78,16 @@
             this.SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
             await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString).ConfigureAwait(false);
+        }
+
+        private async Task InitializePostgresAsync(IConfiguration configuration)
+        {
+            this.PostgresSettings = configuration.GetSection("PostgresRepository").Get<PostgresRepositorySettings>();
+
+            var postgresConnectionStringBuilder = new NpgsqlConnectionStringBuilder(this.PostgresSettings.ConnectionString);
+            this.PostgresSettings.ConnectionString = postgresConnectionStringBuilder.ToString();
+
+            await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(this.PostgresSettings.DatabaseName, this.PostgresSettings.ConnectionString).ConfigureAwait(false);
         }
     }
 }
