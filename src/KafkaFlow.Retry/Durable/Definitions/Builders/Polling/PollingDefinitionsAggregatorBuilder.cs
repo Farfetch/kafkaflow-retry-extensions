@@ -23,6 +23,8 @@
 
         public PollingDefinitionsAggregatorBuilder WithCleanupPollingConfiguration(Action<CleanupPollingDefinitionBuilder> configure)
         {
+            Guard.Argument(configure, nameof(configure)).NotNull();
+
             configure(this.cleanupPollingDefinitionBuilder);
             var cleanupPollingDefinition = this.cleanupPollingDefinitionBuilder.Build();
 
@@ -33,6 +35,8 @@
 
         public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(Action<RetryDurablePollingDefinitionBuilder> configure)
         {
+            Guard.Argument(configure, nameof(configure)).NotNull();
+
             configure(this.retryDurablePollingDefinitionBuilder);
             var retryDurablepollingDefinition = this.retryDurablePollingDefinitionBuilder.Build();
 

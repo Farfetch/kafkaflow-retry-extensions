@@ -1,5 +1,6 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
+    using System.Threading.Tasks;
     using Dawn;
 
     internal class QueueTrackerCoordinator : IQueueTrackerCoordinator
@@ -14,19 +15,19 @@
             this.queueTrackerFactory = queueTrackerFactory;
         }
 
-        public void ScheduleJobs(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
+        public async Task ScheduleJobsAsync(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
         {
             this.queueTracker = this.queueTrackerFactory
                 .Create(retryDurableMessageProducer, logHandler);
 
-            this.queueTracker.ScheduleJobs();
+            await this.queueTracker.ScheduleJobsAsync().ConfigureAwait(false);
         }
 
-        public void UnscheduleJobs()
+        public async Task UnscheduleJobsAsync()
         {
             if (this.queueTracker is object)
             {
-                this.queueTracker.UnscheduleJobs();
+                await this.queueTracker.UnscheduleJobsAsync().ConfigureAwait(false);
             }
         }
     }

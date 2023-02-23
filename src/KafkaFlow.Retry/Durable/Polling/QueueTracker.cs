@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Threading;
+    using System.Threading.Tasks;
     using Dawn;
     using Quartz;
     using Quartz.Impl;
@@ -36,11 +37,11 @@
             && this.scheduler.IsStarted
             && !this.scheduler.IsShutdown;
 
-        internal void ScheduleJobs(CancellationToken cancellationToken = default)
+        internal async Task ScheduleJobsAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                this.StartScheduler(cancellationToken);
+                await this.StartSchedulerAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
@@ -64,11 +65,11 @@
                     continue;
                 }
 
-                this.ScheduleJob(jobDataProvider, cancellationToken);
+                this.ScheduleJobAsync(jobDataProvider, cancellationToken);
             }
         }
 
-        internal void UnscheduleJobs(CancellationToken cancellationToken = default)
+        internal async Task UnscheduleJobsAsync(CancellationToken cancellationToken = default)
         {
             foreach (var jobDataProvider in this.jobDataProviders)
             {
@@ -88,10 +89,7 @@
                         TriggerKey = trigger.Key.ToString()
                     });
 
-                var unscheduledJob = this.scheduler
-                    .UnscheduleJob(trigger.Key)
-                    .GetAwaiter()
-                    .GetResult();
+                var unscheduledJob = await this.scheduler.UnscheduleJob(trigger.Key).ConfigureAwait(false);
 
                 this.logHandler.Info("PollingJob unscheduler finished",
                     new
@@ -104,17 +102,14 @@
             }
         }
 
-        private void ScheduleJob(IJobDataProvider jobDataProvider, CancellationToken cancellationToken)
+        private async Task ScheduleJobAsync(IJobDataProvider jobDataProvider, CancellationToken cancellationToken)
         {
             try
             {
                 var job = jobDataProvider.GetPollingJobDetail();
                 var trigger = jobDataProvider.Trigger;
 
-                var scheduledJob = this.scheduler
-                    .ScheduleJob(job, trigger, cancellationToken)
-                    .GetAwaiter()
-                    .GetResult();
+                var scheduledJob = await this.scheduler.ScheduleJob(job, trigger, cancellationToken).ConfigureAwait(false);
 
                 this.logHandler.Info(
                     "PollingJob Scheduler scheduled",
@@ -140,7 +135,7 @@
             }
         }
 
-        private void StartScheduler(CancellationToken cancellationToken)
+        private async Task StartSchedulerAsync(CancellationToken cancellationToken)
         {
             lock (internalLock)
             {
@@ -155,10 +150,7 @@
 
             if (!this.IsSchedulerActive)
             {
-                this.scheduler
-                    .Start(cancellationToken)
-                    .GetAwaiter()
-                    .GetResult();
+                await this.scheduler.Start(cancellationToken).ConfigureAwait(false);
 
                 this.logHandler.Info("PollingJob Scheduler started", new { SchedulerId = this.schedulerId });
             }

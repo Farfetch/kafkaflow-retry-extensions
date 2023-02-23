@@ -6,6 +6,7 @@
     using Dawn;
     using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
+    using KafkaFlow.Retry.Durable.Polling.Extensions;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
@@ -22,44 +23,14 @@
         {
             var jobDataMap = context.JobDetail.JobDataMap;
 
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurableQueueRepository), PollingJobConstants.RetryDurableQueueRepository)
-                .True("Argument RetryDurableQueueRepository wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurableMessageProducer), PollingJobConstants.RetryDurableMessageProducer)
-                .True("Argument RetryDurableProducer wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurablePollingDefinition), PollingJobConstants.RetryDurablePollingDefinition)
-                .True("Argument RetryDurablePollingDefinition wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.LogHandler), PollingJobConstants.LogHandler)
-                .True("Argument LogHandler wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.MessageHeadersAdapter), PollingJobConstants.MessageHeadersAdapter)
-                .True("Argument MessageHeadersAdapter wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.MessageAdapter), PollingJobConstants.MessageAdapter)
-                .True("Argument MessageAdapter wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.Utf8Encoder), PollingJobConstants.Utf8Encoder)
-                .True("Argument Utf8Encoder wasn't found and is required for this job");
-
-            var retryDurableQueueRepository = jobDataMap[PollingJobConstants.RetryDurableQueueRepository] as IRetryDurableQueueRepository;
-            var retryDurableProducer = jobDataMap[PollingJobConstants.RetryDurableMessageProducer] as IMessageProducer;
-            var retryDurablePollingDefinition = jobDataMap[PollingJobConstants.RetryDurablePollingDefinition] as RetryDurablePollingDefinition;
-            var logHandler = jobDataMap[PollingJobConstants.LogHandler] as ILogHandler;
-            var messageHeadersAdapter = jobDataMap[PollingJobConstants.MessageHeadersAdapter] as IMessageHeadersAdapter;
-            var messageAdapter = jobDataMap[PollingJobConstants.MessageAdapter] as IMessageAdapter;
-            var utf8Encoder = jobDataMap[PollingJobConstants.Utf8Encoder] as IUtf8Encoder;
-            var schedulerId = jobDataMap[PollingJobConstants.SchedulerId] as string;
-
-            Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(retryDurableProducer).NotNull();
-            Guard.Argument(retryDurablePollingDefinition).NotNull();
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(messageHeadersAdapter).NotNull();
-            Guard.Argument(messageAdapter).NotNull();
-            Guard.Argument(utf8Encoder).NotNull();
-            Guard.Argument(schedulerId).NotNull().NotEmpty();
+            var retryDurablePollingDefinition = jobDataMap.GetValidValue<RetryDurablePollingDefinition>(PollingJobConstants.RetryDurablePollingDefinition, nameof(RetryDurablePollingJob));
+            var schedulerId = jobDataMap.GetValidStringValue(PollingJobConstants.SchedulerId, nameof(RetryDurablePollingJob));
+            var retryDurableQueueRepository = jobDataMap.GetValidValue<IRetryDurableQueueRepository>(PollingJobConstants.RetryDurableQueueRepository, nameof(RetryDurablePollingJob));
+            var logHandler = jobDataMap.GetValidValue<ILogHandler>(PollingJobConstants.LogHandler, nameof(RetryDurablePollingJob));
+            var messageHeadersAdapter = jobDataMap.GetValidValue<IMessageHeadersAdapter>(PollingJobConstants.MessageHeadersAdapter, nameof(RetryDurablePollingJob));
+            var messageAdapter = jobDataMap.GetValidValue<IMessageAdapter>(PollingJobConstants.MessageAdapter, nameof(RetryDurablePollingJob));
+            var utf8Encoder = jobDataMap.GetValidValue<IUtf8Encoder>(PollingJobConstants.Utf8Encoder, nameof(RetryDurablePollingJob));
+            var retryDurableProducer = jobDataMap.GetValidValue<IMessageProducer>(PollingJobConstants.RetryDurableMessageProducer, nameof(RetryDurablePollingJob));
 
             try
             {

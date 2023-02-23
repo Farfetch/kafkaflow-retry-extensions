@@ -1,6 +1,7 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
 {
     using System;
+    using System.Threading.Tasks;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Definitions.Polling;
     using global::KafkaFlow.Retry.Durable.Polling;
@@ -56,10 +57,10 @@
         }
 
         [Fact]
-        public void QueueTrackerCoordinator_ScheduleJobs_Success()
+        public async Task QueueTrackerCoordinator_ScheduleJobs_Success()
         {
             // Act
-            this.queueTrackerCoordinator.ScheduleJobs(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
+            await this.queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
             //Assert
             this.mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
@@ -68,7 +69,7 @@
         }
 
         [Fact]
-        public void QueueTrackerCoordinator_UnscheduleJobs_Success()
+        public async Task QueueTrackerCoordinator_UnscheduleJobs_Success()
         {
             // Arrange
 
@@ -80,8 +81,8 @@
                         .Build());
 
             // Act
-            this.queueTrackerCoordinator.ScheduleJobs(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
-            this.queueTrackerCoordinator.UnscheduleJobs();
+            await this.queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
+            await this.queueTrackerCoordinator.UnscheduleJobsAsync();
 
             //Assert
             this.mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);

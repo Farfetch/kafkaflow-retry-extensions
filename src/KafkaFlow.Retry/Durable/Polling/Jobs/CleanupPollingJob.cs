@@ -2,8 +2,8 @@
 {
     using System;
     using System.Threading.Tasks;
-    using Dawn;
     using KafkaFlow.Retry.Durable.Definitions.Polling;
+    using KafkaFlow.Retry.Durable.Polling.Extensions;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
     using KafkaFlow.Retry.Durable.Repository.Model;
@@ -16,24 +16,10 @@
         {
             var jobDataMap = context.JobDetail.JobDataMap;
 
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.RetryDurableQueueRepository), PollingJobConstants.RetryDurableQueueRepository)
-                .True("Argument RetryDurableQueueRepository wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.CleanupPollingDefinition), PollingJobConstants.CleanupPollingDefinition)
-                .True("Argument CleanupPollingDefinition wasn't found and is required for this job");
-
-            Guard.Argument(jobDataMap.ContainsKey(PollingJobConstants.LogHandler), PollingJobConstants.LogHandler)
-                .True("Argument LogHandler wasn't found and is required for this job");
-
-            var retryDurableQueueRepository = jobDataMap[PollingJobConstants.RetryDurableQueueRepository] as IRetryDurableQueueRepository;
-            var cleanupPollingDefinition = jobDataMap[PollingJobConstants.CleanupPollingDefinition] as CleanupPollingDefinition;
-            var logHandler = jobDataMap[PollingJobConstants.LogHandler] as ILogHandler;
-            var schedulerId = jobDataMap[PollingJobConstants.SchedulerId] as string;
-
-            Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(cleanupPollingDefinition).NotNull();
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(schedulerId).NotNull().NotEmpty();
+            var cleanupPollingDefinition = jobDataMap.GetValidValue<CleanupPollingDefinition>(PollingJobConstants.CleanupPollingDefinition, nameof(CleanupPollingJob));
+            var schedulerId = jobDataMap.GetValidStringValue(PollingJobConstants.SchedulerId, nameof(CleanupPollingJob));
+            var retryDurableQueueRepository = jobDataMap.GetValidValue<IRetryDurableQueueRepository>(PollingJobConstants.RetryDurableQueueRepository, nameof(CleanupPollingJob));
+            var logHandler = jobDataMap.GetValidValue<ILogHandler>(PollingJobConstants.LogHandler, nameof(CleanupPollingJob));
 
             try
             {

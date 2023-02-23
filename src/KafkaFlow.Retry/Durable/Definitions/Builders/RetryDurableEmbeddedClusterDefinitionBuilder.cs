@@ -148,9 +148,11 @@
                                         });
 
                                     queueTrackerCoordinator
-                                        .ScheduleJobs(
+                                        .ScheduleJobsAsync(
                                             resolver.Resolve<IProducerAccessor>().GetProducer(producerName),
-                                            log);
+                                            log)
+                                        .GetAwaiter()
+                                        .GetResult();
                                 }
                             })
                         .WithPartitionsRevokedHandler(
@@ -164,7 +166,7 @@
                                         PartitionsRevoked = partitionsRevokedHandler
                                     });
 
-                                queueTrackerCoordinator.UnscheduleJobs();
+                                queueTrackerCoordinator.UnscheduleJobsAsync().GetAwaiter().GetResult();
                             })
                         .AddMiddlewares(
                             middlewares => middlewares

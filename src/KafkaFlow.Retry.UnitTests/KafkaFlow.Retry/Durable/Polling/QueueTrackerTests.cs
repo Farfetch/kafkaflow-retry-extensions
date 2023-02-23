@@ -72,11 +72,11 @@
               );
 
             // act
-            queueTracker.ScheduleJobs();
+            await queueTracker.ScheduleJobsAsync();
 
             await WaitForSeconds(5);
 
-            queueTracker.UnscheduleJobs();
+            await queueTracker.UnscheduleJobsAsync();
 
             // assert
             jobExecutionContexts.Where(x => x.PreviousFireTimeUtc is null).Count().Should().Be(2);
@@ -137,11 +137,11 @@
                 );
 
             // act
-            queueTracker1.ScheduleJobs();
+            await queueTracker1.ScheduleJobsAsync();
 
             await WaitForSeconds(6).ConfigureAwait(false);
 
-            queueTracker1.UnscheduleJobs();
+            await queueTracker1.UnscheduleJobsAsync();
 
             await WaitForSeconds(15).ConfigureAwait(false);
 
@@ -162,11 +162,11 @@
                 mockILogHandler.Object
                 );
 
-            queueTracker2.ScheduleJobs();
+            await queueTracker2.ScheduleJobsAsync();
 
             await WaitForSeconds(6).ConfigureAwait(false);
 
-            queueTracker2.UnscheduleJobs();
+            await queueTracker2.UnscheduleJobsAsync();
 
             await WaitForSeconds(15).ConfigureAwait(false);
 
