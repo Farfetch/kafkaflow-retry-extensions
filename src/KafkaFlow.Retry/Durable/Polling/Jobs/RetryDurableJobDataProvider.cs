@@ -10,7 +10,6 @@
     internal class RetryDurableJobDataProvider : IJobDataProvider
     {
         private readonly ILogHandler logHandler;
-        private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
         private readonly IMessageProducer retryDurableMessageProducer;
         private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
@@ -26,7 +25,6 @@
             IRetryDurableQueueRepository retryDurableQueueRepository,
             ILogHandler logHandler,
             IMessageHeadersAdapter messageHeadersAdapter,
-            IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder,
             IMessageProducer retryDurableMessageProducer)
         {
@@ -36,7 +34,6 @@
             Guard.Argument(retryDurableQueueRepository, nameof(retryDurableQueueRepository)).NotNull();
             Guard.Argument(logHandler, nameof(logHandler)).NotNull();
             Guard.Argument(messageHeadersAdapter, nameof(messageHeadersAdapter)).NotNull();
-            Guard.Argument(messageAdapter, nameof(messageAdapter)).NotNull();
             Guard.Argument(utf8Encoder, nameof(utf8Encoder)).NotNull();
             Guard.Argument(retryDurableMessageProducer, nameof(retryDurableMessageProducer)).NotNull();
 
@@ -46,7 +43,6 @@
             this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.logHandler = logHandler;
             this.messageHeadersAdapter = messageHeadersAdapter;
-            this.messageAdapter = messageAdapter;
             this.utf8Encoder = utf8Encoder;
             this.retryDurableMessageProducer = retryDurableMessageProducer;
         }
@@ -64,7 +60,6 @@
             dataMap.Add(PollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
             dataMap.Add(PollingJobConstants.LogHandler, this.logHandler);
             dataMap.Add(PollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter);
-            dataMap.Add(PollingJobConstants.MessageAdapter, this.messageAdapter);
             dataMap.Add(PollingJobConstants.Utf8Encoder, this.utf8Encoder);
             dataMap.Add(PollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer);
 

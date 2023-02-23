@@ -131,7 +131,6 @@
                     gzipCompressor,
                     utf8Encoder,
                     newtonsoftJsonSerializer,
-                    messageAdapter,
                     messageHeadersAdapter,
                     this.pollingDefinitionsAggregator,
                     triggerProvider

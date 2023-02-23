@@ -37,7 +37,6 @@
                 mockTriggerProvider.Object,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IMessageHeadersAdapter>(),
-                Mock.Of<IMessageAdapter>(),
                 Mock.Of<IUtf8Encoder>());
 
             // Act
@@ -52,7 +51,6 @@
         [InlineData(typeof(ITriggerProvider))]
         [InlineData(typeof(IRetryDurableQueueRepository))]
         [InlineData(typeof(IMessageHeadersAdapter))]
-        [InlineData(typeof(IMessageAdapter))]
         [InlineData(typeof(IUtf8Encoder))]
         public void JobDataProvidersFactory_Ctor_WithArgumentNull_ThrowsException(Type nullType)
         {
@@ -62,7 +60,6 @@
                 nullType == typeof(ITriggerProvider) ? null : Mock.Of<ITriggerProvider>(),
                 nullType == typeof(IRetryDurableQueueRepository) ? null : Mock.Of<IRetryDurableQueueRepository>(),
                 nullType == typeof(IMessageHeadersAdapter) ? null : Mock.Of<IMessageHeadersAdapter>(),
-                nullType == typeof(IMessageAdapter) ? null : Mock.Of<IMessageAdapter>(),
                 nullType == typeof(IUtf8Encoder) ? null : Mock.Of<IUtf8Encoder>());
             // Assert
             act.Should().Throw<ArgumentNullException>();

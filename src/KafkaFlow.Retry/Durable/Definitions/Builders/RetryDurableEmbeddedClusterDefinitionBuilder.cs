@@ -73,7 +73,6 @@
             IGzipCompressor gzipCompressor,
             IUtf8Encoder utf8Encoder,
             INewtonsoftJsonSerializer newtonsoftJsonSerializer,
-            IMessageAdapter messageAdapter,
             IMessageHeadersAdapter messageHeadersAdapter,
             PollingDefinitionsAggregator pollingDefinitionsAggregator,
             ITriggerProvider triggerProvider)
@@ -105,7 +104,6 @@
                             triggerProvider,
                             retryDurableQueueRepository,
                             messageHeadersAdapter,
-                            messageAdapter,
                             utf8Encoder
                         )
                     )

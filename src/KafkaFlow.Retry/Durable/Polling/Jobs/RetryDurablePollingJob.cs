@@ -28,7 +28,6 @@
             var retryDurableQueueRepository = jobDataMap.GetValidValue<IRetryDurableQueueRepository>(PollingJobConstants.RetryDurableQueueRepository, nameof(RetryDurablePollingJob));
             var logHandler = jobDataMap.GetValidValue<ILogHandler>(PollingJobConstants.LogHandler, nameof(RetryDurablePollingJob));
             var messageHeadersAdapter = jobDataMap.GetValidValue<IMessageHeadersAdapter>(PollingJobConstants.MessageHeadersAdapter, nameof(RetryDurablePollingJob));
-            var messageAdapter = jobDataMap.GetValidValue<IMessageAdapter>(PollingJobConstants.MessageAdapter, nameof(RetryDurablePollingJob));
             var utf8Encoder = jobDataMap.GetValidValue<IUtf8Encoder>(PollingJobConstants.Utf8Encoder, nameof(RetryDurablePollingJob));
             var retryDurableProducer = jobDataMap.GetValidValue<IMessageProducer>(PollingJobConstants.RetryDurableMessageProducer, nameof(RetryDurablePollingJob));
 

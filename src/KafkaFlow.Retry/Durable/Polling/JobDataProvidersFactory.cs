@@ -11,7 +11,6 @@
 
     internal class JobDataProvidersFactory : IJobDataProvidersFactory
     {
-        private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
         private readonly PollingDefinitionsAggregator pollingDefinitionsAggregator;
         private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
@@ -23,20 +22,17 @@
             ITriggerProvider triggerProvider,
             IRetryDurableQueueRepository retryDurableQueueRepository,
             IMessageHeadersAdapter messageHeadersAdapter,
-            IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder)
         {
             Guard.Argument(pollingDefinitionsAggregator, nameof(pollingDefinitionsAggregator)).NotNull();
             Guard.Argument(triggerProvider, nameof(triggerProvider)).NotNull();
             Guard.Argument(retryDurableQueueRepository).NotNull();
             Guard.Argument(messageHeadersAdapter).NotNull();
-            Guard.Argument(messageAdapter).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
 
             this.pollingDefinitionsAggregator = pollingDefinitionsAggregator;
             this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.messageHeadersAdapter = messageHeadersAdapter;
-            this.messageAdapter = messageAdapter;
             this.utf8Encoder = utf8Encoder;
             this.triggerProvider = triggerProvider;
         }
@@ -55,7 +51,6 @@
                         this.retryDurableQueueRepository,
                         logHandler,
                         this.messageHeadersAdapter,
-                        this.messageAdapter,
                         this.utf8Encoder,
                         retryDurableMessageProducer
                         )
