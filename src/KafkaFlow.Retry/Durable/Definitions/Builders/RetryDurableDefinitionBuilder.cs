@@ -49,6 +49,8 @@
             Action<RetryDurableEmbeddedClusterDefinitionBuilder> configure
             )
         {
+            Guard.Argument(configure, nameof(configure)).NotNull();
+
             this.retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
             configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
@@ -69,6 +71,8 @@
 
         public RetryDurableDefinitionBuilder WithPollingJobsConfiguration(Action<PollingDefinitionsAggregatorBuilder> configure)
         {
+            Guard.Argument(configure, nameof(configure)).NotNull();
+
             var pollingDefinitionsAggregatorBuilder = new PollingDefinitionsAggregatorBuilder();
             configure(pollingDefinitionsAggregatorBuilder);
             this.pollingDefinitionsAggregator = pollingDefinitionsAggregatorBuilder.Build();
@@ -85,6 +89,8 @@
 
         public RetryDurableDefinitionBuilder WithRetryPlanBeforeRetryDurable(Action<RetryDurableRetryPlanBeforeDefinitionBuilder> configure)
         {
+            Guard.Argument(configure, nameof(configure)).NotNull();
+
             var retryDurableRetryPlanBeforeDefinitionBuilder = new RetryDurableRetryPlanBeforeDefinitionBuilder();
             configure(retryDurableRetryPlanBeforeDefinitionBuilder);
             this.retryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinitionBuilder.Build();
