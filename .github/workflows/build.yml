@@ -44,10 +44,11 @@ jobs:
         repository: ${{github.event.pull_request.head.repo.full_name}}
       
     - name: Commit Lint
-      uses: wagoid/commitlint-github-action@v3.1.4
+      uses: wagoid/commitlint-github-action@v5
       with:
         firstParent: false
         failOnWarnings: true
+        commitDepth: 1
 
     - name: Force fetch tags
       run: |
