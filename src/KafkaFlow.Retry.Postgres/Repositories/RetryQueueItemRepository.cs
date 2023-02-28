@@ -279,7 +279,7 @@
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
             {
-                while (await reader.ReadAsync())
+                while (await reader.ReadAsync().ConfigureAwait(false))
                 {
                     items.Add(this.FillDbo(reader));
                 }
