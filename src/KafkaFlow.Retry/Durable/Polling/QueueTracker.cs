@@ -65,7 +65,7 @@
                     continue;
                 }
 
-                this.ScheduleJobAsync(jobDataProvider, cancellationToken);
+                await this.ScheduleJobAsync(jobDataProvider, cancellationToken).ConfigureAwait(false);
             }
         }
 
