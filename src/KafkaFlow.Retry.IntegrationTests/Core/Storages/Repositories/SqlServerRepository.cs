@@ -99,7 +99,7 @@
                     Status = item.Status,
                     SeverityLevel = item.SeverityLevel,
                     Description = item.Description,
-                    Sort = item.Sort // TODO: FIX-30: remove this after fix https://github.com/Farfetch/kafka-flow-retry-extensions/issues/30
+                    Sort = item.Sort // TODO: FIX-30: remove this after fix https://github.com/Farfetch/kafkaflow-retry-extensions/issues/30
                 };
 
                 var itemId = await this.retryQueueItemRepository.AddAsync(dbConnection, itemDbo);

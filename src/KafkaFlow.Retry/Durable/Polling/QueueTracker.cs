@@ -1,124 +1,130 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
+    using System;
+    using System.Collections.Specialized;
     using System.Threading;
     using Dawn;
     using KafkaFlow.Retry.Durable.Definitions;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
     using Quartz;
     using Quartz.Impl;
 
     internal class QueueTracker
     {
-        private static object internalLock = new object();
+        private static readonly object internalLock = new object();
+        private readonly IJobDetail job;
         private readonly ILogHandler logHandler;
-        private readonly IMessageAdapter messageAdapter;
-        private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly IMessageProducer retryDurableMessageProducer;
         private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
-        private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
-        private readonly IUtf8Encoder utf8Encoder;
-        private readonly bool waitForJobsToComplete = true;
+        private readonly ITrigger trigger;
         private IScheduler scheduler;
 
         public QueueTracker(
-            IRetryDurableQueueRepository retryDurableQueueRepository,
             ILogHandler logHandler,
-            IMessageHeadersAdapter messageHeadersAdapter,
-            IMessageAdapter messageAdapter,
-            IUtf8Encoder utf8Encoder,
-            IMessageProducer retryDurableMessageProducer,
-            RetryDurablePollingDefinition retryDurablePollingDefinition
+            RetryDurablePollingDefinition retryDurablePollingDefinition,
+            IJobDetailProvider jobDetailProvider,
+            ITriggerProvider triggerProvider
         )
         {
-            Guard.Argument(retryDurableQueueRepository).NotNull();
             Guard.Argument(logHandler).NotNull();
-            Guard.Argument(messageHeadersAdapter).NotNull();
-            Guard.Argument(messageAdapter).NotNull();
-            Guard.Argument(utf8Encoder).NotNull();
-            Guard.Argument(retryDurableMessageProducer).NotNull();
             Guard.Argument(retryDurablePollingDefinition).NotNull();
+            Guard.Argument(jobDetailProvider).NotNull();
+            Guard.Argument(triggerProvider).NotNull();
 
-            this.retryDurableQueueRepository = retryDurableQueueRepository;
             this.logHandler = logHandler;
-            this.messageHeadersAdapter = messageHeadersAdapter;
-            this.messageAdapter = messageAdapter;
-            this.utf8Encoder = utf8Encoder;
-            this.retryDurableMessageProducer = retryDurableMessageProducer;
             this.retryDurablePollingDefinition = retryDurablePollingDefinition;
+
+            this.job = jobDetailProvider.GetQueuePollingJobDetail();
+            this.trigger = triggerProvider.GetQueuePollingTrigger();
         }
 
         private bool IsSchedulerActive
-            => this.scheduler is object && this.scheduler.IsStarted && !this.scheduler.IsShutdown;
+            => this.scheduler is object
+            && this.scheduler.IsStarted
+            && !this.scheduler.IsShutdown;
 
         internal void ScheduleJob(CancellationToken cancellationToken = default)
         {
-            Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
-
-            lock (internalLock)
+            try
             {
-                this.scheduler = StdSchedulerFactory.GetDefaultScheduler(cancellationToken).GetAwaiter().GetResult();
-            }
+                Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
 
-            this.scheduler
-                .Start(cancellationToken)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-
-            JobDataMap dataMap = new JobDataMap();
-            dataMap.Add(QueuePollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
-            dataMap.Add(QueuePollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer);
-            dataMap.Add(QueuePollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition);
-            dataMap.Add(QueuePollingJobConstants.LogHandler, this.logHandler);
-            dataMap.Add(QueuePollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter);
-            dataMap.Add(QueuePollingJobConstants.MessageAdapter, this.messageAdapter);
-            dataMap.Add(QueuePollingJobConstants.Utf8Encoder, this.utf8Encoder);
-
-            IJobDetail job = JobBuilder
-                .Create<QueuePollingJob>()
-                .SetJobData(dataMap)
-                .Build();
-
-            ITrigger trigger = TriggerBuilder
-                .Create()
-                .WithIdentity($"pollingJob_{this.retryDurablePollingDefinition.Id}", "queueTrackerGroup")
-                .WithCronSchedule(this.retryDurablePollingDefinition.CronExpression)
-                .StartNow()
-                .WithPriority(1)
-                .Build();
-
-            this.scheduler
-                .ScheduleJob(job, trigger, cancellationToken)
-                .ConfigureAwait(false)
-                .GetAwaiter()
-                .GetResult();
-
-            this.logHandler.Info(
-                "PollingJob Schedule", 
-                new 
+                lock (internalLock)
                 {
-                    PollingId = this.retryDurablePollingDefinition.Id,
-                    CronExpression = this.retryDurablePollingDefinition.CronExpression
-                });
-        }
+                    StdSchedulerFactory fact = new StdSchedulerFactory();
+                    fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", this.retryDurablePollingDefinition.Id } });
+                    this.scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();
 
-        internal void Shutdown(CancellationToken cancellationToken = default)
-        {
-            lock (internalLock)
-            {
-                if (this.IsSchedulerActive)
+                    this.logHandler.Info(
+                        "PollingJob Scheduler Acquired",
+                        new
+                        {
+                            PollingId = this.retryDurablePollingDefinition.Id,
+                            CronExpression = this.retryDurablePollingDefinition.CronExpression
+                        });
+                }
+
+                if (!this.IsSchedulerActive)
                 {
                     this.scheduler
-                        .Shutdown(waitForJobsToComplete, cancellationToken)
-                        .ConfigureAwait(false)
+                        .Start(cancellationToken)
                         .GetAwaiter()
                         .GetResult();
-                }
-            }
 
-            this.logHandler.Info("PollingJob Shutdown", new {});
+                    this.logHandler.Info(
+                        "PollingJob Scheduler Started",
+                        new
+                        {
+                            PollingId = this.retryDurablePollingDefinition.Id,
+                            CronExpression = this.retryDurablePollingDefinition.CronExpression
+                        });
+                }
+
+                var scheduledJob = this.scheduler
+                    .ScheduleJob(this.job, this.trigger, cancellationToken)
+                    .GetAwaiter()
+                    .GetResult();
+
+                this.logHandler.Info(
+                    "PollingJob Scheduler Scheduled",
+                    new
+                    {
+                        PollingId = this.retryDurablePollingDefinition.Id,
+                        CronExpression = this.retryDurablePollingDefinition.CronExpression,
+                        ScheduleJob = scheduledJob.ToString()
+                    });
+            }
+            catch (Exception ex)
+            {
+                this.logHandler.Error(
+                    "PollingJob Scheduler Error",
+                    ex,
+                    new
+                    {
+                        PollingId = this.retryDurablePollingDefinition.Id,
+                        CronExpression = this.retryDurablePollingDefinition.CronExpression
+                    });
+            }
+        }
+
+        internal void UnscheduleJob(CancellationToken cancellationToken = default)
+        {
+            this.logHandler.Info(
+                "PollingJob Unscheduler Started",
+                new
+                {
+                    TriggerKey = this.trigger.Key.ToString()
+                });
+
+            var unscheduledJob = this.scheduler
+                .UnscheduleJob(this.trigger.Key)
+                .GetAwaiter()
+                .GetResult();
+
+            this.logHandler.Info("PollingJob Unscheduler Finished",
+                new
+                {
+                    UnscheduledJob = unscheduledJob,
+                    TriggerKey = this.trigger.Key.ToString()
+                });
         }
     }
 }
