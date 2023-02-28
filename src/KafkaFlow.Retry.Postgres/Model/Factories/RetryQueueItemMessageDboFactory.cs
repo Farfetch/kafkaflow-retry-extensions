@@ -1,8 +1,8 @@
-﻿using Dawn;
-using KafkaFlow.Retry.Durable.Repository.Model;
-
-namespace KafkaFlow.Retry.Postgres.Model.Factories
+﻿namespace KafkaFlow.Retry.Postgres.Model.Factories
 {
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository.Model;
+    
     internal sealed class RetryQueueItemMessageDboFactory : IRetryQueueItemMessageDboFactory
     {
         public RetryQueueItemMessageDbo Create(RetryQueueItemMessage retryQueueItemMessage, long retryQueueItemId)

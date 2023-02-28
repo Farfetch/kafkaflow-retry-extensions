@@ -1,7 +1,7 @@
-﻿using Dawn;
-
-namespace KafkaFlow.Retry.Postgres.Model.Schema
+﻿namespace KafkaFlow.Retry.Postgres.Model.Schema
 {
+    using Dawn;
+    
     public class Script
     {
         public Script(string value)

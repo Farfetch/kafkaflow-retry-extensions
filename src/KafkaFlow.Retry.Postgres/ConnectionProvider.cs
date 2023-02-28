@@ -1,7 +1,7 @@
-﻿using Dawn;
-
-namespace KafkaFlow.Retry.Postgres
+﻿namespace KafkaFlow.Retry.Postgres
 {
+    using Dawn;
+
     internal sealed class ConnectionProvider : IConnectionProvider
     {
         public IDbConnection Create(PostgresDbSettings postgresDbSettings)

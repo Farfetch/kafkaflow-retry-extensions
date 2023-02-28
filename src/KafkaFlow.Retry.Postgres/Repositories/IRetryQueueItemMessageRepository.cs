@@ -1,9 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using KafkaFlow.Retry.Postgres.Model;
-
-namespace KafkaFlow.Retry.Postgres.Repositories
+﻿namespace KafkaFlow.Retry.Postgres.Repositories
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using KafkaFlow.Retry.Postgres.Model;
+    
     internal interface IRetryQueueItemMessageRepository
     {
         Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo);

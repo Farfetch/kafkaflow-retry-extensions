@@ -1,16 +1,16 @@
-﻿using System.Collections.Generic;
-using System.IO;
-using System.Reflection;
-using Dawn;
-using KafkaFlow.Retry.Durable.Repository;
-using KafkaFlow.Retry.Postgres.Model.Factories;
-using KafkaFlow.Retry.Postgres.Model.Schema;
-using KafkaFlow.Retry.Postgres.Readers;
-using KafkaFlow.Retry.Postgres.Readers.Adapters;
-using KafkaFlow.Retry.Postgres.Repositories;
-
-namespace KafkaFlow.Retry.Postgres
+﻿namespace KafkaFlow.Retry.Postgres
 {
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Reflection;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Postgres.Model.Factories;
+    using KafkaFlow.Retry.Postgres.Model.Schema;
+    using KafkaFlow.Retry.Postgres.Readers;
+    using KafkaFlow.Retry.Postgres.Readers.Adapters;
+    using KafkaFlow.Retry.Postgres.Repositories;
+    
     public sealed class PostgresDbDataProviderFactory
     {
         public IRetryDurableQueueRepositoryProvider Create(PostgresDbSettings postgresDbSettings)

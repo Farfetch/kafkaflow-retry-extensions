@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dawn;
-using KafkaFlow.Retry.Durable.Common;
-using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-using KafkaFlow.Retry.Durable.Repository.Model;
-using KafkaFlow.Retry.Postgres.Model;
-using Npgsql;
-
-namespace KafkaFlow.Retry.Postgres.Repositories
+﻿namespace KafkaFlow.Retry.Postgres.Repositories
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Common;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+    using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.Postgres.Model;
+    using Npgsql;
+    
     internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
     {
         public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo)

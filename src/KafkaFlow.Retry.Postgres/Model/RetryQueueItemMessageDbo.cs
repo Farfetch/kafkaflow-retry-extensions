@@ -1,8 +1,8 @@
-﻿using System;
-using System.Diagnostics.CodeAnalysis;
-
-namespace KafkaFlow.Retry.Postgres.Model
+﻿namespace KafkaFlow.Retry.Postgres.Model
 {
+    using System;
+    using System.Diagnostics.CodeAnalysis;
+    
     [ExcludeFromCodeCoverage]
     internal class RetryQueueItemMessageDbo
     {

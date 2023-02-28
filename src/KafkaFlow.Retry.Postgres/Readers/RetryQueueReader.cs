@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using Dawn;
-using KafkaFlow.Retry.Durable.Repository.Model;
-using KafkaFlow.Retry.Postgres.Model;
-using KafkaFlow.Retry.Postgres.Readers.Adapters;
-
-namespace KafkaFlow.Retry.Postgres.Readers
+﻿namespace KafkaFlow.Retry.Postgres.Readers
 {
+    using System.Collections.Generic;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.Postgres.Model;
+    using KafkaFlow.Retry.Postgres.Readers.Adapters;
+    
     internal class RetryQueueReader : IRetryQueueReader
     {
         private readonly IRetryQueueAdapter retryQueueAdapter;

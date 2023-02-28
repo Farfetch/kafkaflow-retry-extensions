@@ -1,9 +1,8 @@
-﻿using KafkaFlow.Retry.Postgres;
-
-namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests
+﻿namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests
 {
     using System.Threading.Tasks;
     using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+    using KafkaFlow.Retry.Postgres;
     using KafkaFlow.Retry.SqlServer;
     using Xunit;
 

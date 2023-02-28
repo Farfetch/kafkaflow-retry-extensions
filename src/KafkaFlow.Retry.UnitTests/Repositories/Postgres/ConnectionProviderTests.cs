@@ -1,10 +1,10 @@
-﻿using System;
-using FluentAssertions;
-using KafkaFlow.Retry.Postgres;
-using Xunit;
-
-namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres
+﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres
 {
+    using System;
+    using FluentAssertions;
+    using global::KafkaFlow.Retry.Postgres;
+    using Xunit;
+    
     public class ConnectionProviderTests
     {
         private readonly ConnectionProvider provider = new ConnectionProvider();

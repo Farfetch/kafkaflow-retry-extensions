@@ -1,10 +1,10 @@
-﻿using System;
-using FluentAssertions;
-using KafkaFlow.Retry.Postgres.Model.Schema;
-using Xunit;
-
-namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Schema
+﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Schema
 {
+    using System;
+    using FluentAssertions;
+    using global::KafkaFlow.Retry.Postgres.Model.Schema;
+    using Xunit;
+    
     public class ScriptTests
     {
         [Fact]

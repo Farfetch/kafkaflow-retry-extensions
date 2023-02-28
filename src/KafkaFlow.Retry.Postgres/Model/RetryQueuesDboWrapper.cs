@@ -1,8 +1,8 @@
-﻿using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace KafkaFlow.Retry.Postgres.Model
+﻿namespace KafkaFlow.Retry.Postgres.Model
 {
+    using System.Collections.Generic;
+    using System.Diagnostics.CodeAnalysis;
+    
     [ExcludeFromCodeCoverage]
     internal class RetryQueuesDboWrapper
     {

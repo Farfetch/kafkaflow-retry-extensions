@@ -1,6 +1,4 @@
-﻿using Npgsql;
-
-namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures
 {
     using System;
     using System.Collections.Generic;
@@ -8,6 +6,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures
     using System.Threading.Tasks;
     using Dawn;
     using global::Microsoft.Extensions.Configuration;
+    using Npgsql;
     using KafkaFlow.Retry.IntegrationTests.Core.Settings;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
 

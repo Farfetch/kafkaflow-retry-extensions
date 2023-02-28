@@ -1,9 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using Dawn;
-
-namespace KafkaFlow.Retry.Postgres.Readers
+﻿namespace KafkaFlow.Retry.Postgres.Readers
 {
+    using System;
+    using System.Collections.Generic;
+    using Dawn;
+    
     internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
     {
         private readonly IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter;

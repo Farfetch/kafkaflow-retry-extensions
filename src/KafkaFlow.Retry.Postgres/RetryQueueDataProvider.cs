@@ -1,20 +1,20 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Dawn;
-using KafkaFlow.Retry.Durable.Repository;
-using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-using KafkaFlow.Retry.Durable.Repository.Model;
-using KafkaFlow.Retry.Postgres.Model;
-using KafkaFlow.Retry.Postgres.Model.Factories;
-using KafkaFlow.Retry.Postgres.Readers;
-using KafkaFlow.Retry.Postgres.Repositories;
-
-namespace KafkaFlow.Retry.Postgres
+﻿namespace KafkaFlow.Retry.Postgres
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Threading.Tasks;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.Postgres.Model;
+    using KafkaFlow.Retry.Postgres.Model.Factories;
+    using KafkaFlow.Retry.Postgres.Readers;
+    using KafkaFlow.Retry.Postgres.Repositories;
+    
     internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
     {
         private readonly IConnectionProvider connectionProvider;

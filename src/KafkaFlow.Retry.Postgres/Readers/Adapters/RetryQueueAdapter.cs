@@ -1,9 +1,9 @@
-﻿using Dawn;
-using KafkaFlow.Retry.Durable.Repository.Model;
-using KafkaFlow.Retry.Postgres.Model;
-
-namespace KafkaFlow.Retry.Postgres.Readers.Adapters
+﻿namespace KafkaFlow.Retry.Postgres.Readers.Adapters
 {
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.Postgres.Model;
+    
     internal class RetryQueueAdapter : IRetryQueueAdapter
     {
         public RetryQueue Adapt(RetryQueueDbo retryQueueDbo)

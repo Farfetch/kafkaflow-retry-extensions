@@ -1,9 +1,9 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Dawn;
-using Npgsql;
-
-namespace KafkaFlow.Retry.Postgres
+﻿namespace KafkaFlow.Retry.Postgres
 {
+    using System.Diagnostics.CodeAnalysis;
+    using Dawn;
+    using Npgsql;
+    
     [ExcludeFromCodeCoverage]
     internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
     {

@@ -1,6 +1,4 @@
-﻿using KafkaFlow.Retry.Postgres;
-
-namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
 {
     using System;
     using Confluent.Kafka;
@@ -10,6 +8,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.MongoDb;
+    using KafkaFlow.Retry.Postgres;
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;

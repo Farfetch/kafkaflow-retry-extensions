@@ -1,9 +1,9 @@
-﻿using System;
-using Dawn;
-using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-
-namespace KafkaFlow.Retry.Postgres.Model.Factories
+﻿namespace KafkaFlow.Retry.Postgres.Model.Factories
 {
+    using System;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+    
     internal sealed class RetryQueueDboFactory : IRetryQueueDboFactory
     {
         public RetryQueueDbo Create(SaveToQueueInput input)

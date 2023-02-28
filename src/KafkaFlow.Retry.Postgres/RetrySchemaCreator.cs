@@ -1,11 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Threading.Tasks;
-using Dawn;
-using KafkaFlow.Retry.Postgres.Model.Schema;
-using Npgsql;
-
-namespace KafkaFlow.Retry.Postgres
+﻿namespace KafkaFlow.Retry.Postgres
 {
+    using System.Collections.Generic;
+    using System.Threading.Tasks;
+    using Dawn;
+    using KafkaFlow.Retry.Postgres.Model.Schema;
+    using Npgsql;
+    
     internal class RetrySchemaCreator : IRetrySchemaCreator
     {
         private readonly IEnumerable<Script> schemaScripts;

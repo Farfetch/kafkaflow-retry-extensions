@@ -1,8 +1,8 @@
-﻿using System.Diagnostics.CodeAnalysis;
-using Dawn;
-
-namespace KafkaFlow.Retry.Postgres
+﻿namespace KafkaFlow.Retry.Postgres
 {
+    using System.Diagnostics.CodeAnalysis;
+    using Dawn;
+    
     [ExcludeFromCodeCoverage]
     public class PostgresDbSettings
     {

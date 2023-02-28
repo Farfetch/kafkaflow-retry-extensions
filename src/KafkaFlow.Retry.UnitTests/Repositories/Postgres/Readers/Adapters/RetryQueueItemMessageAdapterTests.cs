@@ -1,12 +1,12 @@
-﻿using System;
-using FluentAssertions;
-using KafkaFlow.Retry.Durable.Repository.Model;
-using KafkaFlow.Retry.Postgres.Model;
-using KafkaFlow.Retry.Postgres.Readers.Adapters;
-using Xunit;
-
-namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters
+﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters
 {
+    using System;
+    using FluentAssertions;
+    using global::KafkaFlow.Retry.Durable.Repository.Model;
+    using global::KafkaFlow.Retry.Postgres.Model;
+    using global::KafkaFlow.Retry.Postgres.Readers.Adapters;
+    using Xunit;
+    
     public class RetryQueueItemMessageAdapterTests
     {
         private readonly RetryQueueItemMessageAdapter adapter = new RetryQueueItemMessageAdapter();

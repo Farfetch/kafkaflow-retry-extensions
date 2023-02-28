@@ -1,16 +1,16 @@
-﻿using System;
-using System.Collections.Generic;
-using FluentAssertions;
-using KafkaFlow.Retry.Durable.Common;
-using KafkaFlow.Retry.Durable.Repository.Model;
-using KafkaFlow.Retry.Postgres.Model;
-using KafkaFlow.Retry.Postgres.Readers;
-using KafkaFlow.Retry.Postgres.Readers.Adapters;
-using Moq;
-using Xunit;
-
-namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers
+﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers
 {
+    using System;
+    using System.Collections.Generic;
+    using FluentAssertions;
+    using global::KafkaFlow.Retry.Durable.Common;
+    using global::KafkaFlow.Retry.Durable.Repository.Model;
+    using global::KafkaFlow.Retry.Postgres.Model;
+    using global::KafkaFlow.Retry.Postgres.Readers;
+    using global::KafkaFlow.Retry.Postgres.Readers.Adapters;
+    using Moq;
+    using Xunit;
+    
     public class RetryQueueReaderTests
     {
         public static readonly IEnumerable<object[]> DataTest = new List<object[]>
