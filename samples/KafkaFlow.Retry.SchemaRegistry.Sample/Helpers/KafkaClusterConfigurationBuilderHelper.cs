@@ -84,13 +84,16 @@
                                                 )
                                                 .Enabled(true)
                                         )
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .WithId("retry-durable-mongodb-avro-polling-id")
-                                                .WithCronExpression("0 0/1 * 1/1 * ? *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(10)
-                                                .Enabled(true)
+                                                .WithSchedulerId("retry-durable-mongodb-avro-polling-id")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(10)
+                                                        .Enabled(true)
+                                                )
                                         ))
                                 .AddTypedHandlers(
                                     handlers => handlers
