@@ -4,23 +4,23 @@
 
 🔁 KafkaFlow Retry is an extension to [KafkaFlow](https://github.com/Farfetch/kafkaflow) that implements resilience on Apache Kafka consumers.
 
-Want to give it a try? Check out our [Quickstart](https://farfetch.github.io/kafkaflow-retry-extensions/docs/getting-started/quickstart)!
+Want to give it a try? Check out our [Quickstart](https://farfetch.github.io/kafkaflow-retry-extensions/getting-started/quickstart)!
 
 ### Resilience policies
 
 | Policy                                                                               | Description                                                                                                                                                                                                                                                                                                                      |                                                       Aka                                                      | Required Packages |
 | ------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | :------------------------------------------------------------------------------------------------------------: | ----------------- |
-| **Simple Retry** <br/>(policy family)<br/><sub>([quickstart](#simple) ; deep)</sub>  | Many faults are transient and may self-correct after a short delay.                                                                                                                                                                                                                                                              |                                            "Maybe it's just a blip"                                            | KafkaFlow.Retry   |
-| **Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#forever) ; deep)</sub> | Many faults are semi-transient and may self-correct after multiple retries.                                                                                                                                                                                                                                                      |                                                 "Never give up"                                                | KafkaFlow.Retry   |
-| **Durable Retry**<br/><sub>([quickstart](#durable) ; deep)</sub>                     | Beyond a certain amount of retries and waiting, you want to keep processing next-in-line messages but you can't lose the current offset message. As persistence databases, MongoDb or SqlServer is available. And you can manage in-retry messages through HTTP API."I can't stop processing messages but I can't lose messages" | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb |                   |
+| **Simple Retry** <br/>(policy family)<br/><sub>([quickstart](#simple) ; deep)</sub>  | Many faults are transient and may self-correct after a short delay.                                                                                                                                                                                                                                                              |                                            "Maybe it's just a blip"                                            | KafkaFlow.Retry   |
+| **Forever Retry**<br/>(policy family)<br/><sub>([quickstart](#forever) ; deep)</sub> | Many faults are semi-transient and may self-correct after multiple retries.                                                                                                                                                                                                                                                      |                                                 "Never give up"                                                | KafkaFlow.Retry   |
+| **Durable Retry**<br/><sub>([quickstart](#durable) ; deep)</sub>                     | Beyond a certain amount of retries and waiting, you want to keep processing next-in-line messages but you can't lose the current offset message. As persistence databases, MongoDb or SqlServer is available. And you can manage in-retry messages through HTTP API. | "I can't stop processing messages but I can't lose messages" | KafkaFlow.Retry <br/>KafkaFlow.Retry.API<br/><br/>KafkaFlow.Retry.SqlServer<br/>or<br/>KafkaFlow.Retry.MongoDb |
 
 ## Installation
 
-[Read the docs](https://farfetch.github.io/kafkaflow-retry-extensions/docs/getting-started/installation) for any further information.
+[Read the docs](https://farfetch.github.io/kafkaflow-retry-extensions/getting-started/installation) for any further information.
 
 ## Documentation
 
-Learn more about using KafkaFlow Retry Extensions [here](https://farfetch.github.io/kafkaflow-retry-extensions/docs/)!
+Learn more about using KafkaFlow Retry Extensions [here](https://farfetch.github.io/kafkaflow-retry-extensions/)!
 
 ## Contributing
 

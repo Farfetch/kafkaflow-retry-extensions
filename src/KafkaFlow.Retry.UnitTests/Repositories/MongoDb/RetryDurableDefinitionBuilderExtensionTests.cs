@@ -25,7 +25,7 @@
             act.Should().Throw<DataProviderCreationException>();
         }
 
-        [Fact]
+        [Fact()] //TODO: move to integration testes (uses the data base)
         public void RetryDurableDefinitionBuilder_WithMongoDbDataProvider_Success()
         {
             // Arrange

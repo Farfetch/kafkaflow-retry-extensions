@@ -1,39 +1,35 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
     using System;
+    using System.Collections.Generic;
     using System.Collections.Specialized;
     using System.Threading;
+    using System.Threading.Tasks;
     using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions;
     using Quartz;
     using Quartz.Impl;
 
     internal class QueueTracker
     {
         private static readonly object internalLock = new object();
-        private readonly IJobDetail job;
+        private readonly IEnumerable<IJobDataProvider> jobDataProviders;
         private readonly ILogHandler logHandler;
-        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
-        private readonly ITrigger trigger;
+        private readonly string schedulerId;
         private IScheduler scheduler;
 
         public QueueTracker(
-            ILogHandler logHandler,
-            RetryDurablePollingDefinition retryDurablePollingDefinition,
-            IJobDetailProvider jobDetailProvider,
-            ITriggerProvider triggerProvider
+            string schedulerId,
+            IEnumerable<IJobDataProvider> jobDataProviders,
+            ILogHandler logHandler
         )
         {
+            Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
+            Guard.Argument(jobDataProviders).NotNull().NotEmpty();
             Guard.Argument(logHandler).NotNull();
-            Guard.Argument(retryDurablePollingDefinition).NotNull();
-            Guard.Argument(jobDetailProvider).NotNull();
-            Guard.Argument(triggerProvider).NotNull();
 
+            this.schedulerId = schedulerId;
+            this.jobDataProviders = jobDataProviders;
             this.logHandler = logHandler;
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
-
-            this.job = jobDetailProvider.GetQueuePollingJobDetail();
-            this.trigger = triggerProvider.GetQueuePollingTrigger();
         }
 
         private bool IsSchedulerActive
@@ -41,90 +37,123 @@
             && this.scheduler.IsStarted
             && !this.scheduler.IsShutdown;
 
-        internal void ScheduleJob(CancellationToken cancellationToken = default)
+        internal async Task ScheduleJobsAsync(CancellationToken cancellationToken = default)
         {
             try
             {
-                Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
+                await this.StartSchedulerAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (Exception ex)
+            {
+                this.logHandler.Error("PollingJob ERROR starting scheduler", ex, new { SchedulerId = this.schedulerId });
+                return;
+            }
 
-                lock (internalLock)
+            foreach (var jobDataProvider in this.jobDataProviders)
+            {
+                if (!jobDataProvider.PollingDefinition.Enabled)
                 {
-                    StdSchedulerFactory fact = new StdSchedulerFactory();
-                    fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", this.retryDurablePollingDefinition.Id } });
-                    this.scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();
-
-                    this.logHandler.Info(
-                        "PollingJob Scheduler Acquired",
+                    this.logHandler.Warning(
+                        "PollingJob Scheduler not enabled",
                         new
                         {
-                            PollingId = this.retryDurablePollingDefinition.Id,
-                            CronExpression = this.retryDurablePollingDefinition.CronExpression
+                            SchedulerId = this.schedulerId,
+                            PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
+                            CronExpression = jobDataProvider.PollingDefinition.CronExpression
                         });
+
+                    continue;
                 }
 
-                if (!this.IsSchedulerActive)
+                await this.ScheduleJobAsync(jobDataProvider, cancellationToken).ConfigureAwait(false);
+            }
+        }
+
+        internal async Task UnscheduleJobsAsync(CancellationToken cancellationToken = default)
+        {
+            foreach (var jobDataProvider in this.jobDataProviders)
+            {
+                if (!jobDataProvider.PollingDefinition.Enabled)
                 {
-                    this.scheduler
-                        .Start(cancellationToken)
-                        .GetAwaiter()
-                        .GetResult();
-
-                    this.logHandler.Info(
-                        "PollingJob Scheduler Started",
-                        new
-                        {
-                            PollingId = this.retryDurablePollingDefinition.Id,
-                            CronExpression = this.retryDurablePollingDefinition.CronExpression
-                        });
+                    continue;
                 }
 
-                var scheduledJob = this.scheduler
-                    .ScheduleJob(this.job, this.trigger, cancellationToken)
-                    .GetAwaiter()
-                    .GetResult();
+                var trigger = jobDataProvider.Trigger;
 
                 this.logHandler.Info(
-                    "PollingJob Scheduler Scheduled",
+                    "PollingJob unscheduler started",
                     new
                     {
-                        PollingId = this.retryDurablePollingDefinition.Id,
-                        CronExpression = this.retryDurablePollingDefinition.CronExpression,
+                        SchedulerId = this.schedulerId,
+                        PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
+                        TriggerKey = trigger.Key.ToString()
+                    });
+
+                var unscheduledJob = await this.scheduler.UnscheduleJob(trigger.Key).ConfigureAwait(false);
+
+                this.logHandler.Info("PollingJob unscheduler finished",
+                    new
+                    {
+                        SchedulerId = this.schedulerId,
+                        PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
+                        TriggerKey = trigger.Key.ToString(),
+                        UnscheduledJob = unscheduledJob.ToString()
+                    });
+            }
+        }
+
+        private async Task ScheduleJobAsync(IJobDataProvider jobDataProvider, CancellationToken cancellationToken)
+        {
+            try
+            {
+                var job = jobDataProvider.GetPollingJobDetail();
+                var trigger = jobDataProvider.Trigger;
+
+                var scheduledJob = await this.scheduler.ScheduleJob(job, trigger, cancellationToken).ConfigureAwait(false);
+
+                this.logHandler.Info(
+                    "PollingJob Scheduler scheduled",
+                    new
+                    {
+                        SchedulerId = this.schedulerId,
+                        PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
+                        CronExpression = jobDataProvider.PollingDefinition.CronExpression,
                         ScheduleJob = scheduledJob.ToString()
                     });
             }
             catch (Exception ex)
             {
                 this.logHandler.Error(
-                    "PollingJob Scheduler Error",
+                    "PollingJob Scheduler ERROR scheduling",
                     ex,
                     new
                     {
-                        PollingId = this.retryDurablePollingDefinition.Id,
-                        CronExpression = this.retryDurablePollingDefinition.CronExpression
+                        SchedulerId = this.schedulerId,
+                        PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
+                        CronExpression = jobDataProvider.PollingDefinition.CronExpression
                     });
             }
         }
 
-        internal void UnscheduleJob(CancellationToken cancellationToken = default)
+        private async Task StartSchedulerAsync(CancellationToken cancellationToken)
         {
-            this.logHandler.Info(
-                "PollingJob Unscheduler Started",
-                new
-                {
-                    TriggerKey = this.trigger.Key.ToString()
-                });
+            lock (internalLock)
+            {
+                Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
 
-            var unscheduledJob = this.scheduler
-                .UnscheduleJob(this.trigger.Key)
-                .GetAwaiter()
-                .GetResult();
+                StdSchedulerFactory fact = new StdSchedulerFactory();
+                fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", this.schedulerId } });
+                this.scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();
 
-            this.logHandler.Info("PollingJob Unscheduler Finished",
-                new
-                {
-                    UnscheduledJob = unscheduledJob,
-                    TriggerKey = this.trigger.Key.ToString()
-                });
+                this.logHandler.Info("PollingJob Scheduler acquired", new { SchedulerId = this.schedulerId });
+            }
+
+            if (!this.IsSchedulerActive)
+            {
+                await this.scheduler.Start(cancellationToken).ConfigureAwait(false);
+
+                this.logHandler.Info("PollingJob Scheduler started", new { SchedulerId = this.schedulerId });
+            }
         }
     }
 }

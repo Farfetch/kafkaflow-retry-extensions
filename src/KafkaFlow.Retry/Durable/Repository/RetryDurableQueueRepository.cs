@@ -8,9 +8,10 @@
     using Dawn;
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Definitions;
+    using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
@@ -24,7 +25,7 @@
         private const int MaxAttempts = 6;
         private readonly IMessageAdapter messageAdapter;
         private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
+        private readonly PollingDefinitionsAggregator pollingDefinitionsAggregator;
         private readonly IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private readonly IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers;
         private readonly IUtf8Encoder utf8Encoder;
@@ -35,7 +36,7 @@
             IMessageHeadersAdapter messageHeadersAdapter,
             IMessageAdapter messageAdapter,
             IUtf8Encoder utf8Encoder,
-            RetryDurablePollingDefinition retryDurablePollingDefinition)
+            PollingDefinitionsAggregator pollingDefinitionsAggregator)
         {
             Guard.Argument(retryDurableRepositoryProvider).NotNull("Retry durable requires a repository to be defined");
             Guard.Argument(updateItemHandlers).NotNull("At least an update item handler should be defined");
@@ -43,14 +44,14 @@
             Guard.Argument(messageHeadersAdapter).NotNull();
             Guard.Argument(messageAdapter).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
-            Guard.Argument(retryDurablePollingDefinition).NotNull();
+            Guard.Argument(pollingDefinitionsAggregator).NotNull();
 
             this.retryDurableRepositoryProvider = retryDurableRepositoryProvider;
             this.updateItemHandlers = updateItemHandlers;
             this.messageHeadersAdapter = messageHeadersAdapter;
             this.messageAdapter = messageAdapter;
             this.utf8Encoder = utf8Encoder;
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
+            this.pollingDefinitionsAggregator = pollingDefinitionsAggregator;
         }
 
         public async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context)
@@ -65,7 +66,7 @@
                         context,
                         new SaveToQueueInput(
                             CreateRetryQueueItemMessage(context),
-                            retryDurablePollingDefinition.Id,
+                            this.pollingDefinitionsAggregator.SchedulerId,
                             GetQueueGroupKey(context.Message.Key),
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
@@ -124,6 +125,11 @@
             }
         }
 
+        public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput)
+        {
+            return await this.retryDurableRepositoryProvider.DeleteQueuesAsync(deleteQueuesInput).ConfigureAwait(false);
+        }
+
         public async Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput)
         {
             try
@@ -157,7 +163,7 @@
                         return await this.SaveToQueueAsync(context,
                            new SaveToQueueInput(
                                 CreateRetryQueueItemMessage(context),
-                                this.retryDurablePollingDefinition.Id,
+                                this.pollingDefinitionsAggregator.SchedulerId,
                                 GetQueueGroupKey(context.Message.Key),
                                 RetryQueueStatus.Active,
                                 RetryQueueItemStatus.Waiting,
@@ -287,7 +293,7 @@
         {
             var messageKeyAsString = messageKey is null ? string.Empty : utf8Encoder.Decode((byte[])messageKey);
 
-            return $"{this.retryDurablePollingDefinition.Id}-{messageKeyAsString}";
+            return $"{this.pollingDefinitionsAggregator.SchedulerId}-{messageKeyAsString}";
         }
 
         private async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, SaveToQueueInput input)

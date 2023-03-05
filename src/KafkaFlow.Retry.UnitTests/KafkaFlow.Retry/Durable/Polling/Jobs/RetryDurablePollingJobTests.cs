@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
+﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling.Jobs
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using global::KafkaFlow.Retry.Durable;
     using global::KafkaFlow.Retry.Durable.Common;
-    using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
     using global::KafkaFlow.Retry.Durable.Encoders;
-    using global::KafkaFlow.Retry.Durable.Polling;
+    using global::KafkaFlow.Retry.Durable.Polling.Jobs;
     using global::KafkaFlow.Retry.Durable.Repository;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
@@ -17,10 +17,11 @@
     using Quartz;
     using Xunit;
 
-    public class QueuePollingJobTests
+    public class RetryDurablePollingJobTests
     {
-        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1, "id");
-        private readonly IJob job = new QueuePollingJob();
+        private const string SchedulerId = "schedulerIdTest";
+        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1);
+        private readonly IJob job = new RetryDurablePollingJob();
         private readonly Mock<IJobExecutionContext> jobExecutionContext = new Mock<IJobExecutionContext>();
         private readonly Mock<ILogHandler> logHandler = new Mock<ILogHandler>();
         private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();
@@ -31,7 +32,7 @@
         private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
         private readonly Mock<IUtf8Encoder> utf8Encoder = new Mock<IUtf8Encoder>();
 
-        public QueuePollingJobTests()
+        public RetryDurablePollingJobTests()
         {
             jobExecutionContext
                 .Setup(d => d.JobDetail)
@@ -47,7 +48,7 @@
         }
 
         [Fact]
-        public async Task QueuePollingJob_Execute_ProduceMessageFailed_LogError()
+        public async Task RetryDurablePollingJob_Execute_ProduceMessageFailed_LogError()
         {
             // Arrange
             retryDurableQueueRepository
@@ -77,7 +78,7 @@
                 .Returns(new MessageHeaders());
 
             messageProducer
-                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()))
+                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()))
                 .Throws(new Exception());
 
             IDictionary<string, object> data = new Dictionary<string, object>
@@ -89,6 +90,7 @@
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
+                { "SchedulerId", SchedulerId }
             };
 
             mockIJobDetail
@@ -109,7 +111,7 @@
         }
 
         [Fact]
-        public async Task QueuePollingJob_Execute_RetryDurableQueueRepositoryFailed_LogError()
+        public async Task RetryDurablePollingJob_Execute_RetryDurableQueueRepositoryFailed_LogError()
         {
             // Arrange
             retryDurableQueueRepository
@@ -125,6 +127,7 @@
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
+                { "SchedulerId", SchedulerId }
             };
 
             mockIJobDetail
@@ -135,7 +138,7 @@
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
 
             //Assert
-            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()), Times.Never);
+            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()), Times.Never);
             logHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<RetryDurableException>(), It.IsAny<object>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.UpdateItemAsync(It.IsAny<UpdateItemStatusInput>()), Times.Never);
@@ -143,7 +146,7 @@
         }
 
         [Fact]
-        public async Task QueuePollingJob_Execute_Success()
+        public async Task RetryDurablePollingJob_Execute_Success()
         {
             // Arrange
             retryDurableQueueRepository
@@ -173,7 +176,7 @@
                 .Returns(new MessageHeaders());
 
             messageProducer
-                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()));
+                .Setup(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()));
 
             IDictionary<string, object> data = new Dictionary<string, object>
             {
@@ -184,6 +187,7 @@
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
+                { "SchedulerId", SchedulerId }
             };
             mockIJobDetail
                 .SetupGet(jd => jd.JobDataMap)
@@ -193,7 +197,7 @@
             await job.Execute(jobExecutionContext.Object).ConfigureAwait(false);
 
             //Assert
-            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>()), Times.Once);
+            messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.GetRetryQueuesAsync(It.IsAny<GetQueuesInput>()), Times.Once);
             retryDurableQueueRepository.Verify(d => d.UpdateItemAsync(It.IsAny<UpdateItemStatusInput>()), Times.Once);
             messageHeadersAdapter.Verify(d => d.AdaptMessageHeadersFromRepository(It.IsAny<IList<MessageHeader>>()), Times.Once);

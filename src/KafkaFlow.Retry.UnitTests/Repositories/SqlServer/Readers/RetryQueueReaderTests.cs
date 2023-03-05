@@ -13,7 +13,54 @@
 
     public class RetryQueueReaderTests
     {
-        public static readonly IEnumerable<object[]> DataTest = new List<object[]>
+        private readonly RetryQueueReader reader;
+
+        private readonly Mock<IRetryQueueAdapter> retryQueueAdapter = new Mock<IRetryQueueAdapter>();
+
+        private readonly Mock<IRetryQueueItemAdapter> retryQueueItemAdapter = new Mock<IRetryQueueItemAdapter>();
+
+        private readonly Mock<IRetryQueueItemMessageAdapter> retryQueueItemMessageAdapter = new Mock<IRetryQueueItemMessageAdapter>();
+
+        private readonly Mock<IRetryQueueItemMessageHeaderAdapter> retryQueueItemMessageHeaderAdapter = new Mock<IRetryQueueItemMessageHeaderAdapter>();
+
+        public RetryQueueReaderTests()
+        {
+            var item1 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
+            var itemsA = new[] { item1 };
+
+            retryQueueAdapter
+                .Setup(d => d.Adapt(It.IsAny<RetryQueueDbo>()))
+                .Returns(new RetryQueue(Guid.NewGuid(), "searchGroupKeyA", "queueGroupKeyA", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, itemsA));
+
+            retryQueueItemAdapter
+                .Setup(d => d.Adapt(It.IsAny<RetryQueueItemDbo>()))
+                .Returns(new RetryQueueItem(
+                            id: Guid.NewGuid(),
+                            attemptsCount: 3,
+                            creationDate: DateTime.UtcNow,
+                            sort: 0,
+                            lastExecution: DateTime.UtcNow,
+                            modifiedStatusDate: DateTime.UtcNow,
+                            status: RetryQueueItemStatus.InRetry,
+                            severityLevel: SeverityLevel.Low,
+                            description: "test"));
+
+            retryQueueItemMessageAdapter
+                .Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>()))
+                .Returns(new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow));
+
+            retryQueueItemMessageHeaderAdapter
+                .Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageHeaderDbo>()))
+                .Returns(new MessageHeader("key", new byte[2]));
+
+            reader = new RetryQueueReader(
+                retryQueueAdapter.Object,
+                retryQueueItemAdapter.Object,
+                retryQueueItemMessageAdapter.Object,
+                retryQueueItemMessageHeaderAdapter.Object);
+        }
+
+        public static IEnumerable<object[]> DataTest() => new List<object[]>
         {
             new object[]
             {
@@ -60,49 +107,6 @@
                 }
             }
         };
-
-        private readonly RetryQueueReader reader;
-        private readonly Mock<IRetryQueueAdapter> retryQueueAdapter = new Mock<IRetryQueueAdapter>();
-        private readonly Mock<IRetryQueueItemAdapter> retryQueueItemAdapter = new Mock<IRetryQueueItemAdapter>();
-        private readonly Mock<IRetryQueueItemMessageAdapter> retryQueueItemMessageAdapter = new Mock<IRetryQueueItemMessageAdapter>();
-        private readonly Mock<IRetryQueueItemMessageHeaderAdapter> retryQueueItemMessageHeaderAdapter = new Mock<IRetryQueueItemMessageHeaderAdapter>();
-
-        public RetryQueueReaderTests()
-        {
-            var item1 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
-            var itemsA = new[] { item1 };
-
-            retryQueueAdapter
-                .Setup(d => d.Adapt(It.IsAny<RetryQueueDbo>()))
-                .Returns(new RetryQueue(Guid.NewGuid(), "searchGroupKeyA", "queueGroupKeyA", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, itemsA));
-
-            retryQueueItemAdapter
-                .Setup(d => d.Adapt(It.IsAny<RetryQueueItemDbo>()))
-                .Returns(new RetryQueueItem(
-                            id: Guid.NewGuid(),
-                            attemptsCount: 3,
-                            creationDate: DateTime.UtcNow,
-                            sort: 0,
-                            lastExecution: DateTime.UtcNow,
-                            modifiedStatusDate: DateTime.UtcNow,
-                            status: RetryQueueItemStatus.InRetry,
-                            severityLevel: SeverityLevel.Low,
-                            description: "test"));
-
-            retryQueueItemMessageAdapter
-                .Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>()))
-                .Returns(new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow));
-
-            retryQueueItemMessageHeaderAdapter
-                .Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageHeaderDbo>()))
-                .Returns(new MessageHeader("key", new byte[2]));
-
-            reader = new RetryQueueReader(
-                retryQueueAdapter.Object,
-                retryQueueItemAdapter.Object,
-                retryQueueItemMessageAdapter.Object,
-                retryQueueItemMessageHeaderAdapter.Object);
-        }
 
         [Fact]
         public void RetryQueueReader_Read_Success()

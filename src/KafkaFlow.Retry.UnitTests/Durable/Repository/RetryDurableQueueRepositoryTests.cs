@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text;
     using System.Threading.Tasks;
-    using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
     using global::KafkaFlow.Retry.Durable.Encoders;
     using global::KafkaFlow.Retry.Durable.Repository;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Create;
@@ -33,7 +33,13 @@
             mockMessageHeadersAdapter = mockRepository.Create<IMessageHeadersAdapter>();
             mockMessageAdapter = mockRepository.Create<IMessageAdapter>();
             mockUtf8Encoder = mockRepository.Create<IUtf8Encoder>();
-            var retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 0 ? * * *", 1, 1, "some_id");
+            var pollingDefinitionsAggregator = new PollingDefinitionsAggregator(
+                "schedulerId",
+                new List<PollingDefinition> {
+                    new RetryDurablePollingDefinition(true, "0 0 0 ? * * *", 1, 1)
+                    {
+                    }
+                });
 
             retryDurableQueueRepository = new RetryDurableQueueRepository(
                 mockRetryDurableQueueRepositoryProvider.Object,
@@ -41,7 +47,7 @@
                 mockMessageHeadersAdapter.Object,
                 mockMessageAdapter.Object,
                 mockUtf8Encoder.Object,
-                retryDurablePollingDefinition);
+                pollingDefinitionsAggregator);
         }
 
         [Theory]

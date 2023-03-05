@@ -1,10 +1,7 @@
 ﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
 {
     using System;
-    using System.Collections.Generic;
-    using System.Diagnostics;
-    using System.Linq;
-    using System.Threading.Tasks;
+    using Confluent.Kafka;
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
     using KafkaFlow.Retry.IntegrationTests.Core.Handlers;
@@ -18,59 +15,49 @@
 
     internal static class BootstrapperKafka
     {
-        internal static async Task RecreateKafkaTopicsAsync(string kafkaBrokers, string[] topics)
+        private const int NumberOfPartitions = 6;
+        private const int ReplicationFactor = 1;
+
+        private static readonly string[] TestTopics = new[]
         {
-            using (var adminClient = new Confluent.Kafka.AdminClientBuilder(new Confluent.Kafka.AdminClientConfig { BootstrapServers = kafkaBrokers }).Build())
+             "test-kafka-flow-retry-retry-simple",
+             "test-kafka-flow-retry-retry-forever",
+             "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
+             "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+             "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
+             "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+             "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
+             "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db-retry",
+             "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
+             "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry",
+
+            "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-mongo-db",
+            "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+            "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-sql-server",
+            "test-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+            "test-kafka-flow-retry-empty-retry-durable-latest-consumption-mongo-db",
+            "test-kafka-flow-retry-empty-retry-durable-latest-consumption-mongo-db-retry",
+            "test-kafka-flow-retry-empty-retry-durable-latest-consumption-sql-server",
+            "test-kafka-flow-retry-empty-retry-durable-latest-consumption-sql-server-retry",
+
+            "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db",
+            "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+            "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server",
+            "test-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+            "test-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db",
+            "test-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db-retry",
+            "test-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server",
+            "test-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server-retry"
+        };
+
+        internal static IClusterConfigurationBuilder CreatAllTestTopicsIfNotExist(this IClusterConfigurationBuilder cluster)
+        {
+            foreach (var topic in TestTopics)
             {
-                foreach (var topic in topics)
-                {
-                    var topicMetadata = adminClient.GetMetadata(topic, TimeSpan.FromSeconds(20));
-                    if (topicMetadata.Topics.First().Partitions.Count > 0)
-                    {
-                        try
-                        {
-                            var deleteTopicRecords = new List<Confluent.Kafka.TopicPartitionOffset>();
-                            for (int i = 0; i < topicMetadata.Topics.First().Partitions.Count; i++)
-                            {
-                                deleteTopicRecords.Add(new Confluent.Kafka.TopicPartitionOffset(topic, i, Confluent.Kafka.Offset.End));
-                            }
-                            await adminClient.DeleteRecordsAsync(deleteTopicRecords).ConfigureAwait(false);
-                        }
-                        catch (Confluent.Kafka.Admin.DeleteRecordsException e)
-                        {
-                            Debug.WriteLine($"An error occured deleting topic records: {e.Results[0].Error.Reason}");
-                        }
-                    }
-                    else
-                    {
-                        try
-                        {
-                            await adminClient
-                                .CreatePartitionsAsync(
-                                    new List<Confluent.Kafka.Admin.PartitionsSpecification>
-                                    {
-                                        new Confluent.Kafka.Admin.PartitionsSpecification
-                                        {
-                                            Topic = topic,
-                                            IncreaseTo = 6
-                                        }
-                                    })
-                                .ConfigureAwait(false);
-                        }
-                        catch (Confluent.Kafka.Admin.CreateTopicsException e)
-                        {
-                            if (e.Results[0].Error.Code != Confluent.Kafka.ErrorCode.UnknownTopicOrPart)
-                            {
-                                Debug.WriteLine($"An error occured creating a topic: {e.Results[0].Error.Reason}");
-                            }
-                            else
-                            {
-                                Debug.WriteLine("Topic does not exists");
-                            }
-                        }
-                    }
-                }
+                cluster.CreateTopicIfNotExists(topic, NumberOfPartitions, ReplicationFactor);
             }
+
+            return cluster;
         }
 
         internal static IClusterConfigurationBuilder SetupEmptyRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
@@ -94,7 +81,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -120,13 +107,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_empty_durable_guarantee_ordered_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_empty_durable_guarantee_ordered_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -167,7 +157,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-empty-retry-durable-guarantee-ordered-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -193,13 +183,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_empty_durable_guarantee_ordered_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_empty_durable_guarantee_ordered_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -240,7 +233,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-empty-retry-durable-latest-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -266,13 +259,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_empty_durable_latest_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_empty_durable_latest_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -313,7 +309,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-empty-retry-durable-latest-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -339,13 +335,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_empty_durable_latest_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_empty_durable_latest_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                )
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -386,7 +385,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -412,13 +411,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_null_durable_guarantee_ordered_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_null_durable_guarantee_ordered_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -459,7 +461,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-null-retry-durable-guarantee-ordered-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -485,13 +487,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_null_durable_guarantee_ordered_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_null_durable_guarantee_ordered_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -532,7 +537,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-null-retry-durable-latest-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -558,13 +563,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_null_durable_latest_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_null_durable_latest_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -605,7 +613,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-null-retry-durable-latest-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -631,13 +639,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_null_durable_latest_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_null_durable_latest_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -668,7 +679,7 @@
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
@@ -678,7 +689,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -704,13 +715,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_guarantee_ordered_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_guarantee_ordered_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -751,7 +765,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -777,13 +791,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_guarantee_ordered_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_guarantee_ordered_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                )
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -824,7 +841,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-latest-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -850,13 +867,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_latest_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_latest_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -897,7 +917,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-latest-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset((KafkaFlow.AutoOffsetReset)AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
@@ -923,13 +943,17 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_latest_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_latest_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                            )
+
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -965,7 +989,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-forever")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryForeverTestMessage))
@@ -997,7 +1021,7 @@
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-simple")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetrySimpleTestMessage))
