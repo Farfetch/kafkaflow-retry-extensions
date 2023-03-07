@@ -52,21 +52,20 @@
         public ITrigger Trigger => this.trigger;
 
         public IJobDetail GetPollingJobDetail()
-        {
-            var dataMap = new JobDataMap();
-
-            dataMap.Add(PollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition);
-            dataMap.Add(PollingJobConstants.SchedulerId, this.schedulerId);
-            dataMap.Add(PollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
-            dataMap.Add(PollingJobConstants.LogHandler, this.logHandler);
-            dataMap.Add(PollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter);
-            dataMap.Add(PollingJobConstants.Utf8Encoder, this.utf8Encoder);
-            dataMap.Add(PollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer);
-
-            return JobBuilder
+            => JobBuilder
                 .Create<RetryDurablePollingJob>()
-                .SetJobData(dataMap)
+                .WithIdentity($"pollingJob_{this.schedulerId}_{this.retryDurablePollingDefinition.PollingJobType}", "queueTrackerGroup")
+                .SetJobData(
+                    new JobDataMap
+                    {
+                        { PollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition },
+                        { PollingJobConstants.SchedulerId, this.schedulerId },
+                        { PollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository },
+                        { PollingJobConstants.LogHandler, this.logHandler },
+                        { PollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter },
+                        { PollingJobConstants.Utf8Encoder, this.utf8Encoder },
+                        { PollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer }
+                    })
                 .Build();
-        }
     }
 }
