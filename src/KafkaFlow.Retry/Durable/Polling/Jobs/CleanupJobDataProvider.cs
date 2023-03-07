@@ -40,10 +40,10 @@
                 .Build();
         }
 
+        public IJobDetail JobDetail => this.jobDetail;
+
         public PollingDefinition PollingDefinition => this.cleanupPollingDefinition;
 
         public ITrigger Trigger => this.trigger;
-
-        public IJobDetail GetPollingJobDetail() => this.jobDetail;
     }
 }

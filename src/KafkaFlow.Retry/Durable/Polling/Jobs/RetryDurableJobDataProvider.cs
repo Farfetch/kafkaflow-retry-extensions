@@ -9,14 +9,9 @@
 
     internal class RetryDurableJobDataProvider : IJobDataProvider
     {
-        private readonly ILogHandler logHandler;
-        private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly IMessageProducer retryDurableMessageProducer;
+        private readonly IJobDetail jobDetail;
         private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
-        private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
-        private readonly string schedulerId;
         private readonly ITrigger trigger;
-        private readonly IUtf8Encoder utf8Encoder;
 
         public RetryDurableJobDataProvider(
             RetryDurablePollingDefinition retryDurablePollingDefinition,
@@ -39,33 +34,27 @@
 
             this.retryDurablePollingDefinition = retryDurablePollingDefinition;
             this.trigger = trigger;
-            this.schedulerId = schedulerId;
-            this.retryDurableQueueRepository = retryDurableQueueRepository;
-            this.logHandler = logHandler;
-            this.messageHeadersAdapter = messageHeadersAdapter;
-            this.utf8Encoder = utf8Encoder;
-            this.retryDurableMessageProducer = retryDurableMessageProducer;
+            this.jobDetail = JobBuilder
+                .Create<RetryDurablePollingJob>()
+                .WithIdentity($"pollingJob_{schedulerId}_{retryDurablePollingDefinition.PollingJobType}", "queueTrackerGroup")
+                .SetJobData(
+                    new JobDataMap
+                    {
+                        { PollingJobConstants.RetryDurablePollingDefinition, retryDurablePollingDefinition },
+                        { PollingJobConstants.SchedulerId, schedulerId },
+                        { PollingJobConstants.RetryDurableQueueRepository, retryDurableQueueRepository },
+                        { PollingJobConstants.LogHandler, logHandler },
+                        { PollingJobConstants.MessageHeadersAdapter, messageHeadersAdapter },
+                        { PollingJobConstants.Utf8Encoder, utf8Encoder },
+                        { PollingJobConstants.RetryDurableMessageProducer, retryDurableMessageProducer }
+                    })
+                .Build();
         }
+
+        public IJobDetail JobDetail => this.jobDetail;
 
         public PollingDefinition PollingDefinition => this.retryDurablePollingDefinition;
 
         public ITrigger Trigger => this.trigger;
-
-        public IJobDetail GetPollingJobDetail()
-            => JobBuilder
-                .Create<RetryDurablePollingJob>()
-                .WithIdentity($"pollingJob_{this.schedulerId}_{this.retryDurablePollingDefinition.PollingJobType}", "queueTrackerGroup")
-                .SetJobData(
-                    new JobDataMap
-                    {
-                        { PollingJobConstants.RetryDurablePollingDefinition, this.retryDurablePollingDefinition },
-                        { PollingJobConstants.SchedulerId, this.schedulerId },
-                        { PollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository },
-                        { PollingJobConstants.LogHandler, this.logHandler },
-                        { PollingJobConstants.MessageHeadersAdapter, this.messageHeadersAdapter },
-                        { PollingJobConstants.Utf8Encoder, this.utf8Encoder },
-                        { PollingJobConstants.RetryDurableMessageProducer, this.retryDurableMessageProducer }
-                    })
-                .Build();
     }
 }
