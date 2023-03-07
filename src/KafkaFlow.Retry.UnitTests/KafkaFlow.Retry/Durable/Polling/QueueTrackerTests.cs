@@ -103,7 +103,7 @@
 
             var mockIJobDataProvider = new Mock<IJobDataProvider>();
             mockIJobDataProvider
-                .Setup(x => x.GetPollingJobDetail())
+                .Setup(x => x.JobDetail)
                 .Returns(
                     JobBuilder
                     .Create<MockIJob>()
@@ -207,7 +207,7 @@
             var dataMap = new JobDataMap { { "JobExecution", jobExecutionContexts } };
 
             mockJobDataProvider
-                .Setup(x => x.GetPollingJobDetail())
+                .Setup(x => x.JobDetail)
                 .Returns(
                     JobBuilder
                     .Create<MockIJob>()
