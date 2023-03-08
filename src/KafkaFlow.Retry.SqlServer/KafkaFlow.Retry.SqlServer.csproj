@@ -13,7 +13,6 @@
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>kafka flow kafkaflow extension extensions retry sql sqlserver</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/Farfetch/.github/master/images/fuse-logo-128.png</PackageIconUrl>
     <Description>A durable persistence adapter for SQL Server for KafkaFlow.Retry extension.</Description>
     <Copyright>Copyright (c) FARFETCH 2021</Copyright>
   </PropertyGroup>

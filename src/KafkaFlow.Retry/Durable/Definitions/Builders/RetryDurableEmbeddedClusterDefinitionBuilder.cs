@@ -127,19 +127,12 @@
                         .WithPartitionsAssignedHandler(
                             (resolver, partitionsAssignedHandler) =>
                             {
-                                var log = resolver.Resolve<ILogHandler>();
-                                log.Info(
-                                    "Partitions Assigned",
-                                    new
-                                    {
-                                        PartitionsAssigned = partitionsAssignedHandler
-                                    });
-
                                 if (partitionsAssignedHandler is object
                                  && partitionsAssignedHandler.Any(tp => tp.Partition == DefaultPartitionElection))
                                 {
+                                    var log = resolver.Resolve<ILogHandler>();
                                     log.Info(
-                                        "Default Partition Assigned",
+                                        "Default partition assigned",
                                         new
                                         {
                                             DefaultPartitionElection
@@ -156,14 +149,6 @@
                         .WithPartitionsRevokedHandler(
                             (resolver, partitionsRevokedHandler) =>
                             {
-                                var log = resolver.Resolve<ILogHandler>();
-                                log.Info(
-                                    "Partitions Revoked",
-                                    new
-                                    {
-                                        PartitionsRevoked = partitionsRevokedHandler
-                                    });
-
                                 queueTrackerCoordinator.UnscheduleJobsAsync().GetAwaiter().GetResult();
                             })
                         .AddMiddlewares(

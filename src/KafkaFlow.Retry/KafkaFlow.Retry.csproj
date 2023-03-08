@@ -13,7 +13,6 @@
     <PackageProjectUrl></PackageProjectUrl>
     <RepositoryType>Git</RepositoryType>
     <PackageTags>kafka flow kafkaflow extension extensions retry</PackageTags>
-    <PackageIconUrl>https://raw.githubusercontent.com/Farfetch/.github/master/images/fuse-logo-128.png</PackageIconUrl>
     <Description>An extension of KafkaFlow that adds retry capabilities to topic message consumers.</Description>
     <Copyright>Copyright (c) FARFETCH 2021</Copyright>
   </PropertyGroup>
