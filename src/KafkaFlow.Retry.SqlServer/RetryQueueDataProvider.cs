@@ -7,6 +7,7 @@
     using Dawn;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using KafkaFlow.Retry.Durable.Repository.Model;
@@ -102,6 +103,24 @@
                 }
 
                 return new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems);
+            }
+        }
+
+        public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input)
+        {
+            Guard.Argument(input, nameof(input)).NotNull();
+
+            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            {
+                var totalQueuesDeleted = await this.retryQueueRepository.DeleteQueuesAsync(
+                    dbConnection,
+                    input.SearchGroupKey,
+                    input.RetryQueueStatus,
+                    input.MaxLastExecutionDateToBeKept,
+                    input.MaxRowsToDelete)
+                    .ConfigureAwait(false);
+
+                return new DeleteQueuesResult(totalQueuesDeleted);
             }
         }
 

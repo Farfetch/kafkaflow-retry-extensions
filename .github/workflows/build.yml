@@ -22,123 +22,34 @@ jobs:
       
     steps:
 
-    - name: Find branch name
-      id: extract-branch-name
+    - name: Determine Git Checkout information
+      id: checkout-info
       run: |
         if [ $GITHUB_EVENT_NAME == 'pull_request' ]; then
-          BRANCH_NAME=$(echo ${GITHUB_HEAD_REF})
+          BRANCH_NAME=$(echo ${{ github.event.pull_request.head.ref }})
+          REPOSITORY_NAME=$(echo ${{ github.event.pull_request.head.repo.full_name }})
         else
           BRANCH_NAME=$(echo ${GITHUB_REF#refs/heads/})
+          REPOSITORY_NAME=$(echo ${{ github.repository }})
         fi
 
         echo "BRANCH_NAME=$BRANCH_NAME" >> $GITHUB_ENV
-        echo "Extracted branch name: $BRANCH_NAME"
+        echo "REPOSITORY_NAME=$REPOSITORY_NAME" >> $GITHUB_ENV
+        echo "Git checkout information:"
+        echo "Branch name: $BRANCH_NAME"
+        echo "Repository name: $REPOSITORY_NAME"
 
     - uses: actions/checkout@v2
       with:
         fetch-depth: 0
-        ref: ${{ env.BRANCH_NAME }}
-      
-    - name: Commit Lint
-      uses: wagoid/commitlint-github-action@v3.1.4
-      with:
-        firstParent: false
-        failOnWarnings: true
-
-    - name: Force fetch tags
-      run: git fetch --tags --force
-
-    - name: Find last tag
-      id: prev-version-tag
-      run: |
-        last_tag=$(git tag -l "*[0-9].*[0-9].*[0-9]*" --sort "-version:refname" | head -n 1)
-        echo "::set-output name=tag::$last_tag"
-
-    - name: Find last commit message
-      id: last-commit-message
-      run: |
-        last_commit_message=$(git log -1 --pretty=%s $BRANCH_NAME --)
-        echo "Last commit message found:"
-        echo " $last_commit_message"
-        echo "LAST_COMMIT_MESSAGE=$last_commit_message" >> $GITHUB_ENV
-
-    - name: Bump next build version options
-      id: semvers
-      uses: "WyriHaximus/github-action-next-semvers@v1.0"
-      with:
-        version: ${{ steps.prev-version-tag.outputs.tag }}
-
-    - name: Set next build version
-      id: build-context
-      env:
-        MAJOR: ${{steps.semvers.outputs.major}}
-        MINOR: ${{steps.semvers.outputs.minor}}
-        PATCH: ${{steps.semvers.outputs.patch}}
-        CURRENT: ${{steps.prev-version-tag.outputs.tag}}
-      run: |
-        echo "::set-output name=current-version::$CURRENT"
-
-        if [[ $LAST_COMMIT_MESSAGE =~ ^major:.*$ ]]; then
-          echo "Bumping to next major version."
-          NEXT_VERSION="$MAJOR"
-        elif [[ $LAST_COMMIT_MESSAGE =~ ^feat:.*$ ]]; then
-          echo "Bumping to next minor version."
-          NEXT_VERSION="$MINOR"
-        elif [[ $LAST_COMMIT_MESSAGE =~ ^(fix|ci|refactor|chore):.*$ ]]; then
-          echo "Bumping to next patch version."
-          NEXT_VERSION="$PATCH"
-        else
-          echo "Skipping version bump."
-          NEXT_VERSION="$CURRENT"
-        fi
-
-        
-        if [[ $BRANCH_NAME = 'main' ]]; then
-          echo '::set-output name=context::release'
-        elif [[ $NEXT_VERSION != $CURRENT ]]; then
-          NEXT_VERSION="$NEXT_VERSION-beta"
-          echo '::set-output name=context::beta'
-        else
-          echo '::set-output name=context::beta'
-        fi
-
-        echo "::set-output name=next-version::$NEXT_VERSION"
-        echo "Next version is: $NEXT_VERSION"
-        echo "BUILD_VERSION=$NEXT_VERSION" >> $GITHUB_ENV
-
-    - name: Print build version
-      run: echo "Build version will be $BUILD_VERSION"
-        
-    - name: Update project version
-      uses: roryprimrose/set-vs-sdk-project-version@v1
-      with:
-        projectFilter: '*.csproj'
-        version: ${{ env.BUILD_VERSION }}
-        assemblyVersion: ${{ env.BUILD_VERSION }}
-        fileVersion: ${{ env.BUILD_VERSION }}
-        informationalVersion: ${{ env.BUILD_VERSION }}
+        ref: ${{github.event.pull_request.head.ref}}
+        repository: ${{github.event.pull_request.head.repo.full_name}}
         
     - name: Setup .NET
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 6.0.x
         
-    # - name: Setup SonarScanner
-    #   run: dotnet tool install --global dotnet-sonarscanner
-      
-    # - name: Setup Report Generator
-    #   run: dotnet tool install --global dotnet-reportgenerator-globaltool
-      
-    # - name: Setup Java
-    #   run: |
-    #     sudo update-alternatives --query java
-    #     sudo update-alternatives --auto java
-    #     export JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64/
-    #     export PATH=$PATH:$JAVA_HOME
-        
-    # - name: SonarScanner analysis begin
-    #   run: dotnet sonarscanner begin /k:<TBD> /v:$BUILD_VERSION /o:<TBD> /d:sonar.host.url=https://sonarcloud.io /d:sonar.login=<TBD> /d:sonar.coverage.exclusions="tests/*Tests/**" /d:sonar.coverageReportPaths="../../coverage-outputs/SonarQube.xml" /d:sonar.branch.name=$BRANCH_NAME
-      
     - name: Restore dependencies
       run: dotnet restore src/KafkaFlow.Retry.sln
       
@@ -168,38 +79,3 @@ jobs:
 
     - name: Test
       run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
-      
-    # - name: Merge coverage results
-    #   run: |
-    #     reportgenerator -reports:"../../coverage-outputs/**/*.xml" -targetdir:"../../coverage-outputs" -reporttypes:SonarQube
-    #     rm -rfv ../../coverage-outputs/*/
-    #     ls -la ../../coverage-outputs
-        
-    # - name: SonarScanner analysis end
-    #   run: dotnet sonarscanner end /d:sonar.login=8f9e9412fb5ebcf5ea6f9a6b285b288e4645f866
-    
-    - name: Delete build tag if exists
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
-      with:
-        delete_release: false
-        tag_name: ${{ env.BUILD_VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Delete build tag if exists
-      uses: dev-drprasad/delete-tag-and-release@v0.2.0
-      with:
-        delete_release: false
-        tag_name: ${{ env.BUILD_VERSION }}
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-    - name: Set build tag
-      uses: anothrNick/github-tag-action@1.26.0
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        DEFAULT_BUMP: none
-        WITH_V: false
-        CUSTOM_TAG: ${{ env.BUILD_VERSION }}
-        TAG_CONTEXT: branch
-        RELEASE_BRANCHES: .*

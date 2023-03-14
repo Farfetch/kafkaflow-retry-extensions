@@ -94,13 +94,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_guarantee_ordered_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_guarantee_ordered_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                    )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -167,13 +170,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_guarantee_ordered_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_guarantee_ordered_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                )
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
@@ -311,13 +317,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_latest_consumption_mongo_db")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_latest_consumption_mongo_db")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                                )
                                         .WithMongoDbDataProvider(
                                             mongoDbConnectionString,
                                             mongoDbDatabaseName,
@@ -384,13 +393,17 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_latest_consumption_sql_server")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_latest_consumption_sql_server")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                            )
+
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)

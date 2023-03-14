@@ -2,8 +2,9 @@
 {
     using System;
     using System.Collections.Generic;
+    using System.Threading.Tasks;
     using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Definitions;
+    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
     using global::KafkaFlow.Retry.Durable.Encoders;
     using global::KafkaFlow.Retry.Durable.Polling;
     using global::KafkaFlow.Retry.Durable.Repository;
@@ -13,74 +14,94 @@
 
     public class QueueTrackerFactoryTests
     {
-        public static readonly IEnumerable<object[]> DataTest = new List<object[]>
+        public static IEnumerable<object[]> DataTest() => new List<object[]>
         {
             new object[]
             {
                 null,
-                Mock.Of<IMessageHeadersAdapter>() ,
-                Mock.Of<IMessageAdapter>() ,
-                Mock.Of<IUtf8Encoder>() ,
+                Mock.Of<IJobDataProvidersFactory>(),
+                typeof(ArgumentNullException)
             },
             new object[]
             {
-                Mock.Of<IRetryDurableQueueRepository>(),
-                null ,
-                Mock.Of<IMessageAdapter>() ,
-                Mock.Of<IUtf8Encoder>()
+                string.Empty,
+                Mock.Of<IJobDataProvidersFactory>(),
+                typeof(ArgumentException)
             },
             new object[]
             {
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>() ,
-                null ,
-                Mock.Of<IUtf8Encoder>()
-            },
-            new object[]
-            {
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>() ,
-                Mock.Of<IMessageAdapter>() ,
-                null
+                "id",
+                null,
+                typeof(ArgumentNullException)
             }
         };
-
-        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "*/30 * * ? * *", 10, 100, "id");
 
         [Fact]
         public void QueueTrackerFactory_Create_Success()
         {
             // Arrange
-            var factory = new QueueTrackerFactory(
-                Mock.Of<IRetryDurableQueueRepository>(),
-                Mock.Of<IMessageHeadersAdapter>(),
-                Mock.Of<IMessageAdapter>(),
-                Mock.Of<IUtf8Encoder>());
+            var mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
+            mockJobDataProvidersFactory
+                .Setup(m => m.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
+                .Returns(new[] { Mock.Of<IJobDataProvider>() });
+
+            var factory = new QueueTrackerFactory("id", mockJobDataProvidersFactory.Object);
 
             // Act
-            var queueTracker = factory.Create(retryDurablePollingDefinition, Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
+            var queueTracker = factory.Create(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
             // Arrange
             queueTracker.Should().NotBeNull();
         }
 
+        [Fact]
+        public async Task QueueTrackerFactory_Reschedule_Success()
+        {
+            var mockILogHandler = new Mock<ILogHandler>();
+            mockILogHandler.Setup(x => x.Info(It.IsAny<string>(), It.IsAny<object>()));
+            mockILogHandler.Setup(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()));
+
+            var mockIMessageProducer = new Mock<IMessageProducer>();
+
+            var pollingDefinitionsAggregator =
+                new PollingDefinitionsAggregator(
+                    "topic",
+                    new List<PollingDefinition>
+                    {
+                        new CleanupPollingDefinition(true, "*/5 * * ? * * *",1,1),
+                        new RetryDurablePollingDefinition(true, "*/5 * * ? * * *",1,1)
+                    });
+
+            var queueTrackerCoordinator =
+                new QueueTrackerCoordinator(
+                    new QueueTrackerFactory(
+                        pollingDefinitionsAggregator.SchedulerId,
+                        new JobDataProvidersFactory(
+                            pollingDefinitionsAggregator,
+                            new TriggerProvider(),
+                            new NullRetryDurableQueueRepository(),
+                            new MessageHeadersAdapter(),
+                            new Utf8Encoder()
+                        )
+                    )
+                );
+
+            await queueTrackerCoordinator.ScheduleJobsAsync(mockIMessageProducer.Object, mockILogHandler.Object).ConfigureAwait(false);
+            await queueTrackerCoordinator.UnscheduleJobsAsync().ConfigureAwait(false);
+            await queueTrackerCoordinator.ScheduleJobsAsync(mockIMessageProducer.Object, mockILogHandler.Object).ConfigureAwait(false);
+
+            mockILogHandler.Verify(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()), Times.Never);
+        }
+
         [Theory]
         [MemberData(nameof(DataTest))]
-        public void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
-            object retryDurableQueueRepository,
-            object messageHeadersAdapter,
-            object messageAdapter,
-            object utf8Encoder)
+        internal void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
+            string schedulerId,
+            IJobDataProvidersFactory jobDataProvidersFactory,
+            Type expectedExceptionType)
         {
-            // Arrange & Act
-            Action act = () => new QueueTrackerFactory(
-            (IRetryDurableQueueRepository)retryDurableQueueRepository,
-            (IMessageHeadersAdapter)messageHeadersAdapter,
-            (IMessageAdapter)messageAdapter,
-            (IUtf8Encoder)utf8Encoder);
-
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
+            // Act & Assert
+            Assert.Throws(expectedExceptionType, () => new QueueTrackerFactory(schedulerId, jobDataProvidersFactory));
         }
     }
 }
