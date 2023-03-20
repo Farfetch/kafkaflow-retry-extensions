@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using System.Text;
     using System.Threading.Tasks;
     using Dawn;
     using KafkaFlow.Retry.Durable;
@@ -15,6 +16,7 @@
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Repository.Model;
+    using Newtonsoft.Json;
     using Polly;
 
     internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
@@ -63,17 +65,9 @@
                     return await this.AddIfQueueExistsAsync(
                         context,
                         new SaveToQueueInput(
-                            new RetryQueueItemMessage(
-                                context.ConsumerContext.Topic,
-                                (byte[])context.Message.Key,
-                                this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
-                                context.ConsumerContext.Partition,
-                                context.ConsumerContext.Offset,
-                                context.ConsumerContext.MessageTimestamp,
-                                this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
-                            ),
+                            CreateRetryQueueItemMessage(context),
                             this.pollingDefinitionsAggregator.SchedulerId,
-                            $"{this.pollingDefinitionsAggregator.SchedulerId}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
+                            GetQueueGroupKey(context.Message.Key),
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -168,25 +162,17 @@
 
                         return await this.SaveToQueueAsync(context,
                            new SaveToQueueInput(
-                                new RetryQueueItemMessage(
-                                    context.ConsumerContext.Topic,
-                                    (byte[])context.Message.Key,
-                                    this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
-                                    context.ConsumerContext.Partition,
-                                    context.ConsumerContext.Offset,
-                                    context.ConsumerContext.MessageTimestamp,
-                                    this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
-                                ),
-                            this.pollingDefinitionsAggregator.SchedulerId,
-                            $"{this.pollingDefinitionsAggregator.SchedulerId}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
-                            RetryQueueStatus.Active,
-                            RetryQueueItemStatus.Waiting,
-                            SeverityLevel.Unknown,
-                            refDate,
-                            refDate,
-                            refDate,
-                            0,
-                            description
+                                CreateRetryQueueItemMessage(context),
+                                this.pollingDefinitionsAggregator.SchedulerId,
+                                GetQueueGroupKey(context.Message.Key),
+                                RetryQueueStatus.Active,
+                                RetryQueueItemStatus.Waiting,
+                                SeverityLevel.Unknown,
+                                refDate,
+                                refDate,
+                                refDate,
+                                0,
+                                description
                             )
                        ).ConfigureAwait(false);
                     }
@@ -263,6 +249,24 @@
             }
         }
 
+        private RetryQueueItemMessage CreateRetryQueueItemMessage(IMessageContext context)
+        {
+            var partitionKey = context.Message.Key is object ? Encoding.ASCII.GetBytes(JsonConvert.SerializeObject(context.Message.Key)) : new byte[0];
+
+            var message = this.messageAdapter.AdaptMessageToRepository(context.Message.Value);
+            var headers = this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers);
+
+            return new RetryQueueItemMessage(
+                                            context.ConsumerContext.Topic,
+                                            partitionKey,
+                                            message,
+                                            context.ConsumerContext.Partition,
+                                            context.ConsumerContext.Offset,
+                                            context.ConsumerContext.MessageTimestamp,
+                                            headers
+                                        );
+        }
+
         private RetryDurableException GetCheckQueueException(string message, QueuePendingItemsInput input)
         {
             var kafkaException = new RetryDurableException(new RetryError(RetryErrorCode.DataProvider_CheckQueuePendingItems), message);
@@ -285,6 +289,13 @@
             return kafkaException;
         }
 
+        private string GetQueueGroupKey(object messageKey)
+        {
+            var messageKeyAsString = messageKey is null ? string.Empty : utf8Encoder.Decode((byte[])messageKey);
+
+            return $"{this.pollingDefinitionsAggregator.SchedulerId}-{messageKeyAsString}";
+        }
+
         private async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, SaveToQueueInput input)
         {
             try
@@ -302,7 +313,7 @@
 
                 return result;
             }
-            catch (System.Text.DecoderFallbackException ex)
+            catch (DecoderFallbackException ex)
             {
                 var unrecoverableException = new RetryDurableException(
                     new RetryError(RetryErrorCode.DataProvider_UnrecoverableException),

@@ -1,13 +1,14 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.API
 {
-    using System.Text;
-    using System.Threading;
-    using System.Threading.Tasks;
     using FluentAssertions;
+    using global::KafkaFlow.Retry.Durable.Repository.Model;
     using global::KafkaFlow.Retry.UnitTests.API.Surrogate;
     using global::KafkaFlow.Retry.UnitTests.API.Utilities;
     using Microsoft.AspNetCore.Http;
     using Moq;
+    using System.Text;
+    using System.Threading;
+    using System.Threading.Tasks;
     using Xunit;
 
     public class RetryRequestHandlerBaseTests
@@ -21,7 +22,7 @@
             // Arrange
             var dto = new DtoSurrogate
             {
-                Text = Durable.Repository.Model.RetryQueueStatus.Active
+                Text = RetryQueueStatus.Active
             };
 
             var mockHttpContext = HttpContextHelper.MockHttpContext(ResourcePath, HttpMethod, requestBody: dto);

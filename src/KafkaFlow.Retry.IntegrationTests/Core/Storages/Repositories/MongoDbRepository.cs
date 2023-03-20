@@ -145,7 +145,7 @@
 
                 await Task.Delay(100).ConfigureAwait(false);
 
-                var retryQueueCursor = await this.retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey)).ConfigureAwait(false);
+                var retryQueueCursor = await this.retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey ?? string.Empty)).ConfigureAwait(false);
                 var retryQueues = await retryQueueCursor.ToListAsync().ConfigureAwait(false);
                 if (retryQueues.Any())
                 {

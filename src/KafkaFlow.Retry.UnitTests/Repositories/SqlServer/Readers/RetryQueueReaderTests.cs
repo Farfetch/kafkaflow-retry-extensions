@@ -1,7 +1,5 @@
 ﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers
 {
-    using System;
-    using System.Collections.Generic;
     using FluentAssertions;
     using global::KafkaFlow.Retry.Durable.Common;
     using global::KafkaFlow.Retry.Durable.Repository.Model;
@@ -9,6 +7,8 @@
     using global::KafkaFlow.Retry.SqlServer.Readers;
     using global::KafkaFlow.Retry.SqlServer.Readers.Adapters;
     using Moq;
+    using System;
+    using System.Collections.Generic;
     using Xunit;
 
     public class RetryQueueReaderTests
@@ -139,7 +139,7 @@
                         Id = 1,
                         LastExecution = DateTime.UtcNow,
                         RetryQueueId = 1,
-                        SeverityLevel = Durable.Common.SeverityLevel.High,
+                        SeverityLevel = SeverityLevel.High,
                         Sort = 1,
                         Status = RetryQueueItemStatus.InRetry
                     }

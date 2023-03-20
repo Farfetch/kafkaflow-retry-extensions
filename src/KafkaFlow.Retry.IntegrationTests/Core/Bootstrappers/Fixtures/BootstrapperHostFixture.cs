@@ -90,7 +90,23 @@
                                 this.MongoDbSettings.DatabaseName,
                                 this.MongoDbSettings.RetryQueueCollectionName,
                                 this.MongoDbSettings.RetryQueueItemCollectionName)
+                            .SetupEmptyRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
+                                this.MongoDbSettings.ConnectionString,
+                                this.MongoDbSettings.DatabaseName,
+                                this.MongoDbSettings.RetryQueueCollectionName,
+                                this.MongoDbSettings.RetryQueueItemCollectionName)
+                            .SetupNullRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
+                                this.MongoDbSettings.ConnectionString,
+                                this.MongoDbSettings.DatabaseName,
+                                this.MongoDbSettings.RetryQueueCollectionName,
+                                this.MongoDbSettings.RetryQueueItemCollectionName)
                             .SetupRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
+                                this.SqlServerSettings.ConnectionString,
+                                this.SqlServerSettings.DatabaseName)
+                            .SetupEmptyRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
+                                this.SqlServerSettings.ConnectionString,
+                                this.SqlServerSettings.DatabaseName)
+                            .SetupNullRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
                                 this.SqlServerSettings.ConnectionString,
                                 this.SqlServerSettings.DatabaseName)
                             .SetupRetryDurableLatestConsumptionMongoDbCluster(
@@ -98,17 +114,46 @@
                                 this.MongoDbSettings.DatabaseName,
                                 this.MongoDbSettings.RetryQueueCollectionName,
                                 this.MongoDbSettings.RetryQueueItemCollectionName)
+                            .SetupEmptyRetryDurableLatestConsumptionMongoDbCluster(
+                                this.MongoDbSettings.ConnectionString,
+                                this.MongoDbSettings.DatabaseName,
+                                this.MongoDbSettings.RetryQueueCollectionName,
+                                this.MongoDbSettings.RetryQueueItemCollectionName)
+                            .SetupNullRetryDurableLatestConsumptionMongoDbCluster(
+                                this.MongoDbSettings.ConnectionString,
+                                this.MongoDbSettings.DatabaseName,
+                                this.MongoDbSettings.RetryQueueCollectionName,
+                                this.MongoDbSettings.RetryQueueItemCollectionName)
                             .SetupRetryDurableLatestConsumptionSqlServerCluster(
+                                this.SqlServerSettings.ConnectionString,
+                                this.SqlServerSettings.DatabaseName)
+                            .SetupEmptyRetryDurableLatestConsumptionSqlServerCluster(
+                                this.SqlServerSettings.ConnectionString,
+                                this.SqlServerSettings.DatabaseName)
+                            .SetupNullRetryDurableLatestConsumptionSqlServerCluster(
                                 this.SqlServerSettings.ConnectionString,
                                 this.SqlServerSettings.DatabaseName)
                     ));
 
             services.AddSingleton<RetrySimpleProducer>();
             services.AddSingleton<RetryForeverProducer>();
+
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>();
+            services.AddSingleton<EmptyRetryDurableGuaranteeOrderedConsumptionMongoDbProducer>();
+            services.AddSingleton<NullRetryDurableGuaranteeOrderedConsumptionMongoDbProducer>();
+
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>();
+            services.AddSingleton<EmptyRetryDurableGuaranteeOrderedConsumptionSqlServerProducer>();
+            services.AddSingleton<NullRetryDurableGuaranteeOrderedConsumptionSqlServerProducer>();
+
             services.AddSingleton<RetryDurableLatestConsumptionMongoDbProducer>();
+            services.AddSingleton<EmptyRetryDurableLatestConsumptionMongoDbProducer>();
+            services.AddSingleton<NullRetryDurableLatestConsumptionMongoDbProducer>();
+
             services.AddSingleton<RetryDurableLatestConsumptionSqlServerProducer>();
+            services.AddSingleton<EmptyRetryDurableLatestConsumptionSqlServerProducer>();
+            services.AddSingleton<NullRetryDurableLatestConsumptionSqlServerProducer>();
+
             services.AddSingleton<IRepositoryProvider>(sp => this.RepositoryProvider);
             services.AddSingleton<RetryDurableLatestConsumptionPhysicalStorageAssert>();
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert>();

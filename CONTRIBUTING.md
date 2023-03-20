@@ -20,6 +20,7 @@ Here are a few things you can do that will increase the likelihood of your pull 
 -   Keep your change as focused as possible. If there are multiple changes you would like to make that are not dependent upon each other, submit them as separate pull requests
 -   Write [good commit messages](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html) following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
 -   Open a pull request with a title following [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
+-   Verify if the Kafka.Flow is at least in the last MINOR version available (MAJOR.MINOR.PATCH) [Kafka.Flow Releases](https://github.com/Farfetch/kafka-flow/releases)
 
 ## Merging a pull request
 

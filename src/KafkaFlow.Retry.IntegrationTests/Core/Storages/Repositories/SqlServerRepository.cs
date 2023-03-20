@@ -182,7 +182,7 @@
                                 WHERE QueueGroupKey LIKE '%'+@QueueGroupKey
                                 ORDER BY Id";
 
-                    command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
+                    command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey ?? string.Empty);
                     retryQueue = await this.ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
                 }
 

@@ -18,6 +18,29 @@
             this.repositoryProvider = repositoryProvider;
         }
 
+        public async Task AssertEmptyKeyRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int retryCount)
+        {
+            var retryQueue = await this
+                .repositoryProvider
+                .GetRepositoryOfType(repositoryType)
+                .GetRetryQueueAsync(message.Key)
+                .ConfigureAwait(false);
+
+            Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Creation Get Retry Queue cannot be asserted.");
+
+            var retryQueueItems = await this
+                .repositoryProvider
+                .GetRepositoryOfType(repositoryType)
+                .GetRetryQueueItemsAsync(retryQueue.Id, rqi => rqi.Count(item => item.Status == RetryQueueItemStatus.InRetry) != retryCount)
+                .ConfigureAwait(false);
+
+            Assert.True(retryQueueItems != null, "Retry Durable Creation Get Retry Queue Item Message cannot be asserted.");
+
+            Assert.Equal(retryQueueItems.Count() - 1, retryQueueItems.Max(i => i.Sort));
+            Assert.True(Enum.Equals(retryQueue.Status, RetryQueueStatus.Active));
+            Assert.All(retryQueueItems, i => Enum.Equals(i.Status, RetryQueueItemStatus.Waiting));
+        }
+
         public async Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int count)
         {
             var retryQueue = await this

@@ -21,8 +21,8 @@
         private readonly IClusterConfigurationBuilder cluster;
         private bool enabled;
         private int retryConsumerBufferSize;
+        private RetryConsumerStrategy retryConsumerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
         private int retryConsumerWorkersCount;
-        private RetryConsumerStrategy retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
         private string retryTopicName;
         private Action<TypedHandlerConfigurationBuilder> retryTypeHandlers;
 
@@ -43,9 +43,9 @@
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
+        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConsumerStrategy)
         {
-            this.retryConusmerStrategy = retryConusmerStrategy;
+            this.retryConsumerStrategy = retryConsumerStrategy;
             return this;
         }
 
@@ -156,7 +156,7 @@
                                 .Add(resolver => new RetryDurableConsumerCompressorMiddleware(gzipCompressor))
                                 .Add(resolver => new RetryDurableConsumerUtf8EncoderMiddleware(utf8Encoder))
                                 .Add(resolver => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(newtonsoftJsonSerializer, messageType))
-                                .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
+                                .WithRetryConsumerStrategy(this.retryConsumerStrategy, retryDurableQueueRepository, utf8Encoder)
                                 .Add(resolver =>
                                     new RetryDurableConsumerValidationMiddleware(
                                             resolver.Resolve<ILogHandler>(),
