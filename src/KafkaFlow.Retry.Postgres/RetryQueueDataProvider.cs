@@ -1,4 +1,6 @@
-﻿namespace KafkaFlow.Retry.Postgres
+﻿using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+
+namespace KafkaFlow.Retry.Postgres
 {
     using System;
     using System.Collections.Generic;
@@ -102,6 +104,24 @@
                 }
 
                 return new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems);
+            }
+        }
+
+        public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input)
+        {
+            Guard.Argument(input, nameof(input)).NotNull();
+
+            using (var dbConnection = this.connectionProvider.Create(this.postgresDbSettings))
+            {
+                var totalQueuesDeleted = await this.retryQueueRepository.DeleteQueuesAsync(
+                        dbConnection,
+                        input.SearchGroupKey,
+                        input.RetryQueueStatus,
+                        input.MaxLastExecutionDateToBeKept,
+                        input.MaxRowsToDelete)
+                    .ConfigureAwait(false);
+
+                return new DeleteQueuesResult(totalQueuesDeleted);
             }
         }
 

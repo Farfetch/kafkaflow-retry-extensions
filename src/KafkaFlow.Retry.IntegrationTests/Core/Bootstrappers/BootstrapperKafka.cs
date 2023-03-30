@@ -244,13 +244,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_guarantee_ordered_consumption_postgres")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_guarantee_ordered_consumption_postgres")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                        )
                                         .WithPostgresDataProvider(
                                             postgresConnectionString,
                                             postgresDatabaseName)
@@ -468,13 +471,16 @@
                                                     handlers => handlers
                                                         .WithHandlerLifetime(InstanceLifetime.Transient)
                                                         .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithQueuePollingJobConfiguration(
+                                        .WithPollingJobsConfiguration(
                                             configure => configure
-                                                .Enabled(true)
-                                                .WithId("custom_search_key_durable_latest_consumption_postgres")
-                                                .WithCronExpression("0/30 * * ? * * *")
-                                                .WithExpirationIntervalFactor(1)
-                                                .WithFetchSize(256))
+                                                .WithSchedulerId("custom_search_key_durable_latest_consumption_postgres")
+                                                .WithRetryDurablePollingConfiguration(
+                                                    configure => configure
+                                                        .Enabled(true)
+                                                        .WithCronExpression("0/30 * * ? * * *")
+                                                        .WithExpirationIntervalFactor(1)
+                                                        .WithFetchSize(256))
+                                        )
                                         .WithPostgresDataProvider(
                                             postgresConnectionString,
                                             postgresDatabaseName)

@@ -98,8 +98,7 @@
                     DomainRetryQueueId = queue.Id,
                     Status = item.Status,
                     SeverityLevel = item.SeverityLevel,
-                    Description = item.Description,
-                    Sort = item.Sort // TODO: FIX-30: remove this after fix https://github.com/Farfetch/kafkaflow-retry-extensions/issues/30
+                    Description = item.Description
                 };
 
                 var itemId = await this.retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
