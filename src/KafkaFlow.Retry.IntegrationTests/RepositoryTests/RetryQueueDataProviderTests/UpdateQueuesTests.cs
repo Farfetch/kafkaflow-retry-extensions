@@ -21,6 +21,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateQueuesAsync_WithInactiveQueue_ReturnsQueueIsNotActive(RepositoryType repositoryType)
         {
             // Arrange
@@ -52,6 +53,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateQueuesAsync_WithItems_ReturnsUpdatedQueue(RepositoryType repositoryType)
         {
             // Arrange
@@ -83,6 +85,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateQueuesAsync_WithNoItems_ReturnsQueueHasNoActiveItems(RepositoryType repositoryType)
         {
             // Arrange
@@ -112,6 +115,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateQueuesAsync_WithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(RepositoryType repositoryType)
         {
             // Arrange

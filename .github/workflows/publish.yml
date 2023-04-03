@@ -35,6 +35,9 @@ jobs:
     - name: Pack KafkaFlow.Retry.API
       run: dotnet pack src/KafkaFlow.Retry.API/KafkaFlow.Retry.API.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
       
+    - name: Pack KafkaFlow.Retry.Postgres
+      run: dotnet pack src/KafkaFlow.Retry.Postgres/KafkaFlow.Retry.Postgres.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
+      
     - name: Pack KafkaFlow.Retry.SqlServer
       run: dotnet pack src/KafkaFlow.Retry.SqlServer/KafkaFlow.Retry.SqlServer.csproj -c Release --include-symbols /p:Version=${{ env.BUILD_VERSION }}
       

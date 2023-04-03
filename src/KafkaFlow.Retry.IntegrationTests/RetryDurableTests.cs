@@ -47,6 +47,13 @@ namespace KafkaFlow.Retry.IntegrationTests
             };
             yield return new object[]
             {
+                RepositoryType.Postgres,
+                typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>),
+                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
+                10
+            };
+            yield return new object[]
+            {
                 RepositoryType.MongoDb,
                 typeof(IMessageProducer<RetryDurableLatestConsumptionMongoDbProducer>),
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
@@ -56,6 +63,13 @@ namespace KafkaFlow.Retry.IntegrationTests
             {
                 RepositoryType.SqlServer,
                 typeof(IMessageProducer<RetryDurableLatestConsumptionSqlServerProducer>),
+                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
+                1
+            };
+            yield return new object[]
+            {
+                RepositoryType.Postgres,
+                typeof(IMessageProducer<RetryDurableLatestConsumptionPostgresProducer>),
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
             };

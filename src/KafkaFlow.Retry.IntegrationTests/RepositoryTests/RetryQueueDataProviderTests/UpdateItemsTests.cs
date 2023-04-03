@@ -21,6 +21,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsItemIsNotTheFirstWaitingInQueue(RepositoryType repositoryType)
         {
             // Arrange
@@ -54,6 +55,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsUpdatedStatus(RepositoryType repositoryType)
         {
             // Arrange
@@ -87,6 +89,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemsTestsAsync_ExistingItemWithNotInWaitingState_ReturnsItemIsNotInWaitingState(RepositoryType repositoryType)
         {
             // Arrange
@@ -117,6 +120,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemsTestsAsync_ExistingItemWithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(RepositoryType repositoryType)
         {
             // Arrange
@@ -147,6 +151,7 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
+        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemsTestsAsync_NonExistingItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
         {
             // Arrange
