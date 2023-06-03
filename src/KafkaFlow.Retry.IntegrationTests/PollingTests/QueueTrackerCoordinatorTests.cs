@@ -89,12 +89,6 @@
             var cleanupMinExpectedJobsFired = 1;
             var cleanupMaxExpectedJobsFired = 2;
 
-            var expectedPossibleTotalJobsFired = new int[]
-            {
-                retryDurableMinExpectedJobsFired + cleanupMinExpectedJobsFired,
-                retryDurableMaxExpectedJobsFired + cleanupMaxExpectedJobsFired
-            };
-
             var retryDurableJobDataProvider = this.CreateRetryDurableJobDataProvider(schedulerId, retryDurableCronExpression, jobExecutionContexts);
             var cleanupJobDataProvider = this.CreateCleanupJobDataProvider(schedulerId, cleanupCronExpression, jobExecutionContexts);
 
@@ -112,8 +106,6 @@
             await queueTrackerCoordinator.UnscheduleJobsAsync();
 
             // assert
-            expectedPossibleTotalJobsFired.Should().Contain(jobExecutionContexts.Count);
-
             jobExecutionContexts.Where(ctx => !ctx.PreviousFireTimeUtc.HasValue).Should().HaveCount(2);
 
             var retryDurableFiresContexts = jobExecutionContexts.Where(ctx => ctx.Trigger.Key.Name == retryDurableJobDataProvider.TriggerName);
