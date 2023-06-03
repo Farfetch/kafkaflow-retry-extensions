@@ -9,7 +9,7 @@
             => TriggerBuilder
                 .Create()
                 .WithIdentity($"pollingJobTrigger_{schedulerId}_{pollingDefinition.PollingJobType}", "queueTrackerGroup")
-                .WithCronSchedule(pollingDefinition.CronExpression)
+                .WithCronSchedule(pollingDefinition.CronExpression, cronBuilder => cronBuilder.WithMisfireHandlingInstructionDoNothing())
                 .StartNow()
                 .WithPriority(1)
                 .Build();

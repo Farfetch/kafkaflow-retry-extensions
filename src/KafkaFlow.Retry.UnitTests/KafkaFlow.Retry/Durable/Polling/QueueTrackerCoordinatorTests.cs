@@ -14,7 +14,7 @@
     {
         private readonly Mock<IJobDataProvider> mockJobDataProvider;
         private readonly Mock<IQueueTrackerFactory> mockQueueTrackerFactory;
-        private readonly QueueTrackerCoordinator queueTrackerCoordinator;
+        private readonly IQueueTrackerCoordinator queueTrackerCoordinator;
 
         public QueueTrackerCoordinatorTests()
         {
