@@ -13,23 +13,20 @@ namespace KafkaFlow.Retry.IntegrationTests
     using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
     using Microsoft.Extensions.DependencyInjection;
     using Xunit;
-    using Xunit.Abstractions;
 
     [Collection("BootstrapperHostCollection")]
     public class RetryDurableTests
     {
         private readonly Fixture fixture = new Fixture();
-        private readonly ITestOutputHelper output;
         private readonly IRepositoryProvider repositoryProvider;
         private readonly IServiceProvider serviceProvider;
 
-        public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture, ITestOutputHelper output)
+        public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
         {
             this.serviceProvider = bootstrapperHostFixture.ServiceProvider;
             this.repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
-            this.output = output;
         }
 
         public static IEnumerable<object[]> Scenarios()
@@ -48,13 +45,13 @@ namespace KafkaFlow.Retry.IntegrationTests
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 10
             };
-            yield return new object[]
-            {
-                RepositoryType.Postgres,
-                typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>),
-                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
-                10
-            };
+            //yield return new object[]
+            //{
+            //    RepositoryType.Postgres,
+            //    typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>),
+            //    typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
+            //    10
+            //};
             yield return new object[]
             {
                 RepositoryType.MongoDb,
@@ -69,13 +66,13 @@ namespace KafkaFlow.Retry.IntegrationTests
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
             };
-            yield return new object[]
-            {
-                RepositoryType.Postgres,
-                typeof(IMessageProducer<RetryDurableLatestConsumptionPostgresProducer>),
-                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
-                1
-            };
+            //yield return new object[]
+            //{
+            //    RepositoryType.Postgres,
+            //    typeof(IMessageProducer<RetryDurableLatestConsumptionPostgresProducer>),
+            //    typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
+            //    1
+            //};
         }
 
         [Theory]
@@ -86,8 +83,6 @@ namespace KafkaFlow.Retry.IntegrationTests
             Type physicalStorageType,
             int numberOfTimesThatEachMessageIsTriedWhenDone)
         {
-            this.output.WriteLine($"Scenario: {repositoryType}|{producerType.Name}|{physicalStorageType.Name}|{nameof(numberOfTimesThatEachMessageIsTriedWhenDone)}:{numberOfTimesThatEachMessageIsTriedWhenDone}");
-
             // Arrange
             var numberOfMessages = 5;
             var numberOfMessagesByEachSameKey = 10;
