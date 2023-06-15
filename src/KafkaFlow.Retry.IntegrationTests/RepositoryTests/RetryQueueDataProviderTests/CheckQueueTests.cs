@@ -19,10 +19,8 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb, RetryQueueStatus.Active, CheckQueueResultStatus.Exists)]
         [InlineData(RepositoryType.SqlServer, RetryQueueStatus.Active, CheckQueueResultStatus.Exists)]
-        [InlineData(RepositoryType.Postgres, RetryQueueStatus.Active, CheckQueueResultStatus.Exists)]
         [InlineData(RepositoryType.MongoDb, RetryQueueStatus.Done, CheckQueueResultStatus.DoesNotExist)]
         [InlineData(RepositoryType.SqlServer, RetryQueueStatus.Done, CheckQueueResultStatus.DoesNotExist)]
-        [InlineData(RepositoryType.Postgres, RetryQueueStatus.Done, CheckQueueResultStatus.DoesNotExist)]
         public async Task CheckQueueAsync_ConsideringQueueStatus_ReturnsExpectedCheckQueueResultStatus(
            RepositoryType repositoryType,
            RetryQueueStatus queueStatus,
@@ -56,7 +54,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task CheckQueueAsync_NonExistingQueue_ReturnsDoesNotExistStatus(RepositoryType repositoryType)
         {
             // Arrange

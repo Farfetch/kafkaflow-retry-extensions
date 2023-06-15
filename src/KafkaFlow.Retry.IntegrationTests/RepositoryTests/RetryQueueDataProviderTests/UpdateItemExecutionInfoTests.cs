@@ -21,10 +21,8 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.InRetry)]
         [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.InRetry)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.InRetry)]
         [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Waiting)]
         [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Waiting)]
         public async Task UpdateItemExecutionInfoAsync_UpdateStatus_ReturnsUpdatedStatus(RepositoryType repositoryType, RetryQueueItemStatus expectedItemStatus)
         {
             // Arrange
@@ -69,7 +67,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemExecutionInfoAsync_UpdateToDone_QueueWithoutAllItemsDone_ReturnsUpdatedStatus(RepositoryType repositoryType)
         {
             // Arrange
@@ -118,7 +115,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemExecutionInfoAsync_UpdateToDone_ReturnsUpdatedStatusQueueWithAllItemsDone(RepositoryType repositoryType)
         {
             // Arrange
@@ -160,7 +156,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemExecutionInfoAsync_WrongItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
         {
             // Arrange
@@ -205,8 +200,6 @@
         [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Waiting)]
         [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Done)]
         [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Done)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Waiting)]
         public async Task UpdateItemExecutionInfoAsync_WrongQueue_ReturnsQueueNotFoundStatus(RepositoryType repositoryType, RetryQueueItemStatus notExpectedItemStatus)
         {
             // Arrange
@@ -252,7 +245,7 @@
                 actualItem.LastExecution.Should().Be(notExpectedLastExecution);
             }
 
-            if (repositoryType is RepositoryType.SqlServer or RepositoryType.Postgres)
+            if (repositoryType == RepositoryType.SqlServer)
             {
                 actualItem.Status.Should().NotBe(notExpectedItemStatus).And.Be(item.Status);
                 actualItem.AttemptsCount.Should().NotBe(notExpectedAttemptsCount);

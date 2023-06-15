@@ -2,7 +2,6 @@
 {
     using System.Threading.Tasks;
     using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
-    using KafkaFlow.Retry.Postgres;
     using KafkaFlow.Retry.SqlServer;
     using Xunit;
 
@@ -24,21 +23,6 @@
             var sqlSettings = new SqlServerDbSettings(connectionString, databaseName);
 
             var retrySchemaCreator = sqlDataProviderFactory.CreateSchemaCreator(sqlSettings);
-
-            await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
-        }
-
-        [Fact]
-        public async Task PostgresDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
-        {
-            var postgresDataProviderFactory = new PostgresDbDataProviderFactory();
-
-            var connectionString = this.bootstrapperRepositoryFixture.PostgresSettings.ConnectionString;
-            var databaseName = this.bootstrapperRepositoryFixture.PostgresSettings.DatabaseName;
-
-            var postgresSettings = new PostgresDbSettings(connectionString, databaseName);
-
-            var retrySchemaCreator = postgresDataProviderFactory.CreateSchemaCreator(postgresSettings);
 
             await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
         }

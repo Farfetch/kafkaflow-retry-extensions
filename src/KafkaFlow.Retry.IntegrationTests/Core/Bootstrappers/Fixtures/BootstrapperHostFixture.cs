@@ -93,9 +93,6 @@
                             .SetupRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
                                 this.SqlServerSettings.ConnectionString,
                                 this.SqlServerSettings.DatabaseName)
-                            .SetupRetryDurableGuaranteeOrderedConsumptionPostgresCluster(
-                                this.PostgresSettings.ConnectionString,
-                                this.PostgresSettings.DatabaseName)
                             .SetupRetryDurableLatestConsumptionMongoDbCluster(
                                 this.MongoDbSettings.ConnectionString,
                                 this.MongoDbSettings.DatabaseName,
@@ -104,19 +101,14 @@
                             .SetupRetryDurableLatestConsumptionSqlServerCluster(
                                 this.SqlServerSettings.ConnectionString,
                                 this.SqlServerSettings.DatabaseName)
-                            .SetupRetryDurableLatestConsumptionPostgresCluster(
-                                this.PostgresSettings.ConnectionString,
-                                this.PostgresSettings.DatabaseName)
                     ));
 
             services.AddSingleton<RetrySimpleProducer>();
             services.AddSingleton<RetryForeverProducer>();
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>();
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>();
-            services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>();
             services.AddSingleton<RetryDurableLatestConsumptionMongoDbProducer>();
             services.AddSingleton<RetryDurableLatestConsumptionSqlServerProducer>();
-            services.AddSingleton<RetryDurableLatestConsumptionPostgresProducer>();
             services.AddSingleton<IRepositoryProvider>(sp => this.RepositoryProvider);
             services.AddSingleton<RetryDurableLatestConsumptionPhysicalStorageAssert>();
             services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert>();

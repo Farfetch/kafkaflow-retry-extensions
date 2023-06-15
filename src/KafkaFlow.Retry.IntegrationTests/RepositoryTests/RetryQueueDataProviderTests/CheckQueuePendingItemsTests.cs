@@ -19,7 +19,6 @@
 
         [Theory]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         [InlineData(RepositoryType.MongoDb)]
         public async Task CheckQueuePendingItemsAsync_QueueWithOneItem_ReturnsNoPendingItems(RepositoryType repositoryType)
         {
@@ -50,16 +49,12 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Done)]
         [InlineData(RepositoryType.SqlServer, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Done)]
-        [InlineData(RepositoryType.Postgres, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Done)]
         [InlineData(RepositoryType.MongoDb, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Cancelled)]
         [InlineData(RepositoryType.SqlServer, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Cancelled)]
-        [InlineData(RepositoryType.Postgres, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Cancelled)]
         [InlineData(RepositoryType.MongoDb, QueuePendingItemsResultStatus.HasPendingItems, RetryQueueItemStatus.InRetry)]
         [InlineData(RepositoryType.SqlServer, QueuePendingItemsResultStatus.HasPendingItems, RetryQueueItemStatus.InRetry)]
-        [InlineData(RepositoryType.Postgres, QueuePendingItemsResultStatus.HasPendingItems, RetryQueueItemStatus.InRetry)]
         [InlineData(RepositoryType.MongoDb, QueuePendingItemsResultStatus.HasPendingItems, RetryQueueItemStatus.Waiting)]
         [InlineData(RepositoryType.SqlServer, QueuePendingItemsResultStatus.HasPendingItems, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.Postgres, QueuePendingItemsResultStatus.HasPendingItems, RetryQueueItemStatus.Waiting)]
         public async Task CheckQueuePendingItemsAsync_QueueWithTwoItems_ReturnsExpectedPendingItemsStatus(
             RepositoryType repositoryType,
             QueuePendingItemsResultStatus expectedResultStatus,

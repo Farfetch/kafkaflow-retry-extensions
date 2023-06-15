@@ -20,7 +20,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemStatusAsync_ExistingItem_ReturnsUpdatedStatus(RepositoryType repositoryType)
         {
             // Arrange
@@ -52,7 +51,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task UpdateItemStatusAsync_NonExistingItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
         {
             // Arrange

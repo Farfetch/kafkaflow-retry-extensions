@@ -23,7 +23,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_DifferentSearchGroupKeyDifferentQueueStatusDifferentItemStatus_ReturnOnlyRequestedQueuesAndItems(RepositoryType repositoryType)
         {
             // Arrange
@@ -87,7 +86,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_ExistingQueue_ReturnsQueue(RepositoryType repositoryType)
         {
             // Arrange
@@ -116,7 +114,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_ExistingQueuesActiveButDifferentSearchGroupKey_DontReturnQueues(RepositoryType repositoryType)
         {
             // Arrange
@@ -153,7 +150,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_ExistingQueueWithDifferentItemStatus_ReturnQueueWithoutItems(RepositoryType repositoryType)
         {
             // Arrange
@@ -183,7 +179,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_ExistingQueueWithDifferentQueueStatus_DontReturnQueues(RepositoryType repositoryType)
         {
             // Arrange
@@ -209,7 +204,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_ExistingQueueWithDistinctItemStatus_ReturnsQueueWithFilteredItems(RepositoryType repositoryType)
         {
             // Arrange
@@ -244,7 +238,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_ItemsWithDifferentModifiedDates_ReturnQueueWithItemsandQueueWithNoItem(RepositoryType repositoryType)
         {
             // Arrange
@@ -305,7 +298,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_WithSeverityLevel_ReturnsOnlyItemsWithCorrespondingLevel(RepositoryType repositoryType)
         {
             // Arrange
@@ -349,7 +341,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task GetQueuesAsync_WithStuckStatusFilter_ReturnsItemsByStatusAndStuckItems(RepositoryType repositoryType)
         {
             // Arrange

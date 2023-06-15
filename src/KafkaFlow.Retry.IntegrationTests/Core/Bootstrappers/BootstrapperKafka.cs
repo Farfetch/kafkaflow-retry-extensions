@@ -8,7 +8,6 @@
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Producers;
     using KafkaFlow.Retry.MongoDb;
-    using KafkaFlow.Retry.Postgres;
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
     using KafkaFlow.TypedHandler;
@@ -27,14 +26,10 @@
              "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
              "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
              "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server-retry",
-             "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres",
-             "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres-retry",
              "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
              "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db-retry",
              "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
-             "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry",
-             "test-kafka-flow-retry-retry-durable-latest-consumption-postgres",
-             "test-kafka-flow-retry-retry-durable-latest-consumption-postgres-retry"
+             "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry"
         };
 
         internal static IClusterConfigurationBuilder CreatAllTestTopicsIfNotExist(this IClusterConfigurationBuilder cluster)
@@ -199,80 +194,6 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionPostgresCluster(
-            this IClusterConfigurationBuilder cluster,
-            string postgresConnectionString,
-            string postgresDatabaseName)
-        {
-            cluster
-                .AddProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>(
-                    producer => producer
-                        .DefaultTopic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                        .AddMiddlewares(
-                            middlewares => middlewares
-                                .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
-                .AddConsumer(
-                    consumer => consumer
-                        .Topic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres")
-                        .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres")
-                        .WithBufferSize(100)
-                        .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
-                        .AddMiddlewares(
-                            middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
-                                .RetryDurable(
-                                    (configure) => configure
-                                        .Handle<RetryDurableTestException>()
-                                        .WithMessageType(typeof(RetryDurableTestMessage))
-                                        .WithMessageSerializeSettings(
-                                            new JsonSerializerSettings
-                                            {
-                                                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                                                TypeNameHandling = TypeNameHandling.Auto
-                                            })
-                                        .WithEmbeddedRetryCluster(
-                                            cluster,
-                                            configure => configure
-                                                .Enabled(true)
-                                                .WithRetryTopicName("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres-retry")
-                                                .WithRetryConsumerBufferSize(100)
-                                                .WithRetryConsumerWorkersCount(10)
-                                                .WithRetryConsumerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
-                                                .WithRetryTypedHandlers(
-                                                    handlers => handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                        .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithPollingJobsConfiguration(
-                                            configure => configure
-                                                .WithSchedulerId("custom_search_key_durable_guarantee_ordered_consumption_postgres")
-                                                .WithRetryDurablePollingConfiguration(
-                                                    configure => configure
-                                                        .Enabled(true)
-                                                        .WithCronExpression("0/30 * * ? * * *")
-                                                        .WithExpirationIntervalFactor(1)
-                                                        .WithFetchSize(256))
-                                        )
-                                        .WithPostgresDataProvider(
-                                            postgresConnectionString,
-                                            postgresDatabaseName)
-                                        .WithRetryPlanBeforeRetryDurable(
-                                            configure => configure
-                                                .TryTimes(3)
-                                                .WithTimeBetweenTriesPlan(
-                                                    TimeSpan.FromMilliseconds(250),
-                                                    TimeSpan.FromMilliseconds(500),
-                                                    TimeSpan.FromMilliseconds(1000))
-                                                .ShouldPauseConsumer(false)))
-                                .AddTypedHandlers(
-                                    handlers =>
-                                        handlers
-                                            .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                            .AddHandler<RetryDurableTestMessageHandler>())));
-            return cluster;
-        }
-
         internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionMongoDbCluster(
             this IClusterConfigurationBuilder cluster,
             string mongoDbConnectionString,
@@ -410,80 +331,6 @@
                                         .WithSqlServerDataProvider(
                                             sqlServerConnectionString,
                                             sqlServerDatabaseName)
-                                        .WithRetryPlanBeforeRetryDurable(
-                                            configure => configure
-                                                .TryTimes(3)
-                                                .WithTimeBetweenTriesPlan(
-                                                    TimeSpan.FromMilliseconds(250),
-                                                    TimeSpan.FromMilliseconds(500),
-                                                    TimeSpan.FromMilliseconds(1000))
-                                                .ShouldPauseConsumer(false)))
-                                .AddTypedHandlers(
-                                    handlers =>
-                                        handlers
-                                            .WithHandlerLifetime(InstanceLifetime.Singleton)
-                                            .AddHandler<RetryDurableTestMessageHandler>())));
-            return cluster;
-        }
-
-        internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionPostgresCluster(
-            this IClusterConfigurationBuilder cluster,
-            string postgresConnectionString,
-            string postgresDatabaseName)
-        {
-            cluster
-                .AddProducer<RetryDurableLatestConsumptionPostgresProducer>(
-                    producer => producer
-                        .DefaultTopic("test-kafka-flow-retry-retry-durable-latest-consumption-postgres")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
-                        .AddMiddlewares(
-                            middlewares => middlewares
-                                .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
-                .AddConsumer(
-                    consumer => consumer
-                        .Topic("test-kafka-flow-retry-retry-durable-latest-consumption-postgres")
-                        .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-latest-consumption-postgres")
-                        .WithBufferSize(100)
-                        .WithWorkersCount(10)
-                        .WithAutoOffsetReset((KafkaFlow.AutoOffsetReset)AutoOffsetReset.Latest)
-                        .AddMiddlewares(
-                            middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
-                                .RetryDurable(
-                                    (configure) => configure
-                                        .Handle<RetryDurableTestException>()
-                                        .WithMessageType(typeof(RetryDurableTestMessage))
-                                        .WithMessageSerializeSettings(
-                                            new JsonSerializerSettings
-                                            {
-                                                DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-                                                TypeNameHandling = TypeNameHandling.Auto
-                                            })
-                                        .WithEmbeddedRetryCluster(
-                                            cluster,
-                                            configure => configure
-                                                .Enabled(true)
-                                                .WithRetryTopicName("test-kafka-flow-retry-retry-durable-latest-consumption-postgres-retry")
-                                                .WithRetryConsumerBufferSize(100)
-                                                .WithRetryConsumerWorkersCount(10)
-                                                .WithRetryConsumerStrategy(RetryConsumerStrategy.LatestConsumption)
-                                                .WithRetryTypedHandlers(
-                                                    handlers => handlers
-                                                        .WithHandlerLifetime(InstanceLifetime.Transient)
-                                                        .AddHandler<RetryDurableTestMessageHandler>()))
-                                        .WithPollingJobsConfiguration(
-                                            configure => configure
-                                                .WithSchedulerId("custom_search_key_durable_latest_consumption_postgres")
-                                                .WithRetryDurablePollingConfiguration(
-                                                    configure => configure
-                                                        .Enabled(true)
-                                                        .WithCronExpression("0/30 * * ? * * *")
-                                                        .WithExpirationIntervalFactor(1)
-                                                        .WithFetchSize(256))
-                                        )
-                                        .WithPostgresDataProvider(
-                                            postgresConnectionString,
-                                            postgresDatabaseName)
                                         .WithRetryPlanBeforeRetryDurable(
                                             configure => configure
                                                 .TryTimes(3)

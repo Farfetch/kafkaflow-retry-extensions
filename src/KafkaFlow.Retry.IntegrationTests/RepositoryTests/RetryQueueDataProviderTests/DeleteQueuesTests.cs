@@ -25,7 +25,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task DeleteQueuesAsync_TestingMaxRowsToDelete_DeleteAllEligibleQueuesAfterTwoDeletions(RepositoryType repositoryType)
         {
             // Arrange
@@ -77,7 +76,6 @@
         [Theory]
         [InlineData(RepositoryType.MongoDb)]
         [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
         public async Task DeleteQueuesAsync_WithSeveralScenarios_DeleteAllEligibleQueues(RepositoryType repositoryType)
         {
             // Arrange

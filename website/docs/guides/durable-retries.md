@@ -21,7 +21,6 @@ dotnet add package KafkaFlow.Retry
 
 Install the package for the desired storage:
  - SqlServer: [KafkaFlow.Retry.SqlServer](https://www.nuget.org/packages/KafkaFlow.Retry.SqlServer) 
- - Postgres: [KafkaFlow.Retry.Postgres](https://www.nuget.org/packages/KafkaFlow.Retry.Postgres) 
  - MongoDb: [KafkaFlow.Retry.MongoDb](https://www.nuget.org/packages/KafkaFlow.Retry.MongoDb) 
 
 
@@ -60,8 +59,6 @@ The `RetryDurable` receives an Action as an argument to configure the Retry poli
             )
             
             .WithMongoDbDataProvider(...)
-            // OR
-            .WithPostgresDataProvider(...)
             // OR
             .WithSqlServerDataProvider(...)
 
@@ -165,31 +162,6 @@ On the configuration, define the access configuration to the SqlServer instance.
 )
 ```
 
-## How to use Postgres as a Provider
-
-Install the [KafkaFlow.Retry.Postgres](https://www.nuget.org/packages/KafkaFlow.Retry.Postgres) package. 
-
-```bash
-dotnet add package KafkaFlow.Retry.Postgres
-```
-
-On the configuration, define the access configuration to the Postgres instance.
-
-```csharp
-.AddMiddlewares(
-    middlewares => middlewares 
-    .RetryDurable(
-        (config) => config
-            ...
-            .WithPostgresDataProvider(
-                connectionString,
-                databaseName)
-            ...
-    )
-    ...
-)
-```
-
 ## How to configure an HTTP API to manage the Data Provider
 
 Install the [KafkaFlow.Retry.API](https://www.nuget.org/packages/KafkaFlow.Retry.API) package. 
@@ -200,7 +172,6 @@ dotnet add package KafkaFlow.Retry.API
 
 Once you install the Package, install also the package for the desired storage:
  - SqlServer: [KafkaFlow.Retry.SqlServer](https://www.nuget.org/packages/KafkaFlow.Retry.SqlServer) 
- - Postgres: [KafkaFlow.Retry.Postgres](https://www.nuget.org/packages/KafkaFlow.Retry.Postgres) 
  - MongoDb: [KafkaFlow.Retry.MongoDb](https://www.nuget.org/packages/KafkaFlow.Retry.MongoDb) 
 
 
