@@ -8,7 +8,9 @@
     internal class CleanupJobDataProvider : IJobDataProvider
     {
         private readonly CleanupPollingDefinition cleanupPollingDefinition;
-        private readonly IJobDetail jobDetail;
+        private readonly ILogHandler logHandler;
+        private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
+        private readonly string schedulerId;
         private readonly ITrigger trigger;
 
         public CleanupJobDataProvider(
@@ -26,24 +28,28 @@
 
             this.cleanupPollingDefinition = cleanupPollingDefinition;
             this.trigger = trigger;
-            this.jobDetail = JobBuilder
-                .Create<CleanupPollingJob>()
-                .WithIdentity($"pollingJob_{schedulerId}_{cleanupPollingDefinition.PollingJobType}", "queueTrackerGroup")
-                .SetJobData(
-                    new JobDataMap
-                    {
-                        { PollingJobConstants.CleanupPollingDefinition, cleanupPollingDefinition },
-                        { PollingJobConstants.SchedulerId, schedulerId },
-                        { PollingJobConstants.RetryDurableQueueRepository, retryDurableQueueRepository },
-                        { PollingJobConstants.LogHandler, logHandler }
-                    })
-                .Build();
+            this.schedulerId = schedulerId;
+            this.retryDurableQueueRepository = retryDurableQueueRepository;
+            this.logHandler = logHandler;
         }
-
-        public IJobDetail JobDetail => this.jobDetail;
 
         public PollingDefinition PollingDefinition => this.cleanupPollingDefinition;
 
         public ITrigger Trigger => this.trigger;
+
+        public IJobDetail GetPollingJobDetail()
+        {
+            var dataMap = new JobDataMap();
+
+            dataMap.Add(PollingJobConstants.CleanupPollingDefinition, this.cleanupPollingDefinition);
+            dataMap.Add(PollingJobConstants.SchedulerId, this.schedulerId);
+            dataMap.Add(PollingJobConstants.RetryDurableQueueRepository, this.retryDurableQueueRepository);
+            dataMap.Add(PollingJobConstants.LogHandler, this.logHandler);
+
+            return JobBuilder
+                .Create<CleanupPollingJob>()
+                .SetJobData(dataMap)
+                .Build();
+        }
     }
 }

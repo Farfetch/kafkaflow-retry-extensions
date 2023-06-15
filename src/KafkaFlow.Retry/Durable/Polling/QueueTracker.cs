@@ -106,7 +106,7 @@
         {
             try
             {
-                var job = jobDataProvider.JobDetail;
+                var job = jobDataProvider.GetPollingJobDetail();
                 var trigger = jobDataProvider.Trigger;
 
                 var scheduledJob = await this.scheduler.ScheduleJob(job, trigger, cancellationToken).ConfigureAwait(false);

@@ -64,7 +64,7 @@
 
             //Assert
             this.mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
-            this.mockJobDataProvider.Verify(m => m.JobDetail, Times.Once);
+            this.mockJobDataProvider.Verify(m => m.GetPollingJobDetail(), Times.Once);
             this.mockJobDataProvider.Verify(m => m.Trigger, Times.Once);
         }
 
@@ -74,7 +74,7 @@
             // Arrange
 
             this.mockJobDataProvider
-                .Setup(x => x.JobDetail)
+                .Setup(x => x.GetPollingJobDetail())
                 .Returns(
                     JobBuilder
                         .Create<RetryDurablePollingJob>()
@@ -86,7 +86,7 @@
 
             //Assert
             this.mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
-            this.mockJobDataProvider.Verify(m => m.JobDetail, Times.Once);
+            this.mockJobDataProvider.Verify(m => m.GetPollingJobDetail(), Times.Once);
             this.mockJobDataProvider.Verify(m => m.Trigger, Times.Exactly(2));
         }
     }
