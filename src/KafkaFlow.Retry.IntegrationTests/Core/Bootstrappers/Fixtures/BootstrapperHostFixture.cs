@@ -74,7 +74,7 @@
 
         private void SetupServices(HostBuilderContext context, IServiceCollection services)
         {
-            this.InitializeKafkaAsync(context.Configuration).GetAwaiter().GetResult();
+            this.InitializeKafka(context.Configuration);
 
             services.AddKafka(
                 kafka => kafka
@@ -82,6 +82,7 @@
                     .AddCluster(
                         cluster => cluster
                             .WithBrokers(this.KafkaSettings.Brokers.Split(';'))
+                            .CreatAllTestTopicsIfNotExist()
                             .SetupRetrySimpleCluster()
                             .SetupRetryForeverCluster()
                             .SetupRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
