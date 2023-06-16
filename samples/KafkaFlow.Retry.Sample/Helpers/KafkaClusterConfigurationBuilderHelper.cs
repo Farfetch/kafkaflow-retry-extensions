@@ -74,23 +74,13 @@
                                                 )
                                                 .Enabled(true)
                                         )
-                                        .WithPollingJobsConfiguration(
+                                        .WithQueuePollingJobConfiguration(
                                             configure => configure
-                                                .WithSchedulerId("retry-durable-mongodb-polling-id")
-                                                .WithRetryDurablePollingConfiguration(
-                                                    configure => configure
-                                                        .WithCronExpression("0 0/1 * 1/1 * ? *")
-                                                        .WithExpirationIntervalFactor(1)
-                                                        .WithFetchSize(10)
-                                                        .Enabled(true)
-                                                )
-                                                .WithCleanupPollingConfiguration(
-                                                    configure => configure
-                                                        .WithCronExpression("0 0 * 1/1 * ? *")
-                                                        .WithRowsPerRequest(1048)
-                                                        .WithTimeToLiveInDays(60)
-                                                        .Enabled(true)
-                                                )
+                                                .WithId("retry-durable-mongodb-polling-id")
+                                                .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                .WithExpirationIntervalFactor(1)
+                                                .WithFetchSize(10)
+                                                .Enabled(true)
                                         ))
                                 .AddTypedHandlers(
                                     handlers => handlers
@@ -160,20 +150,13 @@
                                                 )
                                                 .Enabled(true)
                                         )
-                                        .WithPollingJobsConfiguration(
+                                        .WithQueuePollingJobConfiguration(
                                             configure => configure
-                                                .WithSchedulerId("retry-durable-sqlserver-polling-id")
-                                                .WithRetryDurablePollingConfiguration(
-                                                    configure => configure
-                                                        .WithCronExpression("0 0/1 * 1/1 * ? *")
-                                                        .WithExpirationIntervalFactor(1)
-                                                        .WithFetchSize(10)
-                                                        .Enabled(true)
-                                                )
-                                                .WithCleanupPollingConfiguration(
-                                                    configure => configure
-                                                        .Enabled(false)
-                                                )
+                                                .WithId("retry-durable-sqlserver-polling-id")
+                                                .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                .WithExpirationIntervalFactor(1)
+                                                .WithFetchSize(10)
+                                                .Enabled(true)
                                         ))
                                 .AddTypedHandlers(
                                     handlers => handlers

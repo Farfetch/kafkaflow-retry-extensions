@@ -6,9 +6,7 @@
     using KafkaFlow.Configuration;
     using KafkaFlow.Retry.Durable.Compression;
     using KafkaFlow.Retry.Durable.Definitions;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
     using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Serializers;
@@ -19,8 +17,8 @@
         private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
         private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
         private Type messageType;
-        private PollingDefinitionsAggregator pollingDefinitionsAggregator;
         private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
+        private RetryDurablePollingDefinition retryDurablePollingDefinition;
         private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
         private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
 
@@ -49,8 +47,6 @@
             Action<RetryDurableEmbeddedClusterDefinitionBuilder> configure
             )
         {
-            Guard.Argument(configure, nameof(configure)).NotNull();
-
             this.retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
             configure(this.retryDurableEmbeddedClusterDefinitionBuilder);
 
@@ -69,13 +65,11 @@
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithPollingJobsConfiguration(Action<PollingDefinitionsAggregatorBuilder> configure)
+        public RetryDurableDefinitionBuilder WithQueuePollingJobConfiguration(Action<RetryDurableQueuePollingJobDefinitionBuilder> configure)
         {
-            Guard.Argument(configure, nameof(configure)).NotNull();
-
-            var pollingDefinitionsAggregatorBuilder = new PollingDefinitionsAggregatorBuilder();
-            configure(pollingDefinitionsAggregatorBuilder);
-            this.pollingDefinitionsAggregator = pollingDefinitionsAggregatorBuilder.Build();
+            var retryDurablePollingDefinitionBuilder = new RetryDurableQueuePollingJobDefinitionBuilder();
+            configure(retryDurablePollingDefinitionBuilder);
+            this.retryDurablePollingDefinition = retryDurablePollingDefinitionBuilder.Build();
 
             return this;
         }
@@ -89,8 +83,6 @@
 
         public RetryDurableDefinitionBuilder WithRetryPlanBeforeRetryDurable(Action<RetryDurableRetryPlanBeforeDefinitionBuilder> configure)
         {
-            Guard.Argument(configure, nameof(configure)).NotNull();
-
             var retryDurableRetryPlanBeforeDefinitionBuilder = new RetryDurableRetryPlanBeforeDefinitionBuilder();
             configure(retryDurableRetryPlanBeforeDefinitionBuilder);
             this.retryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinitionBuilder.Build();
@@ -104,7 +96,6 @@
             Guard.Argument(this.retryDurableRepositoryProvider).NotNull("A repository should be defined");
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
 
-            var triggerProvider = new TriggerProvider();
             var utf8Encoder = new Utf8Encoder();
             var gzipCompressor = new GzipCompressor();
             var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(this.jsonSerializerSettings);
@@ -122,7 +113,7 @@
                     messageHeadersAdapter,
                     messageAdapter,
                     utf8Encoder,
-                    this.pollingDefinitionsAggregator);
+                    this.retryDurablePollingDefinition);
 
             this.retryDurableEmbeddedClusterDefinitionBuilder
                 .Build(
@@ -131,9 +122,9 @@
                     gzipCompressor,
                     utf8Encoder,
                     newtonsoftJsonSerializer,
+                    messageAdapter,
                     messageHeadersAdapter,
-                    this.pollingDefinitionsAggregator,
-                    triggerProvider
+                    this.retryDurablePollingDefinition
                 );
 
             return new RetryDurableDefinition(

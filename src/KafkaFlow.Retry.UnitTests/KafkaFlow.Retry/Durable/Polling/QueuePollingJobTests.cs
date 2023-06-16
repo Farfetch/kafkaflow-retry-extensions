@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling.Jobs
+﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
 {
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
     using global::KafkaFlow.Retry.Durable;
     using global::KafkaFlow.Retry.Durable.Common;
-    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
+    using global::KafkaFlow.Retry.Durable.Definitions;
     using global::KafkaFlow.Retry.Durable.Encoders;
-    using global::KafkaFlow.Retry.Durable.Polling.Jobs;
+    using global::KafkaFlow.Retry.Durable.Polling;
     using global::KafkaFlow.Retry.Durable.Repository;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
@@ -17,11 +17,10 @@
     using Quartz;
     using Xunit;
 
-    public class RetryDurablePollingJobTests
+    public class QueuePollingJobTests
     {
-        private const string SchedulerId = "schedulerIdTest";
-        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1);
-        private readonly IJob job = new RetryDurablePollingJob();
+        private static readonly RetryDurablePollingDefinition retryDurablePollingDefinition = new RetryDurablePollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 1, "id");
+        private readonly IJob job = new QueuePollingJob();
         private readonly Mock<IJobExecutionContext> jobExecutionContext = new Mock<IJobExecutionContext>();
         private readonly Mock<ILogHandler> logHandler = new Mock<ILogHandler>();
         private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();
@@ -32,7 +31,7 @@
         private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
         private readonly Mock<IUtf8Encoder> utf8Encoder = new Mock<IUtf8Encoder>();
 
-        public RetryDurablePollingJobTests()
+        public QueuePollingJobTests()
         {
             jobExecutionContext
                 .Setup(d => d.JobDetail)
@@ -48,7 +47,7 @@
         }
 
         [Fact]
-        public async Task RetryDurablePollingJob_Execute_ProduceMessageFailed_LogError()
+        public async Task QueuePollingJob_Execute_ProduceMessageFailed_LogError()
         {
             // Arrange
             retryDurableQueueRepository
@@ -90,7 +89,6 @@
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
-                { "SchedulerId", SchedulerId }
             };
 
             mockIJobDetail
@@ -111,7 +109,7 @@
         }
 
         [Fact]
-        public async Task RetryDurablePollingJob_Execute_RetryDurableQueueRepositoryFailed_LogError()
+        public async Task QueuePollingJob_Execute_RetryDurableQueueRepositoryFailed_LogError()
         {
             // Arrange
             retryDurableQueueRepository
@@ -127,7 +125,6 @@
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
-                { "SchedulerId", SchedulerId }
             };
 
             mockIJobDetail
@@ -146,7 +143,7 @@
         }
 
         [Fact]
-        public async Task RetryDurablePollingJob_Execute_Success()
+        public async Task QueuePollingJob_Execute_Success()
         {
             // Arrange
             retryDurableQueueRepository
@@ -187,7 +184,6 @@
                 { "MessageHeadersAdapter", messageHeadersAdapter.Object },
                 { "MessageAdapter", messageAdapter.Object },
                 { "Utf8Encoder", utf8Encoder.Object },
-                { "SchedulerId", SchedulerId }
             };
             mockIJobDetail
                 .SetupGet(jd => jd.JobDataMap)

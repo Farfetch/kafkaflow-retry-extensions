@@ -1,38 +1,29 @@
 ﻿namespace KafkaFlow.Retry.Durable.Polling
 {
-    using System.Collections.Generic;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
+    using Dawn;
+    using KafkaFlow.Retry.Durable.Definitions;
     using Quartz;
 
     internal class TriggerProvider : ITriggerProvider
     {
-        private readonly IDictionary<string, ITrigger> triggers;
+        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
 
-        public TriggerProvider()
+        public TriggerProvider(RetryDurablePollingDefinition retryDurablePollingDefinition)
         {
-            this.triggers = new Dictionary<string, ITrigger>();
+            Guard.Argument(retryDurablePollingDefinition).NotNull();
+
+            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
         }
 
-        public ITrigger GetPollingTrigger(string schedulerId, PollingDefinition pollingDefinition)
+        public ITrigger GetQueuePollingTrigger()
         {
-            var triggerId = $"pollingJobTrigger_{schedulerId}_{pollingDefinition.PollingJobType}";
-
-            if (this.triggers.TryGetValue(triggerId, out var triggerAlreadyCreated))
-            {
-                return triggerAlreadyCreated;
-            }
-
-            var trigger = TriggerBuilder
-                            .Create()
-                            .WithIdentity(triggerId, "queueTrackerGroup")
-                            .WithCronSchedule(pollingDefinition.CronExpression)
-                            .StartNow()
-                            .WithPriority(1)
-                            .Build();
-
-            this.triggers.Add(triggerId, trigger);
-
-            return trigger;
+            return TriggerBuilder
+                .Create()
+                .WithIdentity($"pollingJob_{this.retryDurablePollingDefinition.Id}", "queueTrackerGroup")
+                .WithCronSchedule(this.retryDurablePollingDefinition.CronExpression)
+                .StartNow()
+                .WithPriority(1)
+                .Build();
         }
     }
 }

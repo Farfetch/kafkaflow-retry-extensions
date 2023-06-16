@@ -2,35 +2,32 @@
 {
     using System;
     using System.Collections.Generic;
-    using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.MongoDb.Adapters;
+    using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
     using KafkaFlow.Retry.MongoDb.Model;
+    using KafkaFlow.Retry.MongoDb.Model.Factories;
     using MongoDB.Driver;
 
     internal class RetryQueueRepository : IRetryQueueRepository
     {
         private readonly DbContext dbContext;
+        private readonly IQueuesAdapter queuesAdapter;
+        private readonly RetryQueueItemDboFactory retryQueueItemDboFactory;
 
         public RetryQueueRepository(DbContext dbContext)
         {
             Guard.Argument(dbContext).NotNull();
 
             this.dbContext = dbContext;
-        }
 
-        public async Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds)
-        {
-            var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
+            var messageAdapter = new MessageAdapter(new HeaderAdapter());
 
-            var deleteFilter = queuesFilterBuilder.In(q => q.Id, queueIds);
-
-            var deleteResult = await this.dbContext.RetryQueues.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
-
-            return new DeleteQueuesResult(this.GetDeletedCount(deleteResult));
+            this.retryQueueItemDboFactory = new RetryQueueItemDboFactory(messageAdapter);
+            this.queuesAdapter = new QueuesAdapter(new ItemAdapter(messageAdapter));
         }
 
         public async Task<RetryQueueDbo> GetQueueAsync(string queueGroupKey)
@@ -40,24 +37,6 @@
             var queuesFilter = queuesFilterBuilder.Eq(q => q.QueueGroupKey, queueGroupKey);
 
             return await this.dbContext.RetryQueues.GetOneAsync(queuesFilter).ConfigureAwait(false);
-        }
-
-        public async Task<IEnumerable<Guid>> GetQueuesToDeleteAsync(string searchGroupKey, RetryQueueStatus status, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
-        {
-            var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
-
-            var findFilter = queuesFilterBuilder.Eq(q => q.SearchGroupKey, searchGroupKey)
-                & queuesFilterBuilder.Eq(q => q.Status, status)
-                & queuesFilterBuilder.Lt(q => q.LastExecution, maxLastExecutionDateToBeKept);
-
-            var options = new FindOptions<RetryQueueDbo>
-            {
-                Limit = maxRowsToDelete
-            };
-
-            var queuesToDelete = await this.dbContext.RetryQueues.GetAsync(findFilter, options).ConfigureAwait(false);
-
-            return queuesToDelete.Select(q => q.Id);
         }
 
         public async Task<IEnumerable<RetryQueueDbo>> GetTopSortedQueuesAsync(RetryQueueStatus status, GetQueuesSortOption sortOption, string searchGroupKey, int top)
@@ -123,11 +102,6 @@
                              .Set(q => q.Status, status);
 
             return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
-        }
-
-        private int GetDeletedCount(DeleteResult deleteResult)
-        {
-            return deleteResult.IsAcknowledged ? Convert.ToInt32(deleteResult.DeletedCount) : 0;
         }
     }
 }

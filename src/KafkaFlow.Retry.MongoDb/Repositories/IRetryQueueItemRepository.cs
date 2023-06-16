@@ -13,8 +13,6 @@
     {
         Task<bool> AnyItemStillActiveAsync(Guid retryQueueId);
 
-        Task DeleteItemsAsync(IEnumerable<Guid> queueIds);
-
         Task<RetryQueueItemDbo> GetItemAsync(Guid itemId);
 
         Task<IEnumerable<RetryQueueItemDbo>> GetItemsAsync(

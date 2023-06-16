@@ -9,18 +9,28 @@
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Actions.Update;
     using KafkaFlow.Retry.Durable.Repository.Model;
+    using KafkaFlow.Retry.MongoDb.Adapters;
+    using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
     using KafkaFlow.Retry.MongoDb.Model;
+    using KafkaFlow.Retry.MongoDb.Model.Factories;
     using MongoDB.Driver;
 
     internal class RetryQueueItemRepository : IRetryQueueItemRepository
     {
         private readonly DbContext dbContext;
+        private readonly IQueuesAdapter queuesAdapter;
+        private readonly RetryQueueItemDboFactory retryQueueItemDboFactory;
 
         public RetryQueueItemRepository(DbContext dbContext)
         {
             Guard.Argument(dbContext).NotNull();
 
             this.dbContext = dbContext;
+
+            var messageAdapter = new MessageAdapter(new HeaderAdapter());
+
+            this.retryQueueItemDboFactory = new RetryQueueItemDboFactory(messageAdapter);
+            this.queuesAdapter = new QueuesAdapter(new ItemAdapter(messageAdapter));
         }
 
         public async Task<bool> AnyItemStillActiveAsync(Guid retryQueueId)
@@ -33,15 +43,6 @@
             var itemsDbo = await this.dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
 
             return itemsDbo.Any();
-        }
-
-        public async Task DeleteItemsAsync(IEnumerable<Guid> queueIds)
-        {
-            var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
-
-            var deleteFilter = itemsFilterBuilder.In(i => i.RetryQueueId, queueIds);
-
-            await this.dbContext.RetryQueueItems.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
         }
 
         public async Task<RetryQueueItemDbo> GetItemAsync(Guid itemId)

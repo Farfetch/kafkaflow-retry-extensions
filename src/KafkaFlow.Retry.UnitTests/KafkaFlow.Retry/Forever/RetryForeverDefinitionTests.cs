@@ -8,7 +8,7 @@
 
     public class RetryForeverDefinitionTests
     {
-        public static IEnumerable<object[]> DataTest() => new List<object[]>
+        public static readonly IEnumerable<object[]> DataTest = new List<object[]>
         {
             new object[]
             {

@@ -7,7 +7,7 @@
     using KafkaFlow.Producers;
     using KafkaFlow.Retry.Durable;
     using KafkaFlow.Retry.Durable.Compression;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
+    using KafkaFlow.Retry.Durable.Definitions;
     using KafkaFlow.Retry.Durable.Encoders;
     using KafkaFlow.Retry.Durable.Polling;
     using KafkaFlow.Retry.Durable.Repository;
@@ -73,9 +73,10 @@
             IGzipCompressor gzipCompressor,
             IUtf8Encoder utf8Encoder,
             INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+            IMessageAdapter messageAdapter,
             IMessageHeadersAdapter messageHeadersAdapter,
-            PollingDefinitionsAggregator pollingDefinitionsAggregator,
-            ITriggerProvider triggerProvider)
+            RetryDurablePollingDefinition retryDurablePollingDefinition
+            )
         {
             if (!enabled)
             {
@@ -98,14 +99,10 @@
             var queueTrackerCoordinator =
                 new QueueTrackerCoordinator(
                     new QueueTrackerFactory(
-                        pollingDefinitionsAggregator.SchedulerId,
-                        new JobDataProvidersFactory(
-                            pollingDefinitionsAggregator,
-                            triggerProvider,
-                            retryDurableQueueRepository,
-                            messageHeadersAdapter,
-                            utf8Encoder
-                        )
+                        retryDurableQueueRepository,
+                        messageHeadersAdapter,
+                        messageAdapter,
+                        utf8Encoder
                     )
                 );
 
@@ -146,11 +143,10 @@
                                         });
 
                                     queueTrackerCoordinator
-                                        .ScheduleJobsAsync(
+                                        .ScheduleJob(
+                                            retryDurablePollingDefinition,
                                             resolver.Resolve<IProducerAccessor>().GetProducer(producerName),
-                                            log)
-                                        .GetAwaiter()
-                                        .GetResult();
+                                            log);
                                 }
                             })
                         .WithPartitionsRevokedHandler(
@@ -164,7 +160,7 @@
                                         PartitionsRevoked = partitionsRevokedHandler
                                     });
 
-                                queueTrackerCoordinator.UnscheduleJobsAsync().GetAwaiter().GetResult();
+                                queueTrackerCoordinator.UnscheduleJob();
                             })
                         .AddMiddlewares(
                             middlewares => middlewares

@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
     using KafkaFlow.Retry.Durable.Repository.Actions.Read;
     using KafkaFlow.Retry.Durable.Repository.Model;
     using KafkaFlow.Retry.MongoDb.Model;
@@ -11,11 +10,7 @@
 
     internal interface IRetryQueueRepository
     {
-        Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds);
-
         Task<RetryQueueDbo> GetQueueAsync(string queueGroupKey);
-
-        Task<IEnumerable<Guid>> GetQueuesToDeleteAsync(string searchGroupKey, RetryQueueStatus status, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete);
 
         Task<IEnumerable<RetryQueueDbo>> GetTopSortedQueuesAsync(RetryQueueStatus status, GetQueuesSortOption sortOption, string searchGroupKey, int top);
 
