@@ -35,9 +35,25 @@
             this.databasesInitialized = true;
         }
 
-        protected void InitializeKafka(IConfiguration configuration)
+        protected async Task InitializeKafkaAsync(IConfiguration configuration)
         {
             this.KafkaSettings = configuration.GetSection("Kafka").Get<KafkaSettings>();
+
+            var topics = new[]
+           {
+                "test-kafka-flow-retry-retry-simple",
+                "test-kafka-flow-retry-retry-forever",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server",
+                "test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server-retry",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db-retry",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server",
+                "test-kafka-flow-retry-retry-durable-latest-consumption-sql-server-retry"
+            };
+
+            await BootstrapperKafka.RecreateKafkaTopicsAsync(this.KafkaSettings.Brokers, topics);
         }
 
         private IRepositoryProvider CreateRepositoryProvider()
