@@ -82,7 +82,7 @@
                     .AddCluster(
                         cluster => cluster
                             .WithBrokers(this.KafkaSettings.Brokers.Split(';'))
-                            //.CreatAllTestTopicsIfNotExist()
+                            .CreatAllTestTopicsIfNotExist()
                             .SetupRetrySimpleCluster()
                             .SetupRetryForeverCluster()
                             .SetupRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
