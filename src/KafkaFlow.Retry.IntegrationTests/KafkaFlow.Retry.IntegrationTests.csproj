@@ -25,14 +25,14 @@
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
 
-    <PackageReference Include="KafkaFlow" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.Admin" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.Compressor" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.Serializer" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.2.15" />
-    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.2.15" />
+    <PackageReference Include="KafkaFlow" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.Admin" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.Compressor" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.Serializer" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="2.4.0" />
+    <PackageReference Include="KafkaFlow.TypedHandler" Version="2.4.0" />
   </ItemGroup>
 
   <ItemGroup>
