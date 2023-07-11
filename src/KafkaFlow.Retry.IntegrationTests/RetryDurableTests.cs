@@ -45,13 +45,13 @@ namespace KafkaFlow.Retry.IntegrationTests
                 typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
                 10
             };
-            //yield return new object[]
-            //{
-            //    RepositoryType.Postgres,
-            //    typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>),
-            //    typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
-            //    10
-            //};
+            yield return new object[]
+            {
+                RepositoryType.Postgres,
+                typeof(IMessageProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>),
+                typeof(RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert),
+                10
+            };
             yield return new object[]
             {
                 RepositoryType.MongoDb,
@@ -66,13 +66,13 @@ namespace KafkaFlow.Retry.IntegrationTests
                 typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
                 1
             };
-            //yield return new object[]
-            //{
-            //    RepositoryType.Postgres,
-            //    typeof(IMessageProducer<RetryDurableLatestConsumptionPostgresProducer>),
-            //    typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
-            //    1
-            //};
+            yield return new object[]
+            {
+                RepositoryType.Postgres,
+                typeof(IMessageProducer<RetryDurableLatestConsumptionPostgresProducer>),
+                typeof(RetryDurableLatestConsumptionPhysicalStorageAssert),
+                1
+            };
         }
 
         [Theory]
