@@ -71,8 +71,8 @@ jobs:
     - name: Start Kafka 
       uses: 280780363/kafka-action@v1.0
       with:
-        kafka version: "latest" # Optional, kafka version
-        zookeeper version: "latest" # Optional, zookeeper version
+        kafka version: "3.4.0-debian-11-r15" # Optional, kafka version
+        zookeeper version: "3.8.1-debian-11-r18" # Optional, zookeeper version
         kafka port: 9092 # Optional, kafka port. Connect using localhost:9092
         zookeeper port: 2181 # Optional, zookeeper port
         auto create topic: "true" # Optional, auto create kafka topic
