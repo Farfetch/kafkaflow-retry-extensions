@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System;
     using System.Collections.Generic;
@@ -13,7 +13,7 @@
 
     internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
     {
-        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo)
+        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo, string schema)
         {
             Guard.Argument(dbConnection).NotNull();
             Guard.Argument(retryQueueItemDbo).NotNull();
@@ -21,11 +21,11 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryQueueItems]
+                command.CommandText = $@"INSERT INTO [{schema}].[RetryQueueItems]
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
                                             (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount,
-                                             (SELECT COUNT(1) FROM [RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
+                                             (SELECT COUNT(1) FROM [{schema}].[RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
                                              @creationDate, @lastExecution, @modifiedStatusDate, @description);
 
                                       SELECT SCOPE_IDENTITY()";
@@ -45,7 +45,7 @@
             }
         }
 
-        public async Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
+        public async Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid domainRetryQueueId, string schema)
         {
             Guard.Argument(dbConnection).NotNull();
             Guard.Argument(domainRetryQueueId).NotDefault();
@@ -53,8 +53,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT 1 WHERE EXISTS(
-                                        SELECT TOP 1 * FROM [RetryQueueItems]
+                command.CommandText = $@"SELECT 1 WHERE EXISTS(
+                                        SELECT TOP 1 * FROM [{schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry))";
@@ -69,7 +69,7 @@
             }
         }
 
-        public async Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId)
+        public async Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(domainId, nameof(domainId)).NotDefault();
@@ -77,8 +77,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT *
-                                        FROM [RetryQueueItems]
+                command.CommandText = $@"SELECT *
+                                        FROM [{schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomain = @IdDomain";
 
@@ -88,7 +88,7 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
+        public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(domainRetryQueueId, nameof(domainRetryQueueId)).NotDefault();
@@ -96,8 +96,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT *
-                                        FROM [RetryQueueItems]
+                command.CommandText = $@"SELECT *
+                                        FROM [{schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         ORDER BY Sort ASC";
@@ -112,6 +112,7 @@
             IDbConnection dbConnection,
             IEnumerable<Guid> retryQueueIds,
             IEnumerable<RetryQueueItemStatus> statuses,
+            string schema,
             IEnumerable<SeverityLevel> severities,
             int? top = null,
             StuckStatusFilter stuckStatusFilter = null)
@@ -133,20 +134,20 @@
                 }
 
                 query = string.Concat(query, $@" *
-                                    FROM [RetryQueueItems]
+                                    FROM [{schema}].[RetryQueueItems]
                                     WITH (NOLOCK)
                                     WHERE IdDomainRetryQueue IN ({string.Join(",", retryQueueIds.Select(x => $"'{x}'"))})");
 
                 if (stuckStatusFilter is null)
                 {
-                    query = string.Concat(query, $" AND IdItemStatus IN({ string.Join(",", statuses.Select(x => (byte)x))})");
+                    query = string.Concat(query, $" AND IdItemStatus IN({string.Join(",", statuses.Select(x => (byte)x))})");
                 }
                 else
                 {
                     query = string.Concat(query, $@" AND(
-                                        IdItemStatus IN({ string.Join(",", statuses.Select(x => (byte)x))})
+                                        IdItemStatus IN({string.Join(",", statuses.Select(x => (byte)x))})
                                         OR(
-                                            IdItemStatus = { (byte)stuckStatusFilter.ItemStatus}
+                                            IdItemStatus = {(byte)stuckStatusFilter.ItemStatus}
                                             AND DATEADD(SECOND, {Math.Floor(stuckStatusFilter.ExpirationInterval.TotalSeconds)}, ModifiedStatusDate) < @DateTimeUtcNow
                                             )
                                         )");
@@ -164,7 +165,7 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+        public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort, string schema)
         {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
@@ -173,7 +174,7 @@
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryQueueItems]
+                                         FROM [{schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
@@ -189,7 +190,7 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+        public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort, string schema)
         {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
@@ -198,7 +199,7 @@
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryQueueItems]
+                                         FROM [{schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
@@ -214,12 +215,13 @@
             }
         }
 
-        public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item)
+        public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item, string schema)
         {
             var sortedItems = await this.GetItemsOrderedAsync(
                     dbConnection,
                     new Guid[] { item.DomainRetryQueueId },
                     new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
+                    schema,
                     null,
                     1)
                     .ConfigureAwait(false);
@@ -232,12 +234,12 @@
             return false;
         }
 
-        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description)
+        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueueItems]
+                command.CommandText = $@"UPDATE [{schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             AttemptsCount = @AttemptsCount,
                                             LastExecution = @LastExecution,
@@ -256,7 +258,7 @@
             }
         }
 
-        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status)
+        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(idDomain).NotDefault();
@@ -265,7 +267,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueueItems]
+                command.CommandText = $@"UPDATE [{schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             ModifiedStatusDate = @DateTimeUtcNow
                                         WHERE IdDomain = @IdDomain";

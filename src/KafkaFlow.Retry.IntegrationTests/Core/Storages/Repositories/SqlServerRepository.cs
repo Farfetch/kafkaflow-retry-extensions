@@ -82,7 +82,7 @@
 
             using var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings);
 
-            var queueId = await this.retryQueueRepository.AddAsync(dbConnection, queueDbo);
+            var queueId = await this.retryQueueRepository.AddAsync(dbConnection, queueDbo, this.sqlServerDbSettings.Schema);
 
             foreach (var item in queue.Items)
             {
@@ -101,7 +101,7 @@
                     Description = item.Description
                 };
 
-                var itemId = await this.retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
+                var itemId = await this.retryQueueItemRepository.AddAsync(dbConnection, itemDbo, this.sqlServerDbSettings.Schema);
 
                 // item message
                 var messageDbo = new RetryQueueItemMessageDbo
@@ -115,7 +115,7 @@
                     Value = item.Message.Value
                 };
 
-                await this.retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo);
+                await this.retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo, this.sqlServerDbSettings.Schema);
 
                 // message headers
                 var messageHeadersDbos = item.Message.Headers
@@ -126,7 +126,7 @@
                             Value = h.Value
                         });
 
-                await this.retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos);
+                await this.retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos, this.sqlServerDbSettings.Schema);
             }
 
             dbConnection.Commit();
@@ -136,16 +136,16 @@
         {
             using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
             {
-                var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, queueGroupKey);
+                var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, queueGroupKey, this.sqlServerDbSettings.Schema);
 
                 if (retryQueueDbo is null)
                 {
                     return null;
                 }
 
-                var retryQueueItemsDbo = await this.retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
+                var retryQueueItemsDbo = await this.retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain, this.sqlServerDbSettings.Schema);
                 var itemMessagesDbo = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
-                var messageHeadersDbo = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
+                var messageHeadersDbo = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo, this.sqlServerDbSettings.Schema);
 
                 var dboWrapper = new RetryQueuesDboWrapper
                 {

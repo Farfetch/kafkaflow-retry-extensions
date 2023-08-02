@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
@@ -9,18 +9,18 @@
 
     internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMessageHeaderRepository
     {
-        public async Task AddAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageHeaderDbo> retryQueueHeadersDbo)
+        public async Task AddAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageHeaderDbo> retryQueueHeadersDbo, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueHeadersDbo, nameof(retryQueueHeadersDbo)).NotNull();
 
             foreach (var header in retryQueueHeadersDbo)
             {
-                await this.AddAsync(dbConnection, header).ConfigureAwait(false);
+                await this.AddAsync(dbConnection, header, schema).ConfigureAwait(false);
             }
         }
 
-        public async Task<IList<RetryQueueItemMessageHeaderDbo>> GetOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageDbo> retryQueueItemMessagesDbo)
+        public async Task<IList<RetryQueueItemMessageHeaderDbo>> GetOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageDbo> retryQueueItemMessagesDbo, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemMessagesDbo, nameof(retryQueueItemMessagesDbo)).NotNull();
@@ -29,8 +29,8 @@
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryItemMessageHeaders] h
-                                         INNER JOIN [RetryQueueItems] rqi ON rqi.Id = h.IdItemMessage
+                                         FROM [{schema}].[RetryItemMessageHeaders] h
+                                         INNER JOIN [{schema}].[RetryQueueItems] rqi ON rqi.Id = h.IdItemMessage
                                          WHERE h.IdItemMessage IN ({string.Join(",", retryQueueItemMessagesDbo.Select(x => $"'{x.IdRetryQueueItem}'"))})
                                          ORDER BY rqi.IdRetryQueue, h.IdItemMessage";
 
@@ -38,7 +38,7 @@
             }
         }
 
-        private async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageHeaderDbo retryQueueHeaderDbo)
+        private async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageHeaderDbo retryQueueHeaderDbo, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueHeaderDbo, nameof(retryQueueHeaderDbo)).NotNull();
@@ -46,7 +46,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryItemMessageHeaders]
+                command.CommandText = $@"INSERT INTO [{schema}].[RetryItemMessageHeaders]
                                             (IdItemMessage, [Key], Value)
                                         VALUES
                                             (@IdItemMessage, @Key, @Value)";

@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
@@ -8,7 +8,7 @@
 
     internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRepository
     {
-        public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo)
+        public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemMessageDbo, nameof(retryQueueItemMessageDbo)).NotNull();
@@ -16,7 +16,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [ItemMessages]
+                command.CommandText = $@"INSERT INTO [{schema}].[ItemMessages]
                                             (IdRetryQueueItem, [Key], Value, TopicName, Partition, Offset, UtcTimeStamp)
                                         VALUES
                                             (@idRetryQueueItem, @key, @value, @topicName, @partition, @offSet, @utcTimeStamp)";

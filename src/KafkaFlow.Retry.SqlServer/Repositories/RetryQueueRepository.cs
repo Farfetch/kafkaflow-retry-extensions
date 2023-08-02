@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System;
     using System.Collections.Generic;
@@ -10,12 +10,12 @@
 
     internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
-        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo)
+        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryQueues]
+                command.CommandText = $@"INSERT INTO {schema}.[RetryQueues]
                                             (IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution)
                                         VALUES
                                             (@idDomain, @idStatus, @searchGroupKey, @queueGroupKey, @creationDate, @lastExecution);
@@ -33,14 +33,14 @@
             }
         }
 
-        public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
+        public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"DELETE FROM [RetryQueues] WHERE Id IN
+                command.CommandText = $@"DELETE FROM [{schema}].[RetryQueues] WHERE Id IN
                                         (
-                                            SELECT Id FROM [RetryQueues] rq
+                                            SELECT Id FROM [{schema}].[RetryQueues] rq
                                                 WHERE rq.SearchGroupKey = @SearchGroupKey
                                                 AND rq.LastExecution < @MaxLastExecutionDateToBeKept
                                                 AND rq.IdStatus = @IdStatus
@@ -58,13 +58,13 @@
             }
         }
 
-        public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey)
+        public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT COUNT(1)
-                                        FROM [RetryQueues]
+                command.CommandText = $@"SELECT COUNT(1)
+                                        FROM [{schema}].[RetryQueues]
                                         WHERE QueueGroupKey = @QueueGroupKey AND IdStatus <> @IdStatus";
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
@@ -74,13 +74,13 @@
             }
         }
 
-        public async Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey)
+        public async Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM [RetryQueues]
+                command.CommandText = $@"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
+                                        FROM [{schema}].[RetryQueues]
                                         WHERE QueueGroupKey = @QueueGroupKey
                                         ORDER BY Id";
 
@@ -90,14 +90,14 @@
             }
         }
 
-        public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top)
+        public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
 
                 var innerQuery = $@" SELECT TOP({top}) Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM [RetryQueues]
+                                        FROM [{schema}].[RetryQueues]
                                         WHERE IdStatus = @IdStatus";
 
                 if (searchGroupKey is object)
@@ -117,12 +117,12 @@
             }
         }
 
-        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution)
+        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueues]
+                command.CommandText = $@"UPDATE [{schema}].[RetryQueues]
                                       SET IdStatus = @IdStatus,
                                           LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
@@ -135,12 +135,12 @@
             }
         }
 
-        public async Task<int> UpdateLastExecutionAsync(IDbConnection dbConnection, Guid idDomain, DateTime lastExecution)
+        public async Task<int> UpdateLastExecutionAsync(IDbConnection dbConnection, Guid idDomain, DateTime lastExecution, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueues]
+                command.CommandText = $@"UPDATE [{schema}].[RetryQueues]
                                       SET LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
 
@@ -151,12 +151,12 @@
             }
         }
 
-        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus)
+        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, string schema)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueues]
+                command.CommandText = $@"UPDATE [{schema}][RetryQueues]
                                       SET IdStatus = @IdStatus
                                       WHERE IdDomain = @IdDomain";
 
