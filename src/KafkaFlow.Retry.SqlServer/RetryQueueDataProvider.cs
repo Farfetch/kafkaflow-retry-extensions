@@ -173,7 +173,7 @@
                     return new GetQueuesResult(this.retryQueueReader.Read(dboWrapper));
                 }
 
-                dboWrapper.MessagesDbos = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, dboWrapper.ItemsDbos).ConfigureAwait(false);
+                dboWrapper.MessagesDbos = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, dboWrapper.ItemsDbos, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
                 dboWrapper.HeadersDbos = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, dboWrapper.MessagesDbos, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
             }
 

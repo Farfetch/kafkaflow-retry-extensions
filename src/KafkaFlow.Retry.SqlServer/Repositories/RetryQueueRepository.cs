@@ -156,7 +156,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"UPDATE [{schema}][RetryQueues]
+                command.CommandText = $@"UPDATE [{schema}].[RetryQueues]
                                       SET IdStatus = @IdStatus
                                       WHERE IdDomain = @IdDomain";
 

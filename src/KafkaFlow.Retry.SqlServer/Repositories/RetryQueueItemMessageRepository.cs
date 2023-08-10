@@ -33,7 +33,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo)
+        public async Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo, string schema)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemsDbo, nameof(retryQueueItemsDbo)).NotNull();
@@ -50,11 +50,11 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
                 }
                 var parameter = new SqlParameter("@RetryQueueItemsIds", entriesToLoad);
                 parameter.Direction = System.Data.ParameterDirection.Input;
-                parameter.TypeName = "dbo.TY_RetryQueueItemsIds";
+                parameter.TypeName = $"{schema}.TY_RetryQueueItemsIds";
 
                 command.Parameters.Add(parameter);
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"EXEC P_LoadItemMessages @RetryQueueItemsIds";
+                command.CommandText = $@"EXEC {schema}.P_LoadItemMessages @RetryQueueItemsIds";
 
                 return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
             }

@@ -17,9 +17,9 @@
 
     internal class SqlServerRepository : IRepository
     {
+        private const string schema = "dbo";
         private const int TimeoutSec = 60;
         private readonly ConnectionProvider connectionProvider;
-
         private readonly IRetryQueueItemMessageHeaderRepository retryQueueItemMessageHeaderRepository;
         private readonly IRetryQueueItemMessageRepository retryQueueItemMessageRepository;
         private readonly IRetryQueueItemRepository retryQueueItemRepository;
@@ -31,7 +31,7 @@
                     string connectionString,
             string dbName)
         {
-            this.sqlServerDbSettings = new SqlServerDbSettings(connectionString, dbName);
+            this.sqlServerDbSettings = new SqlServerDbSettings(connectionString, dbName, schema);
 
             this.RetryQueueDataProvider = new SqlServerDbDataProviderFactory().Create(this.sqlServerDbSettings);
 
@@ -144,7 +144,7 @@
                 }
 
                 var retryQueueItemsDbo = await this.retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain, this.sqlServerDbSettings.Schema);
-                var itemMessagesDbo = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
+                var itemMessagesDbo = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo, this.sqlServerDbSettings.Schema);
                 var messageHeadersDbo = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo, this.sqlServerDbSettings.Schema);
 
                 var dboWrapper = new RetryQueuesDboWrapper

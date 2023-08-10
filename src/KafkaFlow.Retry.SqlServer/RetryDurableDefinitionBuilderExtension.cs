@@ -2,6 +2,8 @@
 {
     public static class RetryDurableDefinitionBuilderExtension
     {
+        private const string schemaDefault = "dbo";
+
         public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
             this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
             string connectionString,
@@ -26,7 +28,17 @@
            string connectionString,
            string databaseName)
         {
-            return WithSqlServerDataProvider(retryDurableDefinitionBuilder, connectionString, databaseName, null);
+            retryDurableDefinitionBuilder.WithRepositoryProvider(
+                new SqlServerDbDataProviderFactory()
+                    .Create(
+                        new SqlServerDbSettings(
+                            connectionString,
+                            databaseName,
+                            schema)
+                    )
+                );
+
+            return retryDurableDefinitionBuilder;
         }
     }
 }
