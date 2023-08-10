@@ -50,7 +50,7 @@
                 }
                 var parameter = new SqlParameter("@RetryQueueItemsIds", entriesToLoad);
                 parameter.Direction = System.Data.ParameterDirection.Input;
-                parameter.TypeName = "dbo.TY_RetryQueueItemsIds";
+                parameter.TypeName = "TY_RetryQueueItemsIds";
 
                 command.Parameters.Add(parameter);
                 command.CommandType = System.Data.CommandType.Text;
