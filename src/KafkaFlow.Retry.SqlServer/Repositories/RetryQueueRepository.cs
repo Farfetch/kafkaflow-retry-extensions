@@ -10,12 +10,12 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
 
     internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
-        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo, string schema)
+        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"INSERT INTO {schema}.[RetryQueues]
+                command.CommandText = $@"INSERT INTO {dbConnection.Schema}.[RetryQueues]
                                             (IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution)
                                         VALUES
                                             (@idDomain, @idStatus, @searchGroupKey, @queueGroupKey, @creationDate, @lastExecution);
@@ -33,14 +33,14 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete, string schema)
+        public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"DELETE FROM [{schema}].[RetryQueues] WHERE Id IN
+                command.CommandText = $@"DELETE FROM [{dbConnection.Schema}].[RetryQueues] WHERE Id IN
                                         (
-                                            SELECT Id FROM [{schema}].[RetryQueues] rq
+                                            SELECT Id FROM [{dbConnection.Schema}].[RetryQueues] rq
                                                 WHERE rq.SearchGroupKey = @SearchGroupKey
                                                 AND rq.LastExecution < @MaxLastExecutionDateToBeKept
                                                 AND rq.IdStatus = @IdStatus
@@ -58,13 +58,13 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey, string schema)
+        public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT COUNT(1)
-                                        FROM [{schema}].[RetryQueues]
+                                        FROM [{dbConnection.Schema}].[RetryQueues]
                                         WHERE QueueGroupKey = @QueueGroupKey AND IdStatus <> @IdStatus";
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
@@ -74,13 +74,13 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey, string schema)
+        public async Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM [{schema}].[RetryQueues]
+                                        FROM [{dbConnection.Schema}].[RetryQueues]
                                         WHERE QueueGroupKey = @QueueGroupKey
                                         ORDER BY Id";
 
@@ -90,14 +90,14 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top, string schema)
+        public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
 
                 var innerQuery = $@" SELECT TOP({top}) Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM [{schema}].[RetryQueues]
+                                        FROM [{dbConnection.Schema}].[RetryQueues]
                                         WHERE IdStatus = @IdStatus";
 
                 if (searchGroupKey is object)
@@ -117,12 +117,12 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution, string schema)
+        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"UPDATE [{schema}].[RetryQueues]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueues]
                                       SET IdStatus = @IdStatus,
                                           LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
@@ -135,12 +135,12 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateLastExecutionAsync(IDbConnection dbConnection, Guid idDomain, DateTime lastExecution, string schema)
+        public async Task<int> UpdateLastExecutionAsync(IDbConnection dbConnection, Guid idDomain, DateTime lastExecution)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"UPDATE [{schema}].[RetryQueues]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueues]
                                       SET LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
 
@@ -151,12 +151,12 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, string schema)
+        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"UPDATE [{schema}].[RetryQueues]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueues]
                                       SET IdStatus = @IdStatus
                                       WHERE IdDomain = @IdDomain";
 

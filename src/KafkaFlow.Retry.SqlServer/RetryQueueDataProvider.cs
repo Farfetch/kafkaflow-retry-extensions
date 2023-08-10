@@ -63,7 +63,7 @@
             // Tries to find an active queue for the GroupKey
             using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
             {
-                var exists = await this.retryQueueRepository.ExistsActiveAsync(dbConnection, input.QueueGroupKey, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var exists = await this.retryQueueRepository.ExistsActiveAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 return new CheckQueueResult(
                     exists ?
@@ -78,7 +78,7 @@
 
             using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
             {
-                var itemsDbo = await this.retryQueueItemRepository.GetNewestItemsAsync(dbConnection, input.QueueId, input.Sort, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var itemsDbo = await this.retryQueueItemRepository.GetNewestItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
 
                 if (itemsDbo.Any())
                 {
@@ -95,7 +95,7 @@
 
             using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
             {
-                var itemsDbo = await this.retryQueueItemRepository.GetPendingItemsAsync(dbConnection, input.QueueId, input.Sort, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var itemsDbo = await this.retryQueueItemRepository.GetPendingItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
 
                 if (itemsDbo.Any())
                 {
@@ -117,8 +117,7 @@
                     input.SearchGroupKey,
                     input.RetryQueueStatus,
                     input.MaxLastExecutionDateToBeKept,
-                    input.MaxRowsToDelete,
-                    this.sqlServerDbSettings.Schema)
+                    input.MaxRowsToDelete)
                     .ConfigureAwait(false);
 
                 return new DeleteQueuesResult(totalQueuesDeleted);
@@ -138,8 +137,7 @@
                     input.Status,
                     input.SortOption,
                     input.SearchGroupKey,
-                    input.TopQueues,
-                    this.sqlServerDbSettings.Schema)
+                    input.TopQueues)
                     .ConfigureAwait(false);
 
                 if (!dboWrapper.QueuesDbos.Any())
@@ -157,7 +155,6 @@
                         dbConnection,
                         new Guid[] { queueId },
                         input.ItemsStatuses,
-                        this.sqlServerDbSettings.Schema,
                         input.SeverityLevels,
                         input.TopItemsByQueue,
                         input.StuckStatusFilter)
@@ -173,8 +170,8 @@
                     return new GetQueuesResult(this.retryQueueReader.Read(dboWrapper));
                 }
 
-                dboWrapper.MessagesDbos = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, dboWrapper.ItemsDbos, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
-                dboWrapper.HeadersDbos = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, dboWrapper.MessagesDbos, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                dboWrapper.MessagesDbos = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, dboWrapper.ItemsDbos).ConfigureAwait(false);
+                dboWrapper.HeadersDbos = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, dboWrapper.MessagesDbos).ConfigureAwait(false);
             }
 
             var queues = this.retryQueueReader.Read(dboWrapper);
@@ -188,7 +185,7 @@
 
             using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
             {
-                var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 SaveToQueueResultStatus resultStatus;
 
@@ -242,7 +239,7 @@
             using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
             {
                 var totalItemsUpdated = await this.retryQueueItemRepository
-                    .UpdateStatusAsync(dbConnection, input.ItemId, input.Status, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                    .UpdateStatusAsync(dbConnection, input.ItemId, input.Status).ConfigureAwait(false);
 
                 return new UpdateItemResult(
                     input.ItemId,
@@ -272,15 +269,15 @@
         {
             var retryQueueItemDbo = this.retryQueueItemDboFactory.Create(input, retryQueueId, retryQueueDomainId);
 
-            var retryQueueItemId = await this.retryQueueItemRepository.AddAsync(dbConnection, retryQueueItemDbo, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+            var retryQueueItemId = await this.retryQueueItemRepository.AddAsync(dbConnection, retryQueueItemDbo).ConfigureAwait(false);
 
             // queue item message
             var retryQueueItemMessageDbo = this.retryQueueItemMessageDboFactory.Create(input.Message, retryQueueItemId);
-            await this.retryQueueItemMessageRepository.AddAsync(dbConnection, retryQueueItemMessageDbo, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+            await this.retryQueueItemMessageRepository.AddAsync(dbConnection, retryQueueItemMessageDbo).ConfigureAwait(false);
 
             // queue item message header
             var retryQueueHeadersDbo = this.retryQueueItemMessageHeaderDboFactory.Create(input.Message.Headers, retryQueueItemId);
-            await this.retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, retryQueueHeadersDbo, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+            await this.retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, retryQueueHeadersDbo).ConfigureAwait(false);
         }
 
         private async Task AddItemIntoAnExistingQueueAsync(IDbConnection dbConnection, SaveToQueueInput input, RetryQueueDbo retryQueueDbo)
@@ -294,7 +291,7 @@
             if (retryQueueDbo.Status == RetryQueueStatus.Done)
             {
                 // The queue was marked as DONE. With this new item, the status should return to ACTIVE.
-                await this.retryQueueRepository.UpdateStatusAsync(dbConnection, retryQueueDbo.IdDomain, RetryQueueStatus.Active, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                await this.retryQueueRepository.UpdateStatusAsync(dbConnection, retryQueueDbo.IdDomain, RetryQueueStatus.Active).ConfigureAwait(false);
             }
         }
 
@@ -303,7 +300,7 @@
             var retryQueueDbo = this.retryQueueDboFactory.Create(input);
 
             // queue
-            var retryQueueId = await this.retryQueueRepository.AddAsync(dbConnection, retryQueueDbo, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+            var retryQueueId = await this.retryQueueRepository.AddAsync(dbConnection, retryQueueDbo).ConfigureAwait(false);
 
             // queue item
             await this.AddItemAsync(dbConnection, input, retryQueueId, retryQueueDbo.IdDomain).ConfigureAwait(false);
@@ -316,11 +313,11 @@
 
         private async Task<UpdateQueueResultStatus> TryUpdateQueueToDoneAsync(IDbConnectionWithinTransaction dbConnection, Guid queueId)
         {
-            var anyItemStillActive = await this.retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+            var anyItemStillActive = await this.retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId).ConfigureAwait(false);
 
             if (!anyItemStillActive)
             {
-                var queueRowsAffected = await this.retryQueueRepository.UpdateStatusAsync(dbConnection, queueId, RetryQueueStatus.Done, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var queueRowsAffected = await this.retryQueueRepository.UpdateStatusAsync(dbConnection, queueId, RetryQueueStatus.Done).ConfigureAwait(false);
 
                 if (queueRowsAffected == 0)
                 {
@@ -342,7 +339,7 @@
 
             using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
             {
-                var item = await this.retryQueueItemRepository.GetItemAsync(dbConnection, input.ItemId, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var item = await this.retryQueueItemRepository.GetItemAsync(dbConnection, input.ItemId).ConfigureAwait(false);
 
                 if (item is null)
                 {
@@ -354,7 +351,7 @@
                     return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.ItemIsNotInWaitingState);
                 }
 
-                if (!await this.retryQueueItemRepository.IsFirstWaitingInQueueAsync(dbConnection, item, this.sqlServerDbSettings.Schema).ConfigureAwait(false))
+                if (!await this.retryQueueItemRepository.IsFirstWaitingInQueueAsync(dbConnection, item).ConfigureAwait(false))
                 {
                     return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.ItemIsNotTheFirstWaitingInQueue);
                 }
@@ -384,7 +381,7 @@
             using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
             {
                 //update item
-                var itemRowsAffected = await this.retryQueueItemRepository.UpdateAsync(dbConnection, input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var itemRowsAffected = await this.retryQueueItemRepository.UpdateAsync(dbConnection, input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description).ConfigureAwait(false);
 
                 if (itemRowsAffected == 0)
                 {
@@ -411,7 +408,7 @@
         {
             using (var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings))
             {
-                var queue = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var queue = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 if (queue is null)
                 {
@@ -429,7 +426,7 @@
                 }
 
                 var items = await this.retryQueueItemRepository
-                    .GetItemsOrderedAsync(dbConnection, new Guid[] { queue.IdDomain }, new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting }, this.sqlServerDbSettings.Schema)
+                    .GetItemsOrderedAsync(dbConnection, new Guid[] { queue.IdDomain }, new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting })
                     .ConfigureAwait(false);
 
                 if (!items.Any())
@@ -456,7 +453,7 @@
 
                 dbConnection.Commit();
 
-                queue = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                queue = await this.retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 return new UpdateQueueResult(input.QueueGroupKey, updateQueueResultStatus, queue.Status);
             }
@@ -465,12 +462,12 @@
         private async Task<UpdateQueueResultStatus> UpdateQueueLastExecutionAndTryUpdateQueueToDoneAsync(IDbConnectionWithinTransaction dbConnection, Guid queueId, DateTime lastExecution)
         {
             // check if the queue can be updated to done as well
-            var anyItemStillActive = await this.retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+            var anyItemStillActive = await this.retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId).ConfigureAwait(false);
 
             if (anyItemStillActive)
             {
                 // update queue last execution only
-                var queueLastExecutionRowsAffected = await this.retryQueueRepository.UpdateLastExecutionAsync(dbConnection, queueId, lastExecution, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var queueLastExecutionRowsAffected = await this.retryQueueRepository.UpdateLastExecutionAsync(dbConnection, queueId, lastExecution).ConfigureAwait(false);
 
                 if (queueLastExecutionRowsAffected == 0)
                 {
@@ -480,7 +477,7 @@
             else
             {
                 // update queue last execution and the status to done
-                var queueRowsAffected = await this.retryQueueRepository.UpdateAsync(dbConnection, queueId, RetryQueueStatus.Done, lastExecution, this.sqlServerDbSettings.Schema).ConfigureAwait(false);
+                var queueRowsAffected = await this.retryQueueRepository.UpdateAsync(dbConnection, queueId, RetryQueueStatus.Done, lastExecution).ConfigureAwait(false);
 
                 if (queueRowsAffected == 0)
                 {

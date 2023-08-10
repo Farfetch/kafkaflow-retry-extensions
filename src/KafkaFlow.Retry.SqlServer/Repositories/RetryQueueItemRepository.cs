@@ -13,7 +13,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
 
     internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
     {
-        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo, string schema)
+        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo)
         {
             Guard.Argument(dbConnection).NotNull();
             Guard.Argument(retryQueueItemDbo).NotNull();
@@ -21,11 +21,11 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"INSERT INTO [{schema}].[RetryQueueItems]
+                command.CommandText = $@"INSERT INTO [{dbConnection.Schema}].[RetryQueueItems]
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
                                             (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount,
-                                             (SELECT COUNT(1) FROM [{schema}].[RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
+                                             (SELECT COUNT(1) FROM [{dbConnection.Schema}].[RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
                                              @creationDate, @lastExecution, @modifiedStatusDate, @description);
 
                                       SELECT SCOPE_IDENTITY()";
@@ -45,7 +45,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid domainRetryQueueId, string schema)
+        public async Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
         {
             Guard.Argument(dbConnection).NotNull();
             Guard.Argument(domainRetryQueueId).NotDefault();
@@ -54,7 +54,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT 1 WHERE EXISTS(
-                                        SELECT TOP 1 * FROM [{schema}].[RetryQueueItems]
+                                        SELECT TOP 1 * FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry))";
@@ -69,7 +69,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId, string schema)
+        public async Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(domainId, nameof(domainId)).NotDefault();
@@ -78,7 +78,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                        FROM [{schema}].[RetryQueueItems]
+                                        FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomain = @IdDomain";
 
@@ -88,7 +88,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId, string schema)
+        public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(domainRetryQueueId, nameof(domainRetryQueueId)).NotDefault();
@@ -97,7 +97,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                        FROM [{schema}].[RetryQueueItems]
+                                        FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         ORDER BY Sort ASC";
@@ -112,7 +112,6 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             IDbConnection dbConnection,
             IEnumerable<Guid> retryQueueIds,
             IEnumerable<RetryQueueItemStatus> statuses,
-            string schema,
             IEnumerable<SeverityLevel> severities,
             int? top = null,
             StuckStatusFilter stuckStatusFilter = null)
@@ -134,7 +133,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
                 }
 
                 query = string.Concat(query, $@" *
-                                    FROM [{schema}].[RetryQueueItems]
+                                    FROM [{dbConnection.Schema}].[RetryQueueItems]
                                     WITH (NOLOCK)
                                     WHERE IdDomainRetryQueue IN ({string.Join(",", retryQueueIds.Select(x => $"'{x}'"))})");
 
@@ -165,7 +164,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort, string schema)
+        public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
         {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
@@ -174,7 +173,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [{schema}].[RetryQueueItems]
+                                         FROM [{dbConnection.Schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
@@ -190,7 +189,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort, string schema)
+        public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
         {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
@@ -199,7 +198,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [{schema}].[RetryQueueItems]
+                                         FROM [{dbConnection.Schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
@@ -215,13 +214,12 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item, string schema)
+        public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item)
         {
             var sortedItems = await this.GetItemsOrderedAsync(
                     dbConnection,
                     new Guid[] { item.DomainRetryQueueId },
                     new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-                    schema,
                     null,
                     1)
                     .ConfigureAwait(false);
@@ -234,12 +232,12 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             return false;
         }
 
-        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description, string schema)
+        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description)
         {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"UPDATE [{schema}].[RetryQueueItems]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             AttemptsCount = @AttemptsCount,
                                             LastExecution = @LastExecution,
@@ -258,7 +256,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, string schema)
+        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(idDomain).NotDefault();
@@ -267,7 +265,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"UPDATE [{schema}].[RetryQueueItems]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             ModifiedStatusDate = @DateTimeUtcNow
                                         WHERE IdDomain = @IdDomain";

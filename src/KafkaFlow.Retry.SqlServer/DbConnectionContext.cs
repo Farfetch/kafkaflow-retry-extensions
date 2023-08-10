@@ -20,6 +20,8 @@
             this.withinTransaction = withinTransaction;
         }
 
+        public string Schema => this.sqlServerDbSettings.Schema;
+
         public void Commit()
         {
             if (this.sqlTransaction is object)

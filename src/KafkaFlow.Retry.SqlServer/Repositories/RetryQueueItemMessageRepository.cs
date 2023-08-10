@@ -8,7 +8,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
 
     internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRepository
     {
-        public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo, string schema)
+        public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemMessageDbo, nameof(retryQueueItemMessageDbo)).NotNull();
@@ -16,7 +16,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"INSERT INTO [{schema}].[ItemMessages]
+                command.CommandText = $@"INSERT INTO [{dbConnection.Schema}].[ItemMessages]
                                             (IdRetryQueueItem, [Key], Value, TopicName, Partition, Offset, UtcTimeStamp)
                                         VALUES
                                             (@idRetryQueueItem, @key, @value, @topicName, @partition, @offSet, @utcTimeStamp)";
@@ -33,7 +33,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo, string schema)
+        public async Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo)
         {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemsDbo, nameof(retryQueueItemsDbo)).NotNull();
@@ -50,11 +50,11 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
                 }
                 var parameter = new SqlParameter("@RetryQueueItemsIds", entriesToLoad);
                 parameter.Direction = System.Data.ParameterDirection.Input;
-                parameter.TypeName = $"{schema}.TY_RetryQueueItemsIds";
+                parameter.TypeName = $"{dbConnection.Schema}.TY_RetryQueueItemsIds";
 
                 command.Parameters.Add(parameter);
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"EXEC {schema}.P_LoadItemMessages @RetryQueueItemsIds";
+                command.CommandText = $@"EXEC {dbConnection.Schema}.P_LoadItemMessages @RetryQueueItemsIds";
 
                 return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
             }

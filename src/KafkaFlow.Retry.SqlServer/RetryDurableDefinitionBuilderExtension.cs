@@ -34,7 +34,7 @@
                         new SqlServerDbSettings(
                             connectionString,
                             databaseName,
-                            schema)
+                            schemaDefault)
                     )
                 );
 
