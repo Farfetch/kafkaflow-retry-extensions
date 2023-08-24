@@ -18,5 +18,18 @@
             // Arrange
             result.Should().NotBeNull();
         }
+
+        [Fact]
+        public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProviderAndSchema_Success()
+        {
+            // Arrange
+            var builder = new RetryDurableDefinitionBuilder();
+
+            // Act
+            var result = builder.WithSqlServerDataProvider("connectionString", "databaseName", "schema");
+
+            // Arrange
+            result.Should().NotBeNull();
+        }
     }
 }

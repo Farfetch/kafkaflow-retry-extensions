@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
@@ -29,8 +29,8 @@
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryItemMessageHeaders] h
-                                         INNER JOIN [RetryQueueItems] rqi ON rqi.Id = h.IdItemMessage
+                                         FROM [{dbConnection.Schema}].[RetryItemMessageHeaders] h
+                                         INNER JOIN [{dbConnection.Schema}].[RetryQueueItems] rqi ON rqi.Id = h.IdItemMessage
                                          WHERE h.IdItemMessage IN ({string.Join(",", retryQueueItemMessagesDbo.Select(x => $"'{x.IdRetryQueueItem}'"))})
                                          ORDER BY rqi.IdRetryQueue, h.IdItemMessage";
 
@@ -46,7 +46,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryItemMessageHeaders]
+                command.CommandText = $@"INSERT INTO [{dbConnection.Schema}].[RetryItemMessageHeaders]
                                             (IdItemMessage, [Key], Value)
                                         VALUES
                                             (@IdItemMessage, @Key, @Value)";

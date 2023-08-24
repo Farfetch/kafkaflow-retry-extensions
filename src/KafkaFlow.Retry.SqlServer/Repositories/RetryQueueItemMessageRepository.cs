@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System.Collections.Generic;
     using System.Data.SqlClient;
@@ -16,7 +16,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [ItemMessages]
+                command.CommandText = $@"INSERT INTO [{dbConnection.Schema}].[ItemMessages]
                                             (IdRetryQueueItem, [Key], Value, TopicName, Partition, Offset, UtcTimeStamp)
                                         VALUES
                                             (@idRetryQueueItem, @key, @value, @topicName, @partition, @offSet, @utcTimeStamp)";
@@ -50,11 +50,11 @@
                 }
                 var parameter = new SqlParameter("@RetryQueueItemsIds", entriesToLoad);
                 parameter.Direction = System.Data.ParameterDirection.Input;
-                parameter.TypeName = "dbo.TY_RetryQueueItemsIds";
+                parameter.TypeName = $"{dbConnection.Schema}.TY_RetryQueueItemsIds";
 
                 command.Parameters.Add(parameter);
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = $@"EXEC P_LoadItemMessages @RetryQueueItemsIds";
+                command.CommandText = $@"EXEC {dbConnection.Schema}.P_LoadItemMessages @RetryQueueItemsIds";
 
                 return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
             }

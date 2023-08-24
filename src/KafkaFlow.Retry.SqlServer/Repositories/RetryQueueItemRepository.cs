@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System;
     using System.Collections.Generic;
@@ -21,11 +21,11 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryQueueItems]
+                command.CommandText = $@"INSERT INTO [{dbConnection.Schema}].[RetryQueueItems]
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
                                             (@idDomain, @idRetryQueue, @idDomainRetryQueue, @idItemStatus, @idSeverityLevel, @attemptsCount,
-                                             (SELECT COUNT(1) FROM [RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
+                                             (SELECT COUNT(1) FROM [{dbConnection.Schema}].[RetryQueueItems] WHERE IdDomainRetryQueue = @idDomainRetryQueue),
                                              @creationDate, @lastExecution, @modifiedStatusDate, @description);
 
                                       SELECT SCOPE_IDENTITY()";
@@ -53,8 +53,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT 1 WHERE EXISTS(
-                                        SELECT TOP 1 * FROM [RetryQueueItems]
+                command.CommandText = $@"SELECT 1 WHERE EXISTS(
+                                        SELECT TOP 1 * FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry))";
@@ -77,8 +77,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT *
-                                        FROM [RetryQueueItems]
+                command.CommandText = $@"SELECT *
+                                        FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomain = @IdDomain";
 
@@ -96,8 +96,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT *
-                                        FROM [RetryQueueItems]
+                command.CommandText = $@"SELECT *
+                                        FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
                                         WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                         ORDER BY Sort ASC";
@@ -133,20 +133,20 @@
                 }
 
                 query = string.Concat(query, $@" *
-                                    FROM [RetryQueueItems]
+                                    FROM [{dbConnection.Schema}].[RetryQueueItems]
                                     WITH (NOLOCK)
                                     WHERE IdDomainRetryQueue IN ({string.Join(",", retryQueueIds.Select(x => $"'{x}'"))})");
 
                 if (stuckStatusFilter is null)
                 {
-                    query = string.Concat(query, $" AND IdItemStatus IN({ string.Join(",", statuses.Select(x => (byte)x))})");
+                    query = string.Concat(query, $" AND IdItemStatus IN({string.Join(",", statuses.Select(x => (byte)x))})");
                 }
                 else
                 {
                     query = string.Concat(query, $@" AND(
-                                        IdItemStatus IN({ string.Join(",", statuses.Select(x => (byte)x))})
+                                        IdItemStatus IN({string.Join(",", statuses.Select(x => (byte)x))})
                                         OR(
-                                            IdItemStatus = { (byte)stuckStatusFilter.ItemStatus}
+                                            IdItemStatus = {(byte)stuckStatusFilter.ItemStatus}
                                             AND DATEADD(SECOND, {Math.Floor(stuckStatusFilter.ExpirationInterval.TotalSeconds)}, ModifiedStatusDate) < @DateTimeUtcNow
                                             )
                                         )");
@@ -173,7 +173,7 @@
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryQueueItems]
+                                         FROM [{dbConnection.Schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
@@ -198,7 +198,7 @@
             {
                 command.CommandType = System.Data.CommandType.Text;
                 command.CommandText = $@"SELECT *
-                                         FROM [RetryQueueItems]
+                                         FROM [{dbConnection.Schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
                                          WHERE IdDomainRetryQueue = @IdDomainRetryQueue
                                          AND IdItemStatus IN (@IdItemStatusWaiting, @IdItemStatusInRetry)
@@ -237,7 +237,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueueItems]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             AttemptsCount = @AttemptsCount,
                                             LastExecution = @LastExecution,
@@ -265,7 +265,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueueItems]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             ModifiedStatusDate = @DateTimeUtcNow
                                         WHERE IdDomain = @IdDomain";

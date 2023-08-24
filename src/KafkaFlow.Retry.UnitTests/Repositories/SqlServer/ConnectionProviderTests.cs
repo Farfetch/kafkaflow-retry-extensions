@@ -13,7 +13,7 @@
         public void ConnectionProvider_Create_Success()
         {
             // Act
-            var result = provider.Create(new SqlServerDbSettings("connectionString", "databaseName"));
+            var result = provider.Create(new SqlServerDbSettings("connectionString", "databaseName", "schema"));
 
             // Arrange
             result.Should().NotBeNull();
@@ -34,7 +34,7 @@
         public void ConnectionProvider_CreateWithinTransaction_Success()
         {
             // Act
-            var result = provider.CreateWithinTransaction(new SqlServerDbSettings("connectionString", "databaseName"));
+            var result = provider.CreateWithinTransaction(new SqlServerDbSettings("connectionString", "databaseName", "schema"));
 
             // Arrange
             result.Should().NotBeNull();

@@ -5,6 +5,8 @@
 
     internal interface IDbConnection : IDisposable
     {
+        string Schema { get; }
+
         SqlCommand CreateCommand();
     }
 }

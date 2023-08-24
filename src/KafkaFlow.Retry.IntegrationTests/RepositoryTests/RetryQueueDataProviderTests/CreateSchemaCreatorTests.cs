@@ -14,21 +14,6 @@
         }
 
         [Fact]
-        public async Task SqlServerDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
-        {
-            var sqlDataProviderFactory = new SqlServerDbDataProviderFactory();
-
-            var connectionString = this.bootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
-            var databaseName = this.bootstrapperRepositoryFixture.SqlServerSettings.DatabaseName;
-
-            var sqlSettings = new SqlServerDbSettings(connectionString, databaseName);
-
-            var retrySchemaCreator = sqlDataProviderFactory.CreateSchemaCreator(sqlSettings);
-
-            await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
-        }
-
-        [Fact]
         public async Task PostgresDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
         {
             var postgresDataProviderFactory = new PostgresDbDataProviderFactory();
@@ -39,6 +24,22 @@
             var postgresSettings = new PostgresDbSettings(connectionString, databaseName);
 
             var retrySchemaCreator = postgresDataProviderFactory.CreateSchemaCreator(postgresSettings);
+
+            await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
+        }
+
+        [Fact]
+        public async Task SqlServerDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
+        {
+            var sqlDataProviderFactory = new SqlServerDbDataProviderFactory();
+
+            var connectionString = this.bootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
+            var databaseName = this.bootstrapperRepositoryFixture.SqlServerSettings.DatabaseName;
+            var schema = this.bootstrapperRepositoryFixture.SqlServerSettings.Schema;
+
+            var sqlSettings = new SqlServerDbSettings(connectionString, databaseName, schema);
+
+            var retrySchemaCreator = sqlDataProviderFactory.CreateSchemaCreator(sqlSettings);
 
             await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
         }

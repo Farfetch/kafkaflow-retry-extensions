@@ -1,4 +1,4 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Repositories
+namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System;
     using System.Collections.Generic;
@@ -15,7 +15,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"INSERT INTO [RetryQueues]
+                command.CommandText = $@"INSERT INTO {dbConnection.Schema}.[RetryQueues]
                                             (IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution)
                                         VALUES
                                             (@idDomain, @idStatus, @searchGroupKey, @queueGroupKey, @creationDate, @lastExecution);
@@ -38,9 +38,9 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"DELETE FROM [RetryQueues] WHERE Id IN
+                command.CommandText = $@"DELETE FROM [{dbConnection.Schema}].[RetryQueues] WHERE Id IN
                                         (
-                                            SELECT Id FROM [RetryQueues] rq
+                                            SELECT Id FROM [{dbConnection.Schema}].[RetryQueues] rq
                                                 WHERE rq.SearchGroupKey = @SearchGroupKey
                                                 AND rq.LastExecution < @MaxLastExecutionDateToBeKept
                                                 AND rq.IdStatus = @IdStatus
@@ -63,8 +63,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT COUNT(1)
-                                        FROM [RetryQueues]
+                command.CommandText = $@"SELECT COUNT(1)
+                                        FROM [{dbConnection.Schema}].[RetryQueues]
                                         WHERE QueueGroupKey = @QueueGroupKey AND IdStatus <> @IdStatus";
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
@@ -79,8 +79,8 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM [RetryQueues]
+                command.CommandText = $@"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
+                                        FROM [{dbConnection.Schema}].[RetryQueues]
                                         WHERE QueueGroupKey = @QueueGroupKey
                                         ORDER BY Id";
 
@@ -97,7 +97,7 @@
                 command.CommandType = System.Data.CommandType.Text;
 
                 var innerQuery = $@" SELECT TOP({top}) Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
-                                        FROM [RetryQueues]
+                                        FROM [{dbConnection.Schema}].[RetryQueues]
                                         WHERE IdStatus = @IdStatus";
 
                 if (searchGroupKey is object)
@@ -122,7 +122,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueues]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueues]
                                       SET IdStatus = @IdStatus,
                                           LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
@@ -140,7 +140,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueues]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueues]
                                       SET LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
 
@@ -156,7 +156,7 @@
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"UPDATE [RetryQueues]
+                command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueues]
                                       SET IdStatus = @IdStatus
                                       WHERE IdDomain = @IdDomain";
 
