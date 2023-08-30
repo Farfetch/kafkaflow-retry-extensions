@@ -10,8 +10,10 @@
     [ExcludeFromCodeCoverage]
     public class SqlServerDbSettings
     {
+        private const string schemaDefault = "dbo";
+
         /// <summary>
-        /// Creates a Sql Server database settings
+        /// Creates a Sql Server database settings with schema
         /// </summary>
         /// <param name="connectionString">The connection string of the Sql Server.</param>
         /// <param name="databaseName">The database name.</param>
@@ -25,6 +27,22 @@
             ConnectionString = connectionString;
             DatabaseName = databaseName;
             Schema = schema;
+        }
+
+        /// <summary>
+        /// Creates a Sql Server database settings
+        /// </summary>
+        /// <param name="connectionString">The connection string of the Sql Server.</param>
+        /// <param name="databaseName">The database name.</param>
+
+        public SqlServerDbSettings(string connectionString, string databaseName)
+        {
+            Guard.Argument(connectionString).NotNull().NotEmpty();
+            Guard.Argument(databaseName).NotNull().NotEmpty();
+
+            ConnectionString = connectionString;
+            DatabaseName = databaseName;
+            Schema = schemaDefault;
         }
 
         /// <summary>

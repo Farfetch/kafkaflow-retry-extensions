@@ -44,7 +44,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
                 entriesToLoad.Columns.Add("Id", typeof(int));
                 foreach (var retryQueueItemDbo in retryQueueItemsDbo)
                 {
-                    System.Data.DataRow dr = entriesToLoad.NewRow();
+                    var dr = entriesToLoad.NewRow();
                     dr["Id"] = retryQueueItemDbo.Id;
                     entriesToLoad.Rows.Add(dr);
                 }
