@@ -14,18 +14,20 @@
         private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
         private readonly IUpdateItemsInputAdapter updateItemsInputAdapter;
         private readonly IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter;
+        private readonly string endpointPrefix;
 
         public PatchItemsHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IUpdateItemsInputAdapter updateItemsInputAdapter,
-            IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter)
+            IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter,
+            string endpointPrefix)
         {
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateItemsInputAdapter = updateItemsInputAdapter;
             this.updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
+            this.endpointPrefix = endpointPrefix;
         }
 
-        protected override string ResourcePath => base.ResourcePath.ExtendResourcePath("items");
 
         protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
@@ -63,6 +65,22 @@
             catch (Exception ex)
             {
                 await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+            }
+        }
+
+        protected override string ResourcePath
+        {
+            get
+            {
+                string baseResourcePath = base.ResourcePath;
+                if (string.IsNullOrEmpty(endpointPrefix))
+                {
+                    return base.ResourcePath.ExtendResourcePath("items");
+                }
+                else
+                {
+                    return baseResourcePath.ExtendResourcePath($"{endpointPrefix}/items");
+                }
             }
         }
     }

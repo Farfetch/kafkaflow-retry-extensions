@@ -61,7 +61,8 @@
                 retryDurableQueueRepositoryProvider.Object,
                 mockGetItemsRequestDtoReader.Object,
                 mockGetItemsInputAdapter.Object,
-                mockGetItemsResponseDtoReader.Object
+                mockGetItemsResponseDtoReader.Object,
+                string.Empty
                 );
 
             // Act
@@ -93,7 +94,8 @@
                 retryQueueDataProvider,
                 getItemsRequestDtoReader,
                 getItemsInputAdapter,
-                getItemsResponseDtoAdapter
+                getItemsResponseDtoAdapter,
+                string.Empty
                 );
 
             // Act

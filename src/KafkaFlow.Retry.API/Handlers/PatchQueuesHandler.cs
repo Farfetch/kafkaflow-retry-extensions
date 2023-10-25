@@ -14,18 +14,20 @@
         private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
         private readonly IUpdateQueuesInputAdapter updateQueuesInputAdapter;
         private readonly IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter;
+        private readonly string endpointPrefix;
 
         public PatchQueuesHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IUpdateQueuesInputAdapter updateQueuesInputAdapter,
-            IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter)
+            IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter,
+            string endpointPrefix)
         {
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateQueuesInputAdapter = updateQueuesInputAdapter;
             this.updateQueuesResponseDtoAdapter = updateQueuesResponseDtoAdapter;
+            this.endpointPrefix = endpointPrefix;
         }
 
-        protected override string ResourcePath => base.ResourcePath.ExtendResourcePath("queues");
 
         protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
@@ -63,6 +65,21 @@
             catch (Exception ex)
             {
                 await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+            }
+        }
+        protected override string ResourcePath
+        {
+            get
+            {
+                string baseResourcePath = base.ResourcePath;
+                if (string.IsNullOrEmpty(endpointPrefix))
+                {
+                    return base.ResourcePath.ExtendResourcePath("queues");
+                }
+                else
+                {
+                    return baseResourcePath.ExtendResourcePath($"{endpointPrefix}/queues");
+                }
             }
         }
     }

@@ -18,14 +18,30 @@
                     .ApplicationServices
                     .GetService(typeof(IRetryDurableQueueRepositoryProvider)) as IRetryDurableQueueRepositoryProvider;
 
-            appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider);
+            appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider, string.Empty);
+
+            return appBuilder;
+        }
+
+        public static IApplicationBuilder UseKafkaFlowRetryEndpoints(
+           this IApplicationBuilder appBuilder,
+           string endpointPrefix
+       )
+        {
+            var retryDurableQueueRepositoryProvider =
+                appBuilder
+                    .ApplicationServices
+                    .GetService(typeof(IRetryDurableQueueRepositoryProvider)) as IRetryDurableQueueRepositoryProvider;
+
+            appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider, endpointPrefix);
 
             return appBuilder;
         }
 
         public static IApplicationBuilder UseRetryEndpoints(
                     this IApplicationBuilder appBuilder,
-            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider
+            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
+            string endpointPrefix
         )
         {
             appBuilder.UseMiddleware<RetryMiddleware>(
@@ -33,19 +49,22 @@
                     retryDurableQueueRepositoryProvider,
                     new GetItemsRequestDtoReader(),
                     new GetItemsInputAdapter(),
-                    new GetItemsResponseDtoAdapter()));
+                    new GetItemsResponseDtoAdapter(),
+                    endpointPrefix));
 
             appBuilder.UseMiddleware<RetryMiddleware>(
                 new PatchItemsHandler(
                     retryDurableQueueRepositoryProvider,
                     new UpdateItemsInputAdapter(),
-                    new UpdateItemsResponseDtoAdapter()));
+                    new UpdateItemsResponseDtoAdapter(),
+                    endpointPrefix));
 
             appBuilder.UseMiddleware<RetryMiddleware>(
                 new PatchQueuesHandler(
                     retryDurableQueueRepositoryProvider,
                     new UpdateQueuesInputAdapter(),
-                    new UpdateQueuesResponseDtoAdapter()));
+                    new UpdateQueuesResponseDtoAdapter(),
+                    endpointPrefix));
 
             return appBuilder;
         }
