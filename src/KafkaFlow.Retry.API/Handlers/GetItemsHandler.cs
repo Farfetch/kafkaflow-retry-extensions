@@ -13,7 +13,7 @@
         private readonly IGetItemsRequestDtoReader getItemsRequestDtoReader;
         private readonly IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter;
         private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
-        private readonly string endpointPrefix;
+        private const string ItemsResource = "items";
 
         public GetItemsHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
@@ -31,8 +31,11 @@
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.getItemsRequestDtoReader = getItemsRequestDtoReader;
             this.getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
-            this.endpointPrefix = endpointPrefix;
+            var extendedPath = string.IsNullOrEmpty(endpointPrefix) ? ItemsResource : endpointPrefix.ExtendResourcePath(ItemsResource);
+            this.ResourcePath = base.ResourcePath.ExtendResourcePath(extendedPath);
         }
+
+        protected override string ResourcePath { get; }
 
         protected override HttpMethod HttpMethod => HttpMethod.GET;
 
@@ -56,20 +59,6 @@
             }
         }
 
-        protected override string ResourcePath
-        {
-            get
-            {
-                string baseResourcePath = base.ResourcePath;
-                if (string.IsNullOrEmpty(endpointPrefix))
-                {
-                    return baseResourcePath.ExtendResourcePath("items");
-                }
-                else
-                {
-                    return baseResourcePath.ExtendResourcePath($"{endpointPrefix}/items");
-                }
-            }
-        }
+
     }
 }

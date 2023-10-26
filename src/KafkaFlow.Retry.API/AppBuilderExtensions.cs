@@ -68,5 +68,35 @@
 
             return appBuilder;
         }
+
+        public static IApplicationBuilder UseRetryEndpoints(
+                   this IApplicationBuilder appBuilder,
+           IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider
+       )
+        {
+            appBuilder.UseMiddleware<RetryMiddleware>(
+                new GetItemsHandler(
+                    retryDurableQueueRepositoryProvider,
+                    new GetItemsRequestDtoReader(),
+                    new GetItemsInputAdapter(),
+                    new GetItemsResponseDtoAdapter(),
+                    string.Empty));
+
+            appBuilder.UseMiddleware<RetryMiddleware>(
+                new PatchItemsHandler(
+                    retryDurableQueueRepositoryProvider,
+                    new UpdateItemsInputAdapter(),
+                    new UpdateItemsResponseDtoAdapter(),
+                    string.Empty));
+
+            appBuilder.UseMiddleware<RetryMiddleware>(
+                new PatchQueuesHandler(
+                    retryDurableQueueRepositoryProvider,
+                    new UpdateQueuesInputAdapter(),
+                    new UpdateQueuesResponseDtoAdapter(),
+                    string.Empty));
+
+            return appBuilder;
+        }
     }
 }

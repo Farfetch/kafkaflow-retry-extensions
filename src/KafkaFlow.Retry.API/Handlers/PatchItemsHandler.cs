@@ -14,7 +14,7 @@
         private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
         private readonly IUpdateItemsInputAdapter updateItemsInputAdapter;
         private readonly IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter;
-        private readonly string endpointPrefix;
+        private const string ItemsResource = "items";
 
         public PatchItemsHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
@@ -25,9 +25,11 @@
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateItemsInputAdapter = updateItemsInputAdapter;
             this.updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
-            this.endpointPrefix = endpointPrefix;
+            var extendedPath = string.IsNullOrEmpty(endpointPrefix) ? ItemsResource : endpointPrefix.ExtendResourcePath(ItemsResource);
+            this.ResourcePath = base.ResourcePath.ExtendResourcePath(extendedPath);
         }
 
+        protected override string ResourcePath { get; }
 
         protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
@@ -68,20 +70,6 @@
             }
         }
 
-        protected override string ResourcePath
-        {
-            get
-            {
-                string baseResourcePath = base.ResourcePath;
-                if (string.IsNullOrEmpty(endpointPrefix))
-                {
-                    return base.ResourcePath.ExtendResourcePath("items");
-                }
-                else
-                {
-                    return baseResourcePath.ExtendResourcePath($"{endpointPrefix}/items");
-                }
-            }
-        }
+
     }
 }
