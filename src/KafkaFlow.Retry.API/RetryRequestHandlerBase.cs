@@ -8,6 +8,11 @@
 
     internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
     {
+
+        private readonly string path;
+        private const string RetryResource = "/retry";
+
+
         protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
         {
             DateTimeZoneHandling = DateTimeZoneHandling.Utc,
@@ -16,7 +21,19 @@
 
         protected abstract HttpMethod HttpMethod { get; }
 
-        protected virtual string ResourcePath => "/retry";
+        protected RetryRequestHandlerBase(string endpointPrefix, string resource)
+        {
+
+            this.path = RetryResource;
+
+            if (!string.IsNullOrEmpty(endpointPrefix))
+            {
+                this.path = this.path.ExtendResourcePath(endpointPrefix);
+            }
+
+            this.path = this.path.ExtendResourcePath(resource);
+
+        }
 
         public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
         {
@@ -34,7 +51,7 @@
         {
             var resource = httpRequest.Path.ToUriComponent();
 
-            if (!resource.Equals(this.ResourcePath))
+            if (!resource.Equals(this.path))
             {
                 return false;
             }

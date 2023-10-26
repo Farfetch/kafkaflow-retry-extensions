@@ -9,24 +9,10 @@
 
     public static class AppBuilderExtensions
     {
-        public static IApplicationBuilder UseKafkaFlowRetryEndpoints(
-            this IApplicationBuilder appBuilder
-        )
-        {
-            var retryDurableQueueRepositoryProvider =
-                appBuilder
-                    .ApplicationServices
-                    .GetService(typeof(IRetryDurableQueueRepositoryProvider)) as IRetryDurableQueueRepositoryProvider;
-
-            appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider, string.Empty);
-
-            return appBuilder;
-        }
 
         public static IApplicationBuilder UseKafkaFlowRetryEndpoints(
            this IApplicationBuilder appBuilder,
-           string endpointPrefix
-       )
+           string endpointPrefix)
         {
             var retryDurableQueueRepositoryProvider =
                 appBuilder
@@ -36,6 +22,12 @@
             appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider, endpointPrefix);
 
             return appBuilder;
+        }
+
+        public static IApplicationBuilder UseKafkaFlowRetryEndpoints(
+        this IApplicationBuilder appBuilder)
+        {
+            return appBuilder.UseKafkaFlowRetryEndpoints(string.Empty);
         }
 
         public static IApplicationBuilder UseRetryEndpoints(
@@ -70,33 +62,12 @@
         }
 
         public static IApplicationBuilder UseRetryEndpoints(
-                   this IApplicationBuilder appBuilder,
-           IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider
-       )
+                    this IApplicationBuilder appBuilder,
+            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider
+        )
         {
-            appBuilder.UseMiddleware<RetryMiddleware>(
-                new GetItemsHandler(
-                    retryDurableQueueRepositoryProvider,
-                    new GetItemsRequestDtoReader(),
-                    new GetItemsInputAdapter(),
-                    new GetItemsResponseDtoAdapter(),
-                    string.Empty));
-
-            appBuilder.UseMiddleware<RetryMiddleware>(
-                new PatchItemsHandler(
-                    retryDurableQueueRepositoryProvider,
-                    new UpdateItemsInputAdapter(),
-                    new UpdateItemsResponseDtoAdapter(),
-                    string.Empty));
-
-            appBuilder.UseMiddleware<RetryMiddleware>(
-                new PatchQueuesHandler(
-                    retryDurableQueueRepositoryProvider,
-                    new UpdateQueuesInputAdapter(),
-                    new UpdateQueuesResponseDtoAdapter(),
-                    string.Empty));
-
-            return appBuilder;
+            return appBuilder.UseRetryEndpoints(retryDurableQueueRepositoryProvider, string.Empty);
         }
+
     }
 }

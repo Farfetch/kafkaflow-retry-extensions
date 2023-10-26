@@ -13,14 +13,13 @@
         private readonly IGetItemsRequestDtoReader getItemsRequestDtoReader;
         private readonly IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter;
         private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
-        private const string ItemsResource = "items";
 
         public GetItemsHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IGetItemsRequestDtoReader getItemsRequestDtoReader,
             IGetItemsInputAdapter getItemsInputAdapter,
             IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter,
-            string endpointPrefix)
+            string endpointPrefix) : base(endpointPrefix, "items")
         {
             Guard.Argument(retryDurableQueueRepositoryProvider, nameof(retryDurableQueueRepositoryProvider)).NotNull();
             Guard.Argument(getItemsRequestDtoReader, nameof(getItemsRequestDtoReader)).NotNull();
@@ -31,11 +30,7 @@
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.getItemsRequestDtoReader = getItemsRequestDtoReader;
             this.getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
-            var extendedPath = string.IsNullOrEmpty(endpointPrefix) ? ItemsResource : endpointPrefix.ExtendResourcePath(ItemsResource);
-            this.ResourcePath = base.ResourcePath.ExtendResourcePath(extendedPath);
         }
-
-        protected override string ResourcePath { get; }
 
         protected override HttpMethod HttpMethod => HttpMethod.GET;
 
@@ -58,7 +53,5 @@
                 await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
             }
         }
-
-
     }
 }

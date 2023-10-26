@@ -14,22 +14,18 @@
         private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
         private readonly IUpdateQueuesInputAdapter updateQueuesInputAdapter;
         private readonly IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter;
-        private const string QueuesResource = "queues";
 
         public PatchQueuesHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IUpdateQueuesInputAdapter updateQueuesInputAdapter,
             IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter,
-            string endpointPrefix)
+            string endpointPrefix) : base(endpointPrefix, "queues")
         {
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateQueuesInputAdapter = updateQueuesInputAdapter;
             this.updateQueuesResponseDtoAdapter = updateQueuesResponseDtoAdapter;
-            var extendedPath = string.IsNullOrEmpty(endpointPrefix) ? QueuesResource : endpointPrefix.ExtendResourcePath(QueuesResource);
-            this.ResourcePath = base.ResourcePath.ExtendResourcePath(extendedPath);
         }
 
-        protected override string ResourcePath { get; }
 
         protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
@@ -69,6 +65,5 @@
                 await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
             }
         }
-
     }
 }
