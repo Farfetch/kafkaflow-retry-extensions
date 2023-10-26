@@ -10,7 +10,8 @@
     {
 
         private readonly string path;
-        private const string RetryResource = "/retry";
+        private const string RetryResource = "retry";
+        private const string Delimiter = "/";
 
 
         protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
@@ -24,16 +25,31 @@
         protected RetryRequestHandlerBase(string endpointPrefix, string resource)
         {
 
-            this.path = RetryResource;
-
             if (!string.IsNullOrEmpty(endpointPrefix))
             {
-                this.path = this.path.ExtendResourcePath(endpointPrefix);
+                this.path = endpointPrefix.ExtendResourcePath(RetryResource);
+                if (!string.IsNullOrEmpty(resource))
+                {
+                    this.path = this.path.ExtendResourcePath(resource);
+                }
+            }
+            else
+            {
+                if (!string.IsNullOrEmpty(resource))
+                {
+                    this.path = RetryResource.ExtendResourcePath(resource);
+                }
+                else
+                {
+                    this.path = RetryResource;
+                }
             }
 
-            this.path = this.path.ExtendResourcePath(resource);
-
+            this.path = Delimiter + this.path;
         }
+
+
+
 
         public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
         {

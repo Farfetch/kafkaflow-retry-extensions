@@ -27,7 +27,7 @@
         private readonly Mock<IGetItemsInputAdapter> mockGetItemsInputAdapter = new Mock<IGetItemsInputAdapter>();
         private readonly Mock<IGetItemsRequestDtoReader> mockGetItemsRequestDtoReader = new Mock<IGetItemsRequestDtoReader>();
         private readonly Mock<IGetItemsResponseDtoAdapter> mockGetItemsResponseDtoReader = new Mock<IGetItemsResponseDtoAdapter>();
-        private readonly string resourcePath = "/retry/testendpoint/items";
+        private readonly string resourcePath = "/testendpoint/retry/items";
         private readonly Mock<IRetryDurableQueueRepositoryProvider> retryDurableQueueRepositoryProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
 
         [Fact]
