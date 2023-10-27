@@ -29,21 +29,13 @@
             if (!string.IsNullOrEmpty(endpointPrefix))
             {
                 this.path = this.path
-                    .ExtendResourcePath(endpointPrefix)
-                    .ExtendResourcePath(RetryResource)
-                    .ExtendResourcePath(resource);
-
-            }
-            else
-            {
-                this.path = this.path
-                    .ExtendResourcePath(RetryResource)
-                    .ExtendResourcePath(resource);
+                    .ExtendResourcePath(endpointPrefix);
             }
 
+            this.path = this.path
+                .ExtendResourcePath(RetryResource)
+                .ExtendResourcePath(resource);
         }
-
-
 
 
         public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
