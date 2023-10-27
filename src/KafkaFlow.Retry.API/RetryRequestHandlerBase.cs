@@ -3,6 +3,7 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using Dawn;
     using Microsoft.AspNetCore.Http;
     using Newtonsoft.Json;
 
@@ -11,7 +12,6 @@
 
         private readonly string path;
         private const string RetryResource = "retry";
-        private const string Delimiter = "/";
 
 
         protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
@@ -24,28 +24,23 @@
 
         protected RetryRequestHandlerBase(string endpointPrefix, string resource)
         {
+            Guard.Argument(resource, nameof(resource)).NotNull().NotEmpty();
 
             if (!string.IsNullOrEmpty(endpointPrefix))
             {
-                this.path = endpointPrefix.ExtendResourcePath(RetryResource);
-                if (!string.IsNullOrEmpty(resource))
-                {
-                    this.path = this.path.ExtendResourcePath(resource);
-                }
+                this.path = this.path
+                    .ExtendResourcePath(endpointPrefix)
+                    .ExtendResourcePath(RetryResource)
+                    .ExtendResourcePath(resource);
+
             }
             else
             {
-                if (!string.IsNullOrEmpty(resource))
-                {
-                    this.path = RetryResource.ExtendResourcePath(resource);
-                }
-                else
-                {
-                    this.path = RetryResource;
-                }
+                this.path = this.path
+                    .ExtendResourcePath(RetryResource)
+                    .ExtendResourcePath(resource);
             }
 
-            this.path = Delimiter + this.path;
         }
 
 

@@ -13,7 +13,7 @@
     public class RetryRequestHandlerBaseTests
     {
         private const string HttpMethod = "GET";
-        private const string ResourcePath = "/retry";
+        private const string ResourcePath = "/retry/resource";
 
         [Fact]
         public async Task RetryRequestHandlerBase_HandleAsync_CallsHandleRequestAsync()
@@ -44,7 +44,7 @@
                 .SetupGet(ctx => ctx.Response)
                 .Returns(httpResponse.Object);
 
-            var surrogate = new RetryRequestHandlerSurrogate(string.Empty, string.Empty);
+            var surrogate = new RetryRequestHandlerSurrogate(string.Empty, "resource");
 
             // Act
             var result = await surrogate.HandleAsync(mockHttpContext.Object.Request, mockHttpContext.Object.Response);
@@ -62,7 +62,7 @@
 
             var httpContext = await HttpContextHelper.CreateContext(ResourcePath, wrongMethod);
 
-            var surrogate = new RetryRequestHandlerSurrogate(string.Empty, string.Empty);
+            var surrogate = new RetryRequestHandlerSurrogate(string.Empty, "resource");
 
             // Act
             var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response).ConfigureAwait(false);
@@ -79,7 +79,7 @@
 
             var httpContext = await HttpContextHelper.CreateContext(wrongPath, HttpMethod);
 
-            var surrogate = new RetryRequestHandlerSurrogate(string.Empty, string.Empty);
+            var surrogate = new RetryRequestHandlerSurrogate(string.Empty, "resource");
 
             // Act
             var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response).ConfigureAwait(false);
