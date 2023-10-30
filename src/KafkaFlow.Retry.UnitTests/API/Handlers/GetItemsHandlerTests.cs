@@ -27,11 +27,11 @@
         private readonly Mock<IGetItemsInputAdapter> mockGetItemsInputAdapter = new Mock<IGetItemsInputAdapter>();
         private readonly Mock<IGetItemsRequestDtoReader> mockGetItemsRequestDtoReader = new Mock<IGetItemsRequestDtoReader>();
         private readonly Mock<IGetItemsResponseDtoAdapter> mockGetItemsResponseDtoReader = new Mock<IGetItemsResponseDtoAdapter>();
-        private readonly string resourcePath = "/retry/items";
+        private readonly string resourcePath = "/testendpoint/retry/items";
         private readonly Mock<IRetryDurableQueueRepositoryProvider> retryDurableQueueRepositoryProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
 
         [Fact]
-        public async Task GetItemsHandler_HandleAsync_Success()
+        public async Task GetItemsHandler_HandleAsync_WithEndpointPrefix_Success()
         {
             // Arrange
             var httpContext = this.CreateHttpContext();
@@ -61,7 +61,8 @@
                 retryDurableQueueRepositoryProvider.Object,
                 mockGetItemsRequestDtoReader.Object,
                 mockGetItemsInputAdapter.Object,
-                mockGetItemsResponseDtoReader.Object
+                mockGetItemsResponseDtoReader.Object,
+                "testendpoint"
                 );
 
             // Act
@@ -79,7 +80,7 @@
 
         [Theory]
         [ClassData(typeof(DependenciesThrowingExceptionsData))]
-        public async Task GetItemsHandler_HandleAsync_WithException_ReturnsExpectedStatusCode(
+        public async Task GetItemsHandler_HandleAsync_WithExceptionAndEndpointPrefix_ReturnsExpectedStatusCode(
             IGetItemsRequestDtoReader getItemsRequestDtoReader,
             IGetItemsInputAdapter getItemsInputAdapter,
             IRetryDurableQueueRepositoryProvider retryQueueDataProvider,
@@ -93,7 +94,8 @@
                 retryQueueDataProvider,
                 getItemsRequestDtoReader,
                 getItemsInputAdapter,
-                getItemsResponseDtoAdapter
+                getItemsResponseDtoAdapter,
+                "testendpoint"
                 );
 
             // Act

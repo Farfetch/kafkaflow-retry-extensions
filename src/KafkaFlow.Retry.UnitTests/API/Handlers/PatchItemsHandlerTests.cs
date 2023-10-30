@@ -57,7 +57,8 @@
             var handler = new PatchItemsHandler(
                 retryQueueDataProvider.Object,
                 mockUpdateItemsInputAdapter.Object,
-                mockUpdateItemsResponseDtoAdapter.Object
+                mockUpdateItemsResponseDtoAdapter.Object,
+                string.Empty
                 );
 
             // Act
@@ -103,7 +104,8 @@
             var handler = new PatchItemsHandler(
              Mock.Of<IRetryDurableQueueRepositoryProvider>(),
              Mock.Of<IUpdateItemsInputAdapter>(),
-             Mock.Of<IUpdateItemsResponseDtoAdapter>()
+             Mock.Of<IUpdateItemsResponseDtoAdapter>(),
+             string.Empty
              );
 
             // act
@@ -129,7 +131,8 @@
             var handler = new PatchItemsHandler(
                 retryQueueDataProvider,
                 updateItemsInputAdapter,
-                updateItemsResponseDtoAdapter
+                updateItemsResponseDtoAdapter,
+                string.Empty
                 );
 
             // act

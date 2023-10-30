@@ -18,7 +18,8 @@
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IGetItemsRequestDtoReader getItemsRequestDtoReader,
             IGetItemsInputAdapter getItemsInputAdapter,
-            IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter)
+            IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter,
+            string endpointPrefix) : base(endpointPrefix, "items")
         {
             Guard.Argument(retryDurableQueueRepositoryProvider, nameof(retryDurableQueueRepositoryProvider)).NotNull();
             Guard.Argument(getItemsRequestDtoReader, nameof(getItemsRequestDtoReader)).NotNull();
@@ -30,8 +31,6 @@
             this.getItemsRequestDtoReader = getItemsRequestDtoReader;
             this.getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
         }
-
-        protected override string ResourcePath => base.ResourcePath.ExtendResourcePath("items");
 
         protected override HttpMethod HttpMethod => HttpMethod.GET;
 

@@ -7,6 +7,11 @@
 
     internal class RetryRequestHandlerSurrogate : RetryRequestHandlerBase
     {
+
+        public RetryRequestHandlerSurrogate(string endpointPrefix, string resource) : base(endpointPrefix, resource)
+        {
+        }
+
         protected override HttpMethod HttpMethod => HttpMethod.GET;
 
         protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)

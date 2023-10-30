@@ -3,11 +3,17 @@
     using System.IO;
     using System.Text;
     using System.Threading.Tasks;
+    using Dawn;
     using Microsoft.AspNetCore.Http;
     using Newtonsoft.Json;
 
     internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
     {
+
+        private readonly string path;
+        private const string RetryResource = "retry";
+
+
         protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
         {
             DateTimeZoneHandling = DateTimeZoneHandling.Utc,
@@ -16,7 +22,21 @@
 
         protected abstract HttpMethod HttpMethod { get; }
 
-        protected virtual string ResourcePath => "/retry";
+        protected RetryRequestHandlerBase(string endpointPrefix, string resource)
+        {
+            Guard.Argument(resource, nameof(resource)).NotNull().NotEmpty();
+
+            if (!string.IsNullOrEmpty(endpointPrefix))
+            {
+                this.path = this.path
+                    .ExtendResourcePath(endpointPrefix);
+            }
+
+            this.path = this.path
+                .ExtendResourcePath(RetryResource)
+                .ExtendResourcePath(resource);
+        }
+
 
         public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
         {
@@ -34,7 +54,7 @@
         {
             var resource = httpRequest.Path.ToUriComponent();
 
-            if (!resource.Equals(this.ResourcePath))
+            if (!resource.Equals(this.path))
             {
                 return false;
             }

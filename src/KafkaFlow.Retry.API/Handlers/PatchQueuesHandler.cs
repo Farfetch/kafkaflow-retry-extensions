@@ -18,14 +18,14 @@
         public PatchQueuesHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IUpdateQueuesInputAdapter updateQueuesInputAdapter,
-            IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter)
+            IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter,
+            string endpointPrefix) : base(endpointPrefix, "queues")
         {
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateQueuesInputAdapter = updateQueuesInputAdapter;
             this.updateQueuesResponseDtoAdapter = updateQueuesResponseDtoAdapter;
         }
 
-        protected override string ResourcePath => base.ResourcePath.ExtendResourcePath("queues");
 
         protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 

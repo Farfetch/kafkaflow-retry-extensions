@@ -51,7 +51,8 @@
             var handler = new PatchQueuesHandler(
               retryQueueDataProvider.Object,
               mockUpdateQueuesInputAdapter.Object,
-              mockUpdateQueuesResponseDtoAdapter.Object
+              mockUpdateQueuesResponseDtoAdapter.Object,
+              string.Empty
               );
 
             // Act
@@ -83,7 +84,8 @@
             var handler = new PatchQueuesHandler(
                 retryQueueDataProvider,
                 updateQueuesInputAdapter,
-                updateQueuesResponseDtoAdapter
+                updateQueuesResponseDtoAdapter,
+                string.Empty
                 );
 
             // act

@@ -18,14 +18,13 @@
         public PatchItemsHandler(
             IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
             IUpdateItemsInputAdapter updateItemsInputAdapter,
-            IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter)
+            IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter,
+            string endpointPrefix) : base(endpointPrefix, "items")
         {
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
             this.updateItemsInputAdapter = updateItemsInputAdapter;
             this.updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
         }
-
-        protected override string ResourcePath => base.ResourcePath.ExtendResourcePath("items");
 
         protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
