@@ -13,8 +13,7 @@
     using KafkaFlow.Retry.Durable.Repository;
     using KafkaFlow.Retry.Durable.Repository.Adapters;
     using KafkaFlow.Retry.Durable.Serializers;
-    using KafkaFlow.TypedHandler;
-
+    
     public class RetryDurableEmbeddedClusterDefinitionBuilder
     {
         private const int DefaultPartitionElection = 0;

@@ -5,7 +5,7 @@
     using KafkaFlow;
     using KafkaFlow.Retry.Sample.Exceptions;
     using KafkaFlow.Retry.Sample.Messages;
-    using KafkaFlow.TypedHandler;
+    
 
     internal class RetrySimpleTestHandler : IMessageHandler<RetrySimpleTestMessage>
     {

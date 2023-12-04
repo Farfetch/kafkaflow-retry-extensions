@@ -9,7 +9,6 @@
     using KafkaFlow.Retry.SchemaRegistry.Sample.ContractResolvers;
     using KafkaFlow.Retry.SchemaRegistry.Sample.Exceptions;
     using KafkaFlow.Retry.SchemaRegistry.Sample.Handlers;
-    using KafkaFlow.TypedHandler;
     using Newtonsoft.Json;
 
     internal static class KafkaClusterConfigurationBuilderHelper
@@ -47,7 +46,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSchemaRegistryAvroSerializer()
+                                .AddSchemaRegistryAvroDeserializer()
                                 .RetryDurable(
                                     configure => configure
                                         .Handle<RetryDurableTestException>()

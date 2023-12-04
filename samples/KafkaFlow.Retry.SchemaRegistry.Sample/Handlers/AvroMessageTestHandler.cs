@@ -4,7 +4,6 @@
     using System.Threading.Tasks;
     using global::SchemaRegistry;
     using KafkaFlow.Retry.SchemaRegistry.Sample.Exceptions;
-    using TypedHandler;
 
     public class AvroMessageTestHandler : IMessageHandler<AvroLogMessage>
     {
