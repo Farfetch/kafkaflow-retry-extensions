@@ -11,11 +11,10 @@ The consumer will use a Simple Retry strategy to retry in case of a given except
 
 By the end of the article, you will know how to use KafkaFlow Retry Extensions to make your Consumers resilient.
 
-
 ## Prerequisites
 
- - [.NET 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
- - [Docker Desktop](https://www.docker.com/products/docker-desktop/)
+- [.NET 6.0 SDK](https://dotnet.microsoft.com/en-us/download/dotnet/6.0)
+- [Docker Desktop](https://www.docker.com/products/docker-desktop/)
 
 ## Overview
 
@@ -30,7 +29,7 @@ To connect them, you will be running an Apache Kafka cluster using Docker.
 
 ### 1. Create a folder for your applications
 
-Create a new folder with the name _KafkaFlowRetryuickstart_.
+Create a new folder with the name _KafkaFlowRetryQuickstart_.
 
 ### 2. Setup Apache Kafka
 
@@ -47,6 +46,7 @@ docker-compose up -d
 ### 4. Create Producer Project
 
 Run the following command to create a Console Project named _Producer_.
+
 ```bash
 dotnet new console --name Producer
 ```
@@ -59,8 +59,6 @@ Inside the _Producer_ project directory, run the following commands to install t
 dotnet add package KafkaFlow
 dotnet add package KafkaFlow.Microsoft.DependencyInjection
 dotnet add package KafkaFlow.LogHandler.Console
-dotnet add package KafkaFlow.TypedHandler
-dotnet add package KafkaFlow.Serializer
 dotnet add package KafkaFlow.Serializer.JsonCore
 dotnet add package Microsoft.Extensions.DependencyInjection
 ```
@@ -85,8 +83,8 @@ Replace the content of the _Program.cs_ with the following example:
 ```csharp
 using Microsoft.Extensions.DependencyInjection;
 using KafkaFlow.Producers;
-using KafkaFlow.Serializer;
 using KafkaFlow;
+using KafkaFlow.Serializer;
 using Producer;
 
 var services = new ServiceCollection();
@@ -128,10 +126,10 @@ Console.WriteLine("Message sent!");
 
 ```
 
-
 ### 8. Create Consumer Project
 
 Run the following command to create a Console Project named _Consumer_.
+
 ```bash
 dotnet new console --name Consumer
 ```
@@ -154,8 +152,6 @@ Inside the _Consumer_ project directory, run the following commands to install t
 dotnet add package KafkaFlow
 dotnet add package KafkaFlow.Microsoft.DependencyInjection
 dotnet add package KafkaFlow.LogHandler.Console
-dotnet add package KafkaFlow.TypedHandler
-dotnet add package KafkaFlow.Serializer
 dotnet add package KafkaFlow.Serializer.JsonCore
 dotnet add package Microsoft.Extensions.DependencyInjection
 ```
@@ -174,7 +170,6 @@ Create a new class file named _HelloMessageHandler.cs_ and add the following exa
 
 ```csharp
 using KafkaFlow;
-using KafkaFlow.TypedHandler;
 using Producer;
 
 namespace Consumer;
@@ -215,10 +210,9 @@ Replace the content of the _Program.cs_ with the following example.
 
 ```csharp
 using KafkaFlow;
-using KafkaFlow.Serializer;
 using Microsoft.Extensions.DependencyInjection;
-using KafkaFlow.TypedHandler;
 using KafkaFlow.Retry;
+using KafkaFlow.Serializer;
 using Consumer;
 
 const string topicName = "sample-topic";
@@ -245,7 +239,7 @@ services.AddKafka(kafka => kafka
                                 TimeSpan.FromMilliseconds(Math.Pow(2, retryCount) * 1000)
                             )
                     )
-                    .AddSerializer<JsonCoreSerializer>()
+                    .AddDeserializer<JsonCoreDeserializer>()
                     .AddTypedHandlers(h => h.AddHandler<HelloMessageHandler>())
             )
         )
@@ -268,7 +262,7 @@ await bus.StopAsync();
 From the `KafkaFlowRetryQuickstart` directory:
 
  1. Run the Consumer:
-   
+
 ```bash
 dotnet run --project Consumer/Consumer.csproj 
 ```
