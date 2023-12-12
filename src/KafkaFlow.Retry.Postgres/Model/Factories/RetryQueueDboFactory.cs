@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.Postgres.Model.Factories
+﻿using System;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+
+namespace KafkaFlow.Retry.Postgres.Model.Factories;
+
+internal sealed class RetryQueueDboFactory : IRetryQueueDboFactory
 {
-    using System;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    
-    internal sealed class RetryQueueDboFactory : IRetryQueueDboFactory
+    public RetryQueueDbo Create(SaveToQueueInput input)
     {
-        public RetryQueueDbo Create(SaveToQueueInput input)
-        {
             Guard.Argument(input).NotNull();
 
             return new RetryQueueDbo
@@ -20,5 +20,4 @@
                 Status = input.QueueStatus
             };
         }
-    }
 }

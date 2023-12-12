@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Durable.Compression
-{
-    internal interface IGzipCompressor
-    {
-        byte[] Compress(byte[] data);
+﻿namespace KafkaFlow.Retry.Durable.Compression;
 
-        byte[] Decompress(byte[] data);
-    }
+internal interface IGzipCompressor
+{
+    byte[] Compress(byte[] data);
+
+    byte[] Decompress(byte[] data);
 }

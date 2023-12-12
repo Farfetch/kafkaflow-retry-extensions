@@ -1,7 +1,6 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
+﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters;
+
+internal interface IMessageAdapter
 {
-    internal interface IMessageAdapter
-    {
-        byte[] AdaptMessageToRepository(object message);
-    }
+    byte[] AdaptMessageToRepository(object message);
 }

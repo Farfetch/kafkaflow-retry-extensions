@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read
+﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read;
+
+public enum GetQueuesSortOption
 {
-    public enum GetQueuesSortOption
-    {
-        None = 0,
-        ByLastExecution_Ascending = 1,
-        ByCreationDate_Descending = 2,
-    }
+    None = 0,
+    ByLastExecution_Ascending = 1,
+    ByCreationDate_Descending = 2,
 }

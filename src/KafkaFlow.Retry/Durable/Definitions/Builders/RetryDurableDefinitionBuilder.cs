@@ -1,54 +1,54 @@
-﻿namespace KafkaFlow.Retry
+﻿using System;
+using System.Collections.Generic;
+using Dawn;
+using KafkaFlow.Configuration;
+using KafkaFlow.Retry.Durable.Compression;
+using KafkaFlow.Retry.Durable.Definitions;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Polling;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Serializers;
+using Newtonsoft.Json;
+
+namespace KafkaFlow.Retry;
+
+public class RetryDurableDefinitionBuilder
 {
-    using System;
-    using System.Collections.Generic;
-    using Dawn;
-    using KafkaFlow.Configuration;
-    using KafkaFlow.Retry.Durable.Compression;
-    using KafkaFlow.Retry.Durable.Definitions;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Polling;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using KafkaFlow.Retry.Durable.Serializers;
-    using Newtonsoft.Json;
+    private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
+    private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
+    private Type messageType;
+    private PollingDefinitionsAggregator pollingDefinitionsAggregator;
+    private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
+    private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
+    private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
 
-    public class RetryDurableDefinitionBuilder
+    internal RetryDurableDefinitionBuilder()
+    { }
+
+    public RetryDurableDefinitionBuilder Handle<TException>()
+        where TException : Exception
+        => this.Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
+
+    public RetryDurableDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
+        where TException : Exception
+        => this.Handle(context => context.Exception is TException ex && rule(ex));
+
+    public RetryDurableDefinitionBuilder Handle(Func<RetryContext, bool> func)
     {
-        private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-        private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
-        private Type messageType;
-        private PollingDefinitionsAggregator pollingDefinitionsAggregator;
-        private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
-        private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
-        private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
-
-        internal RetryDurableDefinitionBuilder()
-        { }
-
-        public RetryDurableDefinitionBuilder Handle<TException>()
-            where TException : Exception
-            => this.Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
-
-        public RetryDurableDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
-            where TException : Exception
-            => this.Handle(context => context.Exception is TException ex && rule(ex));
-
-        public RetryDurableDefinitionBuilder Handle(Func<RetryContext, bool> func)
-        {
             this.retryWhenExceptions.Add(func);
             return this;
         }
 
-        public RetryDurableDefinitionBuilder HandleAnyException()
-            => this.Handle(kafkaRetryContext => true);
+    public RetryDurableDefinitionBuilder HandleAnyException()
+        => this.Handle(kafkaRetryContext => true);
 
-        public RetryDurableDefinitionBuilder WithEmbeddedRetryCluster(
-            IClusterConfigurationBuilder cluster,
-            Action<RetryDurableEmbeddedClusterDefinitionBuilder> configure
-            )
-        {
+    public RetryDurableDefinitionBuilder WithEmbeddedRetryCluster(
+        IClusterConfigurationBuilder cluster,
+        Action<RetryDurableEmbeddedClusterDefinitionBuilder> configure
+    )
+    {
             Guard.Argument(configure, nameof(configure)).NotNull();
 
             this.retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
@@ -57,20 +57,20 @@
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithMessageSerializeSettings(JsonSerializerSettings jsonSerializerSettings)
-        {
+    public RetryDurableDefinitionBuilder WithMessageSerializeSettings(JsonSerializerSettings jsonSerializerSettings)
+    {
             this.jsonSerializerSettings = jsonSerializerSettings;
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithMessageType(Type messageType)
-        {
+    public RetryDurableDefinitionBuilder WithMessageType(Type messageType)
+    {
             this.messageType = messageType;
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithPollingJobsConfiguration(Action<PollingDefinitionsAggregatorBuilder> configure)
-        {
+    public RetryDurableDefinitionBuilder WithPollingJobsConfiguration(Action<PollingDefinitionsAggregatorBuilder> configure)
+    {
             Guard.Argument(configure, nameof(configure)).NotNull();
 
             var pollingDefinitionsAggregatorBuilder = new PollingDefinitionsAggregatorBuilder();
@@ -80,15 +80,15 @@
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithRepositoryProvider(IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider)
-        {
+    public RetryDurableDefinitionBuilder WithRepositoryProvider(IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider)
+    {
             this.retryDurableRepositoryProvider = retryDurableRepositoryProvider;
 
             return this;
         }
 
-        public RetryDurableDefinitionBuilder WithRetryPlanBeforeRetryDurable(Action<RetryDurableRetryPlanBeforeDefinitionBuilder> configure)
-        {
+    public RetryDurableDefinitionBuilder WithRetryPlanBeforeRetryDurable(Action<RetryDurableRetryPlanBeforeDefinitionBuilder> configure)
+    {
             Guard.Argument(configure, nameof(configure)).NotNull();
 
             var retryDurableRetryPlanBeforeDefinitionBuilder = new RetryDurableRetryPlanBeforeDefinitionBuilder();
@@ -98,8 +98,8 @@
             return this;
         }
 
-        internal RetryDurableDefinition Build()
-        {
+    internal RetryDurableDefinition Build()
+    {
             // TODO: Guard the exceptions and retry plan
             Guard.Argument(this.retryDurableRepositoryProvider).NotNull("A repository should be defined");
             Guard.Argument(this.messageType).NotNull("A message type should be defined");
@@ -142,5 +142,4 @@
                 retryDurableQueueRepository
             );
         }
-    }
 }

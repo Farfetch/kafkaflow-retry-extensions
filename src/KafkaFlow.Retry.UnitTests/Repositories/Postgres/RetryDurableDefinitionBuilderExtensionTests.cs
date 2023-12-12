@@ -1,22 +1,21 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres
+﻿using FluentAssertions;
+using global::KafkaFlow.Retry.Postgres;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres;
+
+public class RetryDurableDefinitionBuilderExtensionTests
 {
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Postgres;
-    using Xunit;
-    
-    public class RetryDurableDefinitionBuilderExtensionTests
+    [Fact]
+    public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProvider_Success()
     {
-        [Fact]
-        public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProvider_Success()
-        {
-            // Arrange
-            var builder = new RetryDurableDefinitionBuilder();
+        // Arrange
+        var builder = new RetryDurableDefinitionBuilder();
 
-            // Act
-            var result = builder.WithPostgresDataProvider("connectionString", "databaseName");
+        // Act
+        var result = builder.WithPostgresDataProvider("connectionString", "databaseName");
 
-            // Arrange
-            result.Should().NotBeNull();
-        }
+        // Arrange
+        result.Should().NotBeNull();
     }
 }

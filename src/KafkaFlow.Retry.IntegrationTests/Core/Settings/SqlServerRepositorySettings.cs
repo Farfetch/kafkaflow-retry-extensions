@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Settings
-{
-    internal class SqlServerRepositorySettings
-    {
-        public string ConnectionString { get; set; }
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Settings;
 
-        public string DatabaseName { get; set; }
-        public string Schema { get; set; }
-    }
+internal class SqlServerRepositorySettings
+{
+    public string ConnectionString { get; set; }
+
+    public string DatabaseName { get; set; }
+    public string Schema { get; set; }
 }

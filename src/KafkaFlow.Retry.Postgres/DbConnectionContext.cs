@@ -1,27 +1,27 @@
-﻿namespace KafkaFlow.Retry.Postgres
-{
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
-    using Npgsql;
-    
-    [ExcludeFromCodeCoverage]
-    internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
-    {
-        private readonly PostgresDbSettings postgresDbSettings;
-        private readonly bool withinTransaction;
-        private bool committed;
-        private NpgsqlConnection sqlConnection;
-        private NpgsqlTransaction sqlTransaction;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dawn;
+using Npgsql;
 
-        public DbConnectionContext(PostgresDbSettings postgresDbSettings, bool withinTransaction)
-        {
+namespace KafkaFlow.Retry.Postgres;
+
+[ExcludeFromCodeCoverage]
+internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
+{
+    private readonly PostgresDbSettings postgresDbSettings;
+    private readonly bool withinTransaction;
+    private bool committed;
+    private NpgsqlConnection sqlConnection;
+    private NpgsqlTransaction sqlTransaction;
+
+    public DbConnectionContext(PostgresDbSettings postgresDbSettings, bool withinTransaction)
+    {
             Guard.Argument(postgresDbSettings).NotNull();
             this.postgresDbSettings = postgresDbSettings;
             this.withinTransaction = withinTransaction;
         }
 
-        public void Commit()
-        {
+    public void Commit()
+    {
             if (this.sqlTransaction is object)
             {
                 this.sqlTransaction.Commit();
@@ -29,8 +29,8 @@
             }
         }
 
-        public NpgsqlCommand CreateCommand()
-        {
+    public NpgsqlCommand CreateCommand()
+    {
             var dbCommand = this.GetDbConnection().CreateCommand();
 
             if (this.withinTransaction)
@@ -41,8 +41,8 @@
             return dbCommand;
         }
 
-        public void Dispose()
-        {
+    public void Dispose()
+    {
             if (this.sqlTransaction is object)
             {
                 if (!this.committed)
@@ -58,16 +58,16 @@
             }
         }
 
-        public void Rollback()
-        {
+    public void Rollback()
+    {
             if (this.sqlTransaction is object)
             {
                 this.sqlTransaction.Rollback();
             }
         }
 
-        private NpgsqlConnection GetDbConnection()
-        {
+    private NpgsqlConnection GetDbConnection()
+    {
             if (this.sqlConnection is null)
             {
                 this.sqlConnection = new NpgsqlConnection(this.postgresDbSettings.ConnectionString);
@@ -77,13 +77,12 @@
             return this.sqlConnection;
         }
 
-        private NpgsqlTransaction GetDbTransaction()
-        {
+    private NpgsqlTransaction GetDbTransaction()
+    {
             if (this.sqlTransaction is null)
             {
                 this.sqlTransaction = this.GetDbConnection().BeginTransaction();
             }
             return this.sqlTransaction;
         }
-    }
 }

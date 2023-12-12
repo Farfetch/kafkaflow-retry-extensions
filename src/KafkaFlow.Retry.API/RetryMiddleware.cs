@@ -1,30 +1,29 @@
-﻿namespace KafkaFlow.Retry.API
+﻿using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
+
+namespace KafkaFlow.Retry.API;
+
+internal class RetryMiddleware
 {
-    using System.Threading.Tasks;
-    using Microsoft.AspNetCore.Http;
+    private readonly IHttpRequestHandler httpRequestHandler;
+    private readonly RequestDelegate next;
 
-    internal class RetryMiddleware
+    public RetryMiddleware(RequestDelegate next, IHttpRequestHandler httpRequestHandler)
     {
-        private readonly IHttpRequestHandler httpRequestHandler;
-        private readonly RequestDelegate next;
+        this.next = next;
+        this.httpRequestHandler = httpRequestHandler;
+    }
 
-        public RetryMiddleware(RequestDelegate next, IHttpRequestHandler httpRequestHandler)
+    public async Task InvokeAsync(HttpContext httpContext)
+    {
+        var handled = await this.httpRequestHandler
+            .HandleAsync(httpContext.Request, httpContext.Response)
+            .ConfigureAwait(false);
+
+        if (!handled)
         {
-            this.next = next;
-            this.httpRequestHandler = httpRequestHandler;
-        }
-
-        public async Task InvokeAsync(HttpContext httpContext)
-        {
-            var handled = await this.httpRequestHandler
-                .HandleAsync(httpContext.Request, httpContext.Response)
-                .ConfigureAwait(false);
-
-            if (!handled)
-            {
-                // Call the next delegate/middleware in the pipeline
-                await this.next(httpContext).ConfigureAwait(false);
-            }
+            // Call the next delegate/middleware in the pipeline
+            await this.next(httpContext).ConfigureAwait(false);
         }
     }
 }

@@ -1,14 +1,14 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read
-{
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using Dawn;
 
-    [ExcludeFromCodeCoverage]
-    public class QueueNewestItemsInput
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Read;
+
+[ExcludeFromCodeCoverage]
+public class QueueNewestItemsInput
+{
+    public QueueNewestItemsInput(Guid queueId, Guid itemId, int sort)
     {
-        public QueueNewestItemsInput(Guid queueId, Guid itemId, int sort)
-        {
             Guard.Argument(queueId, nameof(queueId)).NotDefault();
             Guard.Argument(itemId, nameof(itemId)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
@@ -18,8 +18,7 @@
             this.Sort = sort;
         }
 
-        public Guid ItemId { get; }
-        public Guid QueueId { get; }
-        public int Sort { get; }
-    }
+    public Guid ItemId { get; }
+    public Guid QueueId { get; }
+    public int Sort { get; }
 }

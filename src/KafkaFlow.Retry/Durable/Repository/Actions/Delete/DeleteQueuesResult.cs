@@ -1,16 +1,15 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Delete
-{
-    using Dawn;
+﻿using Dawn;
 
-    public class DeleteQueuesResult
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+
+public class DeleteQueuesResult
+{
+    public DeleteQueuesResult(int totalQueuesDeleted)
     {
-        public DeleteQueuesResult(int totalQueuesDeleted)
-        {
             Guard.Argument(totalQueuesDeleted, nameof(totalQueuesDeleted)).NotNegative();
 
             this.TotalQueuesDeleted = totalQueuesDeleted;
         }
 
-        public int TotalQueuesDeleted { get; }
-    }
+    public int TotalQueuesDeleted { get; }
 }

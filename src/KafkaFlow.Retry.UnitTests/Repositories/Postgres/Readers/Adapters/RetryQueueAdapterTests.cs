@@ -1,50 +1,49 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using global::KafkaFlow.Retry.Postgres.Model;
+using global::KafkaFlow.Retry.Postgres.Readers.Adapters;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters;
+
+public class RetryQueueAdapterTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.Postgres.Model;
-    using global::KafkaFlow.Retry.Postgres.Readers.Adapters;
-    using Xunit;
-    
-    public class RetryQueueAdapterTests
+    private readonly RetryQueueAdapter adapter = new RetryQueueAdapter();
+
+    [Fact]
+    public void RetryQueueAdapter_Adapt_Success()
     {
-        private readonly RetryQueueAdapter adapter = new RetryQueueAdapter();
-
-        [Fact]
-        public void RetryQueueAdapter_Adapt_Success()
+        // Arrange
+        var retryQueue = new RetryQueueDbo
         {
-            // Arrange
-            var retryQueue = new RetryQueueDbo
-            {
-                CreationDate = DateTime.UtcNow,
-                IdDomain = Guid.NewGuid(),
-                Id = 1,
-                LastExecution = DateTime.UtcNow,
-                QueueGroupKey = "QueueGroupKey",
-                SearchGroupKey = "SearchGroupKey",
-                Status = RetryQueueStatus.Active
-            };
+            CreationDate = DateTime.UtcNow,
+            IdDomain = Guid.NewGuid(),
+            Id = 1,
+            LastExecution = DateTime.UtcNow,
+            QueueGroupKey = "QueueGroupKey",
+            SearchGroupKey = "SearchGroupKey",
+            Status = RetryQueueStatus.Active
+        };
 
-            // Act
-            var result = adapter.Adapt(retryQueue);
+        // Act
+        var result = adapter.Adapt(retryQueue);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().BeOfType(typeof(RetryQueue));
-        }
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().BeOfType(typeof(RetryQueue));
+    }
 
-        [Fact]
-        public void RetryQueueAdapter_Adapt_WithoutRetryQueueDbo_ThrowsException()
-        {
-            // Arrange
-            RetryQueueDbo retryQueue = null;
+    [Fact]
+    public void RetryQueueAdapter_Adapt_WithoutRetryQueueDbo_ThrowsException()
+    {
+        // Arrange
+        RetryQueueDbo retryQueue = null;
 
-            // Act
-            Action act = () => adapter.Adapt(retryQueue);
+        // Act
+        Action act = () => adapter.Adapt(retryQueue);
 
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
     }
 }

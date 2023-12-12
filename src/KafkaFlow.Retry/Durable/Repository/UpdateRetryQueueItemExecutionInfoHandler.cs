@@ -1,26 +1,26 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository
+﻿using System;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+namespace KafkaFlow.Retry.Durable.Repository;
+
+internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemHandler
 {
-    using System;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
 
-    internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemHandler
+    public UpdateRetryQueueItemExecutionInfoHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
     {
-        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
-
-        public UpdateRetryQueueItemExecutionInfoHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
-        {
             Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
 
             this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
         }
 
-        public bool CanHandle(UpdateItemInput input) => input is UpdateItemExecutionInfoInput;
+    public bool CanHandle(UpdateItemInput input) => input is UpdateItemExecutionInfoInput;
 
-        public async Task UpdateItemAsync(UpdateItemInput input)
-        {
+    public async Task UpdateItemAsync(UpdateItemInput input)
+    {
             Guard.Argument(input, nameof(input)).Compatible<UpdateItemExecutionInfoInput>(i => $"The input have to be a {nameof(UpdateItemExecutionInfoInput)}.");
 
             var updateItemExecutionInfoInput = input as UpdateItemExecutionInfoInput;
@@ -57,5 +57,4 @@
                 throw kafkaException;
             }
         }
-    }
 }

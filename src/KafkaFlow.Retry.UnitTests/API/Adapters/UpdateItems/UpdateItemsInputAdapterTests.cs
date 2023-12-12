@@ -1,42 +1,41 @@
-﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
+using global::KafkaFlow.Retry.API.Dtos;
+using global::KafkaFlow.Retry.API.Dtos.Common;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems;
+
+public class UpdateItemsInputAdapterTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
-    using global::KafkaFlow.Retry.API.Dtos;
-    using global::KafkaFlow.Retry.API.Dtos.Common;
-    using Xunit;
+    private readonly IUpdateItemsInputAdapter adapter = new UpdateItemsInputAdapter();
 
-    public class UpdateItemsInputAdapterTests
+    [Fact]
+    public void UpdateItemsInputAdapter_Adapt_Success()
     {
-        private readonly IUpdateItemsInputAdapter adapter = new UpdateItemsInputAdapter();
-
-        [Fact]
-        public void UpdateItemsInputAdapter_Adapt_Success()
+        // Arrange
+        var requestDto = new UpdateItemsRequestDto
         {
-            // Arrange
-            var requestDto = new UpdateItemsRequestDto
-            {
-                ItemIds = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() },
-                Status = RetryQueueItemStatusDto.Cancelled
-            };
+            ItemIds = new[] { Guid.NewGuid(), Guid.NewGuid(), Guid.NewGuid() },
+            Status = RetryQueueItemStatusDto.Cancelled
+        };
 
-            // Act
-            var input = adapter.Adapt(requestDto);
+        // Act
+        var input = adapter.Adapt(requestDto);
 
-            // Assert
-            input.Should().NotBeNull();
-            input.Should().BeEquivalentTo(requestDto);
-        }
+        // Assert
+        input.Should().NotBeNull();
+        input.Should().BeEquivalentTo(requestDto);
+    }
 
-        [Fact]
-        public void UpdateItemsInputAdapter_Adapt_WithNullArgs_ThrowsException()
-        {
-            // Act
-            Action act = () => this.adapter.Adapt(null);
+    [Fact]
+    public void UpdateItemsInputAdapter_Adapt_WithNullArgs_ThrowsException()
+    {
+        // Act
+        Action act = () => this.adapter.Adapt(null);
 
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
     }
 }

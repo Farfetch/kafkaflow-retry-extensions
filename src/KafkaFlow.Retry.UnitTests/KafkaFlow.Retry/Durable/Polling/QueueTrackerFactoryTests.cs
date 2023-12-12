@@ -1,44 +1,44 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-    using global::KafkaFlow.Retry.Durable.Encoders;
-    using global::KafkaFlow.Retry.Durable.Polling;
-    using global::KafkaFlow.Retry.Durable.Repository;
-    using global::KafkaFlow.Retry.Durable.Repository.Adapters;
-    using Moq;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Definitions.Polling;
+using global::KafkaFlow.Retry.Durable.Encoders;
+using global::KafkaFlow.Retry.Durable.Polling;
+using global::KafkaFlow.Retry.Durable.Repository;
+using global::KafkaFlow.Retry.Durable.Repository.Adapters;
+using Moq;
+using Xunit;
 
-    public class QueueTrackerFactoryTests
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling;
+
+public class QueueTrackerFactoryTests
+{
+    public static IEnumerable<object[]> DataTest() => new List<object[]>
     {
-        public static IEnumerable<object[]> DataTest() => new List<object[]>
-        {
-            new object[]
+        new object[]
             {
                 null,
                 Mock.Of<IJobDataProvidersFactory>(),
                 typeof(ArgumentNullException)
             },
-            new object[]
+        new object[]
             {
                 string.Empty,
                 Mock.Of<IJobDataProvidersFactory>(),
                 typeof(ArgumentException)
             },
-            new object[]
+        new object[]
             {
                 "id",
                 null,
                 typeof(ArgumentNullException)
             }
-        };
+    };
 
-        [Fact]
-        public void QueueTrackerFactory_Create_Success()
-        {
+    [Fact]
+    public void QueueTrackerFactory_Create_Success()
+    {
             // Arrange
             var mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
             mockJobDataProvidersFactory
@@ -54,9 +54,9 @@
             queueTracker.Should().NotBeNull();
         }
 
-        [Fact]
-        public async Task QueueTrackerFactory_Reschedule_Success()
-        {
+    [Fact]
+    public async Task QueueTrackerFactory_Reschedule_Success()
+    {
             var mockILogHandler = new Mock<ILogHandler>();
             mockILogHandler.Setup(x => x.Info(It.IsAny<string>(), It.IsAny<object>()));
             mockILogHandler.Setup(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()));
@@ -93,15 +93,14 @@
             mockILogHandler.Verify(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()), Times.Never);
         }
 
-        [Theory]
-        [MemberData(nameof(DataTest))]
-        internal void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
-            string schedulerId,
-            IJobDataProvidersFactory jobDataProvidersFactory,
-            Type expectedExceptionType)
-        {
+    [Theory]
+    [MemberData(nameof(DataTest))]
+    internal void QueueTrackerFactory_Ctor_WithArgumentNull_ThrowsException(
+        string schedulerId,
+        IJobDataProvidersFactory jobDataProvidersFactory,
+        Type expectedExceptionType)
+    {
             // Act & Assert
             Assert.Throws(expectedExceptionType, () => new QueueTrackerFactory(schedulerId, jobDataProvidersFactory));
         }
-    }
 }

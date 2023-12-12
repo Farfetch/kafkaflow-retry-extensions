@@ -1,25 +1,25 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.IntegrationTests.Core.Messages;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
+using MongoDB.Driver;
+using Xunit;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
+
+internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IPhysicalStorageAssert
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-    using MongoDB.Driver;
-    using Xunit;
+    private readonly IRepositoryProvider repositoryProvider;
 
-    internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IPhysicalStorageAssert
+    public RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert(IRepositoryProvider repositoryProvider)
     {
-        private readonly IRepositoryProvider repositoryProvider;
-
-        public RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert(IRepositoryProvider repositoryProvider)
-        {
             this.repositoryProvider = repositoryProvider;
         }
 
-        public async Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int count)
-        {
+    public async Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int count)
+    {
             var retryQueue = await this
                 .repositoryProvider
                 .GetRepositoryOfType(repositoryType)
@@ -42,8 +42,8 @@
             Assert.All(retryQueueItems, i => Enum.Equals(i.Status, RetryQueueItemStatus.Waiting));
         }
 
-        public async Task AssertRetryDurableMessageDoneAsync(RepositoryType repositoryType, RetryDurableTestMessage message)
-        {
+    public async Task AssertRetryDurableMessageDoneAsync(RepositoryType repositoryType, RetryDurableTestMessage message)
+    {
             var retryQueue = await this
                 .repositoryProvider
                 .GetRepositoryOfType(repositoryType)
@@ -67,8 +67,8 @@
             Assert.Equal(RetryQueueStatus.Done, retryQueue.Status);
         }
 
-        public async Task AssertRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int retryCount)
-        {
+    public async Task AssertRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int retryCount)
+    {
             var retryQueue = await this
                 .repositoryProvider
                 .GetRepositoryOfType(repositoryType)
@@ -96,5 +96,4 @@
             Assert.True(Enum.Equals(retryQueue.Status, RetryQueueStatus.Active));
             Assert.All(retryQueueItems, i => Enum.Equals(i.Status, RetryQueueItemStatus.Waiting));
         }
-    }
 }

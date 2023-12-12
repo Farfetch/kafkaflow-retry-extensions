@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Create
+﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Create;
+
+public enum SaveToQueueResultStatus
 {
-    public enum SaveToQueueResultStatus
-    {
-        Unknown = 0,
-        Added = 1,
-        Created = 2
-    }
+    Unknown = 0,
+    Added = 1,
+    Created = 2
 }

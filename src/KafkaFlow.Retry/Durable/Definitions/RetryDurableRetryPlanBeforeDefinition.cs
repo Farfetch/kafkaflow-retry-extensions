@@ -1,16 +1,16 @@
-﻿namespace KafkaFlow.Retry.Durable.Definitions
-{
-    using System;
-    using Dawn;
+﻿using System;
+using Dawn;
 
-    internal class RetryDurableRetryPlanBeforeDefinition
+namespace KafkaFlow.Retry.Durable.Definitions;
+
+internal class RetryDurableRetryPlanBeforeDefinition
+{
+    public RetryDurableRetryPlanBeforeDefinition(
+        Func<int, TimeSpan> timeBetweenTriesPlan,
+        int numberOfRetries,
+        bool pauseConsumer
+    )
     {
-        public RetryDurableRetryPlanBeforeDefinition(
-            Func<int, TimeSpan> timeBetweenTriesPlan,
-            int numberOfRetries,
-            bool pauseConsumer
-            )
-        {
             Guard.Argument(numberOfRetries).NotZero().NotNegative(value => "The number of retries should be higher than zero");
             Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
 
@@ -19,10 +19,9 @@
             this.PauseConsumer = pauseConsumer;
         }
 
-        public int NumberOfRetries { get; }
+    public int NumberOfRetries { get; }
 
-        public bool PauseConsumer { get; }
+    public bool PauseConsumer { get; }
 
-        public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
-    }
+    public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 }

@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Model.Factories
-{
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Common;
-    using global::KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.MongoDb.Model;
-    using global::KafkaFlow.Retry.MongoDb.Model.Factories;
-    using Xunit;
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Common;
+using global::KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using global::KafkaFlow.Retry.MongoDb.Model;
+using global::KafkaFlow.Retry.MongoDb.Model.Factories;
+using Xunit;
 
-    public class RetryQueueDboFactoryTests
+namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Model.Factories;
+
+public class RetryQueueDboFactoryTests
+{
+    [Fact]
+    public void RetryQueueDboFactory_Create_Success()
     {
-        [Fact]
-        public void RetryQueueDboFactory_Create_Success()
-        {
             // Arrange
             var saveToQueueInput = new SaveToQueueInput(
                 new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow),
@@ -36,9 +36,9 @@
             result.Should().BeOfType(typeof(RetryQueueDbo));
         }
 
-        [Fact]
-        public void RetryQueueDboFactory_Create_WithoutSaveToQueueInput_ThrowsException()
-        {
+    [Fact]
+    public void RetryQueueDboFactory_Create_WithoutSaveToQueueInput_ThrowsException()
+    {
             // Arrange
             SaveToQueueInput saveToQueueInput = null;
 
@@ -48,5 +48,4 @@
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

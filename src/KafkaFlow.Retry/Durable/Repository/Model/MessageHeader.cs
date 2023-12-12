@@ -1,18 +1,17 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Model
-{
-    using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 
-    [ExcludeFromCodeCoverage]
-    public class MessageHeader
+namespace KafkaFlow.Retry.Durable.Repository.Model;
+
+[ExcludeFromCodeCoverage]
+public class MessageHeader
+{
+    public MessageHeader(string key, byte[] value)
     {
-        public MessageHeader(string key, byte[] value)
-        {
             this.Key = key;
             this.Value = value;
         }
 
-        public string Key { get; }
+    public string Key { get; }
 
-        public byte[] Value { get; }
-    }
+    public byte[] Value { get; }
 }

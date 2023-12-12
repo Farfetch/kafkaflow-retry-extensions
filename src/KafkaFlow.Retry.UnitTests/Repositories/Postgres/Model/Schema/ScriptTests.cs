@@ -1,37 +1,36 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Schema
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Postgres.Model.Schema;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Schema;
+
+public class ScriptTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Postgres.Model.Schema;
-    using Xunit;
-    
-    public class ScriptTests
+    [Fact]
+    public void Script_Ctor_Success()
     {
-        [Fact]
-        public void Script_Ctor_Success()
-        {
-            // Arrange
-            var query = "test";
+        // Arrange
+        var query = "test";
 
-            // Act
-            var script = new Script(query);
+        // Act
+        var script = new Script(query);
 
-            // Assert
-            script.Should().NotBeNull();
-            script.Value.Should().Be(query);
-        }
+        // Assert
+        script.Should().NotBeNull();
+        script.Value.Should().Be(query);
+    }
 
-        [Fact]
-        public void Script_Ctor_WithoutValue_ThrowsException()
-        {
-            // Arrange
-            string query = null;
+    [Fact]
+    public void Script_Ctor_WithoutValue_ThrowsException()
+    {
+        // Arrange
+        string query = null;
 
-            // Act
-            Action act = () => new Script(query);
+        // Act
+        Action act = () => new Script(query);
 
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
     }
 }

@@ -1,24 +1,23 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Model
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
+namespace KafkaFlow.Retry.MongoDb.Model;
+
+[ExcludeFromCodeCoverage]
+public class RetryQueueItemMessageDbo
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
+    public IEnumerable<RetryQueueHeaderDbo> Headers { get; set; }
 
-    [ExcludeFromCodeCoverage]
-    public class RetryQueueItemMessageDbo
-    {
-        public IEnumerable<RetryQueueHeaderDbo> Headers { get; set; }
+    public byte[] Key { get; set; }
 
-        public byte[] Key { get; set; }
+    public long Offset { get; set; }
 
-        public long Offset { get; set; }
+    public int Partition { get; set; }
 
-        public int Partition { get; set; }
+    public string TopicName { get; set; }
 
-        public string TopicName { get; set; }
+    public DateTime UtcTimeStamp { get; set; }
 
-        public DateTime UtcTimeStamp { get; set; }
-
-        public byte[] Value { get; set; }
-    }
+    public byte[] Value { get; set; }
 }

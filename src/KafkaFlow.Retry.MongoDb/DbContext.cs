@@ -1,24 +1,22 @@
-﻿namespace KafkaFlow.Retry.MongoDb
+﻿using KafkaFlow.Retry.MongoDb.Model;
+using MongoDB.Driver;
+
+namespace KafkaFlow.Retry.MongoDb;
+internal sealed class DbContext
 {
-    using KafkaFlow.Retry.MongoDb.Model;
-    using MongoDB.Driver;
+    private readonly IMongoDatabase database;
+    private readonly MongoDbSettings mongoDbSettings;
 
-    internal sealed class DbContext
+    public DbContext(MongoDbSettings mongoDbSettings, IMongoClient mongoClient)
     {
-        private readonly IMongoDatabase database;
-        private readonly MongoDbSettings mongoDbSettings;
-
-        public DbContext(MongoDbSettings mongoDbSettings, IMongoClient mongoClient)
-        {
             this.mongoDbSettings = mongoDbSettings;
             this.MongoClient = mongoClient;
 
             this.database = mongoClient.GetDatabase(this.mongoDbSettings.DatabaseName);
         }
 
-        public IMongoClient MongoClient { get; }
-        public IMongoCollection<RetryQueueItemDbo> RetryQueueItems => database.GetCollection<RetryQueueItemDbo>(this.mongoDbSettings.RetryQueueItemCollectionName);
+    public IMongoClient MongoClient { get; }
+    public IMongoCollection<RetryQueueItemDbo> RetryQueueItems => database.GetCollection<RetryQueueItemDbo>(this.mongoDbSettings.RetryQueueItemCollectionName);
 
-        public IMongoCollection<RetryQueueDbo> RetryQueues => database.GetCollection<RetryQueueDbo>(this.mongoDbSettings.RetryQueueCollectionName);
-    }
+    public IMongoCollection<RetryQueueDbo> RetryQueues => database.GetCollection<RetryQueueDbo>(this.mongoDbSettings.RetryQueueCollectionName);
 }

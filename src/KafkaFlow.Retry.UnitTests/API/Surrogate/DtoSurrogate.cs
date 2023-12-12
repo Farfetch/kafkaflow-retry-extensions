@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.UnitTests.API.Surrogate
-{
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
+﻿using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal class DtoSurrogate
-    {
-        public RetryQueueStatus Text { get; set; }
-    }
+namespace KafkaFlow.Retry.UnitTests.API.Surrogate;
+
+internal class DtoSurrogate
+{
+    public RetryQueueStatus Text { get; set; }
 }

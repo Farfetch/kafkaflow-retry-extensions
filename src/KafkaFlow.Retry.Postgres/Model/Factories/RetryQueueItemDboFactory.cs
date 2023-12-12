@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.Postgres.Model.Factories
+﻿using System;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+
+namespace KafkaFlow.Retry.Postgres.Model.Factories;
+
+internal sealed class RetryQueueItemDboFactory : IRetryQueueItemDboFactory
 {
-    using System;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    
-    internal sealed class RetryQueueItemDboFactory : IRetryQueueItemDboFactory
+    public RetryQueueItemDbo Create(SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId)
     {
-        public RetryQueueItemDbo Create(SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId)
-        {
             Guard.Argument(input, nameof(input)).NotNull();
             Guard.Argument(retryQueueId, nameof(retryQueueId)).Positive();
             Guard.Argument(retryQueueDomainId, nameof(retryQueueDomainId)).NotDefault();
@@ -26,5 +26,4 @@
                 Description = input.Description
             };
         }
-    }
 }

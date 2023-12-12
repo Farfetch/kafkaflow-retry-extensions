@@ -1,8 +1,7 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Messages
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Messages;
+
+internal class RetrySimpleTestMessage : ITestMessage
 {
-    internal class RetrySimpleTestMessage : ITestMessage
-    {
-        public string Key { get; set; }
-        public string Value { get; set; }
-    }
+    public string Key { get; set; }
+    public string Value { get; set; }
 }

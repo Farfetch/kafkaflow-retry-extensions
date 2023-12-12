@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.SqlServer
+﻿namespace KafkaFlow.Retry.SqlServer;
+
+public static class RetryDurableDefinitionBuilderExtension
 {
-    public static class RetryDurableDefinitionBuilderExtension
+    public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
+        this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
+        string connectionString,
+        string databaseName,
+        string schema)
     {
-        public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
-            this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
-            string connectionString,
-            string databaseName,
-            string schema)
-        {
             retryDurableDefinitionBuilder.WithRepositoryProvider(
                 new SqlServerDbDataProviderFactory()
                     .Create(
@@ -21,11 +21,11 @@
             return retryDurableDefinitionBuilder;
         }
 
-        public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
-           this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
-           string connectionString,
-           string databaseName)
-        {
+    public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
+        this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
+        string connectionString,
+        string databaseName)
+    {
             retryDurableDefinitionBuilder.WithRepositoryProvider(
                 new SqlServerDbDataProviderFactory()
                     .Create(
@@ -37,5 +37,4 @@
 
             return retryDurableDefinitionBuilder;
         }
-    }
 }

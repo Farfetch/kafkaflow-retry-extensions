@@ -1,28 +1,28 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Threading;
+using System.Threading.Tasks;
+using Dawn;
+using Quartz;
+using Quartz.Impl;
+
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal class QueueTracker
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Collections.Specialized;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using Dawn;
-    using Quartz;
-    using Quartz.Impl;
+    private static readonly object internalLock = new object();
+    private readonly IEnumerable<IJobDataProvider> jobDataProviders;
+    private readonly ILogHandler logHandler;
+    private readonly string schedulerId;
+    private IScheduler scheduler;
 
-    internal class QueueTracker
+    public QueueTracker(
+        string schedulerId,
+        IEnumerable<IJobDataProvider> jobDataProviders,
+        ILogHandler logHandler
+    )
     {
-        private static readonly object internalLock = new object();
-        private readonly IEnumerable<IJobDataProvider> jobDataProviders;
-        private readonly ILogHandler logHandler;
-        private readonly string schedulerId;
-        private IScheduler scheduler;
-
-        public QueueTracker(
-            string schedulerId,
-            IEnumerable<IJobDataProvider> jobDataProviders,
-            ILogHandler logHandler
-        )
-        {
             Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
             Guard.Argument(jobDataProviders).NotNull().NotEmpty();
             Guard.Argument(logHandler).NotNull();
@@ -32,13 +32,13 @@
             this.logHandler = logHandler;
         }
 
-        private bool IsSchedulerActive
-            => this.scheduler is object
-            && this.scheduler.IsStarted
-            && !this.scheduler.IsShutdown;
+    private bool IsSchedulerActive
+        => this.scheduler is object
+           && this.scheduler.IsStarted
+           && !this.scheduler.IsShutdown;
 
-        internal async Task ScheduleJobsAsync(CancellationToken cancellationToken = default)
-        {
+    internal async Task ScheduleJobsAsync(CancellationToken cancellationToken = default)
+    {
             try
             {
                 await this.StartSchedulerAsync(cancellationToken).ConfigureAwait(false);
@@ -69,8 +69,8 @@
             }
         }
 
-        internal async Task UnscheduleJobsAsync(CancellationToken cancellationToken = default)
-        {
+    internal async Task UnscheduleJobsAsync(CancellationToken cancellationToken = default)
+    {
             foreach (var jobDataProvider in this.jobDataProviders)
             {
                 if (!jobDataProvider.PollingDefinition.Enabled)
@@ -102,8 +102,8 @@
             }
         }
 
-        private async Task ScheduleJobAsync(IJobDataProvider jobDataProvider, CancellationToken cancellationToken)
-        {
+    private async Task ScheduleJobAsync(IJobDataProvider jobDataProvider, CancellationToken cancellationToken)
+    {
             try
             {
                 var job = jobDataProvider.JobDetail;
@@ -135,8 +135,8 @@
             }
         }
 
-        private async Task StartSchedulerAsync(CancellationToken cancellationToken)
-        {
+    private async Task StartSchedulerAsync(CancellationToken cancellationToken)
+    {
             lock (internalLock)
             {
                 Guard.Argument(this.scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
@@ -155,5 +155,4 @@
                 this.logHandler.Info("PollingJob Scheduler started", new { SchedulerId = this.schedulerId });
             }
         }
-    }
 }

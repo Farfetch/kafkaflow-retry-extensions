@@ -1,14 +1,14 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Update
-{
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using System.Diagnostics.CodeAnalysis;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    [ExcludeFromCodeCoverage]
-    public class UpdateQueueResult
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+[ExcludeFromCodeCoverage]
+public class UpdateQueueResult
+{
+    public UpdateQueueResult(string queueGroupKey, UpdateQueueResultStatus updateStatus, RetryQueueStatus retryQueueStatus)
     {
-        public UpdateQueueResult(string queueGroupKey, UpdateQueueResultStatus updateStatus, RetryQueueStatus retryQueueStatus)
-        {
             Guard.Argument(queueGroupKey, nameof(queueGroupKey)).NotNull();
             Guard.Argument(updateStatus, nameof(updateStatus)).NotDefault();
 
@@ -17,8 +17,7 @@
             this.RetryQueueStatus = retryQueueStatus;
         }
 
-        public string QueueGroupKey { get; }
-        public RetryQueueStatus RetryQueueStatus { get; }
-        public UpdateQueueResultStatus Status { get; }
-    }
+    public string QueueGroupKey { get; }
+    public RetryQueueStatus RetryQueueStatus { get; }
+    public UpdateQueueResultStatus Status { get; }
 }

@@ -1,38 +1,37 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Encoders
+﻿using System.Text;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Encoders;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Encoders;
+
+public class Utf8EncoderTests
 {
-    using System.Text;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Encoders;
-    using Xunit;
+    private readonly Utf8Encoder utf8Encoder = new Utf8Encoder();
 
-    public class Utf8EncoderTests
+    [Fact]
+    public void Utf8Encoder_Deconde_Success()
     {
-        private readonly Utf8Encoder utf8Encoder = new Utf8Encoder();
+        // Arrange
+        var data = new byte[0];
 
-        [Fact]
-        public void Utf8Encoder_Deconde_Success()
-        {
-            // Arrange
-            var data = new byte[0];
+        // Act
+        var result = this.utf8Encoder.Decode(data);
 
-            // Act
-            var result = this.utf8Encoder.Decode(data);
+        // Assert
+        result.Should().BeEquivalentTo(Encoding.UTF8.GetString(data));
+    }
 
-            // Assert
-            result.Should().BeEquivalentTo(Encoding.UTF8.GetString(data));
-        }
+    [Fact]
+    public void Utf8Encoder_Enconde_Success()
+    {
+        // Arrange
+        var data = "new";
 
-        [Fact]
-        public void Utf8Encoder_Enconde_Success()
-        {
-            // Arrange
-            var data = "new";
+        // Act
+        var result = this.utf8Encoder.Encode(data);
 
-            // Act
-            var result = this.utf8Encoder.Encode(data);
-
-            // Assert
-            result.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(data));
-        }
+        // Assert
+        result.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(data));
     }
 }

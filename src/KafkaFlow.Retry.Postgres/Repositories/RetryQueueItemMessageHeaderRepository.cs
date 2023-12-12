@@ -1,16 +1,16 @@
-﻿namespace KafkaFlow.Retry.Postgres.Repositories
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Postgres.Model;
+using Npgsql;
+
+namespace KafkaFlow.Retry.Postgres.Repositories;
+
+internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMessageHeaderRepository
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Postgres.Model;
-    using Npgsql;
-    
-    internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMessageHeaderRepository
+    public async Task AddAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageHeaderDbo> retryQueueHeadersDbo)
     {
-        public async Task AddAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageHeaderDbo> retryQueueHeadersDbo)
-        {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueHeadersDbo, nameof(retryQueueHeadersDbo)).NotNull();
 
@@ -20,8 +20,8 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemMessageHeaderDbo>> GetOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageDbo> retryQueueItemMessagesDbo)
-        {
+    public async Task<IList<RetryQueueItemMessageHeaderDbo>> GetOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageDbo> retryQueueItemMessagesDbo)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemMessagesDbo, nameof(retryQueueItemMessagesDbo)).NotNull();
 
@@ -38,8 +38,8 @@
             }
         }
 
-        private async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageHeaderDbo retryQueueHeaderDbo)
-        {
+    private async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageHeaderDbo retryQueueHeaderDbo)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueHeaderDbo, nameof(retryQueueHeaderDbo)).NotNull();
 
@@ -59,8 +59,8 @@
             }
         }
 
-        private async Task<IList<RetryQueueItemMessageHeaderDbo>> ExecuteReaderAsync(NpgsqlCommand command)
-        {
+    private async Task<IList<RetryQueueItemMessageHeaderDbo>> ExecuteReaderAsync(NpgsqlCommand command)
+    {
             var headers = new List<RetryQueueItemMessageHeaderDbo>();
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
@@ -79,8 +79,8 @@
             return headers;
         }
 
-        private RetryQueueItemMessageHeaderDbo FillDbo(NpgsqlDataReader reader, int idColumn, int keyColumn, int retryQueueItemMessageColumn, int valueColumn)
-        {
+    private RetryQueueItemMessageHeaderDbo FillDbo(NpgsqlDataReader reader, int idColumn, int keyColumn, int retryQueueItemMessageColumn, int valueColumn)
+    {
             return new RetryQueueItemMessageHeaderDbo
             {
                 Id = reader.GetInt64(idColumn),
@@ -89,5 +89,4 @@
                 RetryQueueItemMessageId = reader.GetInt64(retryQueueItemMessageColumn)
             };
         }
-    }
 }

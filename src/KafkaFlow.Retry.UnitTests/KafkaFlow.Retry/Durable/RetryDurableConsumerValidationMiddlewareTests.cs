@@ -1,18 +1,18 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable
-{
-    using System;
-    using System.Collections.Generic;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable;
-    using global::KafkaFlow.Retry.Durable.Encoders;
-    using global::KafkaFlow.Retry.Durable.Repository;
-    using Moq;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable;
+using global::KafkaFlow.Retry.Durable.Encoders;
+using global::KafkaFlow.Retry.Durable.Repository;
+using Moq;
+using Xunit;
 
-    public class RetryDurableConsumerValidationMiddlewareTests
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable;
+
+public class RetryDurableConsumerValidationMiddlewareTests
+{
+    public static IEnumerable<object[]> DataTest()
     {
-        public static IEnumerable<object[]> DataTest()
-        {
             yield return new object[]
             {
                 null,
@@ -33,13 +33,13 @@
             };
         }
 
-        [Theory]
-        [MemberData(nameof(DataTest))]
-        internal void RetryDurableConsumerValidationMiddleware_Ctor_Tests(
-            ILogHandler logHandler,
-            IRetryDurableQueueRepository retryDurableQueueRepository,
-            IUtf8Encoder utf8Encoder)
-        {
+    [Theory]
+    [MemberData(nameof(DataTest))]
+    internal void RetryDurableConsumerValidationMiddleware_Ctor_Tests(
+        ILogHandler logHandler,
+        IRetryDurableQueueRepository retryDurableQueueRepository,
+        IUtf8Encoder utf8Encoder)
+    {
             // Act
             Action act = () => new RetryDurableConsumerValidationMiddleware(logHandler,
                                                                             retryDurableQueueRepository,
@@ -48,5 +48,4 @@
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

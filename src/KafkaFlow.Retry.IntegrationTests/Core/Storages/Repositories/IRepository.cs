@@ -1,25 +1,24 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Model;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
+
+public interface IRepository
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+    RepositoryType RepositoryType { get; }
 
-    public interface IRepository
-    {
-        RepositoryType RepositoryType { get; }
+    IRetryDurableQueueRepositoryProvider RetryQueueDataProvider { get; }
 
-        IRetryDurableQueueRepositoryProvider RetryQueueDataProvider { get; }
+    Task CleanDatabaseAsync();
 
-        Task CleanDatabaseAsync();
+    Task CreateQueueAsync(RetryQueue queue);
 
-        Task CreateQueueAsync(RetryQueue queue);
+    Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey);
 
-        Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey);
+    Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey);
 
-        Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey);
-
-        Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItem>, bool> stopCondition);
-    }
+    Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItem>, bool> stopCondition);
 }

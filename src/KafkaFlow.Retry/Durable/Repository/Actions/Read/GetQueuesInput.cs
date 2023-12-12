@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Dawn;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    public class GetQueuesInput
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Read;
+
+public class GetQueuesInput
+{
+    public GetQueuesInput(RetryQueueStatus status,
+        IEnumerable<RetryQueueItemStatus> itemsStatuses,
+        GetQueuesSortOption sortOption,
+        int topQueues,
+        StuckStatusFilter stuckStatusFilter = null)
     {
-        public GetQueuesInput(RetryQueueStatus status,
-            IEnumerable<RetryQueueItemStatus> itemsStatuses,
-            GetQueuesSortOption sortOption,
-            int topQueues,
-            StuckStatusFilter stuckStatusFilter = null)
-        {
             Guard.Argument(status, nameof(status)).NotDefault();
             Guard.Argument(itemsStatuses, nameof(itemsStatuses))
                  .NotNull()
@@ -34,20 +34,19 @@
             this.StuckStatusFilter = stuckStatusFilter;
         }
 
-        public IEnumerable<RetryQueueItemStatus> ItemsStatuses { get; }
+    public IEnumerable<RetryQueueItemStatus> ItemsStatuses { get; }
 
-        public string SearchGroupKey { get; set; }
+    public string SearchGroupKey { get; set; }
 
-        public IEnumerable<SeverityLevel> SeverityLevels { get; set; }
+    public IEnumerable<SeverityLevel> SeverityLevels { get; set; }
 
-        public GetQueuesSortOption SortOption { get; }
+    public GetQueuesSortOption SortOption { get; }
 
-        public RetryQueueStatus Status { get; }
+    public RetryQueueStatus Status { get; }
 
-        public StuckStatusFilter StuckStatusFilter { get; }
+    public StuckStatusFilter StuckStatusFilter { get; }
 
-        public int? TopItemsByQueue { get; set; }
+    public int? TopItemsByQueue { get; set; }
 
-        public int TopQueues { get; }
-    }
+    public int TopQueues { get; }
 }

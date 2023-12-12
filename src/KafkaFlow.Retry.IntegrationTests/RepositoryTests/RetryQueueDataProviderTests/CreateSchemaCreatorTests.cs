@@ -1,21 +1,21 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests
-{
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
-    using KafkaFlow.Retry.Postgres;
-    using KafkaFlow.Retry.SqlServer;
-    using Xunit;
+﻿using System.Threading.Tasks;
+using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+using KafkaFlow.Retry.Postgres;
+using KafkaFlow.Retry.SqlServer;
+using Xunit;
 
-    public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
+namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
+
+public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
+{
+    public CreateSchemaCreatorTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        : base(bootstrapperRepositoryFixture)
     {
-        public CreateSchemaCreatorTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
-                : base(bootstrapperRepositoryFixture)
-        {
         }
 
-        [Fact]
-        public async Task PostgresDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
-        {
+    [Fact]
+    public async Task PostgresDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
+    {
             var postgresDataProviderFactory = new PostgresDbDataProviderFactory();
 
             var connectionString = this.bootstrapperRepositoryFixture.PostgresSettings.ConnectionString;
@@ -28,9 +28,9 @@
             await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
         }
 
-        [Fact]
-        public async Task SqlServerDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
-        {
+    [Fact]
+    public async Task SqlServerDbDataProviderFactory_CreateSchemaCreator_ExecuteSuccessfully()
+    {
             var sqlDataProviderFactory = new SqlServerDbDataProviderFactory();
 
             var connectionString = this.bootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
@@ -43,5 +43,4 @@
 
             await retrySchemaCreator.CreateOrUpdateSchemaAsync(databaseName);
         }
-    }
 }

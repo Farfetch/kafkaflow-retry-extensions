@@ -1,26 +1,26 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling.Jobs
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Polling.Extensions;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using Quartz;
+
+namespace KafkaFlow.Retry.Durable.Polling.Jobs;
+
+[DisallowConcurrentExecutionAttribute]
+internal class RetryDurablePollingJob : IJob
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Polling.Extensions;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using Quartz;
+    private TimeSpan expirationInterval = TimeSpan.Zero;
 
-    [DisallowConcurrentExecutionAttribute]
-    internal class RetryDurablePollingJob : IJob
+    public async Task Execute(IJobExecutionContext context)
     {
-        private TimeSpan expirationInterval = TimeSpan.Zero;
-
-        public async Task Execute(IJobExecutionContext context)
-        {
             var jobDataMap = context.JobDetail.JobDataMap;
 
             var retryDurablePollingDefinition = jobDataMap.GetValidValue<RetryDurablePollingDefinition>(PollingJobConstants.RetryDurablePollingDefinition, nameof(RetryDurablePollingJob));
@@ -164,8 +164,8 @@
             }
         }
 
-        private TimeSpan GetExpirationInterval(RetryDurablePollingDefinition retryDurablePollingDefinition)
-        {
+    private TimeSpan GetExpirationInterval(RetryDurablePollingDefinition retryDurablePollingDefinition)
+    {
             if (this.expirationInterval != TimeSpan.Zero)
             {
                 return this.expirationInterval;
@@ -192,12 +192,12 @@
             return this.expirationInterval;
         }
 
-        private IMessageHeaders GetMessageHeaders(
-            IMessageHeadersAdapter messageHeadersAdapter,
-            IUtf8Encoder utf8Encoder,
-            Guid queueId,
-            RetryQueueItem item)
-        {
+    private IMessageHeaders GetMessageHeaders(
+        IMessageHeadersAdapter messageHeadersAdapter,
+        IUtf8Encoder utf8Encoder,
+        Guid queueId,
+        RetryQueueItem item)
+    {
             var messageHeaders = messageHeadersAdapter.AdaptMessageHeadersFromRepository(item.Message.Headers);
 
             messageHeaders.Add(RetryDurableConstants.AttemptsCount, utf8Encoder.Encode(item.AttemptsCount.ToString()));
@@ -208,12 +208,11 @@
             return messageHeaders;
         }
 
-        private bool IsAbleToBeProduced(RetryQueueItem item, RetryDurablePollingDefinition retryDurablePollingDefinition)
-        {
+    private bool IsAbleToBeProduced(RetryQueueItem item, RetryDurablePollingDefinition retryDurablePollingDefinition)
+    {
             return item.Status == RetryQueueItemStatus.Waiting
                  || (item.ModifiedStatusDate.HasValue
                     && item.Status == RetryQueueItemStatus.InRetry
                     && DateTime.UtcNow > item.ModifiedStatusDate + this.GetExpirationInterval(retryDurablePollingDefinition));
         }
-    }
 }

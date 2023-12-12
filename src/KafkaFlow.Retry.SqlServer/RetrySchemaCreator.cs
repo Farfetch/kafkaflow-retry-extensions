@@ -1,18 +1,18 @@
-﻿namespace KafkaFlow.Retry.SqlServer
+﻿using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.SqlServer.Model.Schema;
+
+namespace KafkaFlow.Retry.SqlServer;
+
+internal class RetrySchemaCreator : IRetrySchemaCreator
 {
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.SqlServer.Model.Schema;
+    private readonly IEnumerable<Script> schemaScripts;
+    private readonly SqlServerDbSettings sqlServerDbSettings;
 
-    internal class RetrySchemaCreator : IRetrySchemaCreator
+    public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
     {
-        private readonly IEnumerable<Script> schemaScripts;
-        private readonly SqlServerDbSettings sqlServerDbSettings;
-
-        public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
-        {
             Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
             Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
@@ -20,8 +20,8 @@
             this.schemaScripts = schemaScripts;
         }
 
-        public async Task CreateOrUpdateSchemaAsync(string databaseName)
-        {
+    public async Task CreateOrUpdateSchemaAsync(string databaseName)
+    {
             using (SqlConnection openCon = new SqlConnection(this.sqlServerDbSettings.ConnectionString))
             {
                 openCon.Open();
@@ -44,5 +44,4 @@
                 }
             }
         }
-    }
 }

@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Postgres.Model.Factories
-{
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal interface IRetryQueueItemMessageDboFactory
-    {
-        RetryQueueItemMessageDbo Create(RetryQueueItemMessage retryQueueItemMessage, long retryQueueItemId);
-    }
+namespace KafkaFlow.Retry.Postgres.Model.Factories;
+
+internal interface IRetryQueueItemMessageDboFactory
+{
+    RetryQueueItemMessageDbo Create(RetryQueueItemMessage retryQueueItemMessage, long retryQueueItemId);
 }

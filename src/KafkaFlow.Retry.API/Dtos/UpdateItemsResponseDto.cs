@@ -1,14 +1,13 @@
-﻿namespace KafkaFlow.Retry.API.Dtos
-{
-    using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
-    public class UpdateItemsResponseDto
+namespace KafkaFlow.Retry.API.Dtos;
+
+public class UpdateItemsResponseDto
+{
+    public UpdateItemsResponseDto()
     {
-        public UpdateItemsResponseDto()
-        {
             this.UpdateItemsResults = new List<UpdateItemResultDto>();
         }
 
-        public IList<UpdateItemResultDto> UpdateItemsResults { get; set; }
-    }
+    public IList<UpdateItemResultDto> UpdateItemsResults { get; set; }
 }

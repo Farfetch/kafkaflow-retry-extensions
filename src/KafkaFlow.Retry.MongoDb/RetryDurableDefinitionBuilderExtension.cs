@@ -1,14 +1,14 @@
-﻿namespace KafkaFlow.Retry.MongoDb
+﻿namespace KafkaFlow.Retry.MongoDb;
+
+public static class RetryDurableDefinitionBuilderExtension
 {
-    public static class RetryDurableDefinitionBuilderExtension
+    public static RetryDurableDefinitionBuilder WithMongoDbDataProvider(
+        this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
+        string connectionString,
+        string databaseName,
+        string mongoDbretryQueueCollectionName,
+        string mongoDbretryQueueItemCollectionName)
     {
-        public static RetryDurableDefinitionBuilder WithMongoDbDataProvider(
-            this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
-            string connectionString,
-            string databaseName,
-            string mongoDbretryQueueCollectionName,
-            string mongoDbretryQueueItemCollectionName)
-        {
             var dataProviderCreation = new MongoDbDataProviderFactory()
                     .TryCreate(
                         new MongoDbSettings
@@ -29,5 +29,4 @@
 
             return retryDurableDefinitionBuilder;
         }
-    }
 }

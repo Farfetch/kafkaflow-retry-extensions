@@ -1,27 +1,26 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.UpdateItems
+﻿using Dawn;
+using KafkaFlow.Retry.API.Adapters.Common;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+namespace KafkaFlow.Retry.API.Adapters.UpdateItems;
+
+internal class UpdateItemsInputAdapter : IUpdateItemsInputAdapter
 {
-    using Dawn;
-    using KafkaFlow.Retry.API.Adapters.Common;
-    using KafkaFlow.Retry.API.Dtos;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    private readonly IRetryQueueItemStatusDtoAdapter retryQueueItemStatusDtoAdapter;
 
-    internal class UpdateItemsInputAdapter : IUpdateItemsInputAdapter
+    public UpdateItemsInputAdapter()
     {
-        private readonly IRetryQueueItemStatusDtoAdapter retryQueueItemStatusDtoAdapter;
+        this.retryQueueItemStatusDtoAdapter = new RetryQueueItemStatusDtoAdapter();
+    }
 
-        public UpdateItemsInputAdapter()
-        {
-            this.retryQueueItemStatusDtoAdapter = new RetryQueueItemStatusDtoAdapter();
-        }
+    public UpdateItemsInput Adapt(UpdateItemsRequestDto requestDto)
+    {
+        Guard.Argument(requestDto, nameof(requestDto)).NotNull();
 
-        public UpdateItemsInput Adapt(UpdateItemsRequestDto requestDto)
-        {
-            Guard.Argument(requestDto, nameof(requestDto)).NotNull();
-
-            return new UpdateItemsInput(
-               requestDto.ItemIds,
-               this.retryQueueItemStatusDtoAdapter.Adapt(requestDto.Status)
-               );
-        }
+        return new UpdateItemsInput(
+            requestDto.ItemIds,
+            this.retryQueueItemStatusDtoAdapter.Adapt(requestDto.Status)
+        );
     }
 }

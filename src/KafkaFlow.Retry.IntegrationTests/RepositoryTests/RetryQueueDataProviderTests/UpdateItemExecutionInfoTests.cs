@@ -1,32 +1,32 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests
-{
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-    using Xunit;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
+using Xunit;
 
-    public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
+namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
+
+public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
+{
+    public UpdateItemExecutionInfoTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        : base(bootstrapperRepositoryFixture)
     {
-        public UpdateItemExecutionInfoTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
-                 : base(bootstrapperRepositoryFixture)
-        {
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.InRetry)]
-        [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.InRetry)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.InRetry)]
-        [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Waiting)]
-        public async Task UpdateItemExecutionInfoAsync_UpdateStatus_ReturnsUpdatedStatus(RepositoryType repositoryType, RetryQueueItemStatus expectedItemStatus)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.InRetry)]
+    [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.InRetry)]
+    [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.InRetry)]
+    [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Waiting)]
+    [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Waiting)]
+    [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Waiting)]
+    public async Task UpdateItemExecutionInfoAsync_UpdateStatus_ReturnsUpdatedStatus(RepositoryType repositoryType, RetryQueueItemStatus expectedItemStatus)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -66,12 +66,12 @@
             actualItem.Description.Should().Be(expectedDescription);
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task UpdateItemExecutionInfoAsync_UpdateToDone_QueueWithoutAllItemsDone_ReturnsUpdatedStatus(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task UpdateItemExecutionInfoAsync_UpdateToDone_QueueWithoutAllItemsDone_ReturnsUpdatedStatus(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -115,12 +115,12 @@
             actualFirstItem.Description.Should().Be(expectedDescription);
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task UpdateItemExecutionInfoAsync_UpdateToDone_ReturnsUpdatedStatusQueueWithAllItemsDone(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task UpdateItemExecutionInfoAsync_UpdateToDone_ReturnsUpdatedStatusQueueWithAllItemsDone(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -157,12 +157,12 @@
             actualItem.Description.Should().Be(expectedDescription);
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task UpdateItemExecutionInfoAsync_WrongItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task UpdateItemExecutionInfoAsync_WrongItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -200,15 +200,15 @@
             actualItem.AttemptsCount.Should().NotBe(notExpectedAttemptsCount);
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Done)]
-        [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Done)]
-        [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Waiting)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Done)]
-        [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Waiting)]
-        public async Task UpdateItemExecutionInfoAsync_WrongQueue_ReturnsQueueNotFoundStatus(RepositoryType repositoryType, RetryQueueItemStatus notExpectedItemStatus)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Done)]
+    [InlineData(RepositoryType.MongoDb, RetryQueueItemStatus.Waiting)]
+    [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Done)]
+    [InlineData(RepositoryType.SqlServer, RetryQueueItemStatus.Waiting)]
+    [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Done)]
+    [InlineData(RepositoryType.Postgres, RetryQueueItemStatus.Waiting)]
+    public async Task UpdateItemExecutionInfoAsync_WrongQueue_ReturnsQueueNotFoundStatus(RepositoryType repositoryType, RetryQueueItemStatus notExpectedItemStatus)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -261,5 +261,4 @@
 
             actualItem.Sort.Should().Be(item.Sort);
         }
-    }
 }

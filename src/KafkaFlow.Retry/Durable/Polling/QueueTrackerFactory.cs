@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿using System.Collections.Generic;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal class QueueTrackerFactory : IQueueTrackerFactory
 {
-    using System.Collections.Generic;
-    using Dawn;
+    private readonly IJobDataProvidersFactory jobDataProvidersFactory;
+    private readonly string schedulerId;
+    private IEnumerable<IJobDataProvider> jobDataProviders;
 
-    internal class QueueTrackerFactory : IQueueTrackerFactory
+    public QueueTrackerFactory(
+        string schedulerId,
+        IJobDataProvidersFactory jobDataProvidersFactory
+    )
     {
-        private readonly IJobDataProvidersFactory jobDataProvidersFactory;
-        private readonly string schedulerId;
-        private IEnumerable<IJobDataProvider> jobDataProviders;
-
-        public QueueTrackerFactory(
-            string schedulerId,
-            IJobDataProvidersFactory jobDataProvidersFactory
-        )
-        {
             Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
             Guard.Argument(jobDataProvidersFactory, nameof(jobDataProvidersFactory)).NotNull();
 
@@ -21,8 +21,8 @@
             this.jobDataProvidersFactory = jobDataProvidersFactory;
         }
 
-        public QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
-        {
+    public QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
+    {
             if (this.jobDataProviders is null)
             {
                 this.jobDataProviders = this.jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
@@ -33,5 +33,4 @@
                 this.jobDataProviders,
                 logHandler);
         }
-    }
 }

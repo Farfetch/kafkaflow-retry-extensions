@@ -1,16 +1,16 @@
-﻿namespace KafkaFlow.Retry.Durable.Definitions.Polling
-{
-    using Dawn;
+﻿using Dawn;
 
-    internal class CleanupPollingDefinition : PollingDefinition
+namespace KafkaFlow.Retry.Durable.Definitions.Polling;
+
+internal class CleanupPollingDefinition : PollingDefinition
+{
+    public CleanupPollingDefinition(
+        bool enabled,
+        string cronExpression,
+        int timeToLiveInDays,
+        int rowsPerRequest)
+        : base(enabled, cronExpression)
     {
-        public CleanupPollingDefinition(
-            bool enabled,
-            string cronExpression,
-            int timeToLiveInDays,
-            int rowsPerRequest)
-            : base(enabled, cronExpression)
-        {
             if (enabled)
             {
                 Guard.Argument(timeToLiveInDays, nameof(timeToLiveInDays)).Positive();
@@ -21,10 +21,9 @@
             this.RowsPerRequest = rowsPerRequest;
         }
 
-        public override PollingJobType PollingJobType => PollingJobType.Cleanup;
+    public override PollingJobType PollingJobType => PollingJobType.Cleanup;
 
-        public int RowsPerRequest { get; }
+    public int RowsPerRequest { get; }
 
-        public int TimeToLiveInDays { get; }
-    }
+    public int TimeToLiveInDays { get; }
 }

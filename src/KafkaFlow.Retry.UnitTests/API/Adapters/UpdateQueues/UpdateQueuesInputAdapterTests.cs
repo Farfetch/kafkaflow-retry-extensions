@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateQueues
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.API.Adapters.UpdateQueues;
+using global::KafkaFlow.Retry.API.Dtos;
+using global::KafkaFlow.Retry.API.Dtos.Common;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateQueues;
+
+public class UpdateQueuesInputAdapterTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.API.Adapters.UpdateQueues;
-    using global::KafkaFlow.Retry.API.Dtos;
-    using global::KafkaFlow.Retry.API.Dtos.Common;
-    using Xunit;
+    private readonly IUpdateQueuesInputAdapter adapter = new UpdateQueuesInputAdapter();
 
-    public class UpdateQueuesInputAdapterTests
+    [Fact]
+    public void UpdateQueuesInputAdapter_Adapt_Success()
     {
-        private readonly IUpdateQueuesInputAdapter adapter = new UpdateQueuesInputAdapter();
-
-        [Fact]
-        public void UpdateQueuesInputAdapter_Adapt_Success()
-        {
             // Arrange
             var requestDto = new UpdateQueuesRequestDto
             {
@@ -29,14 +29,13 @@
             input.Should().BeEquivalentTo(requestDto);
         }
 
-        [Fact]
-        public void UpdateQueuesInputAdapter_Adapt_WithNullArgs_ThrowsException()
-        {
+    [Fact]
+    public void UpdateQueuesInputAdapter_Adapt_WithNullArgs_ThrowsException()
+    {
             // Act
             Action act = () => this.adapter.Adapt(null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

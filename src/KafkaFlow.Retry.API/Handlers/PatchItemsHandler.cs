@@ -1,68 +1,67 @@
-﻿namespace KafkaFlow.Retry.API.Handlers
+﻿using System;
+using System.Net;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.API.Adapters.UpdateItems;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Repository;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+
+namespace KafkaFlow.Retry.API.Handlers;
+
+internal class PatchItemsHandler : RetryRequestHandlerBase
 {
-    using System;
-    using System.Net;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.API.Adapters.UpdateItems;
-    using KafkaFlow.Retry.API.Dtos;
-    using KafkaFlow.Retry.Durable.Repository;
-    using Microsoft.AspNetCore.Http;
-    using Newtonsoft.Json;
+    private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
+    private readonly IUpdateItemsInputAdapter updateItemsInputAdapter;
+    private readonly IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter;
 
-    internal class PatchItemsHandler : RetryRequestHandlerBase
+    public PatchItemsHandler(
+        IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
+        IUpdateItemsInputAdapter updateItemsInputAdapter,
+        IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter,
+        string endpointPrefix) : base(endpointPrefix, "items")
     {
-        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
-        private readonly IUpdateItemsInputAdapter updateItemsInputAdapter;
-        private readonly IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter;
+        this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+        this.updateItemsInputAdapter = updateItemsInputAdapter;
+        this.updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
+    }
 
-        public PatchItemsHandler(
-            IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
-            IUpdateItemsInputAdapter updateItemsInputAdapter,
-            IUpdateItemsResponseDtoAdapter updateItemsResponseDtoAdapter,
-            string endpointPrefix) : base(endpointPrefix, "items")
+    protected override HttpMethod HttpMethod => HttpMethod.PATCH;
+
+    protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
+    {
+        UpdateItemsRequestDto requestDto;
+
+        try
         {
-            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
-            this.updateItemsInputAdapter = updateItemsInputAdapter;
-            this.updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
+            requestDto = await this.ReadRequestDtoAsync<UpdateItemsRequestDto>(request).ConfigureAwait(false);
+        }
+        catch (JsonSerializationException ex)
+        {
+            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.BadRequest).ConfigureAwait(false);
+
+            return;
+        }
+        catch (Exception ex)
+        {
+            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+
+            return;
         }
 
-        protected override HttpMethod HttpMethod => HttpMethod.PATCH;
-
-        protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
+        try
         {
-            UpdateItemsRequestDto requestDto;
+            var input = this.updateItemsInputAdapter.Adapt(requestDto);
 
-            try
-            {
-                requestDto = await this.ReadRequestDtoAsync<UpdateItemsRequestDto>(request).ConfigureAwait(false);
-            }
-            catch (JsonSerializationException ex)
-            {
-                await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.BadRequest).ConfigureAwait(false);
+            var result = await this.retryDurableQueueRepositoryProvider.UpdateItemsAsync(input).ConfigureAwait(false);
 
-                return;
-            }
-            catch (Exception ex)
-            {
-                await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+            var responseDto = this.updateItemsResponseDtoAdapter.Adapt(result);
 
-                return;
-            }
-
-            try
-            {
-                var input = this.updateItemsInputAdapter.Adapt(requestDto);
-
-                var result = await this.retryDurableQueueRepositoryProvider.UpdateItemsAsync(input).ConfigureAwait(false);
-
-                var responseDto = this.updateItemsResponseDtoAdapter.Adapt(result);
-
-                await this.WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
-            }
+            await this.WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
         }
     }
 }

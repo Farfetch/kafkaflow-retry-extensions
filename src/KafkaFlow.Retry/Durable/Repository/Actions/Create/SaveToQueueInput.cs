@@ -1,27 +1,27 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Create
-{
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using Dawn;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    [ExcludeFromCodeCoverage]
-    public class SaveToQueueInput
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Create;
+
+[ExcludeFromCodeCoverage]
+public class SaveToQueueInput
+{
+    public SaveToQueueInput(
+        RetryQueueItemMessage message,
+        string searchGroupKey,
+        string queueGroupKey,
+        RetryQueueStatus queueStatus,
+        RetryQueueItemStatus itemStatus,
+        SeverityLevel severity,
+        DateTime creationDate,
+        DateTime? lastExecution,
+        DateTime? modifiedStatusDate,
+        int attemptsCount,
+        string description)
     {
-        public SaveToQueueInput(
-            RetryQueueItemMessage message,
-            string searchGroupKey,
-            string queueGroupKey,
-            RetryQueueStatus queueStatus,
-            RetryQueueItemStatus itemStatus,
-            SeverityLevel severity,
-            DateTime creationDate,
-            DateTime? lastExecution,
-            DateTime? modifiedStatusDate,
-            int attemptsCount,
-            string description)
-        {
             Guard.Argument(message, nameof(message)).NotNull();
             Guard.Argument(searchGroupKey, nameof(searchGroupKey)).NotNull().NotEmpty();
             Guard.Argument(queueGroupKey, nameof(queueGroupKey)).NotNull().NotEmpty();
@@ -44,16 +44,15 @@
             this.Description = description;
         }
 
-        public int AttemptsCount { get; }
-        public DateTime CreationDate { get; }
-        public string Description { get; }
-        public RetryQueueItemStatus ItemStatus { get; }
-        public DateTime? LastExecution { get; }
-        public RetryQueueItemMessage Message { get; }
-        public DateTime? ModifiedStatusDate { get; }
-        public string QueueGroupKey { get; }
-        public RetryQueueStatus QueueStatus { get; }
-        public string SearchGroupKey { get; }
-        public SeverityLevel SeverityLevel { get; }
-    }
+    public int AttemptsCount { get; }
+    public DateTime CreationDate { get; }
+    public string Description { get; }
+    public RetryQueueItemStatus ItemStatus { get; }
+    public DateTime? LastExecution { get; }
+    public RetryQueueItemMessage Message { get; }
+    public DateTime? ModifiedStatusDate { get; }
+    public string QueueGroupKey { get; }
+    public RetryQueueStatus QueueStatus { get; }
+    public string SearchGroupKey { get; }
+    public SeverityLevel SeverityLevel { get; }
 }

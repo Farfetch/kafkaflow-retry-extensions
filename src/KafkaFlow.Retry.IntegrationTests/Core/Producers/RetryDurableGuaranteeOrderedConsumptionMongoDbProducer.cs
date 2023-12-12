@@ -1,6 +1,5 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Producers
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Producers;
+
+internal class RetryDurableGuaranteeOrderedConsumptionMongoDbProducer
 {
-    internal class RetryDurableGuaranteeOrderedConsumptionMongoDbProducer
-    {
-    }
 }

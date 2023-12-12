@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Model.Factories
-{
-    using System.Collections.Generic;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using System.Collections.Generic;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal interface IRetryQueueItemMessageHeaderDboFactory
-    {
-        IEnumerable<RetryQueueItemMessageHeaderDbo> Create(IEnumerable<MessageHeader> headers, long retryQueueItemId);
-    }
+namespace KafkaFlow.Retry.SqlServer.Model.Factories;
+
+internal interface IRetryQueueItemMessageHeaderDboFactory
+{
+    IEnumerable<RetryQueueItemMessageHeaderDbo> Create(IEnumerable<MessageHeader> headers, long retryQueueItemId);
 }

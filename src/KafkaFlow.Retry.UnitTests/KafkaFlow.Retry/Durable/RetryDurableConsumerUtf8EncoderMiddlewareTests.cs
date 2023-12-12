@@ -1,18 +1,18 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable
-{
-    using System;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable;
-    using global::KafkaFlow.Retry.Durable.Encoders;
-    using Moq;
-    using Xunit;
+﻿using System;
+using System.Threading.Tasks;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable;
+using global::KafkaFlow.Retry.Durable.Encoders;
+using Moq;
+using Xunit;
 
-    public class RetryDurableConsumerUtf8EncoderMiddlewareTests
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable;
+
+public class RetryDurableConsumerUtf8EncoderMiddlewareTests
+{
+    [Fact]
+    internal void RetryDurableConsumerUtf8EncoderMiddleware_Ctor_Tests()
     {
-        [Fact]
-        internal void RetryDurableConsumerUtf8EncoderMiddleware_Ctor_Tests()
-        {
             // Act
             Action act = () => new RetryDurableConsumerUtf8EncoderMiddleware(null);
 
@@ -20,9 +20,9 @@
             act.Should().Throw<ArgumentNullException>();
         }
 
-        [Fact]
-        internal async Task RetryDurableConsumerUtf8EncoderMiddleware_Invoke_Tests()
-        {
+    [Fact]
+    internal async Task RetryDurableConsumerUtf8EncoderMiddleware_Invoke_Tests()
+    {
             // Arrange
             var decoded = "encoded";
 
@@ -41,5 +41,4 @@
             // Assert
             mockIMessageContext.Verify(c => c.SetMessage(null, decoded), Times.Once);
         }
-    }
 }

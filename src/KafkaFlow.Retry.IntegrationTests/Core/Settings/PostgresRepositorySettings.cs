@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Settings
-{
-    internal class PostgresRepositorySettings
-    {
-        public string ConnectionString { get; set; }
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Settings;
 
-        public string DatabaseName { get; set; }
-    }
+internal class PostgresRepositorySettings
+{
+    public string ConnectionString { get; set; }
+
+    public string DatabaseName { get; set; }
 }

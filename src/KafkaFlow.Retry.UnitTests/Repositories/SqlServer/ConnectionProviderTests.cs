@@ -1,17 +1,17 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer
+﻿using System;
+using FluentAssertions;
+using KafkaFlow.Retry.SqlServer;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer;
+
+public class ConnectionProviderTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.SqlServer;
-    using Xunit;
+    private readonly ConnectionProvider provider = new ConnectionProvider();
 
-    public class ConnectionProviderTests
+    [Fact]
+    public void ConnectionProvider_Create_Success()
     {
-        private readonly ConnectionProvider provider = new ConnectionProvider();
-
-        [Fact]
-        public void ConnectionProvider_Create_Success()
-        {
             // Act
             var result = provider.Create(new SqlServerDbSettings("connectionString", "databaseName", "schema"));
 
@@ -20,9 +20,9 @@
             result.Should().BeOfType(typeof(DbConnectionContext));
         }
 
-        [Fact]
-        public void ConnectionProvider_Create_WithoutSqlServerDbSettings_ThrowsException()
-        {
+    [Fact]
+    public void ConnectionProvider_Create_WithoutSqlServerDbSettings_ThrowsException()
+    {
             // Act
             Action act = () => provider.Create(null);
 
@@ -30,9 +30,9 @@
             act.Should().Throw<ArgumentNullException>();
         }
 
-        [Fact]
-        public void ConnectionProvider_CreateWithinTransaction_Success()
-        {
+    [Fact]
+    public void ConnectionProvider_CreateWithinTransaction_Success()
+    {
             // Act
             var result = provider.CreateWithinTransaction(new SqlServerDbSettings("connectionString", "databaseName", "schema"));
 
@@ -41,14 +41,13 @@
             result.Should().BeOfType(typeof(DbConnectionContext));
         }
 
-        [Fact]
-        public void ConnectionProvider_CreateWithinTransaction_WithoutSqlServerDbSettings_ThrowsException()
-        {
+    [Fact]
+    public void ConnectionProvider_CreateWithinTransaction_WithoutSqlServerDbSettings_ThrowsException()
+    {
             // Act
             Action act = () => provider.CreateWithinTransaction(null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

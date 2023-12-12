@@ -1,11 +1,11 @@
-﻿namespace KafkaFlow.Retry.Durable.Definitions.Polling
-{
-    using Dawn;
+﻿using Dawn;
 
-    internal abstract class PollingDefinition
+namespace KafkaFlow.Retry.Durable.Definitions.Polling;
+
+internal abstract class PollingDefinition
+{
+    protected PollingDefinition(bool enabled, string cronExpression)
     {
-        protected PollingDefinition(bool enabled, string cronExpression)
-        {
             Guard.Argument(this.PollingJobType, nameof(this.PollingJobType)).NotDefault();
 
             if (enabled)
@@ -18,10 +18,9 @@
             this.CronExpression = cronExpression;
         }
 
-        public string CronExpression { get; }
+    public string CronExpression { get; }
 
-        public bool Enabled { get; }
+    public bool Enabled { get; }
 
-        public abstract PollingJobType PollingJobType { get; }
-    }
+    public abstract PollingJobType PollingJobType { get; }
 }

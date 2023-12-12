@@ -1,17 +1,16 @@
-namespace KafkaFlow.Retry.SqlServer.Repositories
-{
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.SqlServer.Model;
+using System;
+using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.SqlServer.Model;
 
-    internal sealed class RetryQueueRepository : IRetryQueueRepository
+namespace KafkaFlow.Retry.SqlServer.Repositories;
+internal sealed class RetryQueueRepository : IRetryQueueRepository
+{
+    public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo)
     {
-        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo)
-        {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -33,8 +32,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
-        {
+    public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -58,8 +57,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey)
-        {
+    public async Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -74,8 +73,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey)
-        {
+    public async Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -90,8 +89,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top)
-        {
+    public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -117,8 +116,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution)
-        {
+    public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -135,8 +134,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateLastExecutionAsync(IDbConnection dbConnection, Guid idDomain, DateTime lastExecution)
-        {
+    public async Task<int> UpdateLastExecutionAsync(IDbConnection dbConnection, Guid idDomain, DateTime lastExecution)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -151,8 +150,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus)
-        {
+    public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -167,8 +166,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        private async Task<IList<RetryQueueDbo>> ExecuteReaderAsync(SqlCommand command)
-        {
+    private async Task<IList<RetryQueueDbo>> ExecuteReaderAsync(SqlCommand command)
+    {
             var queues = new List<RetryQueueDbo>();
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
@@ -182,8 +181,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             return queues;
         }
 
-        private async Task<RetryQueueDbo> ExecuteSingleLineReaderAsync(SqlCommand command)
-        {
+    private async Task<RetryQueueDbo> ExecuteSingleLineReaderAsync(SqlCommand command)
+    {
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 if (await reader.ReadAsync().ConfigureAwait(false))
@@ -195,8 +194,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             return null;
         }
 
-        private RetryQueueDbo FillDbo(SqlDataReader reader)
-        {
+    private RetryQueueDbo FillDbo(SqlDataReader reader)
+    {
             return new RetryQueueDbo
             {
                 Id = reader.GetInt64(reader.GetOrdinal("Id")),
@@ -209,8 +208,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             };
         }
 
-        private string GetOrderByCommandString(GetQueuesSortOption sortOption)
-        {
+    private string GetOrderByCommandString(GetQueuesSortOption sortOption)
+    {
             switch (sortOption)
             {
                 case GetQueuesSortOption.ByCreationDate_Descending:
@@ -221,5 +220,4 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
                     return " ORDER BY LastExecution ASC";
             }
         }
-    }
 }

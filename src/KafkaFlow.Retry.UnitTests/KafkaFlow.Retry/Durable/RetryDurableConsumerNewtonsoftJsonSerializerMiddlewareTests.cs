@@ -1,67 +1,66 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable;
+using global::KafkaFlow.Retry.Durable.Serializers;
+using Moq;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable;
+
+public class RetryDurableConsumerNewtonsoftJsonSerializerMiddlewareTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable;
-    using global::KafkaFlow.Retry.Durable.Serializers;
-    using Moq;
-    using Xunit;
-
-    public class RetryDurableConsumerNewtonsoftJsonSerializerMiddlewareTests
+    public static IEnumerable<object[]> DataTest()
     {
-        public static IEnumerable<object[]> DataTest()
+        yield return new object[]
         {
-            yield return new object[]
-            {
-                null,
-                typeof(Type)
-            };
-            yield return new object[]
-            {
-                Mock.Of<INewtonsoftJsonSerializer>(),
-                null
-            };
-        }
-
-        [Theory]
-        [MemberData(nameof(DataTest))]
-        internal void RetryDurableConsumerNewtonsoftJsonSerializerMiddleware_Ctor_Tests(
-            INewtonsoftJsonSerializer newtonsoftJsonSerializer,
-            Type type)
+            null,
+            typeof(Type)
+        };
+        yield return new object[]
         {
-            // Act
-            Action act = () => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(
-                newtonsoftJsonSerializer,
-                type);
+            Mock.Of<INewtonsoftJsonSerializer>(),
+            null
+        };
+    }
 
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+    [Theory]
+    [MemberData(nameof(DataTest))]
+    internal void RetryDurableConsumerNewtonsoftJsonSerializerMiddleware_Ctor_Tests(
+        INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+        Type type)
+    {
+        // Act
+        Action act = () => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(
+            newtonsoftJsonSerializer,
+            type);
 
-        [Fact]
-        internal async Task RetryDurableConsumerNewtonsoftJsonSerializerMiddleware_Invoke_Tests()
-        {
-            // Arrange
-            var deserialized = new { a = 1 };
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 
-            var mockINewtonsoftJsonSerializer = new Mock<INewtonsoftJsonSerializer>();
-            mockINewtonsoftJsonSerializer
-                .Setup(x => x.DeserializeObject(It.IsAny<string>(), It.IsAny<Type>()))
-                .Returns(deserialized);
+    [Fact]
+    internal async Task RetryDurableConsumerNewtonsoftJsonSerializerMiddleware_Invoke_Tests()
+    {
+        // Arrange
+        var deserialized = new { a = 1 };
 
-            var mockIMessageContext = new Mock<IMessageContext>();
+        var mockINewtonsoftJsonSerializer = new Mock<INewtonsoftJsonSerializer>();
+        mockINewtonsoftJsonSerializer
+            .Setup(x => x.DeserializeObject(It.IsAny<string>(), It.IsAny<Type>()))
+            .Returns(deserialized);
 
-            var newtonsoftJsonSerializerMiddleware = new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(
-                mockINewtonsoftJsonSerializer.Object,
-                typeof(Type));
+        var mockIMessageContext = new Mock<IMessageContext>();
 
-            // Act
-            await newtonsoftJsonSerializerMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask).ConfigureAwait(false);
+        var newtonsoftJsonSerializerMiddleware = new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(
+            mockINewtonsoftJsonSerializer.Object,
+            typeof(Type));
 
-            // Assert
-            mockIMessageContext.Verify(c => c.SetMessage(null, deserialized), Times.Once);
-        }
+        // Act
+        await newtonsoftJsonSerializerMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask).ConfigureAwait(false);
+
+        // Assert
+        mockIMessageContext.Verify(c => c.SetMessage(null, deserialized), Times.Once);
     }
 }

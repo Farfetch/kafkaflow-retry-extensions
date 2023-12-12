@@ -1,26 +1,26 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Adapters
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
+using KafkaFlow.Retry.MongoDb.Model;
+
+namespace KafkaFlow.Retry.MongoDb.Adapters;
+
+internal class QueuesAdapter : IQueuesAdapter
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
-    using KafkaFlow.Retry.MongoDb.Model;
+    private readonly IItemAdapter itemAdapter;
 
-    internal class QueuesAdapter : IQueuesAdapter
+    public QueuesAdapter(IItemAdapter itemAdapter)
     {
-        private readonly IItemAdapter itemAdapter;
-
-        public QueuesAdapter(IItemAdapter itemAdapter)
-        {
             Guard.Argument(itemAdapter, nameof(itemAdapter)).NotNull();
 
             this.itemAdapter = itemAdapter;
         }
 
-        public IEnumerable<RetryQueue> Adapt(IEnumerable<RetryQueueDbo> queuesDbo, IEnumerable<RetryQueueItemDbo> itemsDbo)
-        {
+    public IEnumerable<RetryQueue> Adapt(IEnumerable<RetryQueueDbo> queuesDbo, IEnumerable<RetryQueueItemDbo> itemsDbo)
+    {
             var queuesDictionary = new Dictionary<Guid, RetryQueue>
             (
                 queuesDbo.ToDictionary
@@ -41,8 +41,8 @@
             return queuesDictionary.Values;
         }
 
-        private RetryQueue Adapt(RetryQueueDbo queueDbo)
-        {
+    private RetryQueue Adapt(RetryQueueDbo queueDbo)
+    {
             return new RetryQueue(
                 queueDbo.Id,
                 queueDbo.SearchGroupKey,
@@ -51,5 +51,4 @@
                 queueDbo.LastExecution,
                 queueDbo.Status);
         }
-    }
 }

@@ -1,14 +1,14 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer
-{
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.SqlServer;
-    using Xunit;
+﻿using FluentAssertions;
+using global::KafkaFlow.Retry.SqlServer;
+using Xunit;
 
-    public class RetryDurableDefinitionBuilderExtensionTests
+namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer;
+
+public class RetryDurableDefinitionBuilderExtensionTests
+{
+    [Fact]
+    public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProvider_Success()
     {
-        [Fact]
-        public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProvider_Success()
-        {
             // Arrange
             var builder = new RetryDurableDefinitionBuilder();
 
@@ -19,9 +19,9 @@
             result.Should().NotBeNull();
         }
 
-        [Fact]
-        public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProviderAndSchema_Success()
-        {
+    [Fact]
+    public void RetryDurableDefinitionBuilderExtension_WithSqlServerDataProviderAndSchema_Success()
+    {
             // Arrange
             var builder = new RetryDurableDefinitionBuilder();
 
@@ -31,5 +31,4 @@
             // Arrange
             result.Should().NotBeNull();
         }
-    }
 }

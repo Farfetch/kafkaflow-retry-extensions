@@ -1,81 +1,81 @@
-﻿namespace KafkaFlow.Retry
-{
-    using System;
-    using System.Linq;
-    using Dawn;
-    using KafkaFlow.Configuration;
-    using KafkaFlow.Producers;
-    using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Durable.Compression;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Polling;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using KafkaFlow.Retry.Durable.Serializers;
-    
-    public class RetryDurableEmbeddedClusterDefinitionBuilder
-    {
-        private const int DefaultPartitionElection = 0;
-        private readonly IClusterConfigurationBuilder cluster;
-        private bool enabled;
-        private int retryConsumerBufferSize;
-        private int retryConsumerWorkersCount;
-        private RetryConsumerStrategy retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
-        private string retryTopicName;
-        private Action<TypedHandlerConfigurationBuilder> retryTypeHandlers;
+﻿using System;
+using System.Linq;
+using Dawn;
+using KafkaFlow.Configuration;
+using KafkaFlow.Producers;
+using KafkaFlow.Retry.Durable;
+using KafkaFlow.Retry.Durable.Compression;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Polling;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Serializers;
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder(IClusterConfigurationBuilder cluster)
-        {
+namespace KafkaFlow.Retry;
+
+public class RetryDurableEmbeddedClusterDefinitionBuilder
+{
+    private const int DefaultPartitionElection = 0;
+    private readonly IClusterConfigurationBuilder cluster;
+    private bool enabled;
+    private int retryConsumerBufferSize;
+    private int retryConsumerWorkersCount;
+    private RetryConsumerStrategy retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
+    private string retryTopicName;
+    private Action<TypedHandlerConfigurationBuilder> retryTypeHandlers;
+
+    public RetryDurableEmbeddedClusterDefinitionBuilder(IClusterConfigurationBuilder cluster)
+    {
             this.cluster = cluster;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder Enabled(bool enabled)
-        {
+    public RetryDurableEmbeddedClusterDefinitionBuilder Enabled(bool enabled)
+    {
             this.enabled = enabled;
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerBufferSize(int retryConsumerBufferSize)
-        {
+    public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerBufferSize(int retryConsumerBufferSize)
+    {
             this.retryConsumerBufferSize = retryConsumerBufferSize;
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
-        {
+    public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
+    {
             this.retryConusmerStrategy = retryConusmerStrategy;
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
-        {
+    public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
+    {
             this.retryConsumerWorkersCount = retryConsumerWorkersCount;
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryTopicName(string retryTopicName)
-        {
+    public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryTopicName(string retryTopicName)
+    {
             this.retryTopicName = retryTopicName;
             return this;
         }
 
-        public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryTypedHandlers(Action<TypedHandlerConfigurationBuilder> retryTypeHandlers)
-        {
+    public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryTypedHandlers(Action<TypedHandlerConfigurationBuilder> retryTypeHandlers)
+    {
             this.retryTypeHandlers = retryTypeHandlers;
             return this;
         }
 
-        internal void Build(
-            Type messageType,
-            IRetryDurableQueueRepository retryDurableQueueRepository,
-            IGzipCompressor gzipCompressor,
-            IUtf8Encoder utf8Encoder,
-            INewtonsoftJsonSerializer newtonsoftJsonSerializer,
-            IMessageHeadersAdapter messageHeadersAdapter,
-            PollingDefinitionsAggregator pollingDefinitionsAggregator,
-            ITriggerProvider triggerProvider)
-        {
+    internal void Build(
+        Type messageType,
+        IRetryDurableQueueRepository retryDurableQueueRepository,
+        IGzipCompressor gzipCompressor,
+        IUtf8Encoder utf8Encoder,
+        INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+        IMessageHeadersAdapter messageHeadersAdapter,
+        PollingDefinitionsAggregator pollingDefinitionsAggregator,
+        ITriggerProvider triggerProvider)
+    {
             if (!enabled)
             {
                 return;
@@ -166,5 +166,4 @@
                         )
                 );
         }
-    }
 }

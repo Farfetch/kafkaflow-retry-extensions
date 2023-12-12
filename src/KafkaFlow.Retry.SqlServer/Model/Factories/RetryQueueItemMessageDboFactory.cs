@@ -1,12 +1,12 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Model.Factories
-{
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal sealed class RetryQueueItemMessageDboFactory : IRetryQueueItemMessageDboFactory
+namespace KafkaFlow.Retry.SqlServer.Model.Factories;
+
+internal sealed class RetryQueueItemMessageDboFactory : IRetryQueueItemMessageDboFactory
+{
+    public RetryQueueItemMessageDbo Create(RetryQueueItemMessage retryQueueItemMessage, long retryQueueItemId)
     {
-        public RetryQueueItemMessageDbo Create(RetryQueueItemMessage retryQueueItemMessage, long retryQueueItemId)
-        {
             Guard.Argument(retryQueueItemMessage, nameof(retryQueueItemMessage)).NotNull();
             Guard.Argument(retryQueueItemId, nameof(retryQueueItemId)).Positive();
 
@@ -21,5 +21,4 @@
                 UtcTimeStamp = retryQueueItemMessage.UtcTimeStamp,
             };
         }
-    }
 }

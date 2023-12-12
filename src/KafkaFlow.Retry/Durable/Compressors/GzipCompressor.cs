@@ -1,15 +1,15 @@
-﻿namespace KafkaFlow.Retry.Durable.Compression
+﻿using System.IO;
+using System.IO.Compression;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Compression;
+
+internal class GzipCompressor : IGzipCompressor
 {
-    using System.IO;
-    using System.IO.Compression;
-    using Dawn;
+    private static int BUFFER_SIZE = 64 * 1024;
 
-    internal class GzipCompressor : IGzipCompressor
+    public byte[] Compress(byte[] data)
     {
-        private static int BUFFER_SIZE = 64 * 1024;
-
-        public byte[] Compress(byte[] data)
-        {
             Guard.Argument(data).NotNull();
 
             using (var compressIntoMs = new MemoryStream())
@@ -22,8 +22,8 @@
             }
         }
 
-        public byte[] Decompress(byte[] data)
-        {
+    public byte[] Decompress(byte[] data)
+    {
             Guard.Argument(data).NotNull();
 
             using (var compressedMs = new MemoryStream(data))
@@ -38,5 +38,4 @@
                 }
             }
         }
-    }
 }

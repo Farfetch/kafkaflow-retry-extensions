@@ -1,7 +1,6 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Readers
+﻿namespace KafkaFlow.Retry.SqlServer.Readers;
+
+internal interface IDboDomainAdapter<TDbo, TDomain>
 {
-    internal interface IDboDomainAdapter<TDbo, TDomain>
-    {
-        TDomain Adapt(TDbo dbo);
-    }
+    TDomain Adapt(TDbo dbo);
 }

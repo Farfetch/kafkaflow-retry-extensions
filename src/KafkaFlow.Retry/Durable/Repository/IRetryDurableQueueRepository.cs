@@ -1,27 +1,26 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Model;
+
+namespace KafkaFlow.Retry.Durable.Repository;
+
+internal interface IRetryDurableQueueRepository
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+    Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context);
 
-    internal interface IRetryDurableQueueRepository
-    {
-        Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context);
+    Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput queueNewestItemsInput);
 
-        Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput queueNewestItemsInput);
+    Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput queuePendingItemsInput);
 
-        Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput queuePendingItemsInput);
+    Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput);
 
-        Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput);
+    Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput);
 
-        Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput);
+    Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, string description);
 
-        Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, string description);
-
-        Task UpdateItemAsync(UpdateItemInput updateItemInput);
-    }
+    Task UpdateItemAsync(UpdateItemInput updateItemInput);
 }

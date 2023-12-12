@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Create
+﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Create;
+
+public enum AddIfQueueExistsResultStatus
 {
-    public enum AddIfQueueExistsResultStatus
-    {
-        Unknown = 0,
-        Added = 1,
-        NoPendingMembers = 2
-    }
+    Unknown = 0,
+    Added = 1,
+    NoPendingMembers = 2
 }

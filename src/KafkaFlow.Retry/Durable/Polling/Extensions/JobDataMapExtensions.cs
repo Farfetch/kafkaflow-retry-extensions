@@ -1,12 +1,12 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling.Extensions
-{
-    using Dawn;
-    using Quartz;
+﻿using Dawn;
+using Quartz;
 
-    internal static class JobDataMapExtensions
+namespace KafkaFlow.Retry.Durable.Polling.Extensions;
+
+internal static class JobDataMapExtensions
+{
+    public static string GetValidStringValue(this JobDataMap jobDataMap, string key, string jobName)
     {
-        public static string GetValidStringValue(this JobDataMap jobDataMap, string key, string jobName)
-        {
             var stringValue = jobDataMap.GetValidValue<string>(key, jobName);
 
             Guard.Argument(stringValue).NotEmpty($"Argument {key} can't be an empty string for the job {jobName}.");
@@ -14,8 +14,8 @@
             return stringValue;
         }
 
-        public static T GetValidValue<T>(this JobDataMap jobDataMap, string key, string jobName) where T : class
-        {
+    public static T GetValidValue<T>(this JobDataMap jobDataMap, string key, string jobName) where T : class
+    {
             jobDataMap.TryGetValue(key, out var objValue);
 
             var value = objValue as T;
@@ -24,5 +24,4 @@
 
             return value;
         }
-    }
 }

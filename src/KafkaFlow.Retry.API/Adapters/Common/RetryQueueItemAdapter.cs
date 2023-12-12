@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.Common
-{
-    using Dawn;
-    using KafkaFlow.Retry.API.Dtos.Common;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using Dawn;
+using KafkaFlow.Retry.API.Dtos.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal class RetryQueueItemAdapter : IRetryQueueItemAdapter
+namespace KafkaFlow.Retry.API.Adapters.Common;
+
+internal class RetryQueueItemAdapter : IRetryQueueItemAdapter
+{
+    public RetryQueueItemDto Adapt(RetryQueueItem item, string queueGroupKey)
     {
-        public RetryQueueItemDto Adapt(RetryQueueItem item, string queueGroupKey)
-        {
             Guard.Argument(item, nameof(item)).NotNull();
             Guard.Argument(item.Message, nameof(item.Message)).NotNull();
 
@@ -32,5 +32,4 @@
                 QueueGroupKey = queueGroupKey
             };
         }
-    }
 }

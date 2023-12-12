@@ -1,56 +1,55 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using global::KafkaFlow.Retry.Postgres.Model;
+using global::KafkaFlow.Retry.Postgres.Model.Factories;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories;
+
+public class RetryQueueItemMessageHeaderDboFactoryTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.Postgres.Model;
-    using global::KafkaFlow.Retry.Postgres.Model.Factories;
-    using Xunit;
-    
-    public class RetryQueueItemMessageHeaderDboFactoryTests
+    private readonly RetryQueueItemMessageHeaderDboFactory factory = new RetryQueueItemMessageHeaderDboFactory();
+
+    private readonly IEnumerable<MessageHeader> headers = new List<MessageHeader>
     {
-        private readonly RetryQueueItemMessageHeaderDboFactory factory = new RetryQueueItemMessageHeaderDboFactory();
+        new MessageHeader("key", new byte[1])
+    };
 
-        private readonly IEnumerable<MessageHeader> headers = new List<MessageHeader>
-        {
-            new MessageHeader("key", new byte[1])
-        };
+    [Fact]
+    public void RetryQueueItemMessageHeaderDboFactory_Create_Success()
+    {
+        // Act
+        var result = factory.Create(headers, 1);
 
-        [Fact]
-        public void RetryQueueItemMessageHeaderDboFactory_Create_Success()
-        {
-            // Act
-            var result = factory.Create(headers, 1);
+        // Assert
+        result.Should().NotBeNull();
+        result.Should().NotBeEmpty();
+        result.FirstOrDefault().Should().BeOfType(typeof(RetryQueueItemMessageHeaderDbo));
+    }
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Should().NotBeEmpty();
-            result.FirstOrDefault().Should().BeOfType(typeof(RetryQueueItemMessageHeaderDbo));
-        }
+    [Fact]
+    public void RetryQueueItemMessageHeaderDboFactory_Create_WithNegativeRetryQueueItemId_ThrowsException()
+    {
+        // Act
+        Action act = () => factory.Create(headers, -1);
 
-        [Fact]
-        public void RetryQueueItemMessageHeaderDboFactory_Create_WithNegativeRetryQueueItemId_ThrowsException()
-        {
-            // Act
-            Action act = () => factory.Create(headers, -1);
+        // Assert
+        act.Should().Throw<ArgumentOutOfRangeException>();
+    }
 
-            // Assert
-            act.Should().Throw<ArgumentOutOfRangeException>();
-        }
+    [Fact]
+    public void RetryQueueItemMessageHeaderDboFactory_Create_WithoutHeaders_ThrowsException()
+    {
+        //Arrange
+        IEnumerable<MessageHeader> headersNull = null;
 
-        [Fact]
-        public void RetryQueueItemMessageHeaderDboFactory_Create_WithoutHeaders_ThrowsException()
-        {
-            //Arrange
-            IEnumerable<MessageHeader> headersNull = null;
+        // Act
+        Action act = () => factory.Create(headersNull, 1);
 
-            // Act
-            Action act = () => factory.Create(headersNull, 1);
-
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
     }
 }

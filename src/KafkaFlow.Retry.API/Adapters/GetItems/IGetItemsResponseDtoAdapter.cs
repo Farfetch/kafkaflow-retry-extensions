@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.GetItems
-{
-    using KafkaFlow.Retry.API.Dtos;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+﻿using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
 
-    public interface IGetItemsResponseDtoAdapter
-    {
-        GetItemsResponseDto Adapt(GetQueuesResult getQueuesResult);
-    }
+namespace KafkaFlow.Retry.API.Adapters.GetItems;
+
+public interface IGetItemsResponseDtoAdapter
+{
+    GetItemsResponseDto Adapt(GetQueuesResult getQueuesResult);
 }

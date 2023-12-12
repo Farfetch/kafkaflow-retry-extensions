@@ -1,66 +1,65 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core
+﻿using System;
+using System.Diagnostics;
+using System.Text.Json;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core;
+
+internal class TraceLogHandler : ILogHandler
 {
-    using System;
-    using System.Diagnostics;
-    using System.Text.Json;
+    private readonly JsonSerializerOptions jsonSerializerOptions =
+        new JsonSerializerOptions
+        {
+            MaxDepth = 0,
+            IgnoreNullValues = true,
+            IgnoreReadOnlyProperties = false
+        };
 
-    internal class TraceLogHandler : ILogHandler
+    public void Error(string message, Exception ex, object data)
     {
-        private readonly JsonSerializerOptions jsonSerializerOptions =
-            new JsonSerializerOptions
-            {
-                MaxDepth = 0,
-                IgnoreNullValues = true,
-                IgnoreReadOnlyProperties = false
-            };
-
-        public void Error(string message, Exception ex, object data)
-        {
-            Trace.TraceError(
-                JsonSerializer.Serialize(
-                    new
+        Trace.TraceError(
+            JsonSerializer.Serialize(
+                new
+                {
+                    Message = message,
+                    Exception = new
                     {
-                        Message = message,
-                        Exception = new
-                        {
-                            ex.Message,
-                            ex.StackTrace
-                        },
-                        Data = data,
-                    }, jsonSerializerOptions));
-        }
+                        ex.Message,
+                        ex.StackTrace
+                    },
+                    Data = data,
+                }, jsonSerializerOptions));
+    }
 
-        public void Info(string message, object data)
-        {
-            Trace.TraceInformation(
-                JsonSerializer.Serialize(
-                    new
-                    {
-                        Message = message,
-                        Data = data,
-                    }, jsonSerializerOptions));
-        }
+    public void Info(string message, object data)
+    {
+        Trace.TraceInformation(
+            JsonSerializer.Serialize(
+                new
+                {
+                    Message = message,
+                    Data = data,
+                }, jsonSerializerOptions));
+    }
 
-        public void Verbose(string message, object data)
-        {
-            Trace.TraceWarning(
-                   JsonSerializer.Serialize(
-                       new
-                       {
-                           Message = message,
-                           Data = data,
-                       }, jsonSerializerOptions));
-        }
+    public void Verbose(string message, object data)
+    {
+        Trace.TraceWarning(
+            JsonSerializer.Serialize(
+                new
+                {
+                    Message = message,
+                    Data = data,
+                }, jsonSerializerOptions));
+    }
 
-        public void Warning(string message, object data)
-        {
-            Trace.TraceWarning(
-                JsonSerializer.Serialize(
-                    new
-                    {
-                        Message = message,
-                        Data = data,
-                    }, jsonSerializerOptions));
-        }
+    public void Warning(string message, object data)
+    {
+        Trace.TraceWarning(
+            JsonSerializer.Serialize(
+                new
+                {
+                    Message = message,
+                    Data = data,
+                }, jsonSerializerOptions));
     }
 }

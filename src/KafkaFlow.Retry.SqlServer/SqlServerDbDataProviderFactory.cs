@@ -1,20 +1,20 @@
-﻿namespace KafkaFlow.Retry.SqlServer
-{
-    using System.Collections.Generic;
-    using System.IO;
-    using System.Reflection;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.SqlServer.Model.Factories;
-    using KafkaFlow.Retry.SqlServer.Model.Schema;
-    using KafkaFlow.Retry.SqlServer.Readers;
-    using KafkaFlow.Retry.SqlServer.Readers.Adapters;
-    using KafkaFlow.Retry.SqlServer.Repositories;
+﻿using System.Collections.Generic;
+using System.IO;
+using System.Reflection;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.SqlServer.Model.Factories;
+using KafkaFlow.Retry.SqlServer.Model.Schema;
+using KafkaFlow.Retry.SqlServer.Readers;
+using KafkaFlow.Retry.SqlServer.Readers.Adapters;
+using KafkaFlow.Retry.SqlServer.Repositories;
 
-    public sealed class SqlServerDbDataProviderFactory
+namespace KafkaFlow.Retry.SqlServer;
+
+public sealed class SqlServerDbDataProviderFactory
+{
+    public IRetryDurableQueueRepositoryProvider Create(SqlServerDbSettings sqlServerDbSettings)
     {
-        public IRetryDurableQueueRepositoryProvider Create(SqlServerDbSettings sqlServerDbSettings)
-        {
             Guard.Argument(sqlServerDbSettings)
                 .NotNull("It is mandatory to config the factory before creating new instances of IRetryQueueDataProvider. Make sure the Config method is executed before the Create method.");
 
@@ -42,10 +42,10 @@
                 new RetryQueueItemMessageHeaderDboFactory());
         }
 
-        public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings) => new RetrySchemaCreator(sqlServerDbSettings, this.GetScriptsForSchemaCreation());
+    public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings) => new RetrySchemaCreator(sqlServerDbSettings, this.GetScriptsForSchemaCreation());
 
-        private IEnumerable<Script> GetScriptsForSchemaCreation()
-        {
+    private IEnumerable<Script> GetScriptsForSchemaCreation()
+    {
             Assembly thisAssembly = Assembly.GetExecutingAssembly();
 
             Script createTables = null;
@@ -69,5 +69,4 @@
 
             return new[] { createTables, populateTables };
         }
-    }
 }

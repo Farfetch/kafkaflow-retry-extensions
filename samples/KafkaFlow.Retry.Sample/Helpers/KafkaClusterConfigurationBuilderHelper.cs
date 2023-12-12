@@ -1,22 +1,23 @@
-﻿namespace KafkaFlow.Retry.Sample.Helpers
+﻿using System;
+using KafkaFlow.Configuration;
+using KafkaFlow.Retry.MongoDb;
+using KafkaFlow.Retry.Sample.Exceptions;
+using KafkaFlow.Retry.Sample.Handlers;
+using KafkaFlow.Retry.Sample.Messages;
+using KafkaFlow.Retry.SqlServer;
+using KafkaFlow.Serializer;
+
+namespace KafkaFlow.Retry.Sample.Helpers;
+
+internal static class KafkaClusterConfigurationBuilderHelper
 {
-    using System;
-    using KafkaFlow.Configuration;
-    using KafkaFlow.Retry.MongoDb;
-    using KafkaFlow.Retry.Sample.Exceptions;
-    using KafkaFlow.Retry.Sample.Handlers;
-    using KafkaFlow.Retry.Sample.Messages;
-    using KafkaFlow.Retry.SqlServer;
-    using KafkaFlow.Serializer;
-    internal static class KafkaClusterConfigurationBuilderHelper
+    internal static IClusterConfigurationBuilder SetupRetryDurableMongoDb(
+        this IClusterConfigurationBuilder cluster,
+        string mongoDbConnectionString,
+        string mongoDbDatabaseName,
+        string mongoDbRetryQueueCollectionName,
+        string mongoDbRetryQueueItemCollectionName)
     {
-        internal static IClusterConfigurationBuilder SetupRetryDurableMongoDb(
-            this IClusterConfigurationBuilder cluster,
-            string mongoDbConnectionString,
-            string mongoDbDatabaseName,
-            string mongoDbRetryQueueCollectionName,
-            string mongoDbRetryQueueItemCollectionName)
-        {
             cluster
                 .AddProducer(
                     "kafka-flow-retry-durable-mongodb-producer",
@@ -100,11 +101,11 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableSqlServer(
-            this IClusterConfigurationBuilder cluster,
-            string sqlServerConnectionString,
-            string sqlServerDatabaseName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableSqlServer(
+        this IClusterConfigurationBuilder cluster,
+        string sqlServerConnectionString,
+        string sqlServerDatabaseName)
+    {
             cluster
                 .AddProducer(
                     "kafka-flow-retry-durable-sqlserver-producer",
@@ -183,8 +184,8 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryForever(this IClusterConfigurationBuilder cluster)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryForever(this IClusterConfigurationBuilder cluster)
+    {
             cluster
                 .AddProducer(
                     "kafka-flow-retry-forever-producer",
@@ -225,8 +226,8 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetrySimple(this IClusterConfigurationBuilder cluster)
-        {
+    internal static IClusterConfigurationBuilder SetupRetrySimple(this IClusterConfigurationBuilder cluster)
+    {
             cluster
                 .AddProducer(
                     "kafka-flow-retry-simple-producer",
@@ -276,5 +277,4 @@
 
             return cluster;
         }
-    }
 }

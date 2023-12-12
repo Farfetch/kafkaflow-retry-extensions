@@ -1,16 +1,16 @@
-﻿namespace KafkaFlow.Retry.Durable.Definitions.Polling
-{
-    using Dawn;
+﻿using Dawn;
 
-    internal class RetryDurablePollingDefinition : PollingDefinition
+namespace KafkaFlow.Retry.Durable.Definitions.Polling;
+
+internal class RetryDurablePollingDefinition : PollingDefinition
+{
+    public RetryDurablePollingDefinition(
+        bool enabled,
+        string cronExpression,
+        int fetchSize,
+        int expirationIntervalFactor)
+        : base(enabled, cronExpression)
     {
-        public RetryDurablePollingDefinition(
-            bool enabled,
-            string cronExpression,
-            int fetchSize,
-            int expirationIntervalFactor)
-            : base(enabled, cronExpression)
-        {
             Guard.Argument(fetchSize, nameof(fetchSize)).Positive();
             Guard.Argument(expirationIntervalFactor, nameof(expirationIntervalFactor)).Positive();
 
@@ -18,10 +18,9 @@
             this.ExpirationIntervalFactor = expirationIntervalFactor;
         }
 
-        public int ExpirationIntervalFactor { get; }
+    public int ExpirationIntervalFactor { get; }
 
-        public int FetchSize { get; }
+    public int FetchSize { get; }
 
-        public override PollingJobType PollingJobType => PollingJobType.RetryDurable;
-    }
+    public override PollingJobType PollingJobType => PollingJobType.RetryDurable;
 }

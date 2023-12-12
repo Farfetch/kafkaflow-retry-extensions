@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.SqlServer
-{
-    internal interface IConnectionProvider
-    {
-        IDbConnection Create(SqlServerDbSettings sqlServerDbSettings);
+﻿namespace KafkaFlow.Retry.SqlServer;
 
-        IDbConnectionWithinTransaction CreateWithinTransaction(SqlServerDbSettings sqlServerDbSettings);
-    }
+internal interface IConnectionProvider
+{
+    IDbConnection Create(SqlServerDbSettings sqlServerDbSettings);
+
+    IDbConnectionWithinTransaction CreateWithinTransaction(SqlServerDbSettings sqlServerDbSettings);
 }

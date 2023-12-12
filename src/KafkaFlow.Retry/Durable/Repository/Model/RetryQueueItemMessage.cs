@@ -1,24 +1,24 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Model
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Diagnostics.CodeAnalysis;
-    using System.Linq;
-    using Dawn;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using Dawn;
 
-    [ExcludeFromCodeCoverage]
-    public class RetryQueueItemMessage
+namespace KafkaFlow.Retry.Durable.Repository.Model;
+
+[ExcludeFromCodeCoverage]
+public class RetryQueueItemMessage
+{
+    public RetryQueueItemMessage(
+        string topicName,
+        byte[] key,
+        byte[] value,
+        int partition,
+        long offset,
+        DateTime utcTimeStamp,
+        IEnumerable<MessageHeader> headers = null
+    )
     {
-        public RetryQueueItemMessage(
-            string topicName,
-            byte[] key,
-            byte[] value,
-            int partition,
-            long offset,
-            DateTime utcTimeStamp,
-            IEnumerable<MessageHeader> headers = null
-            )
-        {
             Guard.Argument(topicName).NotNull().NotEmpty();
             Guard.Argument(value).NotNull().NotEmpty();
             Guard.Argument(partition).NotNegative();
@@ -34,23 +34,22 @@
             this.Headers = headers?.ToList() ?? new List<MessageHeader>();
         }
 
-        public IList<MessageHeader> Headers { get; }
+    public IList<MessageHeader> Headers { get; }
 
-        public byte[] Key { get; }
+    public byte[] Key { get; }
 
-        public long Offset { get; }
+    public long Offset { get; }
 
-        public int Partition { get; }
+    public int Partition { get; }
 
-        public string TopicName { get; }
+    public string TopicName { get; }
 
-        public DateTime UtcTimeStamp { get; }
+    public DateTime UtcTimeStamp { get; }
 
-        public byte[] Value { get; }
+    public byte[] Value { get; }
 
-        public void AddHeader(MessageHeader header)
-        {
+    public void AddHeader(MessageHeader header)
+    {
             this.Headers.Add(header);
         }
-    }
 }

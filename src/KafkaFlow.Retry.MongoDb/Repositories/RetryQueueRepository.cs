@@ -1,29 +1,29 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Repositories
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Model;
+using MongoDB.Driver;
+
+namespace KafkaFlow.Retry.MongoDb.Repositories;
+
+internal class RetryQueueRepository : IRetryQueueRepository
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Model;
-    using MongoDB.Driver;
+    private readonly DbContext dbContext;
 
-    internal class RetryQueueRepository : IRetryQueueRepository
+    public RetryQueueRepository(DbContext dbContext)
     {
-        private readonly DbContext dbContext;
-
-        public RetryQueueRepository(DbContext dbContext)
-        {
             Guard.Argument(dbContext).NotNull();
 
             this.dbContext = dbContext;
         }
 
-        public async Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds)
-        {
+    public async Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds)
+    {
             var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
 
             var deleteFilter = queuesFilterBuilder.In(q => q.Id, queueIds);
@@ -33,8 +33,8 @@
             return new DeleteQueuesResult(this.GetDeletedCount(deleteResult));
         }
 
-        public async Task<RetryQueueDbo> GetQueueAsync(string queueGroupKey)
-        {
+    public async Task<RetryQueueDbo> GetQueueAsync(string queueGroupKey)
+    {
             var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
 
             var queuesFilter = queuesFilterBuilder.Eq(q => q.QueueGroupKey, queueGroupKey);
@@ -42,8 +42,8 @@
             return await this.dbContext.RetryQueues.GetOneAsync(queuesFilter).ConfigureAwait(false);
         }
 
-        public async Task<IEnumerable<Guid>> GetQueuesToDeleteAsync(string searchGroupKey, RetryQueueStatus status, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
-        {
+    public async Task<IEnumerable<Guid>> GetQueuesToDeleteAsync(string searchGroupKey, RetryQueueStatus status, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
+    {
             var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
 
             var findFilter = queuesFilterBuilder.Eq(q => q.SearchGroupKey, searchGroupKey)
@@ -60,8 +60,8 @@
             return queuesToDelete.Select(q => q.Id);
         }
 
-        public async Task<IEnumerable<RetryQueueDbo>> GetTopSortedQueuesAsync(RetryQueueStatus status, GetQueuesSortOption sortOption, string searchGroupKey, int top)
-        {
+    public async Task<IEnumerable<RetryQueueDbo>> GetTopSortedQueuesAsync(RetryQueueStatus status, GetQueuesSortOption sortOption, string searchGroupKey, int top)
+    {
             var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
 
             var queuesFilter = queuesFilterBuilder.Eq(q => q.Status, status);
@@ -94,8 +94,8 @@
             return await this.dbContext.RetryQueues.GetAsync(queuesFilter, options).ConfigureAwait(false);
         }
 
-        public async Task<UpdateResult> UpdateLastExecutionAsync(Guid queueId, DateTime lastExecution)
-        {
+    public async Task<UpdateResult> UpdateLastExecutionAsync(Guid queueId, DateTime lastExecution)
+    {
             var filter = this.dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
 
             var update = this.dbContext.RetryQueues.GetUpdateDefinition()
@@ -104,8 +104,8 @@
             return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
         }
 
-        public async Task<UpdateResult> UpdateStatusAndLastExecutionAsync(Guid queueId, RetryQueueStatus status, DateTime lastExecution)
-        {
+    public async Task<UpdateResult> UpdateStatusAndLastExecutionAsync(Guid queueId, RetryQueueStatus status, DateTime lastExecution)
+    {
             var filter = this.dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
 
             var update = this.dbContext.RetryQueues.GetUpdateDefinition()
@@ -115,8 +115,8 @@
             return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
         }
 
-        public async Task<UpdateResult> UpdateStatusAsync(Guid queueId, RetryQueueStatus status)
-        {
+    public async Task<UpdateResult> UpdateStatusAsync(Guid queueId, RetryQueueStatus status)
+    {
             var filter = this.dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
 
             var update = this.dbContext.RetryQueues.GetUpdateDefinition()
@@ -125,9 +125,8 @@
             return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
         }
 
-        private int GetDeletedCount(DeleteResult deleteResult)
-        {
+    private int GetDeletedCount(DeleteResult deleteResult)
+    {
             return deleteResult.IsAcknowledged ? Convert.ToInt32(deleteResult.DeletedCount) : 0;
         }
-    }
 }

@@ -1,18 +1,18 @@
-﻿namespace KafkaFlow.Retry.Postgres
-{
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Postgres.Model.Schema;
-    using Npgsql;
-    
-    internal class RetrySchemaCreator : IRetrySchemaCreator
-    {
-        private readonly IEnumerable<Script> schemaScripts;
-        private readonly PostgresDbSettings postgresDbSettings;
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Postgres.Model.Schema;
+using Npgsql;
 
-        public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
-        {
+namespace KafkaFlow.Retry.Postgres;
+
+internal class RetrySchemaCreator : IRetrySchemaCreator
+{
+    private readonly IEnumerable<Script> schemaScripts;
+    private readonly PostgresDbSettings postgresDbSettings;
+
+    public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
+    {
             Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
             Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
@@ -20,8 +20,8 @@
             this.schemaScripts = schemaScripts;
         }
 
-        public async Task CreateOrUpdateSchemaAsync(string databaseName)
-        {
+    public async Task CreateOrUpdateSchemaAsync(string databaseName)
+    {
             using (var openCon = new NpgsqlConnection(this.postgresDbSettings.ConnectionString))
             {
                 openCon.Open();
@@ -39,5 +39,4 @@
                 }
             }
         }
-    }
 }

@@ -1,91 +1,90 @@
-﻿namespace KafkaFlow.Retry.SqlServer
+﻿using Microsoft.Data.SqlClient;
+using System.Diagnostics.CodeAnalysis;
+using Dawn;
+
+namespace KafkaFlow.Retry.SqlServer;
+
+[ExcludeFromCodeCoverage]
+internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 {
-    using Microsoft.Data.SqlClient;
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
+    private readonly SqlServerDbSettings sqlServerDbSettings;
+    private readonly bool withinTransaction;
+    private bool committed = false;
+    private SqlConnection sqlConnection;
+    private SqlTransaction sqlTransaction;
 
-    [ExcludeFromCodeCoverage]
-    internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
+    public DbConnectionContext(SqlServerDbSettings sqlServerDbSettings, bool withinTransaction)
     {
-        private readonly SqlServerDbSettings sqlServerDbSettings;
-        private readonly bool withinTransaction;
-        private bool committed = false;
-        private SqlConnection sqlConnection;
-        private SqlTransaction sqlTransaction;
+        Guard.Argument(sqlServerDbSettings).NotNull();
+        this.sqlServerDbSettings = sqlServerDbSettings;
+        this.withinTransaction = withinTransaction;
+    }
 
-        public DbConnectionContext(SqlServerDbSettings sqlServerDbSettings, bool withinTransaction)
+    public string Schema => this.sqlServerDbSettings.Schema;
+
+    public void Commit()
+    {
+        if (this.sqlTransaction is object)
         {
-            Guard.Argument(sqlServerDbSettings).NotNull();
-            this.sqlServerDbSettings = sqlServerDbSettings;
-            this.withinTransaction = withinTransaction;
+            this.sqlTransaction.Commit();
+            this.committed = true;
+        }
+    }
+
+    public SqlCommand CreateCommand()
+    {
+        var dbCommand = this.GetDbConnection().CreateCommand();
+
+        if (this.withinTransaction)
+        {
+            dbCommand.Transaction = this.GetDbTransaction();
         }
 
-        public string Schema => this.sqlServerDbSettings.Schema;
+        return dbCommand;
+    }
 
-        public void Commit()
+    public void Dispose()
+    {
+        if (this.sqlTransaction is object)
         {
-            if (this.sqlTransaction is object)
+            if (!this.committed)
             {
-                this.sqlTransaction.Commit();
-                this.committed = true;
+                this.Rollback();
             }
+            this.sqlTransaction.Dispose();
         }
 
-        public SqlCommand CreateCommand()
+        if (this.sqlConnection is object)
         {
-            var dbCommand = this.GetDbConnection().CreateCommand();
-
-            if (this.withinTransaction)
-            {
-                dbCommand.Transaction = this.GetDbTransaction();
-            }
-
-            return dbCommand;
+            this.sqlConnection.Dispose();
         }
+    }
 
-        public void Dispose()
+    public void Rollback()
+    {
+        if (this.sqlTransaction is object)
         {
-            if (this.sqlTransaction is object)
-            {
-                if (!this.committed)
-                {
-                    this.Rollback();
-                }
-                this.sqlTransaction.Dispose();
-            }
-
-            if (this.sqlConnection is object)
-            {
-                this.sqlConnection.Dispose();
-            }
+            this.sqlTransaction.Rollback();
         }
+    }
 
-        public void Rollback()
+    private SqlConnection GetDbConnection()
+    {
+        if (this.sqlConnection is null)
         {
-            if (this.sqlTransaction is object)
-            {
-                this.sqlTransaction.Rollback();
-            }
+            this.sqlConnection = new SqlConnection(this.sqlServerDbSettings.ConnectionString);
+            this.sqlConnection.Open();
+            this.sqlConnection.ChangeDatabase(this.sqlServerDbSettings.DatabaseName);
         }
+        return this.sqlConnection;
+    }
 
-        private SqlConnection GetDbConnection()
+    private SqlTransaction GetDbTransaction()
+    {
+        if (this.sqlTransaction is null)
         {
-            if (this.sqlConnection is null)
-            {
-                this.sqlConnection = new SqlConnection(this.sqlServerDbSettings.ConnectionString);
-                this.sqlConnection.Open();
-                this.sqlConnection.ChangeDatabase(this.sqlServerDbSettings.DatabaseName);
-            }
-            return this.sqlConnection;
+            this.sqlTransaction = this.GetDbConnection().BeginTransaction();
         }
-
-        private SqlTransaction GetDbTransaction()
-        {
-            if (this.sqlTransaction is null)
-            {
-                this.sqlTransaction = this.GetDbConnection().BeginTransaction();
-            }
-            return this.sqlTransaction;
-        }
+        return this.sqlTransaction;
     }
 }

@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Readers.Adapters
-{
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.SqlServer.Model;
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.SqlServer.Model;
 
-    internal class RetryQueueItemAdapter : IRetryQueueItemAdapter
+namespace KafkaFlow.Retry.SqlServer.Readers.Adapters;
+
+internal class RetryQueueItemAdapter : IRetryQueueItemAdapter
+{
+    public RetryQueueItem Adapt(RetryQueueItemDbo retryQueueItemDbo)
     {
-        public RetryQueueItem Adapt(RetryQueueItemDbo retryQueueItemDbo)
-        {
             Guard.Argument(retryQueueItemDbo).NotNull();
 
             return new RetryQueueItem(
@@ -21,5 +21,4 @@
                 retryQueueItemDbo.SeverityLevel,
                 retryQueueItemDbo.Description);
         }
-    }
 }

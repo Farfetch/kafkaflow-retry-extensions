@@ -1,29 +1,29 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿using System.Collections.Generic;
+using Dawn;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Polling.Jobs;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using Quartz;
+
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal class JobDataProvidersFactory : IJobDataProvidersFactory
 {
-    using System.Collections.Generic;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Polling.Jobs;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using Quartz;
+    private readonly IMessageHeadersAdapter messageHeadersAdapter;
+    private readonly PollingDefinitionsAggregator pollingDefinitionsAggregator;
+    private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
+    private readonly ITriggerProvider triggerProvider;
+    private readonly IUtf8Encoder utf8Encoder;
 
-    internal class JobDataProvidersFactory : IJobDataProvidersFactory
+    public JobDataProvidersFactory(
+        PollingDefinitionsAggregator pollingDefinitionsAggregator,
+        ITriggerProvider triggerProvider,
+        IRetryDurableQueueRepository retryDurableQueueRepository,
+        IMessageHeadersAdapter messageHeadersAdapter,
+        IUtf8Encoder utf8Encoder)
     {
-        private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly PollingDefinitionsAggregator pollingDefinitionsAggregator;
-        private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
-        private readonly ITriggerProvider triggerProvider;
-        private readonly IUtf8Encoder utf8Encoder;
-
-        public JobDataProvidersFactory(
-            PollingDefinitionsAggregator pollingDefinitionsAggregator,
-            ITriggerProvider triggerProvider,
-            IRetryDurableQueueRepository retryDurableQueueRepository,
-            IMessageHeadersAdapter messageHeadersAdapter,
-            IUtf8Encoder utf8Encoder)
-        {
             Guard.Argument(pollingDefinitionsAggregator, nameof(pollingDefinitionsAggregator)).NotNull();
             Guard.Argument(triggerProvider, nameof(triggerProvider)).NotNull();
             Guard.Argument(retryDurableQueueRepository).NotNull();
@@ -37,8 +37,8 @@
             this.triggerProvider = triggerProvider;
         }
 
-        public IEnumerable<IJobDataProvider> Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
-        {
+    public IEnumerable<IJobDataProvider> Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
+    {
             var jobDataProviders = new List<IJobDataProvider>(2);
 
             if (this.TryGetPollingDefinition<RetryDurablePollingDefinition>(PollingJobType.RetryDurable, out var retryDurablePollingDefinition))
@@ -73,13 +73,13 @@
             return jobDataProviders;
         }
 
-        private ITrigger GetTrigger(PollingDefinition pollingDefinition)
-        {
+    private ITrigger GetTrigger(PollingDefinition pollingDefinition)
+    {
             return this.triggerProvider.GetPollingTrigger(this.pollingDefinitionsAggregator.SchedulerId, pollingDefinition);
         }
 
-        private bool TryGetPollingDefinition<TPollingDefinition>(PollingJobType pollingJobType, out TPollingDefinition pollingDefinition) where TPollingDefinition : PollingDefinition
-        {
+    private bool TryGetPollingDefinition<TPollingDefinition>(PollingJobType pollingJobType, out TPollingDefinition pollingDefinition) where TPollingDefinition : PollingDefinition
+    {
             pollingDefinition = default;
 
             var pollingDefinitions = this.pollingDefinitionsAggregator.PollingDefinitions;
@@ -94,5 +94,4 @@
 
             return pollingDefinitionFound;
         }
-    }
 }

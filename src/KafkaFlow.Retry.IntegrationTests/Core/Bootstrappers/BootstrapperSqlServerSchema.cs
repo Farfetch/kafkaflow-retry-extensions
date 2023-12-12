@@ -1,20 +1,20 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
+﻿using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers;
+
+internal static class BootstrapperSqlServerSchema
 {
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading;
-    using System.Threading.Tasks;
+    private static readonly SemaphoreSlim semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
+    private static bool schemaInitialized;
 
-    internal static class BootstrapperSqlServerSchema
+    internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
     {
-        private static readonly SemaphoreSlim semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
-        private static bool schemaInitialized;
-
-        internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
-        {
             await semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
             try
             {
@@ -55,8 +55,8 @@
             }
         }
 
-        private static IEnumerable<string> GetScriptsForSchemaCreation()
-        {
+    private static IEnumerable<string> GetScriptsForSchemaCreation()
+    {
             Assembly sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
             return sqlServerAssembly
                 .GetManifestResourceNames()
@@ -73,5 +73,4 @@
                 })
                 .ToList();
         }
-    }
 }

@@ -1,17 +1,17 @@
-﻿namespace KafkaFlow.Retry.Postgres.Repositories
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Postgres.Model;
+using Npgsql;
+using NpgsqlTypes;
+
+namespace KafkaFlow.Retry.Postgres.Repositories;
+
+internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRepository
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Postgres.Model;
-    using Npgsql;
-    using NpgsqlTypes;
-    
-    internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRepository
+    public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo)
     {
-        public async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo)
-        {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemMessageDbo, nameof(retryQueueItemMessageDbo)).NotNull();
 
@@ -35,8 +35,8 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo)
-        {
+    public async Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemsDbo, nameof(retryQueueItemsDbo)).NotNull();
 
@@ -52,8 +52,8 @@
             }
         }
 
-        private async Task<IList<RetryQueueItemMessageDbo>> ExecuteReaderAsync(NpgsqlCommand command)
-        {
+    private async Task<IList<RetryQueueItemMessageDbo>> ExecuteReaderAsync(NpgsqlCommand command)
+    {
             var messages = new List<RetryQueueItemMessageDbo>();
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
@@ -67,8 +67,8 @@
             return messages;
         }
 
-        private RetryQueueItemMessageDbo FillDbo(NpgsqlDataReader reader)
-        {
+    private RetryQueueItemMessageDbo FillDbo(NpgsqlDataReader reader)
+    {
             return new RetryQueueItemMessageDbo
             {
                 IdRetryQueueItem = reader.GetInt64(reader.GetOrdinal("IdRetryQueueItem")),
@@ -80,5 +80,4 @@
                 Value = (byte[])reader["Value"]
             };
         }
-    }
 }

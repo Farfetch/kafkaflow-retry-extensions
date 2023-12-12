@@ -1,16 +1,16 @@
-namespace KafkaFlow.Retry.SqlServer.Repositories
-{
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.SqlServer.Model;
+using System.Collections.Generic;
+using Microsoft.Data.SqlClient;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.SqlServer.Model;
 
-    internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMessageHeaderRepository
+namespace KafkaFlow.Retry.SqlServer.Repositories;
+
+internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMessageHeaderRepository
+{
+    public async Task AddAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageHeaderDbo> retryQueueHeadersDbo)
     {
-        public async Task AddAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageHeaderDbo> retryQueueHeadersDbo)
-        {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueHeadersDbo, nameof(retryQueueHeadersDbo)).NotNull();
 
@@ -20,8 +20,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        public async Task<IList<RetryQueueItemMessageHeaderDbo>> GetOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageDbo> retryQueueItemMessagesDbo)
-        {
+    public async Task<IList<RetryQueueItemMessageHeaderDbo>> GetOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemMessageDbo> retryQueueItemMessagesDbo)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueItemMessagesDbo, nameof(retryQueueItemMessagesDbo)).NotNull();
 
@@ -38,8 +38,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        private async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageHeaderDbo retryQueueHeaderDbo)
-        {
+    private async Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageHeaderDbo retryQueueHeaderDbo)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueHeaderDbo, nameof(retryQueueHeaderDbo)).NotNull();
 
@@ -59,8 +59,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             }
         }
 
-        private async Task<IList<RetryQueueItemMessageHeaderDbo>> ExecuteReaderAsync(SqlCommand command)
-        {
+    private async Task<IList<RetryQueueItemMessageHeaderDbo>> ExecuteReaderAsync(SqlCommand command)
+    {
             var headers = new List<RetryQueueItemMessageHeaderDbo>();
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
@@ -79,8 +79,8 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
             return headers;
         }
 
-        private RetryQueueItemMessageHeaderDbo FillDbo(SqlDataReader reader, int idColumn, int keyColumn, int retryQueueItemMessageColumn, int valueColumn)
-        {
+    private RetryQueueItemMessageHeaderDbo FillDbo(SqlDataReader reader, int idColumn, int keyColumn, int retryQueueItemMessageColumn, int valueColumn)
+    {
             return new RetryQueueItemMessageHeaderDbo
             {
                 Id = reader.GetInt64(idColumn),
@@ -89,5 +89,4 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
                 RetryQueueItemMessageId = reader.GetInt64(retryQueueItemMessageColumn)
             };
         }
-    }
 }

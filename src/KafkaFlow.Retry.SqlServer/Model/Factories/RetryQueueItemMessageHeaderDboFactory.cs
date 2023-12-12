@@ -1,22 +1,22 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Model.Factories
-{
-    using System.Collections.Generic;
-    using System.Linq;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    internal sealed class RetryQueueItemMessageHeaderDboFactory : IRetryQueueItemMessageHeaderDboFactory
+namespace KafkaFlow.Retry.SqlServer.Model.Factories;
+
+internal sealed class RetryQueueItemMessageHeaderDboFactory : IRetryQueueItemMessageHeaderDboFactory
+{
+    public IEnumerable<RetryQueueItemMessageHeaderDbo> Create(IEnumerable<MessageHeader> headers, long retryQueueItemId)
     {
-        public IEnumerable<RetryQueueItemMessageHeaderDbo> Create(IEnumerable<MessageHeader> headers, long retryQueueItemId)
-        {
             Guard.Argument(headers).NotNull();
             Guard.Argument(retryQueueItemId, nameof(retryQueueItemId)).Positive();
 
             return headers.Select(h => this.Adapt(h, retryQueueItemId));
         }
 
-        private RetryQueueItemMessageHeaderDbo Adapt(MessageHeader header, long retryQueueItemId)
-        {
+    private RetryQueueItemMessageHeaderDbo Adapt(MessageHeader header, long retryQueueItemId)
+    {
             Guard.Argument(header).NotNull();
 
             return new RetryQueueItemMessageHeaderDbo()
@@ -26,5 +26,4 @@
                 RetryQueueItemMessageId = retryQueueItemId
             };
         }
-    }
 }

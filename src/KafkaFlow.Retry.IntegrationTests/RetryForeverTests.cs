@@ -1,52 +1,51 @@
-namespace KafkaFlow.Retry.IntegrationTests
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
+using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+using KafkaFlow.Retry.IntegrationTests.Core.Messages;
+using KafkaFlow.Retry.IntegrationTests.Core.Producers;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+namespace KafkaFlow.Retry.IntegrationTests;
+
+[Collection("BootstrapperHostCollection")]
+public class RetryForeverTests
 {
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AutoFixture;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Producers;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages;
-    using Microsoft.Extensions.DependencyInjection;
-    using Xunit;
+    private readonly BootstrapperHostFixture bootstrapperHostFixture;
+    private readonly Fixture fixture = new Fixture();
 
-    [Collection("BootstrapperHostCollection")]
-    public class RetryForeverTests
+    public RetryForeverTests(BootstrapperHostFixture bootstrapperHostFixture)
     {
-        private readonly BootstrapperHostFixture bootstrapperHostFixture;
-        private readonly Fixture fixture = new Fixture();
+        this.bootstrapperHostFixture = bootstrapperHostFixture;
+        InMemoryAuxiliarStorage<RetryForeverTestMessage>.Clear();
+        InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException = true;
+    }
 
-        public RetryForeverTests(BootstrapperHostFixture bootstrapperHostFixture)
+    [Fact]
+    public async Task RetryForeverTest()
+    {
+        // Arrange
+        var producer1 = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetryForeverProducer>>();
+        var messages = this.fixture.CreateMany<RetryForeverTestMessage>(1).ToList();
+
+        // Act
+        messages.ForEach(m => producer1.Produce(m.Key, m));
+
+        // Assert
+        foreach (var message in messages)
         {
-            this.bootstrapperHostFixture = bootstrapperHostFixture;
-            InMemoryAuxiliarStorage<RetryForeverTestMessage>.Clear();
-            InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException = true;
+            await InMemoryAuxiliarStorage<RetryForeverTestMessage>.AssertCountMessageAsync(message, 20);
         }
 
-        [Fact]
-        public async Task RetryForeverTest()
+        // To avoid a message not committed on the tests topic
+        InMemoryAuxiliarStorage<RetryForeverTestMessage>.Clear();
+        InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException = false;
+
+        foreach (var message in messages)
         {
-            // Arrange
-            var producer1 = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetryForeverProducer>>();
-            var messages = this.fixture.CreateMany<RetryForeverTestMessage>(1).ToList();
-
-            // Act
-            messages.ForEach(m => producer1.Produce(m.Key, m));
-
-            // Assert
-            foreach (var message in messages)
-            {
-                await InMemoryAuxiliarStorage<RetryForeverTestMessage>.AssertCountMessageAsync(message, 20);
-            }
-
-            // To avoid a message not committed on the tests topic
-            InMemoryAuxiliarStorage<RetryForeverTestMessage>.Clear();
-            InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException = false;
-
-            foreach (var message in messages)
-            {
-                await InMemoryAuxiliarStorage<RetryForeverTestMessage>.AssertCountMessageAsync(message, 1);
-            }
+            await InMemoryAuxiliarStorage<RetryForeverTestMessage>.AssertCountMessageAsync(message, 1);
         }
     }
 }

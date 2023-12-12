@@ -1,30 +1,30 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Repositories
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Model;
+using MongoDB.Driver;
+
+namespace KafkaFlow.Retry.MongoDb.Repositories;
+
+internal class RetryQueueItemRepository : IRetryQueueItemRepository
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Model;
-    using MongoDB.Driver;
+    private readonly DbContext dbContext;
 
-    internal class RetryQueueItemRepository : IRetryQueueItemRepository
+    public RetryQueueItemRepository(DbContext dbContext)
     {
-        private readonly DbContext dbContext;
-
-        public RetryQueueItemRepository(DbContext dbContext)
-        {
             Guard.Argument(dbContext).NotNull();
 
             this.dbContext = dbContext;
         }
 
-        public async Task<bool> AnyItemStillActiveAsync(Guid retryQueueId)
-        {
+    public async Task<bool> AnyItemStillActiveAsync(Guid retryQueueId)
+    {
             var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
 
             var itemsFilter = itemsFilterBuilder.Eq(i => i.RetryQueueId, retryQueueId)
@@ -35,8 +35,8 @@
             return itemsDbo.Any();
         }
 
-        public async Task DeleteItemsAsync(IEnumerable<Guid> queueIds)
-        {
+    public async Task DeleteItemsAsync(IEnumerable<Guid> queueIds)
+    {
             var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
 
             var deleteFilter = itemsFilterBuilder.In(i => i.RetryQueueId, queueIds);
@@ -44,8 +44,8 @@
             await this.dbContext.RetryQueueItems.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
         }
 
-        public async Task<RetryQueueItemDbo> GetItemAsync(Guid itemId)
-        {
+    public async Task<RetryQueueItemDbo> GetItemAsync(Guid itemId)
+    {
             var queueItemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
 
             var queueItemsFilter = queueItemsFilterBuilder.Eq(q => q.Id, itemId);
@@ -55,13 +55,13 @@
             return items.FirstOrDefault();
         }
 
-        public async Task<IEnumerable<RetryQueueItemDbo>> GetItemsAsync(
-            IEnumerable<Guid> queueIds,
-            IEnumerable<RetryQueueItemStatus> statuses,
-            IEnumerable<SeverityLevel> severities = null,
-            int? top = null,
-            StuckStatusFilter stuckStatusFilter = null)
-        {
+    public async Task<IEnumerable<RetryQueueItemDbo>> GetItemsAsync(
+        IEnumerable<Guid> queueIds,
+        IEnumerable<RetryQueueItemStatus> statuses,
+        IEnumerable<SeverityLevel> severities = null,
+        int? top = null,
+        StuckStatusFilter stuckStatusFilter = null)
+    {
             var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
 
             var itemsFilter = itemsFilterBuilder.In(i => i.RetryQueueId, queueIds);
@@ -92,8 +92,8 @@
             return await this.dbContext.RetryQueueItems.GetAsync(itemsFilter, options).ConfigureAwait(false);
         }
 
-        public async Task<bool> IsFirstWaitingInQueue(RetryQueueItemDbo item)
-        {
+    public async Task<bool> IsFirstWaitingInQueue(RetryQueueItemDbo item)
+    {
             var sortedItems = await this.GetItemsAsync(
                 new Guid[] { item.RetryQueueId },
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting })
@@ -107,9 +107,9 @@
             return false;
         }
 
-        public async Task<UpdateItemResult> UpdateItemAsync(
-            Guid itemId, RetryQueueItemStatus status, int attemptsCount, DateTime? lastExecution, string description)
-        {
+    public async Task<UpdateItemResult> UpdateItemAsync(
+        Guid itemId, RetryQueueItemStatus status, int attemptsCount, DateTime? lastExecution, string description)
+    {
             var filter = this.dbContext.RetryQueueItems.GetFilters().Eq(i => i.Id, itemId);
 
             var update = this.dbContext.RetryQueueItems.GetUpdateDefinition()
@@ -133,5 +133,4 @@
 
             return new UpdateItemResult(itemId, UpdateItemResultStatus.Updated);
         }
-    }
 }

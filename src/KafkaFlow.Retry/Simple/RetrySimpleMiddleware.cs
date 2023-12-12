@@ -1,27 +1,27 @@
-﻿namespace KafkaFlow.Retry.Simple
+﻿using System;
+using System.Threading.Tasks;
+using KafkaFlow;
+using Polly;
+
+namespace KafkaFlow.Retry.Simple;
+
+internal class RetrySimpleMiddleware : IMessageMiddleware
 {
-    using System;
-    using System.Threading.Tasks;
-    using KafkaFlow;
-    using Polly;
+    private readonly ILogHandler logHandler;
+    private readonly RetrySimpleDefinition retrySimpleDefinition;
+    private readonly object syncPauseAndResume = new object();
+    private int? controlWorkerId;
 
-    internal class RetrySimpleMiddleware : IMessageMiddleware
+    public RetrySimpleMiddleware(
+        ILogHandler logHandler,
+        RetrySimpleDefinition retrySimpleDefinition)
     {
-        private readonly ILogHandler logHandler;
-        private readonly RetrySimpleDefinition retrySimpleDefinition;
-        private readonly object syncPauseAndResume = new object();
-        private int? controlWorkerId;
-
-        public RetrySimpleMiddleware(
-            ILogHandler logHandler,
-            RetrySimpleDefinition retrySimpleDefinition)
-        {
             this.logHandler = logHandler;
             this.retrySimpleDefinition = retrySimpleDefinition;
         }
 
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
             var policy = Policy
                 .Handle<Exception>(exception => this.retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
@@ -108,5 +108,4 @@
                 }
             }
         }
-    }
 }

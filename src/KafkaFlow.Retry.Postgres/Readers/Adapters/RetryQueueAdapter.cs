@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.Postgres.Readers.Adapters
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.Postgres.Model;
+
+namespace KafkaFlow.Retry.Postgres.Readers.Adapters;
+
+internal class RetryQueueAdapter : IRetryQueueAdapter
 {
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.Postgres.Model;
-    
-    internal class RetryQueueAdapter : IRetryQueueAdapter
+    public RetryQueue Adapt(RetryQueueDbo retryQueueDbo)
     {
-        public RetryQueue Adapt(RetryQueueDbo retryQueueDbo)
-        {
             Guard.Argument(retryQueueDbo).NotNull();
 
             return new RetryQueue(retryQueueDbo.IdDomain,
@@ -17,5 +17,4 @@
                         retryQueueDbo.LastExecution,
                         retryQueueDbo.Status);
         }
-    }
 }

@@ -1,27 +1,27 @@
-﻿namespace KafkaFlow.Retry.Forever
+﻿using System;
+using System.Threading.Tasks;
+using KafkaFlow;
+using Polly;
+
+namespace KafkaFlow.Retry.Forever;
+
+internal class RetryForeverMiddleware : IMessageMiddleware
 {
-    using System;
-    using System.Threading.Tasks;
-    using KafkaFlow;
-    using Polly;
+    private readonly ILogHandler logHandler;
+    private readonly RetryForeverDefinition retryForeverDefinition;
+    private readonly object syncPauseAndResume = new object();
+    private int? controlWorkerId;
 
-    internal class RetryForeverMiddleware : IMessageMiddleware
+    public RetryForeverMiddleware(
+        ILogHandler logHandler,
+        RetryForeverDefinition retryForeverDefinition)
     {
-        private readonly ILogHandler logHandler;
-        private readonly RetryForeverDefinition retryForeverDefinition;
-        private readonly object syncPauseAndResume = new object();
-        private int? controlWorkerId;
-
-        public RetryForeverMiddleware(
-            ILogHandler logHandler,
-            RetryForeverDefinition retryForeverDefinition)
-        {
             this.logHandler = logHandler;
             this.retryForeverDefinition = retryForeverDefinition;
         }
 
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
             var policy = Policy
                 .Handle<Exception>(exception => this.retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryForeverAsync(
@@ -107,5 +107,4 @@
                 }
             }
         }
-    }
 }

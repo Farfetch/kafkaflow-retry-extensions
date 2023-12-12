@@ -1,13 +1,13 @@
-﻿namespace KafkaFlow.Retry.Postgres.Readers.Adapters
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.Postgres.Model;
+
+namespace KafkaFlow.Retry.Postgres.Readers.Adapters;
+
+internal class RetryQueueItemMessageAdapter : IRetryQueueItemMessageAdapter
 {
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.Postgres.Model;
-    
-    internal class RetryQueueItemMessageAdapter : IRetryQueueItemMessageAdapter
+    public RetryQueueItemMessage Adapt(RetryQueueItemMessageDbo retryQueueItemMessageDbo)
     {
-        public RetryQueueItemMessage Adapt(RetryQueueItemMessageDbo retryQueueItemMessageDbo)
-        {
             Guard.Argument(retryQueueItemMessageDbo, nameof(retryQueueItemMessageDbo)).NotNull();
 
             return new RetryQueueItemMessage(
@@ -18,5 +18,4 @@
                 retryQueueItemMessageDbo.Offset,
                 retryQueueItemMessageDbo.UtcTimeStamp);
         }
-    }
 }

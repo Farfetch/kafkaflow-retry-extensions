@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Readers.Adapters
-{
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.SqlServer.Model;
+﻿using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.SqlServer.Model;
 
-    internal interface IRetryQueueItemMessageAdapter : IDboDomainAdapter<RetryQueueItemMessageDbo, RetryQueueItemMessage>
-    {
-    }
+namespace KafkaFlow.Retry.SqlServer.Readers.Adapters;
+
+internal interface IRetryQueueItemMessageAdapter : IDboDomainAdapter<RetryQueueItemMessageDbo, RetryQueueItemMessage>
+{
 }

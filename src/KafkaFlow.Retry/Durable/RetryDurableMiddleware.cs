@@ -1,24 +1,24 @@
-﻿namespace KafkaFlow.Retry.Durable
+﻿using System;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow;
+using KafkaFlow.Retry.Durable.Definitions;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using Polly;
+
+namespace KafkaFlow.Retry.Durable;
+
+internal class RetryDurableMiddleware : IMessageMiddleware
 {
-    using System;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow;
-    using KafkaFlow.Retry.Durable.Definitions;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using Polly;
+    private readonly ILogHandler logHandler;
+    private readonly RetryDurableDefinition retryDurableDefinition;
+    private readonly object syncPauseAndResume = new object();
+    private int? controlWorkerId;
 
-    internal class RetryDurableMiddleware : IMessageMiddleware
+    public RetryDurableMiddleware(
+        ILogHandler logHandler,
+        RetryDurableDefinition retryDurableDefinition)
     {
-        private readonly ILogHandler logHandler;
-        private readonly RetryDurableDefinition retryDurableDefinition;
-        private readonly object syncPauseAndResume = new object();
-        private int? controlWorkerId;
-
-        public RetryDurableMiddleware(
-            ILogHandler logHandler,
-            RetryDurableDefinition retryDurableDefinition)
-        {
             Guard.Argument(logHandler).NotNull();
             Guard.Argument(retryDurableDefinition).NotNull();
 
@@ -26,8 +26,8 @@
             this.retryDurableDefinition = retryDurableDefinition;
         }
 
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
             try
             {
                 var resultAddIfQueueExistsAsync = await this
@@ -153,5 +153,4 @@
                 }
             }
         }
-    }
 }

@@ -1,37 +1,37 @@
-﻿namespace KafkaFlow.Retry.MongoDb
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Adapters;
+using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
+using KafkaFlow.Retry.MongoDb.Model;
+using KafkaFlow.Retry.MongoDb.Model.Factories;
+using KafkaFlow.Retry.MongoDb.Repositories;
+using MongoDB.Driver;
+using MongoDB.Driver.Linq;
+
+namespace KafkaFlow.Retry.MongoDb;
+
+internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Adapters;
-    using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
-    using KafkaFlow.Retry.MongoDb.Model;
-    using KafkaFlow.Retry.MongoDb.Model.Factories;
-    using KafkaFlow.Retry.MongoDb.Repositories;
-    using MongoDB.Driver;
-    using MongoDB.Driver.Linq;
+    private readonly DbContext dbContext;
+    private readonly IQueuesAdapter queuesAdapter;
+    private readonly RetryQueueItemDboFactory retryQueueItemDboFactory;
+    private readonly IRetryQueueItemRepository retryQueueItemRepository;
+    private readonly IRetryQueueRepository retryQueueRepository;
 
-    internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
+    internal RetryQueueDataProvider(
+        DbContext dbContext,
+        IRetryQueueRepository retryQueueRepository,
+        IRetryQueueItemRepository retryQueueItemRepository)
     {
-        private readonly DbContext dbContext;
-        private readonly IQueuesAdapter queuesAdapter;
-        private readonly RetryQueueItemDboFactory retryQueueItemDboFactory;
-        private readonly IRetryQueueItemRepository retryQueueItemRepository;
-        private readonly IRetryQueueRepository retryQueueRepository;
-
-        internal RetryQueueDataProvider(
-            DbContext dbContext,
-            IRetryQueueRepository retryQueueRepository,
-            IRetryQueueItemRepository retryQueueItemRepository)
-        {
             Guard.Argument(dbContext).NotNull();
 
             this.dbContext = dbContext;
@@ -43,8 +43,8 @@
             this.queuesAdapter = new QueuesAdapter(new ItemAdapter(messageAdapter));
         }
 
-        public async Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input)
-        {
+    public async Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input)
+    {
             Guard.Argument(input).NotNull();
 
             // Tries to find an active queue for the GroupKey
@@ -63,8 +63,8 @@
             return new CheckQueueResult(CheckQueueResultStatus.DoesNotExist);
         }
 
-        public async Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput input)
-        {
+    public async Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
@@ -83,8 +83,8 @@
             return new QueueNewestItemsResult(QueueNewestItemsResultStatus.NoNewestItems);
         }
 
-        public async Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput input)
-        {
+    public async Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
@@ -103,8 +103,8 @@
             return new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems);
         }
 
-        public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input)
-        {
+    public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var queueIdsToDelete = await this.retryQueueRepository
@@ -124,8 +124,8 @@
                              .ConfigureAwait(false);
         }
 
-        public async Task<GetQueuesResult> GetQueuesAsync(GetQueuesInput input)
-        {
+    public async Task<GetQueuesResult> GetQueuesAsync(GetQueuesInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var queuesDbo = await this.retryQueueRepository.GetTopSortedQueuesAsync(input.Status, input.SortOption, input.SearchGroupKey, input.TopQueues).ConfigureAwait(false);
@@ -157,8 +157,8 @@
             return new GetQueuesResult(queues);
         }
 
-        public async Task<SaveToQueueResult> SaveToQueueAsync(SaveToQueueInput input)
-        {
+    public async Task<SaveToQueueResult> SaveToQueueAsync(SaveToQueueInput input)
+    {
             Guard.Argument(input).NotNull();
 
             var retryQueueDbo = await this.dbContext.RetryQueues
@@ -175,15 +175,15 @@
             return new SaveToQueueResult(SaveToQueueResultStatus.Added);
         }
 
-        public async Task<UpdateItemResult> UpdateItemExecutionInfoAsync(UpdateItemExecutionInfoInput input)
-        {
+    public async Task<UpdateItemResult> UpdateItemExecutionInfoAsync(UpdateItemExecutionInfoInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             return await this.UpdateItemAndTryUpdateQueueToDoneAsync(input).ConfigureAwait(false);
         }
 
-        public async Task<UpdateItemsResult> UpdateItemsAsync(UpdateItemsInput input)
-        {
+    public async Task<UpdateItemsResult> UpdateItemsAsync(UpdateItemsInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var results = new List<UpdateItemResult>();
@@ -198,8 +198,8 @@
             return new UpdateItemsResult(results);
         }
 
-        public async Task<UpdateItemResult> UpdateItemStatusAsync(UpdateItemStatusInput input)
-        {
+    public async Task<UpdateItemResult> UpdateItemStatusAsync(UpdateItemStatusInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var filter = this.dbContext.RetryQueueItems.GetFilters().Eq(i => i.Id, input.ItemId);
@@ -217,8 +217,8 @@
             return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.Updated);
         }
 
-        public async Task<UpdateQueuesResult> UpdateQueuesAsync(UpdateQueuesInput input)
-        {
+    public async Task<UpdateQueuesResult> UpdateQueuesAsync(UpdateQueuesInput input)
+    {
             Guard.Argument(input, nameof(input)).NotNull();
 
             var results = new List<UpdateQueueResult>();
@@ -233,8 +233,8 @@
             return new UpdateQueuesResult(results);
         }
 
-        private async Task AddItemIntoAnExistingQueueAsync(SaveToQueueInput input, RetryQueueDbo retryQueueDbo)
-        {
+    private async Task AddItemIntoAnExistingQueueAsync(SaveToQueueInput input, RetryQueueDbo retryQueueDbo)
+    {
             // Gets the total items in the queue.
             var totalItemsInQueue = this.dbContext.RetryQueueItems
                 .AsQueryable()
@@ -257,8 +257,8 @@
             }
         }
 
-        private async Task CreateItemIntoANewQueueAsync(SaveToQueueInput input)
-        {
+    private async Task CreateItemIntoANewQueueAsync(SaveToQueueInput input)
+    {
             // Creates the queue
             var retryQueueDbo = RetryQueueDboFactory.Create(input);
             await this.dbContext.RetryQueues.InsertOneAsync(retryQueueDbo).ConfigureAwait(false);
@@ -268,13 +268,13 @@
             await this.dbContext.RetryQueueItems.InsertOneAsync(retryQueueItemDbo).ConfigureAwait(false);
         }
 
-        private bool IsItemInWaitingState(RetryQueueItemDbo item)
-        {
+    private bool IsItemInWaitingState(RetryQueueItemDbo item)
+    {
             return item.Status == RetryQueueItemStatus.Waiting;
         }
 
-        private async Task<UpdateQueueResultStatus> TryUpdateQueueToDoneAsync(Guid queueId)
-        {
+    private async Task<UpdateQueueResultStatus> TryUpdateQueueToDoneAsync(Guid queueId)
+    {
             var anyItemStillActive = await this.retryQueueItemRepository.AnyItemStillActiveAsync(queueId).ConfigureAwait(false);
 
             if (!anyItemStillActive)
@@ -292,8 +292,8 @@
             return UpdateQueueResultStatus.NotUpdated;
         }
 
-        private async Task<UpdateItemResult> UpdateItemAndQueueStatusAsync(UpdateItemStatusInput input)
-        {
+    private async Task<UpdateItemResult> UpdateItemAndQueueStatusAsync(UpdateItemStatusInput input)
+    {
             if (input.Status != RetryQueueItemStatus.Cancelled)
             {
                 return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.UpdateIsNotAllowed);
@@ -333,8 +333,8 @@
             return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.Updated);
         }
 
-        private async Task<UpdateItemResult> UpdateItemAndTryUpdateQueueToDoneAsync(UpdateItemExecutionInfoInput input)
-        {
+    private async Task<UpdateItemResult> UpdateItemAndTryUpdateQueueToDoneAsync(UpdateItemExecutionInfoInput input)
+    {
             //update item
             var updateItemResult = await this.retryQueueItemRepository
                .UpdateItemAsync(input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description).ConfigureAwait(false);
@@ -355,8 +355,8 @@
             return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.Updated);
         }
 
-        private async Task<UpdateQueueResult> UpdateQueueAndAllItemsAsync(UpdateItemsInQueueInput input)
-        {
+    private async Task<UpdateQueueResult> UpdateQueueAndAllItemsAsync(UpdateItemsInQueueInput input)
+    {
             var queue = await this.retryQueueRepository.GetQueueAsync(input.QueueGroupKey).ConfigureAwait(false);
 
             if (queue is null)
@@ -405,8 +405,8 @@
             return new UpdateQueueResult(input.QueueGroupKey, updateQueueResultStatus, queue.Status);
         }
 
-        private async Task<UpdateQueueResultStatus> UpdateQueueLastExecutionAndTryUpdateQueueToDoneAsync(Guid queueId, DateTime lastExecution)
-        {
+    private async Task<UpdateQueueResultStatus> UpdateQueueLastExecutionAndTryUpdateQueueToDoneAsync(Guid queueId, DateTime lastExecution)
+    {
             var anyItemStillActive = await this.retryQueueItemRepository.AnyItemStillActiveAsync(queueId).ConfigureAwait(false);
 
             if (anyItemStillActive)
@@ -432,5 +432,4 @@
 
             return UpdateQueueResultStatus.Updated;
         }
-    }
 }

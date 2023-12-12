@@ -1,17 +1,17 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Delete
-{
-    using System;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+﻿using System;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
-    public class DeleteQueuesInput
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+
+public class DeleteQueuesInput
+{
+    public DeleteQueuesInput(
+        string searchGroupKey,
+        RetryQueueStatus retryQueueStatus,
+        DateTime maxLastExecutionDateToBeKept,
+        int maxRowsToDelete)
     {
-        public DeleteQueuesInput(
-            string searchGroupKey,
-            RetryQueueStatus retryQueueStatus,
-            DateTime maxLastExecutionDateToBeKept,
-            int maxRowsToDelete)
-        {
             Guard.Argument(searchGroupKey, nameof(searchGroupKey)).NotNull().NotEmpty();
             Guard.Argument(retryQueueStatus, nameof(retryQueueStatus)).NotDefault();
             Guard.Argument(maxLastExecutionDateToBeKept, nameof(maxLastExecutionDateToBeKept)).NotDefault();
@@ -23,12 +23,11 @@
             this.MaxRowsToDelete = maxRowsToDelete;
         }
 
-        public DateTime MaxLastExecutionDateToBeKept { get; }
+    public DateTime MaxLastExecutionDateToBeKept { get; }
 
-        public int MaxRowsToDelete { get; }
+    public int MaxRowsToDelete { get; }
 
-        public RetryQueueStatus RetryQueueStatus { get; }
+    public RetryQueueStatus RetryQueueStatus { get; }
 
-        public string SearchGroupKey { get; }
-    }
+    public string SearchGroupKey { get; }
 }

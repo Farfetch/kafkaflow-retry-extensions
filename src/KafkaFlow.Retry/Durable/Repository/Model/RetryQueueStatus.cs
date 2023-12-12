@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Model
+﻿namespace KafkaFlow.Retry.Durable.Repository.Model;
+
+public enum RetryQueueStatus
 {
-    public enum RetryQueueStatus
-    {
-        None = 0,
-        Active = 1,
-        Done = 2
-    }
+    None = 0,
+    Active = 1,
+    Done = 2
 }

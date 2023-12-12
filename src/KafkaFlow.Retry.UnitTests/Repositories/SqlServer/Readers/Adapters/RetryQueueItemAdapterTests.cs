@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers.Adapters
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using global::KafkaFlow.Retry.SqlServer.Model;
+using global::KafkaFlow.Retry.SqlServer.Readers.Adapters;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers.Adapters;
+
+public class RetryQueueItemAdapterTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.SqlServer.Model;
-    using global::KafkaFlow.Retry.SqlServer.Readers.Adapters;
-    using Xunit;
+    private readonly RetryQueueItemAdapter adapter = new RetryQueueItemAdapter();
 
-    public class RetryQueueItemAdapterTests
+    [Fact]
+    public void RetryQueueItemAdapter_Adapt_Success()
     {
-        private readonly RetryQueueItemAdapter adapter = new RetryQueueItemAdapter();
-
-        [Fact]
-        public void RetryQueueItemAdapter_Adapt_Success()
-        {
             // Arrange
             var retryQueue = new RetryQueueItemDbo
             {
@@ -39,9 +39,9 @@
             result.Should().BeOfType(typeof(RetryQueueItem));
         }
 
-        [Fact]
-        public void RetryQueueItemAdapter_Adapt_WithoutRetryQueueItemDbo_ThrowsException()
-        {
+    [Fact]
+    public void RetryQueueItemAdapter_Adapt_WithoutRetryQueueItemDbo_ThrowsException()
+    {
             // Arrange
             RetryQueueItemDbo retryQueue = null;
 
@@ -51,5 +51,4 @@
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

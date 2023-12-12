@@ -1,29 +1,29 @@
-﻿namespace KafkaFlow.Retry.API
+﻿using System.IO;
+using System.Text;
+using System.Threading.Tasks;
+using Dawn;
+using Microsoft.AspNetCore.Http;
+using Newtonsoft.Json;
+
+namespace KafkaFlow.Retry.API;
+
+internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
 {
-    using System.IO;
-    using System.Text;
-    using System.Threading.Tasks;
-    using Dawn;
-    using Microsoft.AspNetCore.Http;
-    using Newtonsoft.Json;
 
-    internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
+    private readonly string path;
+    private const string RetryResource = "retry";
+
+
+    protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
     {
+        DateTimeZoneHandling = DateTimeZoneHandling.Utc,
+        TypeNameHandling = TypeNameHandling.None
+    };
 
-        private readonly string path;
-        private const string RetryResource = "retry";
+    protected abstract HttpMethod HttpMethod { get; }
 
-
-        protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
-        {
-            DateTimeZoneHandling = DateTimeZoneHandling.Utc,
-            TypeNameHandling = TypeNameHandling.None
-        };
-
-        protected abstract HttpMethod HttpMethod { get; }
-
-        protected RetryRequestHandlerBase(string endpointPrefix, string resource)
-        {
+    protected RetryRequestHandlerBase(string endpointPrefix, string resource)
+    {
             Guard.Argument(resource, nameof(resource)).NotNull().NotEmpty();
 
             if (!string.IsNullOrEmpty(endpointPrefix))
@@ -38,8 +38,8 @@
         }
 
 
-        public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
-        {
+    public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
+    {
             if (!this.CanHandle(request))
             {
                 return false;
@@ -50,8 +50,8 @@
             return true;
         }
 
-        protected bool CanHandle(HttpRequest httpRequest)
-        {
+    protected bool CanHandle(HttpRequest httpRequest)
+    {
             var resource = httpRequest.Path.ToUriComponent();
 
             if (!resource.Equals(this.path))
@@ -69,10 +69,10 @@
             return true;
         }
 
-        protected abstract Task HandleRequestAsync(HttpRequest request, HttpResponse response);
+    protected abstract Task HandleRequestAsync(HttpRequest request, HttpResponse response);
 
-        protected virtual async Task<T> ReadRequestDtoAsync<T>(HttpRequest request)
-        {
+    protected virtual async Task<T> ReadRequestDtoAsync<T>(HttpRequest request)
+    {
             string requestMessage;
 
             using (var reader = new StreamReader(request.Body, Encoding.UTF8))
@@ -85,8 +85,8 @@
             return requestDto;
         }
 
-        protected virtual async Task WriteResponseAsync<T>(HttpResponse response, T responseDto, int statusCode)
-        {
+    protected virtual async Task WriteResponseAsync<T>(HttpResponse response, T responseDto, int statusCode)
+    {
             var body = JsonConvert.SerializeObject(responseDto, this.jsonSerializerSettings);
 
             response.ContentType = "application/json";
@@ -94,5 +94,4 @@
 
             await response.WriteAsync(body, Encoding.UTF8).ConfigureAwait(false);
         }
-    }
 }

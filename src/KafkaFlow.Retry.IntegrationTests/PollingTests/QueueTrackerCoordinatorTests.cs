@@ -1,31 +1,31 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.PollingTests
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Definitions.Polling;
+using global::KafkaFlow.Retry.Durable.Polling;
+using Moq;
+using Quartz;
+using Xunit;
+
+namespace KafkaFlow.Retry.IntegrationTests.PollingTests;
+
+public class QueueTrackerCoordinatorTests
 {
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-    using global::KafkaFlow.Retry.Durable.Polling;
-    using Moq;
-    using Quartz;
-    using Xunit;
+    private readonly Mock<IJobDataProvidersFactory> mockJobDataProvidersFactory;
+    private readonly ITriggerProvider triggerProvider;
 
-    public class QueueTrackerCoordinatorTests
+    public QueueTrackerCoordinatorTests()
     {
-        private readonly Mock<IJobDataProvidersFactory> mockJobDataProvidersFactory;
-        private readonly ITriggerProvider triggerProvider;
-
-        public QueueTrackerCoordinatorTests()
-        {
             this.triggerProvider = new TriggerProvider();
 
             this.mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
         }
 
-        [Fact]
-        public async Task QueueTrackerCoordinator_ForceMisfireJob_SuccessWithCorrectScheduledFiredTimes()
-        {
+    [Fact]
+    public async Task QueueTrackerCoordinator_ForceMisfireJob_SuccessWithCorrectScheduledFiredTimes()
+    {
             // arrange
             var schedulerId = "MisfiredJobsDoesNothing";
             var jobExecutionContexts = new List<IJobExecutionContext>();
@@ -72,9 +72,9 @@
             }
         }
 
-        [Fact]
-        public async Task QueueTrackerCoordinator_ScheduleAndUnscheduleDifferentJobs_Success()
-        {
+    [Fact]
+    public async Task QueueTrackerCoordinator_ScheduleAndUnscheduleDifferentJobs_Success()
+    {
             // arrange
             var schedulerId = "twoJobsSchedulerId";
             var jobExecutionContexts = new List<IJobExecutionContext>();
@@ -128,8 +128,8 @@
             cleanupFiresContexts.Should().ContainSingle(ctx => !ctx.PreviousFireTimeUtc.HasValue);
         }
 
-        private JobDataProviderSurrogate CreateCleanupJobDataProvider(string schedulerId, string cronExpression, List<IJobExecutionContext> jobExecutionContexts)
-        {
+    private JobDataProviderSurrogate CreateCleanupJobDataProvider(string schedulerId, string cronExpression, List<IJobExecutionContext> jobExecutionContexts)
+    {
             var cleanupPollingDefinition =
                new CleanupPollingDefinition(
                    enabled: true,
@@ -141,22 +141,22 @@
             return this.CreateJobDataProvider(schedulerId, cleanupPollingDefinition, jobExecutionContexts);
         }
 
-        private JobDataProviderSurrogate CreateJobDataProvider(string schedulerId, PollingDefinition pollingDefinition, List<IJobExecutionContext> jobExecutionContexts)
-        {
+    private JobDataProviderSurrogate CreateJobDataProvider(string schedulerId, PollingDefinition pollingDefinition, List<IJobExecutionContext> jobExecutionContexts)
+    {
             var trigger = this.triggerProvider.GetPollingTrigger(schedulerId, pollingDefinition);
 
             return new JobDataProviderSurrogate(schedulerId, pollingDefinition, trigger, jobExecutionContexts);
         }
 
-        private IQueueTrackerCoordinator CreateQueueTrackerCoordinator(string schedulerId)
-        {
+    private IQueueTrackerCoordinator CreateQueueTrackerCoordinator(string schedulerId)
+    {
             var queueTrackerFactory = new QueueTrackerFactory(schedulerId, this.mockJobDataProvidersFactory.Object);
 
             return new QueueTrackerCoordinator(queueTrackerFactory);
         }
 
-        private JobDataProviderSurrogate CreateRetryDurableJobDataProvider(string schedulerId, string cronExpression, List<IJobExecutionContext> jobExecutionContexts)
-        {
+    private JobDataProviderSurrogate CreateRetryDurableJobDataProvider(string schedulerId, string cronExpression, List<IJobExecutionContext> jobExecutionContexts)
+    {
             var retryDurablePollingDefinition =
                new RetryDurablePollingDefinition(
                    enabled: true,
@@ -167,5 +167,4 @@
 
             return this.CreateJobDataProvider(schedulerId, retryDurablePollingDefinition, jobExecutionContexts);
         }
-    }
 }

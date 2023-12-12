@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling.Jobs
-{
-    using System;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Polling.Extensions;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using Quartz;
+﻿using System;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Polling.Extensions;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using Quartz;
 
-    [DisallowConcurrentExecutionAttribute]
-    internal class CleanupPollingJob : IJob
+namespace KafkaFlow.Retry.Durable.Polling.Jobs;
+
+[DisallowConcurrentExecutionAttribute]
+internal class CleanupPollingJob : IJob
+{
+    public async Task Execute(IJobExecutionContext context)
     {
-        public async Task Execute(IJobExecutionContext context)
-        {
             var jobDataMap = context.JobDetail.JobDataMap;
 
             var cleanupPollingDefinition = jobDataMap.GetValidValue<CleanupPollingDefinition>(PollingJobConstants.CleanupPollingDefinition, nameof(CleanupPollingJob));
@@ -56,5 +56,4 @@
                 logHandler.Error($"Exception on {nameof(CleanupPollingJob)} execution", ex, null);
             }
         }
-    }
 }

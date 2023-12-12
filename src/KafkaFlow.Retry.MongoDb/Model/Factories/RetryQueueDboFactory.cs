@@ -1,12 +1,12 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Model.Factories
-{
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
 
-    internal static class RetryQueueDboFactory
+namespace KafkaFlow.Retry.MongoDb.Model.Factories;
+
+internal static class RetryQueueDboFactory
+{
+    internal static RetryQueueDbo Create(SaveToQueueInput input)
     {
-        internal static RetryQueueDbo Create(SaveToQueueInput input)
-        {
             Guard.Argument(input).NotNull();
 
             return new RetryQueueDbo
@@ -18,5 +18,4 @@
                 Status = input.QueueStatus
             };
         }
-    }
 }

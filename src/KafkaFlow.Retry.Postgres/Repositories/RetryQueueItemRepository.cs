@@ -1,20 +1,20 @@
-﻿namespace KafkaFlow.Retry.Postgres.Repositories
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.Postgres.Model;
+using Npgsql;
+
+namespace KafkaFlow.Retry.Postgres.Repositories;
+
+internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.Postgres.Model;
-    using Npgsql;
-    
-    internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
+    public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo)
     {
-        public async Task<long> AddAsync(IDbConnection dbConnection, RetryQueueItemDbo retryQueueItemDbo)
-        {
             Guard.Argument(dbConnection).NotNull();
             Guard.Argument(retryQueueItemDbo).NotNull();
 
@@ -44,8 +44,8 @@
             }
         }
 
-        public async Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
-        {
+    public async Task<bool> AnyItemStillActiveAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
+    {
             Guard.Argument(dbConnection).NotNull();
             Guard.Argument(domainRetryQueueId).NotDefault();
 
@@ -68,8 +68,8 @@
             }
         }
 
-        public async Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId)
-        {
+    public async Task<RetryQueueItemDbo> GetItemAsync(IDbConnection dbConnection, Guid domainId)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(domainId, nameof(domainId)).NotDefault();
 
@@ -86,8 +86,8 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
-        {
+    public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(domainRetryQueueId, nameof(domainRetryQueueId)).NotDefault();
 
@@ -105,14 +105,14 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetItemsOrderedAsync(
-            IDbConnection dbConnection,
-            IEnumerable<Guid> retryQueueIds,
-            IEnumerable<RetryQueueItemStatus> statuses,
-            IEnumerable<SeverityLevel> severities,
-            int? top = null,
-            StuckStatusFilter stuckStatusFilter = null)
-        {
+    public async Task<IList<RetryQueueItemDbo>> GetItemsOrderedAsync(
+        IDbConnection dbConnection,
+        IEnumerable<Guid> retryQueueIds,
+        IEnumerable<RetryQueueItemStatus> statuses,
+        IEnumerable<SeverityLevel> severities,
+        int? top = null,
+        StuckStatusFilter stuckStatusFilter = null)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(retryQueueIds).NotNull();
             Guard.Argument(statuses, nameof(statuses)).NotNull();
@@ -161,8 +161,8 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
-        {
+    public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+    {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
 
@@ -185,8 +185,8 @@
             }
         }
 
-        public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
-        {
+    public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+    {
             Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
 
@@ -209,8 +209,8 @@
             }
         }
 
-        public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item)
-        {
+    public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item)
+    {
             var sortedItems = await this.GetItemsOrderedAsync(
                     dbConnection,
                     new Guid[] { item.DomainRetryQueueId },
@@ -227,8 +227,8 @@
             return false;
         }
 
-        public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description)
-        {
+    public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description)
+    {
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -251,8 +251,8 @@
             }
         }
 
-        public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status)
-        {
+    public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status)
+    {
             Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
             Guard.Argument(idDomain).NotDefault();
             Guard.Argument(status, nameof(status)).NotDefault();
@@ -273,8 +273,8 @@
             }
         }
 
-        private async Task<IList<RetryQueueItemDbo>> ExecuteReaderAsync(NpgsqlCommand command)
-        {
+    private async Task<IList<RetryQueueItemDbo>> ExecuteReaderAsync(NpgsqlCommand command)
+    {
             var items = new List<RetryQueueItemDbo>();
 
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
@@ -288,8 +288,8 @@
             return items;
         }
 
-        private async Task<RetryQueueItemDbo> ExecuteSingleLineReaderAsync(NpgsqlCommand command)
-        {
+    private async Task<RetryQueueItemDbo> ExecuteSingleLineReaderAsync(NpgsqlCommand command)
+    {
             using (var reader = await command.ExecuteReaderAsync().ConfigureAwait(false))
             {
                 if (await reader.ReadAsync().ConfigureAwait(false))
@@ -301,8 +301,8 @@
             return null;
         }
 
-        private RetryQueueItemDbo FillDbo(NpgsqlDataReader reader)
-        {
+    private RetryQueueItemDbo FillDbo(NpgsqlDataReader reader)
+    {
             var lastExecutionOrdinal = reader.GetOrdinal("LastExecution");
             var modifiedStatusDateOrdinal = reader.GetOrdinal("ModifiedStatusDate");
             var descriptionOrdinal = reader.GetOrdinal("Description");
@@ -323,5 +323,4 @@
                 Description = reader.IsDBNull(descriptionOrdinal) ? null : reader.GetString(descriptionOrdinal)
             };
         }
-    }
 }

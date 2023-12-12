@@ -1,31 +1,31 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests
-{
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-    using Xunit;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using FluentAssertions;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
+using Xunit;
 
-    public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
+namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
+
+public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
+{
+    public GetQueuesTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
+        : base(bootstrapperRepositoryFixture)
     {
-        public GetQueuesTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
-              : base(bootstrapperRepositoryFixture)
-        {
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_DifferentSearchGroupKeyDifferentQueueStatusDifferentItemStatus_ReturnOnlyRequestedQueuesAndItems(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_DifferentSearchGroupKeyDifferentQueueStatusDifferentItemStatus_ReturnOnlyRequestedQueuesAndItems(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -84,12 +84,12 @@
             actualQueueA3.Items.Should().OnlyContain(i => i.Status == RetryQueueItemStatus.Waiting);
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_ExistingQueue_ReturnsQueue(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_ExistingQueue_ReturnsQueue(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -113,12 +113,12 @@
             actualQueue.Items.Should().OnlyContain(x => input.ItemsStatuses.Contains(x.Status));
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_ExistingQueuesActiveButDifferentSearchGroupKey_DontReturnQueues(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_ExistingQueuesActiveButDifferentSearchGroupKey_DontReturnQueues(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -150,12 +150,12 @@
             actualQueue2.Should().NotBeNull();
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_ExistingQueueWithDifferentItemStatus_ReturnQueueWithoutItems(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_ExistingQueueWithDifferentItemStatus_ReturnQueueWithoutItems(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -180,12 +180,12 @@
             actualQueue.Items.Should().BeEmpty();
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_ExistingQueueWithDifferentQueueStatus_DontReturnQueues(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_ExistingQueueWithDifferentQueueStatus_DontReturnQueues(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -206,12 +206,12 @@
             result.RetryQueues.Should().BeEmpty();
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_ExistingQueueWithDistinctItemStatus_ReturnsQueueWithFilteredItems(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_ExistingQueueWithDistinctItemStatus_ReturnsQueueWithFilteredItems(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -241,12 +241,12 @@
             actualQueue.Items.Should().HaveCount(queue.Items.Count(i => input.ItemsStatuses.Contains(i.Status)));
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_ItemsWithDifferentModifiedDates_ReturnQueueWithItemsandQueueWithNoItem(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_ItemsWithDifferentModifiedDates_ReturnQueueWithItemsandQueueWithNoItem(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -302,12 +302,12 @@
             actualQueueA3.Items.Should().ContainSingle();
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_WithSeverityLevel_ReturnsOnlyItemsWithCorrespondingLevel(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_WithSeverityLevel_ReturnsOnlyItemsWithCorrespondingLevel(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -346,12 +346,12 @@
             actualQueues.SelectMany(o => o.Items.Where(i => i.SeverityLevel == SeverityLevel.High)).Count().Should().Be(1);
         }
 
-        [Theory]
-        [InlineData(RepositoryType.MongoDb)]
-        [InlineData(RepositoryType.SqlServer)]
-        [InlineData(RepositoryType.Postgres)]
-        public async Task GetQueuesAsync_WithStuckStatusFilter_ReturnsItemsByStatusAndStuckItems(RepositoryType repositoryType)
-        {
+    [Theory]
+    [InlineData(RepositoryType.MongoDb)]
+    [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
+    public async Task GetQueuesAsync_WithStuckStatusFilter_ReturnsItemsByStatusAndStuckItems(RepositoryType repositoryType)
+    {
             // Arrange
             var repository = this.GetRepository(repositoryType);
 
@@ -402,8 +402,8 @@
             actualQueue.Items.Should().HaveCount(itemsObtainedByStatus.Count() + stuckedItems.Count());
         }
 
-        private GetQueuesInput GetQueuesInput(string searchGroupKey)
-        {
+    private GetQueuesInput GetQueuesInput(string searchGroupKey)
+    {
             return new GetQueuesInput(
                 RetryQueueStatus.Active,
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
@@ -414,8 +414,8 @@
             };
         }
 
-        private GetQueuesInput GetQueuesInputWithSeverites(IEnumerable<SeverityLevel> severities)
-        {
+    private GetQueuesInput GetQueuesInputWithSeverites(IEnumerable<SeverityLevel> severities)
+    {
             return new GetQueuesInput(
                RetryQueueStatus.Active,
                new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
@@ -426,8 +426,8 @@
             };
         }
 
-        private GetQueuesInput GetQueuesInputWithStuckStatusFilter(TimeSpan expirationInterval, string searchGroupKey)
-        {
+    private GetQueuesInput GetQueuesInputWithStuckStatusFilter(TimeSpan expirationInterval, string searchGroupKey)
+    {
             return new GetQueuesInput(
                 RetryQueueStatus.Active,
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
@@ -439,8 +439,8 @@
             };
         }
 
-        private GetQueuesInput GetQueuesWithStuckStatusInput(string searchGroupKey)
-        {
+    private GetQueuesInput GetQueuesWithStuckStatusInput(string searchGroupKey)
+    {
             return new GetQueuesInput(
                 RetryQueueStatus.Active,
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
@@ -451,5 +451,4 @@
                 SearchGroupKey = searchGroupKey
             };
         }
-    }
 }

@@ -1,19 +1,19 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters
-{
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.Postgres.Model;
-    using global::KafkaFlow.Retry.Postgres.Readers.Adapters;
-    using Xunit;
-    
-    public class RetryQueueItemMessageHeaderAdapterTests
-    {
-        private readonly RetryQueueItemMessageHeaderAdapter adapter = new RetryQueueItemMessageHeaderAdapter();
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using global::KafkaFlow.Retry.Postgres.Model;
+using global::KafkaFlow.Retry.Postgres.Readers.Adapters;
+using Xunit;
 
-        [Fact]
-        public void RetryQueueItemMessageHeaderAdapter_Adapt_Success()
-        {
+namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters;
+
+public class RetryQueueItemMessageHeaderAdapterTests
+{
+    private readonly RetryQueueItemMessageHeaderAdapter adapter = new RetryQueueItemMessageHeaderAdapter();
+
+    [Fact]
+    public void RetryQueueItemMessageHeaderAdapter_Adapt_Success()
+    {
             // Arrange
             var retryQueue = new RetryQueueItemMessageHeaderDbo
             {
@@ -31,9 +31,9 @@
             result.Should().BeOfType(typeof(MessageHeader));
         }
 
-        [Fact]
-        public void RetryQueueItemMessageHeaderAdapter_Adapt_WithoutRetryQueueItemMessageHeaderDbo_ThrowsException()
-        {
+    [Fact]
+    public void RetryQueueItemMessageHeaderAdapter_Adapt_WithoutRetryQueueItemMessageHeaderDbo_ThrowsException()
+    {
             // Arrange
             RetryQueueItemMessageHeaderDbo retryQueue = null;
 
@@ -43,5 +43,4 @@
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

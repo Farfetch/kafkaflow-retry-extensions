@@ -1,15 +1,15 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Forever
-{
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.Forever;
-    using Xunit;
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.Forever;
+using Xunit;
 
-    public class RetryForeverDefinitionBuilderTests
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Forever;
+
+public class RetryForeverDefinitionBuilderTests
+{
+    [Fact]
+    public void RetryForeverDefinitionBuilder_Build_ReturnsRetryForeverDefinition()
     {
-        [Fact]
-        public void RetryForeverDefinitionBuilder_Build_ReturnsRetryForeverDefinition()
-        {
             // Arrange
             var builder = new RetryForeverDefinitionBuilder();
             var exception = new Exception();
@@ -30,5 +30,4 @@
             result.ShouldRetry(retryContext).Should().BeTrue();
             result.TimeBetweenTriesPlan.Should().NotBeNull();
         }
-    }
 }

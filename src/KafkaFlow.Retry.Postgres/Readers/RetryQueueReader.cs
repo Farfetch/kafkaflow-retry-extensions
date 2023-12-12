@@ -1,32 +1,32 @@
-﻿namespace KafkaFlow.Retry.Postgres.Readers
-{
-    using System.Collections.Generic;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.Postgres.Model;
-    using KafkaFlow.Retry.Postgres.Readers.Adapters;
-    
-    internal class RetryQueueReader : IRetryQueueReader
-    {
-        private readonly IRetryQueueAdapter retryQueueAdapter;
-        private readonly IRetryQueueItemAdapter retryQueueItemAdapter;
-        private readonly IRetryQueueItemMessageAdapter retryQueueItemMessageAdapter;
-        private readonly IRetryQueueItemMessageHeaderAdapter retryQueueItemMessageHeaderAdapter;
+﻿using System.Collections.Generic;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.Postgres.Model;
+using KafkaFlow.Retry.Postgres.Readers.Adapters;
 
-        public RetryQueueReader(
-            IRetryQueueAdapter retryQueueAdapter,
-            IRetryQueueItemAdapter retryQueueItemAdapter,
-            IRetryQueueItemMessageAdapter retryQueueItemMessageAdapter,
-            IRetryQueueItemMessageHeaderAdapter retryQueueItemMessageHeaderAdapter)
-        {
+namespace KafkaFlow.Retry.Postgres.Readers;
+
+internal class RetryQueueReader : IRetryQueueReader
+{
+    private readonly IRetryQueueAdapter retryQueueAdapter;
+    private readonly IRetryQueueItemAdapter retryQueueItemAdapter;
+    private readonly IRetryQueueItemMessageAdapter retryQueueItemMessageAdapter;
+    private readonly IRetryQueueItemMessageHeaderAdapter retryQueueItemMessageHeaderAdapter;
+
+    public RetryQueueReader(
+        IRetryQueueAdapter retryQueueAdapter,
+        IRetryQueueItemAdapter retryQueueItemAdapter,
+        IRetryQueueItemMessageAdapter retryQueueItemMessageAdapter,
+        IRetryQueueItemMessageHeaderAdapter retryQueueItemMessageHeaderAdapter)
+    {
             this.retryQueueAdapter = retryQueueAdapter;
             this.retryQueueItemAdapter = retryQueueItemAdapter;
             this.retryQueueItemMessageAdapter = retryQueueItemMessageAdapter;
             this.retryQueueItemMessageHeaderAdapter = retryQueueItemMessageHeaderAdapter;
         }
 
-        public ICollection<RetryQueue> Read(RetryQueuesDboWrapper dboWrapper)
-        {
+    public ICollection<RetryQueue> Read(RetryQueuesDboWrapper dboWrapper)
+    {
             Guard.Argument(dboWrapper).NotNull();
             Guard.Argument(dboWrapper.QueuesDbos).NotNull();
             Guard.Argument(dboWrapper.ItemsDbos).NotNull();
@@ -79,5 +79,4 @@
 
             return retryQueues;
         }
-    }
 }

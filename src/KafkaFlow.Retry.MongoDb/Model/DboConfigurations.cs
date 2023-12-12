@@ -1,15 +1,15 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Model
-{
-    using System.Diagnostics.CodeAnalysis;
-    using MongoDB.Bson.Serialization;
-    using MongoDB.Bson.Serialization.IdGenerators;
-    using MongoDB.Driver;
+﻿using System.Diagnostics.CodeAnalysis;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Driver;
 
-    [ExcludeFromCodeCoverage]
-    internal static class DboConfigurations
+namespace KafkaFlow.Retry.MongoDb.Model;
+
+[ExcludeFromCodeCoverage]
+internal static class DboConfigurations
+{
+    internal static void TryAddIndexes(DbContext dbContext)
     {
-        internal static void TryAddIndexes(DbContext dbContext)
-        {
             dbContext.RetryQueues.Indexes.CreateMany(
                 new CreateIndexModel<RetryQueueDbo>[]
                 {
@@ -51,8 +51,8 @@
             );
         }
 
-        internal static void TryRegisterClassMapppings()
-        {
+    internal static void TryRegisterClassMapppings()
+    {
             BsonClassMap.TryRegisterClassMap<RetryQueueDbo>(cm =>
             {
                 cm.AutoMap();
@@ -65,5 +65,4 @@
                 cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
             });
         }
-    }
 }

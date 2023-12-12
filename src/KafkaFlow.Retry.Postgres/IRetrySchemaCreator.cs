@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Postgres
-{
-    using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-    public interface IRetrySchemaCreator
-    {
-        Task CreateOrUpdateSchemaAsync(string databaseName);
-    }
+namespace KafkaFlow.Retry.Postgres;
+
+public interface IRetrySchemaCreator
+{
+    Task CreateOrUpdateSchemaAsync(string databaseName);
 }

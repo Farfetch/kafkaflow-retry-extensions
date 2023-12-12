@@ -1,14 +1,14 @@
-﻿namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry
-{
-    using System;
-    using FluentAssertions;
-    using Xunit;
+﻿using System;
+using FluentAssertions;
+using Xunit;
 
-    public class RetryContextTests
+namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry;
+
+public class RetryContextTests
+{
+    [Fact]
+    public void RetryContext_Ctor_WithException_Success()
     {
-        [Fact]
-        public void RetryContext_Ctor_WithException_Success()
-        {
             //Arrange
             var exception = new Exception();
 
@@ -20,14 +20,13 @@
             retryContext.Exception.Should().Be(exception);
         }
 
-        [Fact]
-        public void RetryContext_Ctor_WithNullException_ThrowException()
-        {
+    [Fact]
+    public void RetryContext_Ctor_WithNullException_ThrowException()
+    {
             // Act
             Action act = () => new RetryContext(null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
         }
-    }
 }

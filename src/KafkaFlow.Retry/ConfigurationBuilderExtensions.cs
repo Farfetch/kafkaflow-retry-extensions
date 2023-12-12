@@ -1,18 +1,18 @@
-﻿namespace KafkaFlow.Retry
-{
-    using System;
-    using KafkaFlow;
-    using KafkaFlow.Configuration;
-    using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Forever;
-    using KafkaFlow.Retry.Simple;
+﻿using System;
+using KafkaFlow;
+using KafkaFlow.Configuration;
+using KafkaFlow.Retry.Durable;
+using KafkaFlow.Retry.Forever;
+using KafkaFlow.Retry.Simple;
 
-    public static class ConfigurationBuilderExtensions
+namespace KafkaFlow.Retry;
+
+public static class ConfigurationBuilderExtensions
+{
+    public static IConsumerMiddlewareConfigurationBuilder RetryDurable(
+        this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+        Action<RetryDurableDefinitionBuilder> configure)
     {
-        public static IConsumerMiddlewareConfigurationBuilder RetryDurable(
-               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<RetryDurableDefinitionBuilder> configure)
-        {
             var retryDurableDefinitionBuilder = new RetryDurableDefinitionBuilder();
             configure(retryDurableDefinitionBuilder);
             var retryDurableDefinition = retryDurableDefinitionBuilder.Build();
@@ -24,10 +24,10 @@
                 ));
         }
 
-        public static IConsumerMiddlewareConfigurationBuilder RetryForever(
-               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<RetryForeverDefinitionBuilder> configure)
-        {
+    public static IConsumerMiddlewareConfigurationBuilder RetryForever(
+        this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+        Action<RetryForeverDefinitionBuilder> configure)
+    {
             var retryForeverDefinitionBuilder = new RetryForeverDefinitionBuilder();
 
             configure(retryForeverDefinitionBuilder);
@@ -39,10 +39,10 @@
                 ));
         }
 
-        public static IConsumerMiddlewareConfigurationBuilder RetrySimple(
-                               this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
-               Action<RetrySimpleDefinitionBuilder> configure)
-        {
+    public static IConsumerMiddlewareConfigurationBuilder RetrySimple(
+        this IConsumerMiddlewareConfigurationBuilder middlewareBuilder,
+        Action<RetrySimpleDefinitionBuilder> configure)
+    {
             var retryDefinitionBuilder = new RetrySimpleDefinitionBuilder();
 
             configure(retryDefinitionBuilder);
@@ -53,5 +53,4 @@
                     retryDefinitionBuilder.Build()
                 ));
         }
-    }
 }

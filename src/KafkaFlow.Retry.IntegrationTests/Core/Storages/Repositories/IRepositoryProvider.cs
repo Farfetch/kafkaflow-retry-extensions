@@ -1,14 +1,12 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories
+﻿using System.Collections.Generic;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
+
+internal interface IRepositoryProvider
 {
-    using System;
-    using System.Collections.Generic;
+    IEnumerable<IRepository> GetAllRepositories();
 
-    internal interface IRepositoryProvider
-    {
-        IEnumerable<IRepository> GetAllRepositories();
-
-        IRepository GetRepositoryOfType(RepositoryType repositoryType);
+    IRepository GetRepositoryOfType(RepositoryType repositoryType);
 
        
-    }
 }

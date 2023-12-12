@@ -1,29 +1,29 @@
-﻿namespace KafkaFlow.Retry.UnitTests.API.Handlers
+﻿using System;
+using System.Collections.Generic;
+using System.Net;
+using System.Threading.Tasks;
+using FluentAssertions;
+using global::KafkaFlow.Retry.API.Adapters.UpdateQueues;
+using global::KafkaFlow.Retry.API.Dtos;
+using global::KafkaFlow.Retry.API.Dtos.Common;
+using global::KafkaFlow.Retry.API.Handlers;
+using global::KafkaFlow.Retry.Durable.Repository;
+using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using global::KafkaFlow.Retry.UnitTests.API.Utilities;
+using Moq;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.API.Handlers;
+
+public class PatchQueuesHandlerTests
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Net;
-    using System.Threading.Tasks;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.API.Adapters.UpdateQueues;
-    using global::KafkaFlow.Retry.API.Dtos;
-    using global::KafkaFlow.Retry.API.Dtos.Common;
-    using global::KafkaFlow.Retry.API.Handlers;
-    using global::KafkaFlow.Retry.Durable.Repository;
-    using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using global::KafkaFlow.Retry.UnitTests.API.Utilities;
-    using Moq;
-    using Xunit;
+    private readonly string httpMethod = "PATCH";
+    private readonly string resourcePath = "/retry/queues";
 
-    public class PatchQueuesHandlerTests
+    [Fact]
+    public async Task PatchQueuesHandler_HandleAsync_Success()
     {
-        private readonly string httpMethod = "PATCH";
-        private readonly string resourcePath = "/retry/queues";
-
-        [Fact]
-        public async Task PatchQueuesHandler_HandleAsync_Success()
-        {
             // Arrange
             var updateQueuesRequestDto = this.CreateRequestDto();
 
@@ -68,14 +68,14 @@
             actualResponseDto.Should().BeEquivalentTo(expectedUpdateQueuesResponseDto);
         }
 
-        [Theory]
-        [ClassData(typeof(DependenciesThrowingExceptionsData))]
-        public async Task PatchQueuesHandler_HandleAsync_WithException_ReturnsExpectedStatusCode(
+    [Theory]
+    [ClassData(typeof(DependenciesThrowingExceptionsData))]
+    public async Task PatchQueuesHandler_HandleAsync_WithException_ReturnsExpectedStatusCode(
         IUpdateQueuesInputAdapter updateQueuesInputAdapter,
         IRetryDurableQueueRepositoryProvider retryQueueDataProvider,
         IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter,
         int expectedStatusCode)
-        {
+    {
             // arrange
             var updateItemsRequestDto = this.CreateRequestDto();
 
@@ -95,15 +95,15 @@
             Assert.Equal(expectedStatusCode, httpContext.Response.StatusCode);
         }
 
-        private UpdateQueuesInput CreateInput()
-        {
+    private UpdateQueuesInput CreateInput()
+    {
             return new UpdateQueuesInput(
                 new[] { "queueGroupKey1", "queueGroupKey2" },
                 RetryQueueItemStatus.Cancelled);
         }
 
-        private UpdateQueuesRequestDto CreateRequestDto()
-        {
+    private UpdateQueuesRequestDto CreateRequestDto()
+    {
             return new UpdateQueuesRequestDto
             {
                 QueueGroupKeys = new[] { "queueGroupKey1", "queueGroupKey2" },
@@ -111,8 +111,8 @@
             };
         }
 
-        private UpdateQueuesResponseDto CreateResponseDto()
-        {
+    private UpdateQueuesResponseDto CreateResponseDto()
+    {
             return new UpdateQueuesResponseDto
             {
                 UpdateQueuesResults = new[]
@@ -122,8 +122,8 @@
             };
         }
 
-        private UpdateQueuesResult CreateResult()
-        {
+    private UpdateQueuesResult CreateResult()
+    {
             return new UpdateQueuesResult(
                 new[]
                 {
@@ -132,17 +132,17 @@
                 });
         }
 
-        private class DependenciesThrowingExceptionsData : IEnumerable<object[]>
-        {
-            private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProvider;
-            private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProviderWithException;
-            private readonly Mock<IUpdateQueuesInputAdapter> inputAdapter;
-            private readonly Mock<IUpdateQueuesInputAdapter> inputAdapterWithException;
-            private readonly Mock<IUpdateQueuesResponseDtoAdapter> responseDtoAdapter;
-            private readonly Mock<IUpdateQueuesResponseDtoAdapter> responseDtoAdapterWithException;
+    private class DependenciesThrowingExceptionsData : IEnumerable<object[]>
+    {
+        private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProvider;
+        private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProviderWithException;
+        private readonly Mock<IUpdateQueuesInputAdapter> inputAdapter;
+        private readonly Mock<IUpdateQueuesInputAdapter> inputAdapterWithException;
+        private readonly Mock<IUpdateQueuesResponseDtoAdapter> responseDtoAdapter;
+        private readonly Mock<IUpdateQueuesResponseDtoAdapter> responseDtoAdapterWithException;
 
-            public DependenciesThrowingExceptionsData()
-            {
+        public DependenciesThrowingExceptionsData()
+        {
                 this.inputAdapter = new Mock<IUpdateQueuesInputAdapter>();
                 this.dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
                 this.responseDtoAdapter = new Mock<IUpdateQueuesResponseDtoAdapter>();
@@ -163,8 +163,8 @@
                     .Throws(new Exception());
             }
 
-            public IEnumerator<object[]> GetEnumerator()
-            {
+        public IEnumerator<object[]> GetEnumerator()
+        {
                 yield return new object[] // success case
                 {
                     inputAdapter.Object,
@@ -195,7 +195,6 @@
                 };
             }
 
-            System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
-        }
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

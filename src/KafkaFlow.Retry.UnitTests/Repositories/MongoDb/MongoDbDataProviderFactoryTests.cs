@@ -1,33 +1,32 @@
-﻿namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.MongoDb;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
+
+public class MongoDbDataProviderFactoryTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.MongoDb;
-    using Xunit;
+    private readonly MongoDbDataProviderFactory mongoDbDataProviderFactory = new MongoDbDataProviderFactory();
 
-    public class MongoDbDataProviderFactoryTests
+    [Fact]
+    public void MongoDbDataProviderFactory_TryCreate_ReturnsDataProviderCreationResult()
     {
-        private readonly MongoDbDataProviderFactory mongoDbDataProviderFactory = new MongoDbDataProviderFactory();
+        // Act
+        var result = mongoDbDataProviderFactory.TryCreate(new MongoDbSettings());
 
-        [Fact]
-        public void MongoDbDataProviderFactory_TryCreate_ReturnsDataProviderCreationResult()
-        {
-            // Act
-            var result = mongoDbDataProviderFactory.TryCreate(new MongoDbSettings());
+        // Arrange
+        result.Should().NotBeNull();
+        result.Should().BeOfType(typeof(DataProviderCreationResult));
+    }
 
-            // Arrange
-            result.Should().NotBeNull();
-            result.Should().BeOfType(typeof(DataProviderCreationResult));
-        }
+    [Fact]
+    public void MongoDbDataProviderFactory_TryCreate_WithoutMongoDbSettings_ThrowsException()
+    {
+        // Act
+        Action act = () => mongoDbDataProviderFactory.TryCreate(null);
 
-        [Fact]
-        public void MongoDbDataProviderFactory_TryCreate_WithoutMongoDbSettings_ThrowsException()
-        {
-            // Act
-            Action act = () => mongoDbDataProviderFactory.TryCreate(null);
-
-            // Arrange
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Arrange
+        act.Should().Throw<ArgumentNullException>();
     }
 }

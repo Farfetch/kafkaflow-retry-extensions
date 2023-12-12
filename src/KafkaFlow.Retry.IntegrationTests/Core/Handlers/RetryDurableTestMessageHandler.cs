@@ -1,22 +1,22 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Handlers
+﻿using System.Threading.Tasks;
+using KafkaFlow;
+using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
+using KafkaFlow.Retry.IntegrationTests.Core.Messages;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Handlers;
+
+internal class RetryDurableTestMessageHandler : IMessageHandler<RetryDurableTestMessage>
 {
-    using System.Threading.Tasks;
-    using KafkaFlow;
-    using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+    private readonly ILogHandler logHandler;
 
-    internal class RetryDurableTestMessageHandler : IMessageHandler<RetryDurableTestMessage>
+    public RetryDurableTestMessageHandler(ILogHandler logHandler)
     {
-        private readonly ILogHandler logHandler;
-
-        public RetryDurableTestMessageHandler(ILogHandler logHandler)
-        {
             this.logHandler = logHandler;
         }
 
-        public Task Handle(IMessageContext context, RetryDurableTestMessage message)
-        {
+    public Task Handle(IMessageContext context, RetryDurableTestMessage message)
+    {
             InMemoryAuxiliarStorage<RetryDurableTestMessage>.Add(message);
 
             if (InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException)
@@ -26,5 +26,4 @@
 
             return Task.CompletedTask;
         }
-    }
 }

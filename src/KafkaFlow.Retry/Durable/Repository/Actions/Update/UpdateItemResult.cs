@@ -1,14 +1,14 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Update
-{
-    using System;
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
+﻿using System;
+using System.Diagnostics.CodeAnalysis;
+using Dawn;
 
-    [ExcludeFromCodeCoverage]
-    public class UpdateItemResult
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+[ExcludeFromCodeCoverage]
+public class UpdateItemResult
+{
+    public UpdateItemResult(Guid id, UpdateItemResultStatus status)
     {
-        public UpdateItemResult(Guid id, UpdateItemResultStatus status)
-        {
             Guard.Argument(id, nameof(id)).NotDefault();
             Guard.Argument(status, nameof(status)).NotDefault();
 
@@ -16,8 +16,7 @@
             this.Status = status;
         }
 
-        public Guid Id { get; }
+    public Guid Id { get; }
 
-        public UpdateItemResultStatus Status { get; }
-    }
+    public UpdateItemResultStatus Status { get; }
 }

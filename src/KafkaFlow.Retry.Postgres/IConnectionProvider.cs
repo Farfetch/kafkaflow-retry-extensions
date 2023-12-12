@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Postgres
-{
-    internal interface IConnectionProvider
-    {
-        IDbConnection Create(PostgresDbSettings postgresDbSettings);
+﻿namespace KafkaFlow.Retry.Postgres;
 
-        IDbConnectionWithinTransaction CreateWithinTransaction(PostgresDbSettings postgresDbSettings);
-    }
+internal interface IConnectionProvider
+{
+    IDbConnection Create(PostgresDbSettings postgresDbSettings);
+
+    IDbConnectionWithinTransaction CreateWithinTransaction(PostgresDbSettings postgresDbSettings);
 }

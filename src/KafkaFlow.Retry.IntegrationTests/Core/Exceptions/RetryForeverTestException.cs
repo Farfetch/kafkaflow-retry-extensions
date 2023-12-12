@@ -1,8 +1,7 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Exceptions
-{
-    using System;
+﻿using System;
 
-    public class RetryForeverTestException : Exception
-    {
-    }
+namespace KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
+
+public class RetryForeverTestException : Exception
+{
 }

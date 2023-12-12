@@ -1,24 +1,24 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers
+﻿using System;
+using Confluent.Kafka;
+using KafkaFlow.Configuration;
+using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
+using KafkaFlow.Retry.IntegrationTests.Core.Handlers;
+using KafkaFlow.Retry.IntegrationTests.Core.Messages;
+using KafkaFlow.Retry.IntegrationTests.Core.Producers;
+using KafkaFlow.Retry.MongoDb;
+using KafkaFlow.Retry.Postgres;
+using KafkaFlow.Retry.SqlServer;
+using KafkaFlow.Serializer;
+using Newtonsoft.Json;
+
+namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers;
+
+internal static class BootstrapperKafka
 {
-    using System;
-    using Confluent.Kafka;
-    using KafkaFlow.Configuration;
-    using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
-    using KafkaFlow.Retry.IntegrationTests.Core.Handlers;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Producers;
-    using KafkaFlow.Retry.MongoDb;
-    using KafkaFlow.Retry.Postgres;
-    using KafkaFlow.Retry.SqlServer;
-    using KafkaFlow.Serializer;
-    using Newtonsoft.Json;
+    private const int NumberOfPartitions = 6;
+    private const int ReplicationFactor = 1;
 
-    internal static class BootstrapperKafka
-    {
-        private const int NumberOfPartitions = 6;
-        private const int ReplicationFactor = 1;
-
-        private static readonly string[] TestTopics = new[]
+    private static readonly string[] TestTopics = new[]
         {
              "test-kafka-flow-retry-retry-simple",
              "test-kafka-flow-retry-retry-forever",
@@ -36,8 +36,8 @@
              "test-kafka-flow-retry-retry-durable-latest-consumption-postgres-retry"
         };
 
-        internal static IClusterConfigurationBuilder CreatAllTestTopicsIfNotExist(this IClusterConfigurationBuilder cluster)
-        {
+    internal static IClusterConfigurationBuilder CreatAllTestTopicsIfNotExist(this IClusterConfigurationBuilder cluster)
+    {
             foreach (var topic in TestTopics)
             {
                 cluster.CreateTopicIfNotExists(topic, NumberOfPartitions, ReplicationFactor);
@@ -46,13 +46,13 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
-            this IClusterConfigurationBuilder cluster,
-            string mongoDbConnectionString,
-            string mongoDbDatabaseName,
-            string mongoDbRetryQueueCollectionName,
-            string mongoDbRetryQueueItemCollectionName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
+        this IClusterConfigurationBuilder cluster,
+        string mongoDbConnectionString,
+        string mongoDbDatabaseName,
+        string mongoDbRetryQueueCollectionName,
+        string mongoDbRetryQueueItemCollectionName)
+    {
             cluster
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionMongoDbProducer>(
                     producer => producer
@@ -124,11 +124,11 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
-            this IClusterConfigurationBuilder cluster,
-            string sqlServerConnectionString,
-            string sqlServerDatabaseName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
+        this IClusterConfigurationBuilder cluster,
+        string sqlServerConnectionString,
+        string sqlServerDatabaseName)
+    {
             cluster
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>(
                     producer => producer
@@ -198,11 +198,11 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionPostgresCluster(
-            this IClusterConfigurationBuilder cluster,
-            string postgresConnectionString,
-            string postgresDatabaseName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableGuaranteeOrderedConsumptionPostgresCluster(
+        this IClusterConfigurationBuilder cluster,
+        string postgresConnectionString,
+        string postgresDatabaseName)
+    {
             cluster
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>(
                     producer => producer
@@ -272,13 +272,13 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionMongoDbCluster(
-            this IClusterConfigurationBuilder cluster,
-            string mongoDbConnectionString,
-            string mongoDbDatabaseName,
-            string mongoDbRetryQueueCollectionName,
-            string mongoDbRetryQueueItemCollectionName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionMongoDbCluster(
+        this IClusterConfigurationBuilder cluster,
+        string mongoDbConnectionString,
+        string mongoDbDatabaseName,
+        string mongoDbRetryQueueCollectionName,
+        string mongoDbRetryQueueItemCollectionName)
+    {
             cluster
                 .AddProducer<RetryDurableLatestConsumptionMongoDbProducer>(
                     producer => producer
@@ -350,11 +350,11 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionSqlServerCluster(
-            this IClusterConfigurationBuilder cluster,
-            string sqlServerConnectionString,
-            string sqlServerDatabaseName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionSqlServerCluster(
+        this IClusterConfigurationBuilder cluster,
+        string sqlServerConnectionString,
+        string sqlServerDatabaseName)
+    {
             cluster
                 .AddProducer<RetryDurableLatestConsumptionSqlServerProducer>(
                     producer => producer
@@ -425,11 +425,11 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionPostgresCluster(
-            this IClusterConfigurationBuilder cluster,
-            string postgresConnectionString,
-            string postgresDatabaseName)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryDurableLatestConsumptionPostgresCluster(
+        this IClusterConfigurationBuilder cluster,
+        string postgresConnectionString,
+        string postgresDatabaseName)
+    {
             cluster
                 .AddProducer<RetryDurableLatestConsumptionPostgresProducer>(
                     producer => producer
@@ -499,8 +499,8 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetryForeverCluster(this IClusterConfigurationBuilder cluster)
-        {
+    internal static IClusterConfigurationBuilder SetupRetryForeverCluster(this IClusterConfigurationBuilder cluster)
+    {
             cluster
                 .AddProducer<RetryForeverProducer>(
                     producer => producer
@@ -531,8 +531,8 @@
             return cluster;
         }
 
-        internal static IClusterConfigurationBuilder SetupRetrySimpleCluster(this IClusterConfigurationBuilder cluster)
-        {
+    internal static IClusterConfigurationBuilder SetupRetrySimpleCluster(this IClusterConfigurationBuilder cluster)
+    {
             cluster
                 .AddProducer<RetrySimpleProducer>(
                     producer => producer
@@ -576,5 +576,4 @@
                                             .AddHandler<RetrySimpleTestMessageHandler>())));
             return cluster;
         }
-    }
 }

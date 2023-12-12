@@ -1,47 +1,46 @@
-﻿namespace KafkaFlow.Retry
+﻿using System;
+using KafkaFlow.Retry.Durable.Definitions;
+
+namespace KafkaFlow.Retry;
+
+public class RetryDurableRetryPlanBeforeDefinitionBuilder
 {
-    using System;
-    using KafkaFlow.Retry.Durable.Definitions;
+    private int numberOfRetries;
+    private bool pauseConsumer;
+    private Func<int, TimeSpan> timeBetweenTriesPlan;
 
-    public class RetryDurableRetryPlanBeforeDefinitionBuilder
+    public RetryDurableRetryPlanBeforeDefinitionBuilder ShouldPauseConsumer(bool pause)
     {
-        private int numberOfRetries;
-        private bool pauseConsumer;
-        private Func<int, TimeSpan> timeBetweenTriesPlan;
-
-        public RetryDurableRetryPlanBeforeDefinitionBuilder ShouldPauseConsumer(bool pause)
-        {
             this.pauseConsumer = pause;
             return this;
         }
 
-        public RetryDurableRetryPlanBeforeDefinitionBuilder TryTimes(int numberOfRetries)
-        {
+    public RetryDurableRetryPlanBeforeDefinitionBuilder TryTimes(int numberOfRetries)
+    {
             this.numberOfRetries = numberOfRetries;
             return this;
         }
 
-        public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
-        {
+    public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
+    {
             this.timeBetweenTriesPlan = timeBetweenTriesPlan;
             return this;
         }
 
-        public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
-            => this.WithTimeBetweenTriesPlan(
-                    (retryNumber) =>
-                       ((retryNumber - 1) < timeBetweenRetries.Length)
-                           ? timeBetweenRetries[retryNumber - 1]
-                           : timeBetweenRetries[timeBetweenRetries.Length - 1]
-                );
+    public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
+        => this.WithTimeBetweenTriesPlan(
+            (retryNumber) =>
+                ((retryNumber - 1) < timeBetweenRetries.Length)
+                    ? timeBetweenRetries[retryNumber - 1]
+                    : timeBetweenRetries[timeBetweenRetries.Length - 1]
+        );
 
-        internal RetryDurableRetryPlanBeforeDefinition Build()
-        {
+    internal RetryDurableRetryPlanBeforeDefinition Build()
+    {
             return new RetryDurableRetryPlanBeforeDefinition(
                 this.timeBetweenTriesPlan,
                 this.numberOfRetries,
                 this.pauseConsumer
             );
         }
-    }
 }

@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.Postgres
+﻿using System;
+using Npgsql;
+
+namespace KafkaFlow.Retry.Postgres;
+
+internal interface IDbConnection : IDisposable
 {
-    using System;
-    using Npgsql;
-    
-    internal interface IDbConnection : IDisposable
-    {
-        NpgsqlCommand CreateCommand();
-    }
+    NpgsqlCommand CreateCommand();
 }

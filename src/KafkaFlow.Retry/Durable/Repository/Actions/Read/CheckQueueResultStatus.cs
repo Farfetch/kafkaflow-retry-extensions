@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read
+﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read;
+
+public enum CheckQueueResultStatus
 {
-    public enum CheckQueueResultStatus
-    {
-        Unknown = 0,
-        DoesNotExist = 1,
-        Exists = 2
-    }
+    Unknown = 0,
+    DoesNotExist = 1,
+    Exists = 2
 }

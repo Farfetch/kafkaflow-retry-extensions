@@ -1,20 +1,20 @@
-﻿namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems
+﻿using System;
+using FluentAssertions;
+using global::KafkaFlow.Retry.API.Adapters.GetItems;
+using global::KafkaFlow.Retry.Durable.Common;
+using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using global::KafkaFlow.Retry.Durable.Repository.Model;
+using Xunit;
+
+namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems;
+
+public class GetItemsResponseDtoAdapterTests
 {
-    using System;
-    using FluentAssertions;
-    using global::KafkaFlow.Retry.API.Adapters.GetItems;
-    using global::KafkaFlow.Retry.Durable.Common;
-    using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using global::KafkaFlow.Retry.Durable.Repository.Model;
-    using Xunit;
+    private readonly IGetItemsResponseDtoAdapter adapter = new GetItemsResponseDtoAdapter();
 
-    public class GetItemsResponseDtoAdapterTests
+    [Fact]
+    public void GetItemsResponseDtoAdapter_Adapt_Success()
     {
-        private readonly IGetItemsResponseDtoAdapter adapter = new GetItemsResponseDtoAdapter();
-
-        [Fact]
-        public void GetItemsResponseDtoAdapter_Adapt_Success()
-        {
             // Arrange
             var item1 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
             var item2 = this.CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.High);
@@ -41,19 +41,18 @@
             responseDto.QueueItems.Should().BeEquivalentTo(expectedRetryQueueItems, options => options.ExcludingMissingMembers());
         }
 
-        [Fact]
-        public void GetItemsResponseDtoAdapter_Adapt_WithNullArgs_ThrowsException()
-        {
+    [Fact]
+    public void GetItemsResponseDtoAdapter_Adapt_WithNullArgs_ThrowsException()
+    {
             // Act & Assert
             Assert.Throws<ArgumentNullException>(() => adapter.Adapt(null));
         }
 
-        private RetryQueueItem CreateRetryQueueItem(int sort, RetryQueueItemStatus status, SeverityLevel severity)
-        {
+    private RetryQueueItem CreateRetryQueueItem(int sort, RetryQueueItemStatus status, SeverityLevel severity)
+    {
             return new RetryQueueItem(Guid.NewGuid(), 3, DateTime.UtcNow, sort, DateTime.UtcNow, DateTime.UtcNow, status, severity, "description")
             {
                 Message = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow)
             };
         }
-    }
 }

@@ -1,7 +1,6 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿namespace KafkaFlow.Retry.Durable.Polling;
+
+internal interface IQueueTrackerFactory
 {
-    internal interface IQueueTrackerFactory
-    {
-        QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler);
-    }
+    QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler);
 }

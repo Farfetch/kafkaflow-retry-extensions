@@ -1,37 +1,36 @@
-﻿namespace KafkaFlow.Retry.API
+﻿using System;
+using System.Collections.Generic;
+using Microsoft.AspNetCore.Http;
+
+namespace KafkaFlow.Retry.API;
+
+internal static class HttpExtensions
 {
-    using System;
-    using System.Collections.Generic;
-    using Microsoft.AspNetCore.Http;
+    private const char QueryStringDelimiter = ',';
 
-    internal static class HttpExtensions
+    private const char ResourcePathDelimiter = '/';
+
+    public static void AddQueryParams(this HttpRequest httpRequest, string name, string value)
     {
-        private const char QueryStringDelimiter = ',';
+        httpRequest.QueryString = httpRequest.QueryString.Add(name, value);
+    }
 
-        private const char ResourcePathDelimiter = '/';
+    public static string ExtendResourcePath(this string resource, string extension)
+    {
+        return String.Concat(resource, ResourcePathDelimiter, extension);
+    }
 
-        public static void AddQueryParams(this HttpRequest httpRequest, string name, string value)
+    public static IEnumerable<string> ReadQueryParams(this HttpRequest httpRequest, string paramKey)
+    {
+        var aggregatedParamValues = new List<string>();
+
+        var paramValues = httpRequest.Query[paramKey].ToArray();
+
+        foreach (var value in paramValues)
         {
-            httpRequest.QueryString = httpRequest.QueryString.Add(name, value);
+            aggregatedParamValues.AddRange(value.Split(QueryStringDelimiter));
         }
 
-        public static string ExtendResourcePath(this string resource, string extension)
-        {
-            return String.Concat(resource, ResourcePathDelimiter, extension);
-        }
-
-        public static IEnumerable<string> ReadQueryParams(this HttpRequest httpRequest, string paramKey)
-        {
-            var aggregatedParamValues = new List<string>();
-
-            var paramValues = httpRequest.Query[paramKey].ToArray();
-
-            foreach (var value in paramValues)
-            {
-                aggregatedParamValues.AddRange(value.Split(QueryStringDelimiter));
-            }
-
-            return aggregatedParamValues;
-        }
+        return aggregatedParamValues;
     }
 }

@@ -1,40 +1,40 @@
-﻿namespace KafkaFlow.Retry.Durable
+﻿using System;
+using Confluent.Kafka;
+
+namespace KafkaFlow.Retry.Durable;
+
+[Serializable]
+public class RetryDurableException : Exception
 {
-    using System;
-    using Confluent.Kafka;
-
-    [Serializable]
-    public class RetryDurableException : Exception
+    public RetryDurableException(RetryError retryError)
     {
-        public RetryDurableException(RetryError retryError)
-        {
             this.Error = retryError;
         }
 
-        public RetryDurableException(RetryError retryError, string message) : base(message)
-        {
+    public RetryDurableException(RetryError retryError, string message) : base(message)
+    {
             this.Error = retryError;
         }
 
-        public RetryDurableException(RetryError retryError, string message, Exception exception) : base(message, exception)
-        {
+    public RetryDurableException(RetryError retryError, string message, Exception exception) : base(message, exception)
+    {
             this.Error = retryError;
             this.KafkaErrorCode = this.GetErrorCode(exception);
         }
 
-        public RetryError Error { get; }
-        public ErrorCode KafkaErrorCode { get; }
+    public RetryError Error { get; }
+    public ErrorCode KafkaErrorCode { get; }
 
-        public override string ToString()
-        {
+    public override string ToString()
+    {
             string message = $"Kafka Retry Error Code: {Error.Code} | ";
             if (KafkaErrorCode != ErrorCode.Unknown) { message += $"Kafka Error Code: { KafkaErrorCode} | "; }
 
             return $"{message}{base.ToString()}";
         }
 
-        private ErrorCode GetErrorCode(Exception exception)
-        {
+    private ErrorCode GetErrorCode(Exception exception)
+    {
             ErrorCode errorCode = ErrorCode.Unknown;
 
             while (exception is object)
@@ -50,5 +50,4 @@
 
             return errorCode;
         }
-    }
 }

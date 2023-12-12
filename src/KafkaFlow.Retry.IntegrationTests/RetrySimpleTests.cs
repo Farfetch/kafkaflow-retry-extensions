@@ -1,44 +1,43 @@
-namespace KafkaFlow.Retry.IntegrationTests
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using AutoFixture;
+using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
+using KafkaFlow.Retry.IntegrationTests.Core.Messages;
+using KafkaFlow.Retry.IntegrationTests.Core.Producers;
+using KafkaFlow.Retry.IntegrationTests.Core.Storages;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit;
+
+namespace KafkaFlow.Retry.IntegrationTests;
+
+[Collection("BootstrapperHostCollection")]
+public class RetrySimpleTests
 {
-    using System;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using AutoFixture;
-    using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
-    using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-    using KafkaFlow.Retry.IntegrationTests.Core.Producers;
-    using KafkaFlow.Retry.IntegrationTests.Core.Storages;
-    using Microsoft.Extensions.DependencyInjection;
-    using Xunit;
+    private readonly BootstrapperHostFixture bootstrapperHostFixture;
+    private readonly Fixture fixture = new Fixture();
+    private IServiceProvider provider;
 
-    [Collection("BootstrapperHostCollection")]
-    public class RetrySimpleTests
+    public RetrySimpleTests(BootstrapperHostFixture bootstrapperHostFixture)
     {
-        private readonly BootstrapperHostFixture bootstrapperHostFixture;
-        private readonly Fixture fixture = new Fixture();
-        private IServiceProvider provider;
+        this.bootstrapperHostFixture = bootstrapperHostFixture;
+        InMemoryAuxiliarStorage<RetrySimpleTestMessage>.Clear();
+    }
 
-        public RetrySimpleTests(BootstrapperHostFixture bootstrapperHostFixture)
+    [Fact]
+    public async Task RetrySimpleTest()
+    {
+        // Arrange
+        var producer1 = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetrySimpleProducer>>();
+        var messages = this.fixture.CreateMany<RetrySimpleTestMessage>(10).ToList();
+
+        // Act
+        messages.ForEach(m => producer1.Produce(m.Key, m));
+
+        // Assert
+        foreach (var message in messages)
         {
-            this.bootstrapperHostFixture = bootstrapperHostFixture;
-            InMemoryAuxiliarStorage<RetrySimpleTestMessage>.Clear();
-        }
-
-        [Fact]
-        public async Task RetrySimpleTest()
-        {
-            // Arrange
-            var producer1 = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetrySimpleProducer>>();
-            var messages = this.fixture.CreateMany<RetrySimpleTestMessage>(10).ToList();
-
-            // Act
-            messages.ForEach(m => producer1.Produce(m.Key, m));
-
-            // Assert
-            foreach (var message in messages)
-            {
-                await InMemoryAuxiliarStorage<RetrySimpleTestMessage>.AssertCountMessageAsync(message, 4);
-            }
+            await InMemoryAuxiliarStorage<RetrySimpleTestMessage>.AssertCountMessageAsync(message, 4);
         }
     }
 }

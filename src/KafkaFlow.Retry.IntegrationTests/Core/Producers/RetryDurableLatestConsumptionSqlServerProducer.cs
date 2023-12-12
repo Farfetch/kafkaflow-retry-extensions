@@ -1,6 +1,5 @@
-﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Producers
+﻿namespace KafkaFlow.Retry.IntegrationTests.Core.Producers;
+
+internal class RetryDurableLatestConsumptionSqlServerProducer
 {
-    internal class RetryDurableLatestConsumptionSqlServerProducer
-    {
-    }
 }
