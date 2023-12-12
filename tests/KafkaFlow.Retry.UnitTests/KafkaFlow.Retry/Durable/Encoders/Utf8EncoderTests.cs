@@ -5,7 +5,7 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Encoders;
 
 public class Utf8EncoderTests
 {
-    private readonly Utf8Encoder _utf8Encoder = new Utf8Encoder();
+    private readonly Utf8Encoder _utf8Encoder = new();
 
     [Fact]
     public void Utf8Encoder_Deconde_Success()

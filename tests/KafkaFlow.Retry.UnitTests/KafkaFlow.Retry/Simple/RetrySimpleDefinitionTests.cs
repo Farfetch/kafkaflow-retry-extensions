@@ -6,19 +6,22 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Simple;
 
 public class RetrySimpleDefinitionTests
 {
-    public static IEnumerable<object[]> DataTest() => new List<object[]>
+    public static IEnumerable<object[]> DataTest()
     {
-        new object[]
+        return new List<object[]>
         {
-            null,
-            new Func<int, TimeSpan>((_) => new TimeSpan())
-        },
-        new object[]
-        {
-            new List<Func<RetryContext, bool>>(),
-            null
-        }
-    };
+            new object[]
+            {
+                null,
+                new Func<int, TimeSpan>(_ => new TimeSpan())
+            },
+            new object[]
+            {
+                new List<Func<RetryContext, bool>>(),
+                null
+            }
+        };
+    }
 
     [Theory]
     [MemberData(nameof(DataTest))]
@@ -27,7 +30,7 @@ public class RetrySimpleDefinitionTests
         Func<int, TimeSpan> timeBetweenTriesPlan)
     {
         // Act
-        Action act = () => new RetrySimpleDefinition(numberOfRetries: 1, retryWhenExceptions, pauseConsumer: true, timeBetweenTriesPlan);
+        Action act = () => new RetrySimpleDefinition(1, retryWhenExceptions, true, timeBetweenTriesPlan);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();
@@ -38,10 +41,10 @@ public class RetrySimpleDefinitionTests
     {
         // Act
         Action act = () => new RetrySimpleDefinition(
-            numberOfRetries: -1,
-            retryWhenExceptions: new List<Func<RetryContext, bool>>(),
-            pauseConsumer: true,
-            timeBetweenTriesPlan: new Func<int, TimeSpan>((_) => new TimeSpan()));
+            -1,
+            new List<Func<RetryContext, bool>>(),
+            true,
+            _ => new TimeSpan());
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -54,7 +57,7 @@ public class RetrySimpleDefinitionTests
         var numberOfRetries = 1;
         var exception = new Exception();
         var retryContext = new RetryContext(exception);
-        var timeBetweenTriesPlan = new Func<int, TimeSpan>((_) => new TimeSpan());
+        var timeBetweenTriesPlan = new Func<int, TimeSpan>(_ => new TimeSpan());
         var retryWhenExceptions = new List<Func<RetryContext, bool>>();
 
         var retry = new RetrySimpleDefinition(numberOfRetries, retryWhenExceptions, false, timeBetweenTriesPlan);
@@ -73,10 +76,10 @@ public class RetrySimpleDefinitionTests
         var numberOfRetries = 1;
         var exception = new Exception();
         var retryContext = new RetryContext(exception);
-        var timeBetweenTriesPlan = new Func<int, TimeSpan>((_) => new TimeSpan());
+        var timeBetweenTriesPlan = new Func<int, TimeSpan>(_ => new TimeSpan());
         var retryWhenExceptions = new List<Func<RetryContext, bool>>
         {
-            new Func<RetryContext, bool>((d) => d == retryContext )
+            d => d == retryContext
         };
 
         var retry = new RetrySimpleDefinition(numberOfRetries, retryWhenExceptions, false, timeBetweenTriesPlan);

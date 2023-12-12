@@ -16,7 +16,8 @@ public class UpdateQueuesResponseDtoAdapterTests
         var expectedResults = new[]
         {
             new UpdateQueueResult("queueGroupKey1", UpdateQueueResultStatus.NotUpdated, RetryQueueStatus.Active),
-            new UpdateQueueResult("queueGroupKey2", UpdateQueueResultStatus.UpdateIsNotAllowed, RetryQueueStatus.Active),
+            new UpdateQueueResult("queueGroupKey2", UpdateQueueResultStatus.UpdateIsNotAllowed,
+                RetryQueueStatus.Active),
             new UpdateQueueResult("queueGroupKey3", UpdateQueueResultStatus.Updated, RetryQueueStatus.Done)
         };
 
@@ -26,7 +27,7 @@ public class UpdateQueuesResponseDtoAdapterTests
         var responseDto = _adapter.Adapt(result);
 
         // Assert
-        for (int i = 0; i < responseDto.UpdateQueuesResults.Count; i++)
+        for (var i = 0; i < responseDto.UpdateQueuesResults.Count; i++)
         {
             responseDto.UpdateQueuesResults[i].QueueGroupKey.Should().Be(expectedResults[i].QueueGroupKey);
             responseDto.UpdateQueuesResults[i].Result.Should().Be(expectedResults[i].Status.ToString());

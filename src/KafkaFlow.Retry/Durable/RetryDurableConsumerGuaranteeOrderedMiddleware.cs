@@ -20,74 +20,74 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
         IRetryDurableQueueRepository retryDurableQueueRepository,
         IUtf8Encoder utf8Encoder)
     {
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(utf8Encoder).NotNull();
+        Guard.Argument(logHandler).NotNull();
+        Guard.Argument(retryDurableQueueRepository).NotNull();
+        Guard.Argument(utf8Encoder).NotNull();
 
-            _logHandler = logHandler;
-            _retryDurableQueueRepository = retryDurableQueueRepository;
-            _utf8Encoder = utf8Encoder;
-        }
+        _logHandler = logHandler;
+        _retryDurableQueueRepository = retryDurableQueueRepository;
+        _utf8Encoder = utf8Encoder;
+    }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
-            var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
-            var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
-            var sort = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
-            var pendingItems = false;
-            try
-            {
-                pendingItems = await ThereArePendingItemsAsync(
-                               queueId,
-                               itemId,
-                               sort)
-                           .ConfigureAwait(false);
+        var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
+        var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
+        var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
+        var sort = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
+        var pendingItems = false;
+        try
+        {
+            pendingItems = await ThereArePendingItemsAsync(
+                    queueId,
+                    itemId,
+                    sort)
+                .ConfigureAwait(false);
 
-                if (pendingItems)
-                {
-                    await UpdateAsync(
-                            RetryQueueItemStatus.Waiting,
-                            queueId,
-                            itemId,
-                            attemptsCount
-                        ).ConfigureAwait(false);
-
-                    return;
-                }
-
-                await next(context).ConfigureAwait(false);
-            }
-            catch (Exception exception)
+            if (pendingItems)
             {
                 await UpdateAsync(
-                        RetryQueueItemStatus.Waiting,
-                        queueId,
-                        itemId,
-                        attemptsCount,
-                        exception
-                    ).ConfigureAwait(false);
+                    RetryQueueItemStatus.Waiting,
+                    queueId,
+                    itemId,
+                    attemptsCount
+                ).ConfigureAwait(false);
+
+                return;
             }
+
+            await next(context).ConfigureAwait(false);
         }
+        catch (Exception exception)
+        {
+            await UpdateAsync(
+                RetryQueueItemStatus.Waiting,
+                queueId,
+                itemId,
+                attemptsCount,
+                exception
+            ).ConfigureAwait(false);
+        }
+    }
 
     private async Task<bool> ThereArePendingItemsAsync(
         Guid queueId,
         Guid itemId,
         int sort)
     {
-            var queuePendingItemsInput = new
-                       QueuePendingItemsInput(
-                           queueId,
-                           itemId,
-                           sort
-                       );
+        var queuePendingItemsInput = new
+            QueuePendingItemsInput(
+                queueId,
+                itemId,
+                sort
+            );
 
-            var queuePendingItemsResult = await _retryDurableQueueRepository
-                .CheckQueuePendingItemsAsync(queuePendingItemsInput)
-                .ConfigureAwait(false);
+        var queuePendingItemsResult = await _retryDurableQueueRepository
+            .CheckQueuePendingItemsAsync(queuePendingItemsInput)
+            .ConfigureAwait(false);
 
-            return queuePendingItemsResult.Status == QueuePendingItemsResultStatus.HasPendingItems;
-        }
+        return queuePendingItemsResult.Status == QueuePendingItemsResultStatus.HasPendingItems;
+    }
 
     private async Task UpdateAsync(
         RetryQueueItemStatus targetStatus,
@@ -96,17 +96,17 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
         int attemptsCount,
         Exception exception = null)
     {
-            await _retryDurableQueueRepository
-                .UpdateItemAsync(
-                    new UpdateItemExecutionInfoInput(
-                        queueId,
-                        itemId,
-                        targetStatus,
-                        attemptsCount,
-                        DateTime.UtcNow,
-                        exception?.ToString()
-                    )
+        await _retryDurableQueueRepository
+            .UpdateItemAsync(
+                new UpdateItemExecutionInfoInput(
+                    queueId,
+                    itemId,
+                    targetStatus,
+                    attemptsCount,
+                    DateTime.UtcNow,
+                    exception?.ToString()
                 )
-                .ConfigureAwait(false);
-        }
+            )
+            .ConfigureAwait(false);
+    }
 }

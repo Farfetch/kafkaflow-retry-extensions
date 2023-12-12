@@ -6,17 +6,20 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Definitions;
 
 public class RetryDurableRetryPlanBeforeDefinitionTests
 {
-    public static IEnumerable<object[]> DataTest() => new List<object[]>
+    public static IEnumerable<object[]> DataTest()
     {
-        new object[]
+        return new List<object[]>
         {
-            new Func<int, TimeSpan>(_ => new TimeSpan(1)), -1
-        },
-        new object[]
-        {
-            null, 1
-        }
-    };
+            new object[]
+            {
+                new Func<int, TimeSpan>(_ => new TimeSpan(1)), -1
+            },
+            new object[]
+            {
+                null, 1
+            }
+        };
+    }
 
     [Theory]
     [MemberData(nameof(DataTest))]

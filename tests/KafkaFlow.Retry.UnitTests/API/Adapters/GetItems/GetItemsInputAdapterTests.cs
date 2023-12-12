@@ -16,8 +16,8 @@ public class GetItemsInputAdapterTests
         // Arrange
         var requestDto = new GetItemsRequestDto
         {
-            ItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry },
-            SeverityLevels = new SeverityLevel[] { SeverityLevel.High, SeverityLevel.Medium },
+            ItemsStatuses = new[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry },
+            SeverityLevels = new[] { SeverityLevel.High, SeverityLevel.Medium },
             TopQueues = 1000,
             TopItemsByQueue = 100
         };

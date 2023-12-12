@@ -9,14 +9,14 @@ public class QueuePendingItemsInput
 {
     public QueuePendingItemsInput(Guid queueId, Guid itemId, int sort)
     {
-            Guard.Argument(queueId, nameof(queueId)).NotDefault();
-            Guard.Argument(itemId, nameof(itemId)).NotDefault();
-            Guard.Argument(sort, nameof(sort)).NotNegative();
+        Guard.Argument(queueId, nameof(queueId)).NotDefault();
+        Guard.Argument(itemId, nameof(itemId)).NotDefault();
+        Guard.Argument(sort, nameof(sort)).NotNegative();
 
-            QueueId = queueId;
-            ItemId = itemId;
-            Sort = sort;
-        }
+        QueueId = queueId;
+        ItemId = itemId;
+        Sort = sort;
+    }
 
     public Guid ItemId { get; }
     public Guid QueueId { get; }

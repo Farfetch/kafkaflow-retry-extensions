@@ -13,34 +13,34 @@ internal static class RetryDurableConsumerConfigurationBuilderExtensions
         IRetryDurableQueueRepository retryDurableQueueRepository,
         IUtf8Encoder utf8Encoder)
     {
-            switch (retryConsumerStrategy)
+        switch (retryConsumerStrategy)
+        {
+            case RetryConsumerStrategy.GuaranteeOrderedConsumption:
             {
-                case RetryConsumerStrategy.GuaranteeOrderedConsumption:
-                    {
-                        middlewareBuilder.Add(
-                           resolver => new RetryDurableConsumerGuaranteeOrderedMiddleware(
-                               resolver.Resolve<ILogHandler>(),
-                               retryDurableQueueRepository,
-                               utf8Encoder
-                           ));
-                    }
-                    break;
-
-                case RetryConsumerStrategy.LatestConsumption:
-                    {
-                        middlewareBuilder.Add(
-                           resolver => new RetryDurableConsumerLatestMiddleware(
-                               resolver.Resolve<ILogHandler>(),
-                               retryDurableQueueRepository,
-                               utf8Encoder
-                           ));
-                    }
-                    break;
-
-                default:
-                    throw new NotImplementedException($"{nameof(RetryConsumerStrategy)} not defined");
+                middlewareBuilder.Add(
+                    resolver => new RetryDurableConsumerGuaranteeOrderedMiddleware(
+                        resolver.Resolve<ILogHandler>(),
+                        retryDurableQueueRepository,
+                        utf8Encoder
+                    ));
             }
+                break;
 
-            return middlewareBuilder;
+            case RetryConsumerStrategy.LatestConsumption:
+            {
+                middlewareBuilder.Add(
+                    resolver => new RetryDurableConsumerLatestMiddleware(
+                        resolver.Resolve<ILogHandler>(),
+                        retryDurableQueueRepository,
+                        utf8Encoder
+                    ));
+            }
+                break;
+
+            default:
+                throw new NotImplementedException($"{nameof(RetryConsumerStrategy)} not defined");
         }
+
+        return middlewareBuilder;
+    }
 }

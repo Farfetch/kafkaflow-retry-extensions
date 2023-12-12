@@ -8,33 +8,33 @@ public static class RetryDurableDefinitionBuilderExtension
         string databaseName,
         string schema)
     {
-            retryDurableDefinitionBuilder.WithRepositoryProvider(
-                new SqlServerDbDataProviderFactory()
-                    .Create(
-                        new SqlServerDbSettings(
-                            connectionString,
-                            databaseName,
-                            schema)
-                    )
-                );
+        retryDurableDefinitionBuilder.WithRepositoryProvider(
+            new SqlServerDbDataProviderFactory()
+                .Create(
+                    new SqlServerDbSettings(
+                        connectionString,
+                        databaseName,
+                        schema)
+                )
+        );
 
-            return retryDurableDefinitionBuilder;
-        }
+        return retryDurableDefinitionBuilder;
+    }
 
     public static RetryDurableDefinitionBuilder WithSqlServerDataProvider(
         this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
         string connectionString,
         string databaseName)
     {
-            retryDurableDefinitionBuilder.WithRepositoryProvider(
-                new SqlServerDbDataProviderFactory()
-                    .Create(
-                        new SqlServerDbSettings(
-                            connectionString,
-                            databaseName)
-                    )
-                );
+        retryDurableDefinitionBuilder.WithRepositoryProvider(
+            new SqlServerDbDataProviderFactory()
+                .Create(
+                    new SqlServerDbSettings(
+                        connectionString,
+                        databaseName)
+                )
+        );
 
-            return retryDurableDefinitionBuilder;
-        }
+        return retryDurableDefinitionBuilder;
+    }
 }

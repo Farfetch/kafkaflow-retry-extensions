@@ -19,22 +19,22 @@ public class RetryQueueItem
         SeverityLevel severityLevel,
         string description)
     {
-            Guard.Argument(id).NotDefault();
-            Guard.Argument(attemptsCount).NotNegative();
-            Guard.Argument(creationDate).NotDefault();
-            Guard.Argument(sort).NotNegative();
-            Guard.Argument(status).NotDefault();
+        Guard.Argument(id).NotDefault();
+        Guard.Argument(attemptsCount).NotNegative();
+        Guard.Argument(creationDate).NotDefault();
+        Guard.Argument(sort).NotNegative();
+        Guard.Argument(status).NotDefault();
 
-            Id = id;
-            AttemptsCount = attemptsCount;
-            CreationDate = creationDate;
-            Sort = sort;
-            LastExecution = lastExecution;
-            ModifiedStatusDate = modifiedStatusDate;
-            Status = status;
-            SeverityLevel = severityLevel;
-            Description = description;
-        }
+        Id = id;
+        AttemptsCount = attemptsCount;
+        CreationDate = creationDate;
+        Sort = sort;
+        LastExecution = lastExecution;
+        ModifiedStatusDate = modifiedStatusDate;
+        Status = status;
+        SeverityLevel = severityLevel;
+        Description = description;
+    }
 
     public int AttemptsCount { get; }
     public DateTime CreationDate { get; }

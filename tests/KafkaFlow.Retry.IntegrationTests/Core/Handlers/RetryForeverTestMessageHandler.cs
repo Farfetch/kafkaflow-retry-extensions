@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using KafkaFlow;
 using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
 using KafkaFlow.Retry.IntegrationTests.Core.Messages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
@@ -10,13 +9,13 @@ internal class RetryForeverTestMessageHandler : IMessageHandler<RetryForeverTest
 {
     public Task Handle(IMessageContext context, RetryForeverTestMessage message)
     {
-            InMemoryAuxiliarStorage<RetryForeverTestMessage>.Add(message);
+        InMemoryAuxiliarStorage<RetryForeverTestMessage>.Add(message);
 
-            if (InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException)
-            {
-                throw new RetryForeverTestException();
-            }
-
-            return Task.CompletedTask;
+        if (InMemoryAuxiliarStorage<RetryForeverTestMessage>.ThrowException)
+        {
+            throw new RetryForeverTestException();
         }
+
+        return Task.CompletedTask;
+    }
 }

@@ -12,7 +12,8 @@ public class RetryQueueItemStatusDtoAdapterTests
     [InlineData(RetryQueueItemStatusDto.InRetry, RetryQueueItemStatus.InRetry)]
     [InlineData(RetryQueueItemStatusDto.Waiting, RetryQueueItemStatus.Waiting)]
     [InlineData(RetryQueueItemStatusDto.None, RetryQueueItemStatus.None)]
-    public void RetryQueueItemStatusDtoAdapter_Adapt_Success(RetryQueueItemStatusDto dto, RetryQueueItemStatus expectedStatus)
+    public void RetryQueueItemStatusDtoAdapter_Adapt_Success(RetryQueueItemStatusDto dto,
+        RetryQueueItemStatus expectedStatus)
     {
         // Arrange
         var adapter = new RetryQueueItemStatusDtoAdapter();

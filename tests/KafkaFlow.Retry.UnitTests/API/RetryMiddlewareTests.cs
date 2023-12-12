@@ -15,7 +15,7 @@ public class RetryMiddlewareTests
 
         var context = new DefaultHttpContext();
 
-        RequestDelegate next = (HttpContext _) => Task.CompletedTask;
+        RequestDelegate next = _ => Task.CompletedTask;
 
         var middleware = new RetryMiddleware(next, mockHttpRequestHandler.Object);
 

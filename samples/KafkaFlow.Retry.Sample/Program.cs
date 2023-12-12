@@ -3,11 +3,11 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
 using KafkaFlow.Producers;
 using KafkaFlow.Retry.Common.Sample.Helpers;
 using KafkaFlow.Retry.Sample.Helpers;
 using KafkaFlow.Retry.Sample.Messages;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace KafkaFlow.Retry.Sample;
 
@@ -21,7 +21,8 @@ internal static class Program
         var mongoDbDatabaseName = "kafka_flow_retry_durable_sample";
         var mongoDbRetryQueueCollectionName = "RetryQueues";
         var mongoDbRetryQueueItemCollectionName = "RetryQueueItems";
-        var sqlServerConnectionString = "Server=localhost;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=KafkaFlow Retry Sample";
+        var sqlServerConnectionString =
+            "Server=localhost;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=KafkaFlow Retry Sample";
         var sqlServerDatabaseName = "kafka_flow_retry_durable_sample";
         var topics = new[]
         {
@@ -30,7 +31,7 @@ internal static class Program
             "sample-kafka-flow-retry-durable-sqlserver-topic",
             "sample-kafka-flow-retry-durable-sqlserver-topic-retry",
             "sample-kafka-flow-retry-durable-mongodb-topic",
-            "sample-kafka-flow-retry-durable-mongodb-topic-retry",
+            "sample-kafka-flow-retry-durable-mongodb-topic-retry"
         };
 
         SqlServerHelper.RecreateSqlSchema(sqlServerDatabaseName, sqlServerConnectionString).GetAwaiter().GetResult();
@@ -182,7 +183,8 @@ internal static class Program
                     break;
 
                 default:
-                    Console.Write("USE: retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver or exit: ");
+                    Console.Write(
+                        "USE: retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver or exit: ");
                     break;
             }
         }

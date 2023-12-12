@@ -10,7 +10,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers;
 
 internal static class BootstrapperPostgresSchema
 {
-    private static readonly SemaphoreSlim s_semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
+    private static readonly SemaphoreSlim s_semaphoreOneThreadAtTime = new(1, 1);
     private static bool s_schemaInitialized;
 
     internal static async Task RecreatePostgresSchemaAsync(string databaseName, string connectionString)
@@ -51,15 +51,15 @@ internal static class BootstrapperPostgresSchema
 
     private static IEnumerable<string> GetScriptsForSchemaCreation()
     {
-        Assembly postgresAssembly = Assembly.LoadFrom("KafkaFlow.Retry.Postgres.dll");
+        var postgresAssembly = Assembly.LoadFrom("KafkaFlow.Retry.Postgres.dll");
         return postgresAssembly
             .GetManifestResourceNames()
             .OrderBy(x => x)
             .Select(script =>
             {
-                using (Stream s = postgresAssembly.GetManifestResourceStream(script))
+                using (var s = postgresAssembly.GetManifestResourceStream(script))
                 {
-                    using (StreamReader sr = new StreamReader(s))
+                    using (var sr = new StreamReader(s))
                     {
                         return sr.ReadToEnd();
                     }

@@ -3,6 +3,7 @@ using System.Linq;
 using KafkaFlow.Retry.API;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
+using Microsoft.Extensions.Primitives;
 
 namespace KafkaFlow.Retry.UnitTests.API;
 
@@ -17,7 +18,7 @@ public class HttpExtensionsTests
         var context = new DefaultHttpContext();
 
         // Act
-        HttpExtensions.AddQueryParams(context.Request, expectedName, expectedValue);
+        context.Request.AddQueryParams(expectedName, expectedValue);
 
         // Assert
         context.Request.QueryString.Should().NotBeNull();
@@ -32,7 +33,7 @@ public class HttpExtensionsTests
         var expectedExtension = "newExtension";
 
         // Act
-        var result = HttpExtensions.ExtendResourcePath(expectedResource, expectedExtension);
+        var result = expectedResource.ExtendResourcePath(expectedExtension);
 
         // Assert
         result.Should().NotBeNull();
@@ -47,13 +48,13 @@ public class HttpExtensionsTests
         var expectedParamKey = "newParamKey";
         var expectedParamValue = "1";
         context.Request.Query = new QueryCollection(
-            new Dictionary<string, Microsoft.Extensions.Primitives.StringValues>
+            new Dictionary<string, StringValues>
             {
-                { "newParamKey", new Microsoft.Extensions.Primitives.StringValues(expectedParamValue) }
+                { "newParamKey", new StringValues(expectedParamValue) }
             });
 
         // Act
-        var result = HttpExtensions.ReadQueryParams(context.Request, expectedParamKey);
+        var result = context.Request.ReadQueryParams(expectedParamKey);
 
         // Assert
         result.Should().NotBeEmpty();

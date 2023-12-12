@@ -10,10 +10,10 @@ public class RetryDurablePollingDefinitionTests
     {
         // Act
         Action act = () => new RetryDurablePollingDefinition(
-            enabled: true,
-            cronExpression: "",
-            fetchSize: 1,
-            expirationIntervalFactor: 2);
+            true,
+            "",
+            1,
+            2);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -22,12 +22,13 @@ public class RetryDurablePollingDefinitionTests
     [Theory]
     [InlineData(-1, 2)]
     [InlineData(1, -2)]
-    public void RetryDurablePollingDefinition_Ctor_WithArgumentOutOfRangeException_ThrowsException(int fetchSize, int expirationIntervalFactor)
+    public void RetryDurablePollingDefinition_Ctor_WithArgumentOutOfRangeException_ThrowsException(int fetchSize,
+        int expirationIntervalFactor)
     {
         // Act
         Action act = () => new RetryDurablePollingDefinition(
-            enabled: false,
-            cronExpression: "x",
+            false,
+            "x",
             fetchSize,
             expirationIntervalFactor);
 

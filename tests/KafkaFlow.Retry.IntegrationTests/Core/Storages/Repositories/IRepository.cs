@@ -20,5 +20,6 @@ public interface IRepository
 
     Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey);
 
-    Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItem>, bool> stopCondition);
+    Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId,
+        Func<IList<RetryQueueItem>, bool> stopCondition);
 }

@@ -61,7 +61,8 @@ public class CheckQueueTests : RetryQueueDataProviderTestsTemplate
         // Arrange
         var repository = GetRepository(repositoryType);
 
-        var input = new CheckQueueInput(RetryQueueItemBuilder.DefaultItemMessage, "CheckQueue-NonExistingQueue-queueGroupKeyTest");
+        var input = new CheckQueueInput(RetryQueueItemBuilder.DefaultItemMessage,
+            "CheckQueue-NonExistingQueue-queueGroupKeyTest");
 
         // Act
         var result = await repository.RetryQueueDataProvider.CheckQueueAsync(input);

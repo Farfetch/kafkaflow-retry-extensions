@@ -25,7 +25,7 @@ public class UpdateItemsResponseDtoAdapterTests
         var responseDto = _adapter.Adapt(updateItemsResult);
 
         // Assert
-        for (int i = 0; i < responseDto.UpdateItemsResults.Count; i++)
+        for (var i = 0; i < responseDto.UpdateItemsResults.Count; i++)
         {
             responseDto.UpdateItemsResults[i].ItemId.Should().Be(expectedResults[i].Id);
             responseDto.UpdateItemsResults[i].Result.Should().Be(expectedResults[i].Status.ToString());

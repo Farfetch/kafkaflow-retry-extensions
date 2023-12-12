@@ -15,58 +15,64 @@ public sealed class SqlServerDbDataProviderFactory
 {
     public IRetryDurableQueueRepositoryProvider Create(SqlServerDbSettings sqlServerDbSettings)
     {
-            Guard.Argument(sqlServerDbSettings)
-                .NotNull("It is mandatory to config the factory before creating new instances of IRetryQueueDataProvider. Make sure the Config method is executed before the Create method.");
+        Guard.Argument(sqlServerDbSettings)
+            .NotNull(
+                "It is mandatory to config the factory before creating new instances of IRetryQueueDataProvider. Make sure the Config method is executed before the Create method.");
 
-            var retryQueueItemMessageAdapter =
-                new RetryQueueItemMessageDboFactory();
+        var retryQueueItemMessageAdapter =
+            new RetryQueueItemMessageDboFactory();
 
-            var retryQueueReader = new RetryQueueReader(
-                new RetryQueueAdapter(),
-                new RetryQueueItemAdapter(),
-                new RetryQueueItemMessageAdapter(),
-                new RetryQueueItemMessageHeaderAdapter()
-                );
+        var retryQueueReader = new RetryQueueReader(
+            new RetryQueueAdapter(),
+            new RetryQueueItemAdapter(),
+            new RetryQueueItemMessageAdapter(),
+            new RetryQueueItemMessageHeaderAdapter()
+        );
 
-            return new RetryQueueDataProvider(
-                sqlServerDbSettings,
-                new ConnectionProvider(),
-                new RetryQueueItemMessageHeaderRepository(),
-                new RetryQueueItemMessageRepository(),
-                new RetryQueueItemRepository(),
-                new RetryQueueRepository(),
-                new RetryQueueDboFactory(),
-                new RetryQueueItemDboFactory(),
-                retryQueueReader,
-                retryQueueItemMessageAdapter,
-                new RetryQueueItemMessageHeaderDboFactory());
-        }
+        return new RetryQueueDataProvider(
+            sqlServerDbSettings,
+            new ConnectionProvider(),
+            new RetryQueueItemMessageHeaderRepository(),
+            new RetryQueueItemMessageRepository(),
+            new RetryQueueItemRepository(),
+            new RetryQueueRepository(),
+            new RetryQueueDboFactory(),
+            new RetryQueueItemDboFactory(),
+            retryQueueReader,
+            retryQueueItemMessageAdapter,
+            new RetryQueueItemMessageHeaderDboFactory());
+    }
 
-    public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings) => new RetrySchemaCreator(sqlServerDbSettings, GetScriptsForSchemaCreation());
+    public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings)
+    {
+        return new RetrySchemaCreator(sqlServerDbSettings, GetScriptsForSchemaCreation());
+    }
 
     private IEnumerable<Script> GetScriptsForSchemaCreation()
     {
-            Assembly thisAssembly = Assembly.GetExecutingAssembly();
+        var thisAssembly = Assembly.GetExecutingAssembly();
 
-            Script createTables = null;
-            Script populateTables = null;
+        Script createTables = null;
+        Script populateTables = null;
 
-            using (Stream s = thisAssembly.GetManifestResourceStream("KafkaFlow.Retry.SqlServer.Deploy.01 - Create_Tables.sql"))
+        using (var s = thisAssembly.GetManifestResourceStream(
+                   "KafkaFlow.Retry.SqlServer.Deploy.01 - Create_Tables.sql"))
+        {
+            using (var sr = new StreamReader(s))
             {
-                using (StreamReader sr = new StreamReader(s))
-                {
-                    createTables = new Script(sr.ReadToEnd());
-                }
+                createTables = new Script(sr.ReadToEnd());
             }
-
-            using (Stream s = thisAssembly.GetManifestResourceStream("KafkaFlow.Retry.SqlServer.Deploy.02 - Populate_Tables.sql"))
-            {
-                using (StreamReader sr = new StreamReader(s))
-                {
-                    populateTables = new Script(sr.ReadToEnd());
-                }
-            }
-
-            return new[] { createTables, populateTables };
         }
+
+        using (var s = thisAssembly.GetManifestResourceStream(
+                   "KafkaFlow.Retry.SqlServer.Deploy.02 - Populate_Tables.sql"))
+        {
+            using (var sr = new StreamReader(s))
+            {
+                populateTables = new Script(sr.ReadToEnd());
+            }
+        }
+
+        return new[] { createTables, populateTables };
+    }
 }

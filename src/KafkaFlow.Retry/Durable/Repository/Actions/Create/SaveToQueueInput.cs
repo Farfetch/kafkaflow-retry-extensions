@@ -22,27 +22,27 @@ public class SaveToQueueInput
         int attemptsCount,
         string description)
     {
-            Guard.Argument(message, nameof(message)).NotNull();
-            Guard.Argument(searchGroupKey, nameof(searchGroupKey)).NotNull().NotEmpty();
-            Guard.Argument(queueGroupKey, nameof(queueGroupKey)).NotNull().NotEmpty();
-            Guard.Argument(queueStatus, nameof(queueStatus)).NotDefault();
-            Guard.Argument(itemStatus, nameof(itemStatus)).NotDefault();
-            Guard.Argument(creationDate, nameof(creationDate)).NotDefault();
-            Guard.Argument(modifiedStatusDate, nameof(modifiedStatusDate)).NotDefault();
-            Guard.Argument(attemptsCount, nameof(attemptsCount)).NotNegative();
+        Guard.Argument(message, nameof(message)).NotNull();
+        Guard.Argument(searchGroupKey, nameof(searchGroupKey)).NotNull().NotEmpty();
+        Guard.Argument(queueGroupKey, nameof(queueGroupKey)).NotNull().NotEmpty();
+        Guard.Argument(queueStatus, nameof(queueStatus)).NotDefault();
+        Guard.Argument(itemStatus, nameof(itemStatus)).NotDefault();
+        Guard.Argument(creationDate, nameof(creationDate)).NotDefault();
+        Guard.Argument(modifiedStatusDate, nameof(modifiedStatusDate)).NotDefault();
+        Guard.Argument(attemptsCount, nameof(attemptsCount)).NotNegative();
 
-            Message = message;
-            SearchGroupKey = searchGroupKey;
-            QueueGroupKey = queueGroupKey;
-            QueueStatus = queueStatus;
-            ItemStatus = itemStatus;
-            SeverityLevel = severity;
-            CreationDate = creationDate;
-            LastExecution = lastExecution;
-            ModifiedStatusDate = modifiedStatusDate;
-            AttemptsCount = attemptsCount;
-            Description = description;
-        }
+        Message = message;
+        SearchGroupKey = searchGroupKey;
+        QueueGroupKey = queueGroupKey;
+        QueueStatus = queueStatus;
+        ItemStatus = itemStatus;
+        SeverityLevel = severity;
+        CreationDate = creationDate;
+        LastExecution = lastExecution;
+        ModifiedStatusDate = modifiedStatusDate;
+        AttemptsCount = attemptsCount;
+        Description = description;
+    }
 
     public int AttemptsCount { get; }
     public DateTime CreationDate { get; }

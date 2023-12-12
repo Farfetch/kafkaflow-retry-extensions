@@ -6,36 +6,39 @@ namespace KafkaFlow.Retry.Durable.Compression;
 
 internal class GzipCompressor : IGzipCompressor
 {
-    private static int s_bufferSize = 64 * 1024;
+    private static readonly int s_bufferSize = 64 * 1024;
 
     public byte[] Compress(byte[] data)
     {
-            Guard.Argument(data).NotNull();
+        Guard.Argument(data).NotNull();
 
-            using (var compressIntoMs = new MemoryStream())
+        using (var compressIntoMs = new MemoryStream())
+        {
+            using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionLevel.Fastest), s_bufferSize))
             {
-                using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionLevel.Fastest), s_bufferSize))
-                {
-                    gzs.Write(data, 0, data.Length);
-                }
-                return compressIntoMs.ToArray();
+                gzs.Write(data, 0, data.Length);
             }
+
+            return compressIntoMs.ToArray();
         }
+    }
 
     public byte[] Decompress(byte[] data)
     {
-            Guard.Argument(data).NotNull();
+        Guard.Argument(data).NotNull();
 
-            using (var compressedMs = new MemoryStream(data))
+        using (var compressedMs = new MemoryStream(data))
+        {
+            using (var decompressedMs = new MemoryStream())
             {
-                using (var decompressedMs = new MemoryStream())
+                using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress),
+                           s_bufferSize))
                 {
-                    using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), s_bufferSize))
-                    {
-                        gzs.CopyTo(decompressedMs);
-                    }
-                    return decompressedMs.ToArray();
+                    gzs.CopyTo(decompressedMs);
                 }
+
+                return decompressedMs.ToArray();
             }
         }
+    }
 }

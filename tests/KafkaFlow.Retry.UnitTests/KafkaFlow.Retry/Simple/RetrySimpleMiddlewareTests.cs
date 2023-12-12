@@ -13,16 +13,17 @@ public class RetrySimpleMiddlewareTests
     public async Task RetrySimpleMiddleware_Invoke_Successfully()
     {
         //Arrange
-        string expectedConsumerName = "ConsumerName";
-        Mock<ILogHandler> mockILogHandler = new Mock<ILogHandler>();
-        var retrySimpleDefinition = new RetrySimpleDefinition(1, Mock.Of<IReadOnlyCollection<Func<RetryContext, bool>>>(), false, (_) => TimeSpan.FromSeconds(1));
+        var expectedConsumerName = "ConsumerName";
+        var mockILogHandler = new Mock<ILogHandler>();
+        var retrySimpleDefinition = new RetrySimpleDefinition(1,
+            Mock.Of<IReadOnlyCollection<Func<RetryContext, bool>>>(), false, _ => TimeSpan.FromSeconds(1));
 
         var retrySimpleMiddleware = new RetrySimpleMiddleware(
             mockILogHandler.Object,
             retrySimpleDefinition
         );
 
-        Mock<IConsumerContext> mockIConsumerContext = new Mock<IConsumerContext>();
+        var mockIConsumerContext = new Mock<IConsumerContext>();
         mockIConsumerContext
             .SetupGet(ctx => ctx.WorkerId)
             .Returns(1);
@@ -39,13 +40,13 @@ public class RetrySimpleMiddlewareTests
             .SetupGet(ctx => ctx.WorkerStopped)
             .Returns(CancellationToken.None);
 
-        Mock<IMessageContext> mockIMessageContext = new Mock<IMessageContext>();
+        var mockIMessageContext = new Mock<IMessageContext>();
         mockIMessageContext
             .Setup(ctx => ctx.ConsumerContext)
             .Returns(mockIConsumerContext.Object);
 
         string actualConsumerName = null;
-        MiddlewareDelegate middlewareDelegate = delegate (IMessageContext context)
+        MiddlewareDelegate middlewareDelegate = delegate(IMessageContext context)
         {
             actualConsumerName = context.ConsumerContext.ConsumerName;
             return Task.CompletedTask;

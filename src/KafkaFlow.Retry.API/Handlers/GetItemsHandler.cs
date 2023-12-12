@@ -1,4 +1,5 @@
-﻿using System.Net;
+﻿using System;
+using System.Net;
 using System.Threading.Tasks;
 using Dawn;
 using KafkaFlow.Retry.API.Adapters.GetItems;
@@ -48,7 +49,7 @@ internal class GetItemsHandler : RetryRequestHandlerBase
 
             await WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
         }
-        catch (System.Exception ex)
+        catch (Exception ex)
         {
             await WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
         }

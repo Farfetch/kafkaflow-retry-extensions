@@ -8,10 +8,10 @@ public class SaveToQueueResult
 {
     public SaveToQueueResult(SaveToQueueResultStatus status)
     {
-            Guard.Argument(status).NotDefault();
+        Guard.Argument(status).NotDefault();
 
-            Status = status;
-        }
+        Status = status;
+    }
 
     public SaveToQueueResultStatus Status { get; }
 }

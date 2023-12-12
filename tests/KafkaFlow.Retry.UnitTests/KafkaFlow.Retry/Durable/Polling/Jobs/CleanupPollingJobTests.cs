@@ -13,13 +13,16 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling.Jobs;
 public class CleanupPollingJobTests
 {
     private const string SchedulerId = "schedulerIdTest";
-    private static readonly CleanupPollingDefinition s_cleaunupPollingDefinition = new CleanupPollingDefinition(true, "0 0 14-6 ? * FRI-MON", 1, 10);
+
+    private static readonly CleanupPollingDefinition s_cleaunupPollingDefinition =
+        new(true, "0 0 14-6 ? * FRI-MON", 1, 10);
+
     private readonly IJob _job = new CleanupPollingJob();
-    private readonly Mock<IJobDetail> _mockIJobDetail = new Mock<IJobDetail>();
-    private readonly Mock<ITrigger> _mockITrigger = new Mock<ITrigger>();
-    private readonly Mock<IJobExecutionContext> _mockJobExecutionContext = new Mock<IJobExecutionContext>();
-    private readonly Mock<ILogHandler> _mockLogHandler = new Mock<ILogHandler>();
-    private readonly Mock<IRetryDurableQueueRepository> _mockRetryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
+    private readonly Mock<IJobDetail> _mockIJobDetail = new();
+    private readonly Mock<ITrigger> _mockITrigger = new();
+    private readonly Mock<IJobExecutionContext> _mockJobExecutionContext = new();
+    private readonly Mock<ILogHandler> _mockLogHandler = new();
+    private readonly Mock<IRetryDurableQueueRepository> _mockRetryDurableQueueRepository = new();
 
     public CleanupPollingJobTests()
     {
@@ -38,7 +41,7 @@ public class CleanupPollingJobTests
         IDictionary<string, object> jobData = new Dictionary<string, object>
         {
             { "RetryDurableQueueRepository", _mockRetryDurableQueueRepository.Object },
-            { "CleanupPollingDefinition", s_cleaunupPollingDefinition},
+            { "CleanupPollingDefinition", s_cleaunupPollingDefinition },
             { "LogHandler", _mockLogHandler.Object },
             { "SchedulerId", SchedulerId }
         };
@@ -61,7 +64,8 @@ public class CleanupPollingJobTests
 
         //Assert
         _mockLogHandler.Verify(d => d.Info(It.IsAny<string>(), It.IsAny<object>()), Times.Once);
-        _mockLogHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<RetryDurableException>(), It.IsAny<object>()), Times.Once);
+        _mockLogHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<RetryDurableException>(), It.IsAny<object>()),
+            Times.Once);
         _mockRetryDurableQueueRepository.Verify(d => d.DeleteQueuesAsync(It.IsAny<DeleteQueuesInput>()), Times.Once);
     }
 
@@ -78,7 +82,8 @@ public class CleanupPollingJobTests
 
         //Assert
         _mockLogHandler.Verify(d => d.Info(It.IsAny<string>(), It.IsAny<object>()), Times.Exactly(2));
-        _mockLogHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<RetryDurableException>(), It.IsAny<object>()), Times.Never);
+        _mockLogHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<RetryDurableException>(), It.IsAny<object>()),
+            Times.Never);
         _mockRetryDurableQueueRepository.Verify(d => d.DeleteQueuesAsync(It.IsAny<DeleteQueuesInput>()), Times.Once);
     }
 }

@@ -8,14 +8,14 @@ internal class RetryQueueItemMessageAdapter : IRetryQueueItemMessageAdapter
 {
     public RetryQueueItemMessage Adapt(RetryQueueItemMessageDbo retryQueueItemMessageDbo)
     {
-            Guard.Argument(retryQueueItemMessageDbo, nameof(retryQueueItemMessageDbo)).NotNull();
+        Guard.Argument(retryQueueItemMessageDbo, nameof(retryQueueItemMessageDbo)).NotNull();
 
-            return new RetryQueueItemMessage(
-                retryQueueItemMessageDbo.TopicName,
-                retryQueueItemMessageDbo.Key,
-                retryQueueItemMessageDbo.Value,
-                retryQueueItemMessageDbo.Partition,
-                retryQueueItemMessageDbo.Offset,
-                retryQueueItemMessageDbo.UtcTimeStamp);
-        }
+        return new RetryQueueItemMessage(
+            retryQueueItemMessageDbo.TopicName,
+            retryQueueItemMessageDbo.Key,
+            retryQueueItemMessageDbo.Value,
+            retryQueueItemMessageDbo.Partition,
+            retryQueueItemMessageDbo.Offset,
+            retryQueueItemMessageDbo.UtcTimeStamp);
+    }
 }

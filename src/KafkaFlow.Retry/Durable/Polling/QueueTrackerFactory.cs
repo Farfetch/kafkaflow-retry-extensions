@@ -14,23 +14,23 @@ internal class QueueTrackerFactory : IQueueTrackerFactory
         IJobDataProvidersFactory jobDataProvidersFactory
     )
     {
-            Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
-            Guard.Argument(jobDataProvidersFactory, nameof(jobDataProvidersFactory)).NotNull();
+        Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
+        Guard.Argument(jobDataProvidersFactory, nameof(jobDataProvidersFactory)).NotNull();
 
-            _schedulerId = schedulerId;
-            _jobDataProvidersFactory = jobDataProvidersFactory;
-        }
+        _schedulerId = schedulerId;
+        _jobDataProvidersFactory = jobDataProvidersFactory;
+    }
 
     public QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
     {
-            if (_jobDataProviders is null)
-            {
-                _jobDataProviders = _jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
-            }
-
-            return new QueueTracker(
-                _schedulerId,
-                _jobDataProviders,
-                logHandler);
+        if (_jobDataProviders is null)
+        {
+            _jobDataProviders = _jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
         }
+
+        return new QueueTracker(
+            _schedulerId,
+            _jobDataProviders,
+            logHandler);
+    }
 }

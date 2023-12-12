@@ -6,8 +6,8 @@ public class UpdateItemsResponseDto
 {
     public UpdateItemsResponseDto()
     {
-            UpdateItemsResults = new List<UpdateItemResultDto>();
-        }
+        UpdateItemsResults = new List<UpdateItemResultDto>();
+    }
 
     public IList<UpdateItemResultDto> UpdateItemsResults { get; set; }
 }

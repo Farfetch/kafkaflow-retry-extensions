@@ -16,14 +16,14 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Repositories;
 
 public class RetryQueueRepositoryTests
 {
-    private readonly Mock<IMongoCollection<RetryQueueDbo>> _collection = new Mock<IMongoCollection<RetryQueueDbo>>();
+    private readonly Mock<IMongoCollection<RetryQueueDbo>> _collection = new();
 
-    private readonly Mock<IMongoClient> _mongoClient = new Mock<IMongoClient>();
-    private readonly Mock<IMongoDatabase> _mongoDatabase = new Mock<IMongoDatabase>();
+    private readonly Mock<IMongoClient> _mongoClient = new();
+    private readonly Mock<IMongoDatabase> _mongoDatabase = new();
     private readonly RetryQueueRepository _repository;
-    private readonly Mock<IAsyncCursor<RetryQueueDbo>> _retries = new Mock<IAsyncCursor<RetryQueueDbo>>();
+    private readonly Mock<IAsyncCursor<RetryQueueDbo>> _retries = new();
 
-    private readonly RetryQueueDbo _retryQueueDbo = new RetryQueueDbo
+    private readonly RetryQueueDbo _retryQueueDbo = new()
     {
         Id = Guid.NewGuid(),
         CreationDate = DateTime.UtcNow,
@@ -60,7 +60,8 @@ public class RetryQueueRepositoryTests
             ))
             .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, BsonBinaryData.Create(_retryQueueDbo.Id)));
 
-        _mongoDatabase.Setup(d => d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+        _mongoDatabase.Setup(d =>
+                d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
             .Returns(_collection.Object);
 
         _mongoClient.Setup(d => d.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
@@ -102,7 +103,8 @@ public class RetryQueueRepositoryTests
     [Theory]
     [InlineData(GetQueuesSortOption.ByCreationDateDescending)]
     [InlineData(GetQueuesSortOption.ByLastExecutionAscending)]
-    public async Task RetryQueueRepository_GetTopSortedQueuesAsync_ByCreationDate_Descending_Success(GetQueuesSortOption getQueuesSortOption)
+    public async Task RetryQueueRepository_GetTopSortedQueuesAsync_ByCreationDate_Descending_Success(
+        GetQueuesSortOption getQueuesSortOption)
     {
         // Act
         var result = await _repository

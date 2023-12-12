@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using Dawn;
-using Microsoft.Extensions.Configuration;
-using Npgsql;
 using KafkaFlow.Retry.IntegrationTests.Core.Settings;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
+using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Configuration;
+using Npgsql;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 
@@ -25,7 +25,7 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
     internal IRepositoryProvider RepositoryProvider => _repositoryProvider ?? CreateRepositoryProvider();
 
     internal SqlServerRepositorySettings SqlServerSettings { get; private set; }
-      
+
     internal PostgresRepositorySettings PostgresSettings { get; private set; }
 
     public abstract void Dispose();
@@ -46,11 +46,13 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
 
     private IRepositoryProvider CreateRepositoryProvider()
     {
-        Guard.Argument(_databasesInitialized, nameof(_databasesInitialized)).True($"Call {nameof(InitializeDatabasesAsync)} first.");
+        Guard.Argument(_databasesInitialized, nameof(_databasesInitialized))
+            .True($"Call {nameof(InitializeDatabasesAsync)} first.");
 
         var repositories = new List<IRepository>
         {
-            new MongoDbRepository( MongoDbSettings.ConnectionString, MongoDbSettings.DatabaseName, MongoDbSettings.RetryQueueCollectionName, MongoDbSettings.RetryQueueItemCollectionName),
+            new MongoDbRepository(MongoDbSettings.ConnectionString, MongoDbSettings.DatabaseName,
+                MongoDbSettings.RetryQueueCollectionName, MongoDbSettings.RetryQueueItemCollectionName),
             new SqlServerRepository(SqlServerSettings.ConnectionString, SqlServerSettings.DatabaseName),
             new PostgresRepository(PostgresSettings.ConnectionString, PostgresSettings.DatabaseName)
         };
@@ -74,9 +76,11 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
         {
             sqlServerConnectionStringBuilder.IntegratedSecurity = false;
         }
+
         SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
-        await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(SqlServerSettings.DatabaseName, SqlServerSettings.ConnectionString);
+        await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(SqlServerSettings.DatabaseName,
+            SqlServerSettings.ConnectionString);
     }
 
     private async Task InitializePostgresAsync(IConfiguration configuration)
@@ -86,6 +90,7 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
         var postgresConnectionStringBuilder = new NpgsqlConnectionStringBuilder(PostgresSettings.ConnectionString);
         PostgresSettings.ConnectionString = postgresConnectionStringBuilder.ToString();
 
-        await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(PostgresSettings.DatabaseName, PostgresSettings.ConnectionString);
+        await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(PostgresSettings.DatabaseName,
+            PostgresSettings.ConnectionString);
     }
 }

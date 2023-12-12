@@ -1,5 +1,4 @@
 ﻿using System.Threading.Tasks;
-using KafkaFlow;
 using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
 using KafkaFlow.Retry.IntegrationTests.Core.Messages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;

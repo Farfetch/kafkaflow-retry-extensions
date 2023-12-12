@@ -6,9 +6,11 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
 
 internal interface IPhysicalStorageAssert
 {
-    Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int count);
+    Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message,
+        int count);
 
     Task AssertRetryDurableMessageDoneAsync(RepositoryType repositoryType, RetryDurableTestMessage message);
 
-    Task AssertRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int retryCount);
+    Task AssertRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message,
+        int retryCount);
 }

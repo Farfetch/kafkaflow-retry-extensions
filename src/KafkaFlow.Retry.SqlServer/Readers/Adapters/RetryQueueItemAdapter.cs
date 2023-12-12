@@ -8,17 +8,17 @@ internal class RetryQueueItemAdapter : IRetryQueueItemAdapter
 {
     public RetryQueueItem Adapt(RetryQueueItemDbo retryQueueItemDbo)
     {
-            Guard.Argument(retryQueueItemDbo).NotNull();
+        Guard.Argument(retryQueueItemDbo).NotNull();
 
-            return new RetryQueueItem(
-                retryQueueItemDbo.IdDomain,
-                retryQueueItemDbo.AttemptsCount,
-                retryQueueItemDbo.CreationDate,
-                retryQueueItemDbo.Sort,
-                retryQueueItemDbo.LastExecution,
-                retryQueueItemDbo.ModifiedStatusDate,
-                retryQueueItemDbo.Status,
-                retryQueueItemDbo.SeverityLevel,
-                retryQueueItemDbo.Description);
-        }
+        return new RetryQueueItem(
+            retryQueueItemDbo.IdDomain,
+            retryQueueItemDbo.AttemptsCount,
+            retryQueueItemDbo.CreationDate,
+            retryQueueItemDbo.Sort,
+            retryQueueItemDbo.LastExecution,
+            retryQueueItemDbo.ModifiedStatusDate,
+            retryQueueItemDbo.Status,
+            retryQueueItemDbo.SeverityLevel,
+            retryQueueItemDbo.Description);
+    }
 }

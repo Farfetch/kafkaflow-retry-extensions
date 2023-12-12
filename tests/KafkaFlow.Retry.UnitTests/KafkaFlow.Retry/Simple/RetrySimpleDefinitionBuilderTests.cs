@@ -15,13 +15,13 @@ public class RetrySimpleDefinitionBuilderTests
         var tryTimes = 1;
         var pause = false;
 
-        builder.WithTimeBetweenTriesPlan(new TimeSpan[0])
+        builder.WithTimeBetweenTriesPlan()
             .TryTimes(tryTimes)
             .ShouldPauseConsumer(pause)
-            .WithTimeBetweenTriesPlan(new Func<int, TimeSpan>(_ => new TimeSpan()))
+            .WithTimeBetweenTriesPlan(_ => new TimeSpan())
             .Handle<Exception>()
             .Handle(new Func<Exception, bool>(_ => true))
-            .Handle(new Func<RetryContext, bool>((d) => d == retryContext));
+            .Handle(d => d == retryContext);
 
         // Act
         var result = builder.Build();

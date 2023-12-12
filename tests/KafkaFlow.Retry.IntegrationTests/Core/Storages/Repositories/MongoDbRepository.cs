@@ -31,8 +31,10 @@ internal class MongoDbRepository : IRepository
     {
         _databaseName = dbName;
         _mongoClient = new MongoClient(connectionString);
-        _retryQueuesCollection = _mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
-        _retryQueueItemsCollection = _mongoClient.GetDatabase(dbName).GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
+        _retryQueuesCollection =
+            _mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
+        _retryQueueItemsCollection = _mongoClient.GetDatabase(dbName)
+            .GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
 
         var dataProviderCreationResult = new MongoDbDataProviderFactory().TryCreate(
             new MongoDbSettings
@@ -50,7 +52,8 @@ internal class MongoDbRepository : IRepository
                         new HeaderAdapter())));
 
         Guard.Argument(dataProviderCreationResult, nameof(dataProviderCreationResult)).NotNull();
-        Guard.Argument(dataProviderCreationResult.Success, nameof(dataProviderCreationResult.Success)).True(dataProviderCreationResult.Message);
+        Guard.Argument(dataProviderCreationResult.Success, nameof(dataProviderCreationResult.Success))
+            .True(dataProviderCreationResult.Message);
 
         RetryQueueDataProvider = dataProviderCreationResult.Result;
     }
@@ -73,7 +76,7 @@ internal class MongoDbRepository : IRepository
             LastExecution = queue.LastExecution,
             QueueGroupKey = queue.QueueGroupKey,
             SearchGroupKey = queue.SearchGroupKey,
-            Status = queue.Status,
+            Status = queue.Status
         };
 
         await _retryQueuesCollection.InsertOneAsync(queueDbo);
@@ -134,8 +137,8 @@ internal class MongoDbRepository : IRepository
     public async Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey)
     {
         var start = DateTime.Now;
-        Guid retryQueueId = Guid.Empty;
-        RetryQueueDbo retryQueueDbo = new RetryQueueDbo();
+        var retryQueueId = Guid.Empty;
+        var retryQueueDbo = new RetryQueueDbo();
         do
         {
             if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
@@ -180,7 +183,7 @@ internal class MongoDbRepository : IRepository
 
             var retryQueueItemsCursor = await _retryQueueItemsCollection.FindAsync(x => x.RetryQueueId == retryQueueId);
             var retryQueueItemsDbo = await retryQueueItemsCursor
-                .ToListAsync()
+                    .ToListAsync()
                 ;
 
             retryQueueItems = retryQueueItemsDbo

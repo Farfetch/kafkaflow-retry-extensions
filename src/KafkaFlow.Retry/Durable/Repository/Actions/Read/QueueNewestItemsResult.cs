@@ -8,10 +8,10 @@ public class QueueNewestItemsResult
 {
     public QueueNewestItemsResult(QueueNewestItemsResultStatus status)
     {
-            Guard.Argument(status, nameof(status)).NotDefault();
+        Guard.Argument(status, nameof(status)).NotDefault();
 
-            Status = status;
-        }
+        Status = status;
+    }
 
     public QueueNewestItemsResultStatus Status { get; }
 }

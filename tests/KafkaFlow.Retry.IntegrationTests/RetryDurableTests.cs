@@ -16,7 +16,7 @@ namespace KafkaFlow.Retry.IntegrationTests;
 [Collection("BootstrapperHostCollection")]
 public class RetryDurableTests
 {
-    private readonly Fixture _fixture = new Fixture();
+    private readonly Fixture _fixture = new();
     private readonly IRepositoryProvider _repositoryProvider;
     private readonly IServiceProvider _serviceProvider;
 
@@ -95,7 +95,7 @@ public class RetryDurableTests
         messages.ForEach(
             m =>
             {
-                for (int i = 0; i < numberOfMessagesByEachSameKey; i++)
+                for (var i = 0; i < numberOfMessagesByEachSameKey; i++)
                 {
                     producer.Produce(m.Key, m);
                 }
@@ -104,12 +104,14 @@ public class RetryDurableTests
         // Assert - Creation
         foreach (var message in messages)
         {
-            await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedBeforeDurable);
+            await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message,
+                numberOfTimesThatEachMessageIsTriedBeforeDurable);
         }
 
         foreach (var message in messages)
         {
-            await physicalStorageAssert.AssertRetryDurableMessageCreationAsync(repositoryType, message, numberOfMessagesByEachSameKey);
+            await physicalStorageAssert.AssertRetryDurableMessageCreationAsync(repositoryType, message,
+                numberOfMessagesByEachSameKey);
         }
 
         // Assert - Retrying
@@ -117,12 +119,14 @@ public class RetryDurableTests
 
         foreach (var message in messages)
         {
-            await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedDuringDurable);
+            await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message,
+                numberOfTimesThatEachMessageIsTriedDuringDurable);
         }
 
         foreach (var message in messages)
         {
-            await physicalStorageAssert.AssertRetryDurableMessageRetryingAsync(repositoryType, message, numberOfTimesThatEachMessageIsTriedDuringDurable);
+            await physicalStorageAssert.AssertRetryDurableMessageRetryingAsync(repositoryType, message,
+                numberOfTimesThatEachMessageIsTriedDuringDurable);
         }
 
         // Assert - Done
@@ -131,7 +135,8 @@ public class RetryDurableTests
 
         foreach (var message in messages)
         {
-            await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message, numberOfTimesThatEachMessageIsTriedWhenDone);
+            await InMemoryAuxiliarStorage<RetryDurableTestMessage>.AssertCountMessageAsync(message,
+                numberOfTimesThatEachMessageIsTriedWhenDone);
         }
 
         foreach (var message in messages)

@@ -7,9 +7,9 @@ public class MessageHeader
 {
     public MessageHeader(string key, byte[] value)
     {
-            Key = key;
-            Value = value;
-        }
+        Key = key;
+        Value = value;
+    }
 
     public string Key { get; }
 

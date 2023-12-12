@@ -9,27 +9,30 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable;
 
 public class RetryDurableConsumerGuaranteeOrderedMiddlewareTests
 {
-    public static IEnumerable<object[]> DataTest() => new List<object[]>
+    public static IEnumerable<object[]> DataTest()
     {
-        new object[]
+        return new List<object[]>
+        {
+            new object[]
             {
                 null,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IUtf8Encoder>()
             },
-        new object[]
+            new object[]
             {
                 Mock.Of<ILogHandler>(),
                 null,
                 Mock.Of<IUtf8Encoder>()
             },
-        new object[]
+            new object[]
             {
                 Mock.Of<ILogHandler>(),
                 Mock.Of<IRetryDurableQueueRepository>(),
                 null
             }
-    };
+        };
+    }
 
     [Theory]
     [MemberData(nameof(DataTest))]
@@ -38,14 +41,14 @@ public class RetryDurableConsumerGuaranteeOrderedMiddlewareTests
         IRetryDurableQueueRepository retryDurableQueueRepository,
         IUtf8Encoder utf8Encoder)
     {
-            // Act
-            Action act = () => new RetryDurableConsumerGuaranteeOrderedMiddleware(
-                logHandler,
-                retryDurableQueueRepository,
-                utf8Encoder
-                );
+        // Act
+        Action act = () => new RetryDurableConsumerGuaranteeOrderedMiddleware(
+            logHandler,
+            retryDurableQueueRepository,
+            utf8Encoder
+        );
 
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 }

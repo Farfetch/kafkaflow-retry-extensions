@@ -8,35 +8,35 @@ namespace KafkaFlow.Retry.Postgres;
 
 internal class RetrySchemaCreator : IRetrySchemaCreator
 {
-    private readonly IEnumerable<Script> _schemaScripts;
     private readonly PostgresDbSettings _postgresDbSettings;
+    private readonly IEnumerable<Script> _schemaScripts;
 
     public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
     {
-            Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
-            Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
+        Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
+        Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-            _postgresDbSettings = postgresDbSettings;
-            _schemaScripts = schemaScripts;
-        }
+        _postgresDbSettings = postgresDbSettings;
+        _schemaScripts = schemaScripts;
+    }
 
     public async Task CreateOrUpdateSchemaAsync(string databaseName)
     {
-            using (var openCon = new NpgsqlConnection(_postgresDbSettings.ConnectionString))
+        using (var openCon = new NpgsqlConnection(_postgresDbSettings.ConnectionString))
+        {
+            openCon.Open();
+
+            foreach (var script in _schemaScripts)
             {
-                openCon.Open();
+                var batch = script.Value;
 
-                foreach (var script in _schemaScripts)
+                using (var queryCommand = new NpgsqlCommand(batch))
                 {
-                    var batch = script.Value;
+                    queryCommand.Connection = openCon;
 
-                    using (var queryCommand = new NpgsqlCommand(batch))
-                    {
-                        queryCommand.Connection = openCon;
-
-                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
         }
+    }
 }

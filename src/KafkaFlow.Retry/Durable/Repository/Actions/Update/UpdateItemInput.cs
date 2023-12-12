@@ -10,12 +10,12 @@ public abstract class UpdateItemInput
 {
     protected UpdateItemInput(Guid itemId, RetryQueueItemStatus status)
     {
-            Guard.Argument(itemId, nameof(itemId)).NotDefault();
-            Guard.Argument(status, nameof(status)).NotDefault();
+        Guard.Argument(itemId, nameof(itemId)).NotDefault();
+        Guard.Argument(status, nameof(status)).NotDefault();
 
-            ItemId = itemId;
-            Status = status;
-        }
+        ItemId = itemId;
+        Status = status;
+    }
 
     public Guid ItemId { get; }
     public RetryQueueItemStatus Status { get; }

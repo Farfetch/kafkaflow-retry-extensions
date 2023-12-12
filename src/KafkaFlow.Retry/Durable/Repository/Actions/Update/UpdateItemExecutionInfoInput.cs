@@ -8,18 +8,19 @@ namespace KafkaFlow.Retry.Durable.Repository.Actions.Update;
 [ExcludeFromCodeCoverage]
 public class UpdateItemExecutionInfoInput : UpdateItemInput
 {
-    public UpdateItemExecutionInfoInput(Guid queueId, Guid itemId, RetryQueueItemStatus status, int attemptCount, DateTime lastExecution, string description)
+    public UpdateItemExecutionInfoInput(Guid queueId, Guid itemId, RetryQueueItemStatus status, int attemptCount,
+        DateTime lastExecution, string description)
         : base(itemId, status)
     {
-            Guard.Argument(queueId, nameof(queueId)).NotDefault();
-            Guard.Argument(attemptCount, nameof(attemptCount)).NotNegative();
-            Guard.Argument(lastExecution, nameof(lastExecution)).NotDefault();
+        Guard.Argument(queueId, nameof(queueId)).NotDefault();
+        Guard.Argument(attemptCount, nameof(attemptCount)).NotNegative();
+        Guard.Argument(lastExecution, nameof(lastExecution)).NotDefault();
 
-            QueueId = queueId;
-            AttemptCount = attemptCount;
-            LastExecution = lastExecution;
-            Description = description;
-        }
+        QueueId = queueId;
+        AttemptCount = attemptCount;
+        LastExecution = lastExecution;
+        Description = description;
+    }
 
     public int AttemptCount { get; }
     public string Description { get; }

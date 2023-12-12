@@ -1,8 +1,9 @@
-﻿using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Dawn;
 using KafkaFlow.Retry.SqlServer.Model.Schema;
+using Microsoft.Data.SqlClient;
 
 namespace KafkaFlow.Retry.SqlServer;
 
@@ -13,35 +14,36 @@ internal class RetrySchemaCreator : IRetrySchemaCreator
 
     public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
     {
-            Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
-            Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
+        Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
+        Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-            _sqlServerDbSettings = sqlServerDbSettings;
-            _schemaScripts = schemaScripts;
-        }
+        _sqlServerDbSettings = sqlServerDbSettings;
+        _schemaScripts = schemaScripts;
+    }
 
     public async Task CreateOrUpdateSchemaAsync(string databaseName)
     {
-            using (SqlConnection openCon = new SqlConnection(_sqlServerDbSettings.ConnectionString))
+        using (var openCon = new SqlConnection(_sqlServerDbSettings.ConnectionString))
+        {
+            openCon.Open();
+
+            foreach (var script in _schemaScripts)
             {
-                openCon.Open();
+                var batches = script.Value.Split(new[] { "GO\r\n", "GO\t", "GO\n" },
+                    StringSplitOptions.RemoveEmptyEntries);
 
-                foreach (var script in _schemaScripts)
+                foreach (var batch in batches)
                 {
-                    string[] batches = script.Value.Split(new string[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var replacedBatch = batch.Replace("@dbname", databaseName);
 
-                    foreach (var batch in batches)
+                    using (var queryCommand = new SqlCommand(replacedBatch))
                     {
-                        string replacedBatch = batch.Replace("@dbname", databaseName);
+                        queryCommand.Connection = openCon;
 
-                        using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
-                        {
-                            queryCommand.Connection = openCon;
-
-                            await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        }
+                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }
         }
+    }
 }

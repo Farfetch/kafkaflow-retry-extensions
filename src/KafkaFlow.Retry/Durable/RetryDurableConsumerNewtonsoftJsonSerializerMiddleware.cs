@@ -10,17 +10,19 @@ internal class RetryDurableConsumerNewtonsoftJsonSerializerMiddleware : IMessage
     private readonly INewtonsoftJsonSerializer _newtonsoftJsonSerializer;
     private readonly Type _type;
 
-    public RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(INewtonsoftJsonSerializer newtonsoftJsonSerializer, Type type)
+    public RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+        Type type)
     {
-            Guard.Argument(newtonsoftJsonSerializer).NotNull();
-            Guard.Argument(type).NotNull();
+        Guard.Argument(newtonsoftJsonSerializer).NotNull();
+        Guard.Argument(type).NotNull();
 
-            _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            _type = type;
-        }
+        _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+        _type = type;
+    }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            await next(context.SetMessage(context.Message.Key, _newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, _type))).ConfigureAwait(false);
-        }
+        await next(context.SetMessage(context.Message.Key,
+            _newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, _type))).ConfigureAwait(false);
+    }
 }

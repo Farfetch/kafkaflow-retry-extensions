@@ -11,36 +11,39 @@ public class RetryDurableRetryPlanBeforeDefinitionBuilder
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder ShouldPauseConsumer(bool pause)
     {
-            _pauseConsumer = pause;
-            return this;
-        }
+        _pauseConsumer = pause;
+        return this;
+    }
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder TryTimes(int numberOfRetries)
     {
-            _numberOfRetries = numberOfRetries;
-            return this;
-        }
+        _numberOfRetries = numberOfRetries;
+        return this;
+    }
 
-    public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
+    public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(
+        Func<int, TimeSpan> timeBetweenTriesPlan)
     {
-            _timeBetweenTriesPlan = timeBetweenTriesPlan;
-            return this;
-        }
+        _timeBetweenTriesPlan = timeBetweenTriesPlan;
+        return this;
+    }
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
-        => WithTimeBetweenTriesPlan(
-            (retryNumber) =>
-                ((retryNumber - 1) < timeBetweenRetries.Length)
+    {
+        return WithTimeBetweenTriesPlan(
+            retryNumber =>
+                retryNumber - 1 < timeBetweenRetries.Length
                     ? timeBetweenRetries[retryNumber - 1]
                     : timeBetweenRetries[timeBetweenRetries.Length - 1]
         );
+    }
 
     internal RetryDurableRetryPlanBeforeDefinition Build()
     {
-            return new RetryDurableRetryPlanBeforeDefinition(
-                _timeBetweenTriesPlan,
-                _numberOfRetries,
-                _pauseConsumer
-            );
-        }
+        return new RetryDurableRetryPlanBeforeDefinition(
+            _timeBetweenTriesPlan,
+            _numberOfRetries,
+            _pauseConsumer
+        );
+    }
 }

@@ -12,28 +12,28 @@ public class UpdateQueuesInputAdapterTests
     [Fact]
     public void UpdateQueuesInputAdapter_Adapt_Success()
     {
-            // Arrange
-            var requestDto = new UpdateQueuesRequestDto
-            {
-                QueueGroupKeys = new[] { "queueOrderKey1", "queueOrderKey2", "queueOrderKey3" },
-                ItemStatus = RetryQueueItemStatusDto.Cancelled
-            };
+        // Arrange
+        var requestDto = new UpdateQueuesRequestDto
+        {
+            QueueGroupKeys = new[] { "queueOrderKey1", "queueOrderKey2", "queueOrderKey3" },
+            ItemStatus = RetryQueueItemStatusDto.Cancelled
+        };
 
-            // Act
-            var input = _adapter.Adapt(requestDto);
+        // Act
+        var input = _adapter.Adapt(requestDto);
 
-            // Assert
-            input.Should().NotBeNull();
-            input.Should().BeEquivalentTo(requestDto);
-        }
+        // Assert
+        input.Should().NotBeNull();
+        input.Should().BeEquivalentTo(requestDto);
+    }
 
     [Fact]
     public void UpdateQueuesInputAdapter_Adapt_WithNullArgs_ThrowsException()
     {
-            // Act
-            Action act = () => _adapter.Adapt(null);
+        // Act
+        Action act = () => _adapter.Adapt(null);
 
-            // Assert
-            act.Should().Throw<ArgumentNullException>();
-        }
+        // Assert
+        act.Should().Throw<ArgumentNullException>();
+    }
 }

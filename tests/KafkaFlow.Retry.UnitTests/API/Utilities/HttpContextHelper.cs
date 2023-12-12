@@ -30,7 +30,8 @@ internal static class HttpContextHelper
         return context;
     }
 
-    public static Mock<HttpContext> MockHttpContext(string path, string method, string contentType = "application/json", object requestBody = null)
+    public static Mock<HttpContext> MockHttpContext(string path, string method, string contentType = "application/json",
+        object requestBody = null)
     {
         var context = new Mock<HttpContext>();
 

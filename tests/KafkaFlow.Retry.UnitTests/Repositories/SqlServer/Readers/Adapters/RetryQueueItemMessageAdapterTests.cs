@@ -7,7 +7,7 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers.Adapters;
 
 public class RetryQueueItemMessageAdapterTests
 {
-    private readonly RetryQueueItemMessageAdapter _adapter = new RetryQueueItemMessageAdapter();
+    private readonly RetryQueueItemMessageAdapter _adapter = new();
 
     [Fact]
     public void RetryQueueItemMessageAdapter_Adapt_Success()

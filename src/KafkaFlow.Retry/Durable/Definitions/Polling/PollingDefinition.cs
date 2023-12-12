@@ -6,17 +6,17 @@ internal abstract class PollingDefinition
 {
     protected PollingDefinition(bool enabled, string cronExpression)
     {
-            Guard.Argument(PollingJobType, nameof(PollingJobType)).NotDefault();
+        Guard.Argument(PollingJobType, nameof(PollingJobType)).NotDefault();
 
-            if (enabled)
-            {
-                Guard.Argument(Quartz.CronExpression.IsValidExpression(cronExpression), nameof(cronExpression))
-                     .True("The cron expression that was defined is not valid");
-            }
-
-            Enabled = enabled;
-            CronExpression = cronExpression;
+        if (enabled)
+        {
+            Guard.Argument(Quartz.CronExpression.IsValidExpression(cronExpression), nameof(cronExpression))
+                .True("The cron expression that was defined is not valid");
         }
+
+        Enabled = enabled;
+        CronExpression = cronExpression;
+    }
 
     public string CronExpression { get; }
 

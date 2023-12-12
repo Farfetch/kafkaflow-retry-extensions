@@ -17,14 +17,14 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Repositories;
 
 public class RetryQueueItemRepositoryTests
 {
-    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> _collection = new Mock<IMongoCollection<RetryQueueItemDbo>>();
+    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> _collection = new();
 
-    private readonly Mock<IMongoClient> _mongoClient = new Mock<IMongoClient>();
-    private readonly Mock<IMongoDatabase> _mongoDatabase = new Mock<IMongoDatabase>();
+    private readonly Mock<IMongoClient> _mongoClient = new();
+    private readonly Mock<IMongoDatabase> _mongoDatabase = new();
     private readonly RetryQueueItemRepository _repository;
-    private readonly Mock<IAsyncCursor<RetryQueueItemDbo>> _retries = new Mock<IAsyncCursor<RetryQueueItemDbo>>();
+    private readonly Mock<IAsyncCursor<RetryQueueItemDbo>> _retries = new();
 
-    private readonly RetryQueueItemDbo _retryQueueItemDbo = new RetryQueueItemDbo
+    private readonly RetryQueueItemDbo _retryQueueItemDbo = new()
     {
         Id = Guid.NewGuid(),
         Description = "description",
@@ -57,7 +57,8 @@ public class RetryQueueItemRepositoryTests
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(_retries.Object);
 
-        _mongoDatabase.Setup(d => d.GetCollection<RetryQueueItemDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+        _mongoDatabase.Setup(d =>
+                d.GetCollection<RetryQueueItemDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
             .Returns(_collection.Object);
 
         _mongoClient.Setup(d => d.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))

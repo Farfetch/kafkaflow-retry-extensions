@@ -8,16 +8,16 @@ namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common;
 
 public class RetryQueueItemAdapterTests
 {
-    private static readonly RetryQueueItem s_retryQueueItem = new RetryQueueItem(
-        id: Guid.NewGuid(),
-        attemptsCount: 3,
-        creationDate: DateTime.UtcNow,
-        sort: 0,
-        lastExecution: DateTime.UtcNow,
-        modifiedStatusDate: DateTime.UtcNow,
-        status: RetryQueueItemStatus.Waiting,
-        severityLevel: SeverityLevel.Low,
-        description: "test");
+    private static readonly RetryQueueItem s_retryQueueItem = new(
+        Guid.NewGuid(),
+        3,
+        DateTime.UtcNow,
+        0,
+        DateTime.UtcNow,
+        DateTime.UtcNow,
+        RetryQueueItemStatus.Waiting,
+        SeverityLevel.Low,
+        "test");
 
     private readonly IRetryQueueItemAdapter _adapter = new RetryQueueItemAdapter();
 
@@ -40,12 +40,12 @@ public class RetryQueueItemAdapterTests
         var expectedGroupKey = "groupKey";
 
         s_retryQueueItem.Message = new RetryQueueItemMessage(
-            topicName: "topic",
-            key: new byte[1],
-            value: new byte[1],
-            partition: 0,
-            offset: 1,
-            utcTimeStamp: DateTime.UtcNow
+            "topic",
+            new byte[1],
+            new byte[1],
+            0,
+            1,
+            DateTime.UtcNow
         );
 
         // Act

@@ -19,20 +19,20 @@ public class RetryQueueItemMessage
         IEnumerable<MessageHeader> headers = null
     )
     {
-            Guard.Argument(topicName).NotNull().NotEmpty();
-            Guard.Argument(value).NotNull().NotEmpty();
-            Guard.Argument(partition).NotNegative();
-            Guard.Argument(offset).NotNegative();
-            Guard.Argument(utcTimeStamp).NotDefault();
+        Guard.Argument(topicName).NotNull().NotEmpty();
+        Guard.Argument(value).NotNull().NotEmpty();
+        Guard.Argument(partition).NotNegative();
+        Guard.Argument(offset).NotNegative();
+        Guard.Argument(utcTimeStamp).NotDefault();
 
-            TopicName = topicName;
-            Key = key;
-            Value = value;
-            Partition = partition;
-            Offset = offset;
-            UtcTimeStamp = utcTimeStamp;
-            Headers = headers?.ToList() ?? new List<MessageHeader>();
-        }
+        TopicName = topicName;
+        Key = key;
+        Value = value;
+        Partition = partition;
+        Offset = offset;
+        UtcTimeStamp = utcTimeStamp;
+        Headers = headers?.ToList() ?? new List<MessageHeader>();
+    }
 
     public IList<MessageHeader> Headers { get; }
 
@@ -50,6 +50,6 @@ public class RetryQueueItemMessage
 
     public void AddHeader(MessageHeader header)
     {
-            Headers.Add(header);
-        }
+        Headers.Add(header);
+    }
 }

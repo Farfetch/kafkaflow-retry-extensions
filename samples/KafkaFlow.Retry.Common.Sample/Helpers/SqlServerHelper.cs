@@ -1,9 +1,10 @@
-﻿using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace KafkaFlow.Retry.Common.Sample.Helpers;
 
@@ -11,19 +12,19 @@ public static class SqlServerHelper
 {
     public static async Task RecreateSqlSchema(string databaseName, string connectionString)
     {
-        using (SqlConnection openCon = new SqlConnection(connectionString))
+        using (var openCon = new SqlConnection(connectionString))
         {
             openCon.Open();
 
             foreach (var script in GetScriptsForSchemaCreation())
             {
-                string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                var batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, StringSplitOptions.RemoveEmptyEntries);
 
                 foreach (var batch in batches)
                 {
-                    string replacedBatch = batch.Replace("@dbname", databaseName);
+                    var replacedBatch = batch.Replace("@dbname", databaseName);
 
-                    using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
+                    using (var queryCommand = new SqlCommand(replacedBatch))
                     {
                         queryCommand.Connection = openCon;
 
@@ -36,15 +37,15 @@ public static class SqlServerHelper
 
     private static IEnumerable<string> GetScriptsForSchemaCreation()
     {
-        Assembly sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
+        var sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
         return sqlServerAssembly
             .GetManifestResourceNames()
             .OrderBy(x => x)
             .Select(script =>
             {
-                using (Stream s = sqlServerAssembly.GetManifestResourceStream(script))
+                using (var s = sqlServerAssembly.GetManifestResourceStream(script))
                 {
-                    using (StreamReader sr = new StreamReader(s))
+                    using (var sr = new StreamReader(s))
                     {
                         return sr.ReadToEnd();
                     }

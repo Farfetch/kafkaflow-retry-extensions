@@ -5,7 +5,7 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 
 public class MongoDbDataProviderFactoryTests
 {
-    private readonly MongoDbDataProviderFactory _mongoDbDataProviderFactory = new MongoDbDataProviderFactory();
+    private readonly MongoDbDataProviderFactory _mongoDbDataProviderFactory = new();
 
     [Fact]
     public void MongoDbDataProviderFactory_TryCreate_ReturnsDataProviderCreationResult()

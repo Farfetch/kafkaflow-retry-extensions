@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,13 +20,13 @@ internal class PostgresRepository : IRepository
 {
     private const int TimeoutSec = 60;
     private readonly ConnectionProvider _connectionProvider;
+    private readonly PostgresDbSettings _postgresDbSettings;
 
     private readonly IRetryQueueItemMessageHeaderRepository _retryQueueItemMessageHeaderRepository;
     private readonly IRetryQueueItemMessageRepository _retryQueueItemMessageRepository;
     private readonly IRetryQueueItemRepository _retryQueueItemRepository;
     private readonly RetryQueueReader _retryQueueReader;
     private readonly IRetryQueueRepository _retryQueueRepository;
-    private readonly PostgresDbSettings _postgresDbSettings;
 
     public PostgresRepository(
         string connectionString,
@@ -58,7 +59,7 @@ internal class PostgresRepository : IRepository
     {
         using var dbConnection = _connectionProvider.Create(_postgresDbSettings);
         using var command = dbConnection.CreateCommand();
-        command.CommandType = System.Data.CommandType.Text;
+        command.CommandType = CommandType.Text;
         command.CommandText = @"
                     delete from retry_item_message_headers;
                     delete from item_messages;
@@ -77,7 +78,7 @@ internal class PostgresRepository : IRepository
             LastExecution = queue.LastExecution,
             QueueGroupKey = queue.QueueGroupKey,
             SearchGroupKey = queue.SearchGroupKey,
-            Status = queue.Status,
+            Status = queue.Status
         };
 
         using var dbConnection = _connectionProvider.CreateWithinTransaction(_postgresDbSettings);
@@ -143,9 +144,12 @@ internal class PostgresRepository : IRepository
                 return null;
             }
 
-            var retryQueueItemsDbo = await _retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
-            var itemMessagesDbo = await _retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
-            var messageHeadersDbo = await _retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
+            var retryQueueItemsDbo =
+                await _retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
+            var itemMessagesDbo =
+                await _retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
+            var messageHeadersDbo =
+                await _retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
 
             var dboWrapper = new RetryQueuesDboWrapper
             {
@@ -162,7 +166,7 @@ internal class PostgresRepository : IRepository
     public async Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey)
     {
         var start = DateTime.Now;
-        Guid retryQueueId = Guid.Empty;
+        var retryQueueId = Guid.Empty;
         RetryQueue retryQueue;
         do
         {
@@ -176,8 +180,9 @@ internal class PostgresRepository : IRepository
             using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
-                command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
+                command.CommandType = CommandType.Text;
+                command.CommandText =
+                    @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
                                 FROM retry_queues
                                 WHERE QueueGroupKey LIKE '%'||@QueueGroupKey
                                 ORDER BY Id";
@@ -195,7 +200,8 @@ internal class PostgresRepository : IRepository
         return retryQueue;
     }
 
-    public async Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItem>, bool> stopCondition)
+    public async Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId,
+        Func<IList<RetryQueueItem>, bool> stopCondition)
     {
         var start = DateTime.Now;
         IList<RetryQueueItem> retryQueueItems = null;
@@ -211,7 +217,7 @@ internal class PostgresRepository : IRepository
             using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
-                command.CommandType = System.Data.CommandType.Text;
+                command.CommandType = CommandType.Text;
                 command.CommandText = @"SELECT *
                                 FROM retry_queue_items
                                 WHERE IdDomainRetryQueue = @IdDomainRetryQueue
@@ -276,8 +282,8 @@ internal class PostgresRepository : IRepository
             reader.GetInt32(reader.GetOrdinal("AttemptsCount")),
             reader.GetDateTime(reader.GetOrdinal("CreationDate")),
             reader.GetInt32(reader.GetOrdinal("Sort")),
-            reader.IsDBNull(lastExecutionOrdinal) ? null : (DateTime?)reader.GetDateTime(lastExecutionOrdinal),
-            reader.IsDBNull(modifiedStatusDateOrdinal) ? null : (DateTime?)reader.GetDateTime(modifiedStatusDateOrdinal),
+            reader.IsDBNull(lastExecutionOrdinal) ? null : reader.GetDateTime(lastExecutionOrdinal),
+            reader.IsDBNull(modifiedStatusDateOrdinal) ? null : reader.GetDateTime(modifiedStatusDateOrdinal),
             (RetryQueueItemStatus)reader.GetByte(reader.GetOrdinal("IdItemStatus")),
             (SeverityLevel)reader.GetByte(reader.GetOrdinal("IdSeverityLevel")),
             reader.IsDBNull(descriptionOrdinal) ? null : reader.GetString(descriptionOrdinal)

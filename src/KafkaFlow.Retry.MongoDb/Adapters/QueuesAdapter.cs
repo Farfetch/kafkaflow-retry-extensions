@@ -14,41 +14,41 @@ internal class QueuesAdapter : IQueuesAdapter
 
     public QueuesAdapter(IItemAdapter itemAdapter)
     {
-            Guard.Argument(itemAdapter, nameof(itemAdapter)).NotNull();
+        Guard.Argument(itemAdapter, nameof(itemAdapter)).NotNull();
 
-            _itemAdapter = itemAdapter;
-        }
+        _itemAdapter = itemAdapter;
+    }
 
     public IEnumerable<RetryQueue> Adapt(IEnumerable<RetryQueueDbo> queuesDbo, IEnumerable<RetryQueueItemDbo> itemsDbo)
     {
-            var queuesDictionary = new Dictionary<Guid, RetryQueue>
+        var queuesDictionary = new Dictionary<Guid, RetryQueue>
+        (
+            queuesDbo.ToDictionary
             (
-                queuesDbo.ToDictionary
-                (
-                    queueDbo => queueDbo.Id,
-                    queueDbo => Adapt(queueDbo)
-                )
-            );
+                queueDbo => queueDbo.Id,
+                queueDbo => Adapt(queueDbo)
+            )
+        );
 
-            foreach (var itemDbo in itemsDbo)
-            {
-                Guard.Argument(queuesDictionary.ContainsKey(itemDbo.RetryQueueId), nameof(itemDbo.RetryQueueId))
-                     .True($"{nameof(itemDbo.RetryQueueId)} not found in queues list.");
+        foreach (var itemDbo in itemsDbo)
+        {
+            Guard.Argument(queuesDictionary.ContainsKey(itemDbo.RetryQueueId), nameof(itemDbo.RetryQueueId))
+                .True($"{nameof(itemDbo.RetryQueueId)} not found in queues list.");
 
-                queuesDictionary[itemDbo.RetryQueueId].AddItem(_itemAdapter.Adapt(itemDbo));
-            }
-
-            return queuesDictionary.Values;
+            queuesDictionary[itemDbo.RetryQueueId].AddItem(_itemAdapter.Adapt(itemDbo));
         }
+
+        return queuesDictionary.Values;
+    }
 
     private RetryQueue Adapt(RetryQueueDbo queueDbo)
     {
-            return new RetryQueue(
-                queueDbo.Id,
-                queueDbo.SearchGroupKey,
-                queueDbo.QueueGroupKey,
-                queueDbo.CreationDate,
-                queueDbo.LastExecution,
-                queueDbo.Status);
-        }
+        return new RetryQueue(
+            queueDbo.Id,
+            queueDbo.SearchGroupKey,
+            queueDbo.QueueGroupKey,
+            queueDbo.CreationDate,
+            queueDbo.LastExecution,
+            queueDbo.Status);
+    }
 }

@@ -9,11 +9,11 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories;
 
 public class RetryQueueItemMessageHeaderDboFactoryTests
 {
-    private readonly RetryQueueItemMessageHeaderDboFactory _factory = new RetryQueueItemMessageHeaderDboFactory();
+    private readonly RetryQueueItemMessageHeaderDboFactory _factory = new();
 
     private readonly IEnumerable<MessageHeader> _headers = new List<MessageHeader>
     {
-        new MessageHeader("key", new byte[1])
+        new("key", new byte[1])
     };
 
     [Fact]

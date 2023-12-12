@@ -12,7 +12,10 @@ internal class GetItemsRequestDtoReader : IGetItemsRequestDtoReader
 {
     private const int DefaultTopItemsByQueueValue = 100;
     private const int DefaultTopQueuesValue = 10000;
-    private readonly IEnumerable<RetryQueueItemStatus> _defaultItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
+
+    private readonly IEnumerable<RetryQueueItemStatus> _defaultItemsStatuses =
+        new[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
+
     private readonly IEnumerable<SeverityLevel> _defaultSeverityLevels = Enumerable.Empty<SeverityLevel>();
 
     private readonly EnumParser<SeverityLevel> _severitiesParser;
@@ -31,12 +34,16 @@ internal class GetItemsRequestDtoReader : IGetItemsRequestDtoReader
         var topQueues = request.ReadQueryParams("topqueues");
         var topItemsByQueue = request.ReadQueryParams("topitemsbyqueue");
 
-        return new GetItemsRequestDto()
+        return new GetItemsRequestDto
         {
             ItemsStatuses = _statusesParser.Parse(statusIds, _defaultItemsStatuses),
             SeverityLevels = _severitiesParser.Parse(severityIds, _defaultSeverityLevels),
-            TopQueues = int.TryParse(topQueues.LastOrDefault(), out int parsedTopQueues) ? parsedTopQueues : DefaultTopQueuesValue,
-            TopItemsByQueue = int.TryParse(topItemsByQueue.LastOrDefault(), out int parsedTopItemsByQueue) ? parsedTopItemsByQueue : DefaultTopItemsByQueueValue
+            TopQueues = int.TryParse(topQueues.LastOrDefault(), out var parsedTopQueues)
+                ? parsedTopQueues
+                : DefaultTopQueuesValue,
+            TopItemsByQueue = int.TryParse(topItemsByQueue.LastOrDefault(), out var parsedTopItemsByQueue)
+                ? parsedTopItemsByQueue
+                : DefaultTopItemsByQueueValue
         };
     }
 }

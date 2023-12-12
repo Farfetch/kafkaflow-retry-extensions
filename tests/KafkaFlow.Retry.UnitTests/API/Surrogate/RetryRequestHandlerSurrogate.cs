@@ -7,7 +7,6 @@ namespace KafkaFlow.Retry.UnitTests.API.Surrogate;
 
 internal class RetryRequestHandlerSurrogate : RetryRequestHandlerBase
 {
-
     public RetryRequestHandlerSurrogate(string endpointPrefix, string resource) : base(endpointPrefix, resource)
     {
     }

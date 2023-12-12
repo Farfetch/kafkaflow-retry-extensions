@@ -15,60 +15,62 @@ public class PollingDefinitionsAggregatorBuilder
 
     public PollingDefinitionsAggregatorBuilder()
     {
-            _cleanupPollingDefinitionBuilder = new CleanupPollingDefinitionBuilder();
-            _retryDurablePollingDefinitionBuilder = new RetryDurablePollingDefinitionBuilder();
+        _cleanupPollingDefinitionBuilder = new CleanupPollingDefinitionBuilder();
+        _retryDurablePollingDefinitionBuilder = new RetryDurablePollingDefinitionBuilder();
 
-            _pollingDefinitions = new List<PollingDefinition>();
-        }
+        _pollingDefinitions = new List<PollingDefinition>();
+    }
 
-    public PollingDefinitionsAggregatorBuilder WithCleanupPollingConfiguration(Action<CleanupPollingDefinitionBuilder> configure)
+    public PollingDefinitionsAggregatorBuilder WithCleanupPollingConfiguration(
+        Action<CleanupPollingDefinitionBuilder> configure)
     {
-            Guard.Argument(configure, nameof(configure)).NotNull();
+        Guard.Argument(configure, nameof(configure)).NotNull();
 
-            configure(_cleanupPollingDefinitionBuilder);
-            var cleanupPollingDefinition = _cleanupPollingDefinitionBuilder.Build();
+        configure(_cleanupPollingDefinitionBuilder);
+        var cleanupPollingDefinition = _cleanupPollingDefinitionBuilder.Build();
 
-            _pollingDefinitions.Add(cleanupPollingDefinition);
+        _pollingDefinitions.Add(cleanupPollingDefinition);
 
-            return this;
-        }
+        return this;
+    }
 
-    public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(Action<RetryDurablePollingDefinitionBuilder> configure)
+    public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(
+        Action<RetryDurablePollingDefinitionBuilder> configure)
     {
-            Guard.Argument(configure, nameof(configure)).NotNull();
+        Guard.Argument(configure, nameof(configure)).NotNull();
 
-            configure(_retryDurablePollingDefinitionBuilder);
-            var retryDurablepollingDefinition = _retryDurablePollingDefinitionBuilder.Build();
+        configure(_retryDurablePollingDefinitionBuilder);
+        var retryDurablepollingDefinition = _retryDurablePollingDefinitionBuilder.Build();
 
-            _pollingDefinitions.Add(retryDurablepollingDefinition);
+        _pollingDefinitions.Add(retryDurablepollingDefinition);
 
-            return this;
-        }
+        return this;
+    }
 
     public PollingDefinitionsAggregatorBuilder WithSchedulerId(string schedulerId)
     {
-            _schedulerId = schedulerId;
-            return this;
-        }
+        _schedulerId = schedulerId;
+        return this;
+    }
 
     internal PollingDefinitionsAggregator Build()
     {
-            if (_retryDurablePollingDefinitionBuilder.Required)
-            {
-                ValidateRequiredPollingDefinition(PollingJobType.RetryDurable);
-            }
-
-            if (_cleanupPollingDefinitionBuilder.Required)
-            {
-                ValidateRequiredPollingDefinition(PollingJobType.Cleanup);
-            }
-
-            return new PollingDefinitionsAggregator(_schedulerId, _pollingDefinitions);
+        if (_retryDurablePollingDefinitionBuilder.Required)
+        {
+            ValidateRequiredPollingDefinition(PollingJobType.RetryDurable);
         }
+
+        if (_cleanupPollingDefinitionBuilder.Required)
+        {
+            ValidateRequiredPollingDefinition(PollingJobType.Cleanup);
+        }
+
+        return new PollingDefinitionsAggregator(_schedulerId, _pollingDefinitions);
+    }
 
     private void ValidateRequiredPollingDefinition(PollingJobType pollingJobType)
     {
-            Guard.Argument(_pollingDefinitions.Any(pd => pd.PollingJobType == pollingJobType), nameof(_pollingDefinitions))
-                 .True($"The polling job {pollingJobType} must be defined.");
-        }
+        Guard.Argument(_pollingDefinitions.Any(pd => pd.PollingJobType == pollingJobType), nameof(_pollingDefinitions))
+            .True($"The polling job {pollingJobType} must be defined.");
+    }
 }

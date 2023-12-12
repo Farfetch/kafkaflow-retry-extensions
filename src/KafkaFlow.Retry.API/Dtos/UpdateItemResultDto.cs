@@ -7,9 +7,9 @@ public class UpdateItemResultDto
 {
     public UpdateItemResultDto(Guid itemId, UpdateItemResultStatus value)
     {
-            ItemId = itemId;
-            Result = value.ToString();
-        }
+        ItemId = itemId;
+        Result = value.ToString();
+    }
 
     public Guid ItemId { get; set; }
 

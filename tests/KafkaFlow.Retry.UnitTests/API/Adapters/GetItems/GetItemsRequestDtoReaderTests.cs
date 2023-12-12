@@ -12,7 +12,10 @@ public class GetItemsRequestDtoReaderTests
 {
     private const int DefaultTopItemsByQueueValue = 100;
     private const int DefaultTopQueuesValue = 10000;
-    private readonly IEnumerable<RetryQueueItemStatus> _defaultItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
+
+    private readonly IEnumerable<RetryQueueItemStatus> _defaultItemsStatuses =
+        new[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
+
     private readonly IEnumerable<SeverityLevel> _defaultSeverityLevels = Enumerable.Empty<SeverityLevel>();
     private readonly string _httpMethod = "GET";
     private readonly IGetItemsRequestDtoReader _reader = new GetItemsRequestDtoReader();

@@ -17,7 +17,8 @@ public sealed class MongoDbDataProviderFactory
     public DataProviderCreationResult TryCreate(MongoDbSettings mongoDbSettings)
     {
         Guard.Argument(mongoDbSettings)
-            .NotNull($"It is mandatory to configure the factory before creating new instances of {nameof(IRetryDurableQueueRepositoryProvider)}. Make sure the Config method is executed before the Create method.");
+            .NotNull(
+                $"It is mandatory to configure the factory before creating new instances of {nameof(IRetryDurableQueueRepositoryProvider)}. Make sure the Config method is executed before the Create method.");
         try
         {
             var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);

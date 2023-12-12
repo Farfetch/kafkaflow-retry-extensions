@@ -9,9 +9,9 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories;
 
 public class RetryQueueItemDboFactoryTests
 {
-    private readonly RetryQueueItemDboFactory _factory = new RetryQueueItemDboFactory();
+    private readonly RetryQueueItemDboFactory _factory = new();
 
-    private readonly SaveToQueueInput _saveToQueueInput = new SaveToQueueInput(
+    private readonly SaveToQueueInput _saveToQueueInput = new(
         new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow),
         "searchGroupKey",
         "queueGroupKey",

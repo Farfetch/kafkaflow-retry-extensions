@@ -9,20 +9,21 @@ internal class NewtonsoftJsonSerializer : INewtonsoftJsonSerializer
 
     public NewtonsoftJsonSerializer()
         : this(new JsonSerializerSettings())
-    { }
+    {
+    }
 
     public NewtonsoftJsonSerializer(JsonSerializerSettings jsonSerializerSettings)
     {
-            _jsonSerializerSettings = jsonSerializerSettings;
-        }
+        _jsonSerializerSettings = jsonSerializerSettings;
+    }
 
     public object DeserializeObject(string data, Type type)
     {
-            return JsonConvert.DeserializeObject(data, type, _jsonSerializerSettings);
-        }
+        return JsonConvert.DeserializeObject(data, type, _jsonSerializerSettings);
+    }
 
     public string SerializeObject(object data)
     {
-            return JsonConvert.SerializeObject(data, _jsonSerializerSettings);
-        }
+        return JsonConvert.SerializeObject(data, _jsonSerializerSettings);
+    }
 }

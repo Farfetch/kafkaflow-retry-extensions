@@ -8,14 +8,14 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages;
 
 internal class RetryQueueItemBuilder
 {
-    public static readonly RetryQueueItemMessage DefaultItemMessage = new RetryQueueItemMessage(
+    public static readonly RetryQueueItemMessage DefaultItemMessage = new(
         "DefaultTopicNameForTests",
         new byte[1],
         new byte[2],
         0,
         0,
         RetryQueueBuilder.DefaultDateTime,
-        new List<MessageHeader> { new MessageHeader("headerKey1", new byte[3]) }
+        new List<MessageHeader> { new("headerKey1", new byte[3]) }
     );
 
     private readonly int _attemptsCount;
@@ -25,7 +25,7 @@ internal class RetryQueueItemBuilder
     private readonly RetryQueueBuilder _retryQueueBuilder;
     private readonly int _sort;
     private Guid _id;
-    private DateTime? _lastExecution;
+    private readonly DateTime? _lastExecution;
     private DateTime? _modifiedStatusDate;
     private SeverityLevel _severityLevel;
     private RetryQueueItemStatus _status;

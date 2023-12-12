@@ -8,14 +8,17 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable;
 
 public class RetryDurableMiddlewareTests
 {
-    public static IEnumerable<object[]> DataTest() => new List<object[]>
+    public static IEnumerable<object[]> DataTest()
     {
-        new object[]
+        return new List<object[]>
         {
-            Mock.Of<ILogHandler>(),
-            null
-        }
-    };
+            new object[]
+            {
+                Mock.Of<ILogHandler>(),
+                null
+            }
+        };
+    }
 
     [Theory]
     [MemberData(nameof(DataTest))]

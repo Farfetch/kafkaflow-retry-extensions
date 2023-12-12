@@ -11,12 +11,12 @@ internal class RetryDurablePollingDefinition : PollingDefinition
         int expirationIntervalFactor)
         : base(enabled, cronExpression)
     {
-            Guard.Argument(fetchSize, nameof(fetchSize)).Positive();
-            Guard.Argument(expirationIntervalFactor, nameof(expirationIntervalFactor)).Positive();
+        Guard.Argument(fetchSize, nameof(fetchSize)).Positive();
+        Guard.Argument(expirationIntervalFactor, nameof(expirationIntervalFactor)).Positive();
 
-            FetchSize = fetchSize;
-            ExpirationIntervalFactor = expirationIntervalFactor;
-        }
+        FetchSize = fetchSize;
+        ExpirationIntervalFactor = expirationIntervalFactor;
+    }
 
     public int ExpirationIntervalFactor { get; }
 

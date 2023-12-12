@@ -7,7 +7,8 @@ namespace KafkaFlow.Retry.IntegrationTests.PollingTests;
 
 internal class JobDataProviderSurrogate : IJobDataProvider
 {
-    public JobDataProviderSurrogate(string schedulerId, PollingDefinition pollingDefinition, ITrigger trigger, List<IJobExecutionContext> jobExecutionContexts)
+    public JobDataProviderSurrogate(string schedulerId, PollingDefinition pollingDefinition, ITrigger trigger,
+        List<IJobExecutionContext> jobExecutionContexts)
     {
         PollingDefinition = pollingDefinition;
 
@@ -18,15 +19,15 @@ internal class JobDataProviderSurrogate : IJobDataProvider
         JobDetail = CreateJobDetail();
     }
 
-    public IJobDetail JobDetail { get; }
-
     public List<IJobExecutionContext> JobExecutionContexts { get; }
+
+    public string TriggerName { get; }
+
+    public IJobDetail JobDetail { get; }
 
     public PollingDefinition PollingDefinition { get; }
 
     public ITrigger Trigger { get; }
-
-    public string TriggerName { get; }
 
     private IJobDetail CreateJobDetail()
     {

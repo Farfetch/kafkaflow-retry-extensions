@@ -7,6 +7,4 @@ internal interface IRepositoryProvider
     IEnumerable<IRepository> GetAllRepositories();
 
     IRepository GetRepositoryOfType(RepositoryType repositoryType);
-
-       
 }

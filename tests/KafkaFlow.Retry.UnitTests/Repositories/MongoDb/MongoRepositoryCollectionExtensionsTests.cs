@@ -14,12 +14,12 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 
 public class MongoRepositoryCollectionExtensionsTests
 {
-    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> _collection = new Mock<IMongoCollection<RetryQueueItemDbo>>();
-    private readonly Mock<IAsyncCursor<RetryQueueItemDbo>> _retries = new Mock<IAsyncCursor<RetryQueueItemDbo>>();
+    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> _collection = new();
+    private readonly Mock<IAsyncCursor<RetryQueueItemDbo>> _retries = new();
 
     private readonly IEnumerable<RetryQueueItemDbo> _retryQueueItemDbos = new List<RetryQueueItemDbo>
     {
-        new RetryQueueItemDbo
+        new()
         {
             Id = Guid.NewGuid(),
             Description = "description",

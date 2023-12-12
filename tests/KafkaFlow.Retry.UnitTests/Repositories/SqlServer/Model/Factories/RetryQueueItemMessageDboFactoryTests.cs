@@ -7,8 +7,10 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Factories;
 
 public class RetryQueueItemMessageDboFactoryTests
 {
-    private readonly RetryQueueItemMessageDboFactory _factory = new RetryQueueItemMessageDboFactory();
-    private readonly RetryQueueItemMessage _message = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
+    private readonly RetryQueueItemMessageDboFactory _factory = new();
+
+    private readonly RetryQueueItemMessage _message = new("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3,
+        21, DateTime.UtcNow);
 
     [Fact]
     public void RetryQueueItemMessageDboFactory_Create_Success()

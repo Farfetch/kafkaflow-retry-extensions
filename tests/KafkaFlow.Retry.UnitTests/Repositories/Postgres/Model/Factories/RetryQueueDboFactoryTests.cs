@@ -9,7 +9,7 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories;
 
 public class RetryQueueDboFactoryTests
 {
-    private readonly RetryQueueDboFactory _factory = new RetryQueueDboFactory();
+    private readonly RetryQueueDboFactory _factory = new();
 
     [Fact]
     public void RetryQueueDboFactory_Create_Success()

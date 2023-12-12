@@ -8,8 +8,8 @@ public class UpdateQueuesResult
 {
     public UpdateQueuesResult(IEnumerable<UpdateQueueResult> results)
     {
-            Results = results ?? new List<UpdateQueueResult>();
-        }
+        Results = results ?? new List<UpdateQueueResult>();
+    }
 
     public IEnumerable<UpdateQueueResult> Results { get; }
 }

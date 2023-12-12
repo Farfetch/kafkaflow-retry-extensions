@@ -8,7 +8,7 @@ internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
 {
     private readonly IDboDomainAdapter<TDbo, TDomain> _dboDomainAdapter;
     private readonly IList<TDbo> _dbos;
-    private int _currentIndex = 0;
+    private int _currentIndex;
 
     public DboCollectionNavigator(IList<TDbo> dbos, IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter)
     {
@@ -45,7 +45,5 @@ internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
 
             _currentIndex++;
         }
-
-        return;
     }
 }

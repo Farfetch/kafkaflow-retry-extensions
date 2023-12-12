@@ -9,12 +9,12 @@ public class CheckQueueInput
 {
     public CheckQueueInput(RetryQueueItemMessage message, string queueGroupKey)
     {
-            Guard.Argument(message).NotNull();
-            Guard.Argument(queueGroupKey).NotNull().NotEmpty();
+        Guard.Argument(message).NotNull();
+        Guard.Argument(queueGroupKey).NotNull().NotEmpty();
 
-            Message = message;
-            QueueGroupKey = queueGroupKey;
-        }
+        Message = message;
+        QueueGroupKey = queueGroupKey;
+    }
 
     public RetryQueueItemMessage Message { get; }
 

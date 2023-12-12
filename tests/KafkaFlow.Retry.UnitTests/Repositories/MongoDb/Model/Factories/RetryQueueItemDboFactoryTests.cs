@@ -12,9 +12,9 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Model.Factories;
 public class RetryQueueItemDboFactoryTests
 {
     private readonly RetryQueueItemDboFactory _factory;
-    private readonly Mock<IMessageAdapter> _messageAdapter = new Mock<IMessageAdapter>();
+    private readonly Mock<IMessageAdapter> _messageAdapter = new();
 
-    private readonly SaveToQueueInput _saveToQueueInput = new SaveToQueueInput(
+    private readonly SaveToQueueInput _saveToQueueInput = new(
         new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow),
         "searchGroupKey",
         "queueGroupKey",
@@ -29,7 +29,8 @@ public class RetryQueueItemDboFactoryTests
 
     public RetryQueueItemDboFactoryTests()
     {
-        var retryQueueItemMessage = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
+        var retryQueueItemMessage = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 },
+            3, 21, DateTime.UtcNow);
         _messageAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>())).Returns(retryQueueItemMessage);
         _factory = new RetryQueueItemDboFactory(_messageAdapter.Object);
     }

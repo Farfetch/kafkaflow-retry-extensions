@@ -11,23 +11,23 @@ public class RetryDurablePollingDefinitionBuilder : PollingDefinitionBuilder<Ret
 
     public RetryDurablePollingDefinitionBuilder WithExpirationIntervalFactor(int expirationIntervalFactor)
     {
-            ExpirationIntervalFactor = expirationIntervalFactor;
-            return this;
-        }
+        ExpirationIntervalFactor = expirationIntervalFactor;
+        return this;
+    }
 
     public RetryDurablePollingDefinitionBuilder WithFetchSize(int fetchSize)
     {
-            FetchSize = fetchSize;
-            return this;
-        }
+        FetchSize = fetchSize;
+        return this;
+    }
 
     internal RetryDurablePollingDefinition Build()
     {
-            return new RetryDurablePollingDefinition(
-                IsEnabled,
-                CronExpression,
-                FetchSize,
-                ExpirationIntervalFactor
-            );
-        }
+        return new RetryDurablePollingDefinition(
+            IsEnabled,
+            CronExpression,
+            FetchSize,
+            ExpirationIntervalFactor
+        );
+    }
 }

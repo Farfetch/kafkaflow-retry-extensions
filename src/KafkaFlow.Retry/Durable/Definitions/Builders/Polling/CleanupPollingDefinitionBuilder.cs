@@ -11,23 +11,23 @@ public class CleanupPollingDefinitionBuilder : PollingDefinitionBuilder<CleanupP
 
     public CleanupPollingDefinitionBuilder WithRowsPerRequest(int rowsPerRequest)
     {
-            _rowsPerRequest = rowsPerRequest;
-            return this;
-        }
+        _rowsPerRequest = rowsPerRequest;
+        return this;
+    }
 
     public CleanupPollingDefinitionBuilder WithTimeToLiveInDays(int timeToLiveInDays)
     {
-            _timeToLiveInDays = timeToLiveInDays;
-            return this;
-        }
+        _timeToLiveInDays = timeToLiveInDays;
+        return this;
+    }
 
     internal CleanupPollingDefinition Build()
     {
-            return new CleanupPollingDefinition(
-                IsEnabled,
-                CronExpression,
-                _timeToLiveInDays,
-                _rowsPerRequest
-            );
-        }
+        return new CleanupPollingDefinition(
+            IsEnabled,
+            CronExpression,
+            _timeToLiveInDays,
+            _rowsPerRequest
+        );
+    }
 }

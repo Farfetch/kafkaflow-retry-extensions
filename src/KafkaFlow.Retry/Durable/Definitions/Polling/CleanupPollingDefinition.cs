@@ -11,15 +11,15 @@ internal class CleanupPollingDefinition : PollingDefinition
         int rowsPerRequest)
         : base(enabled, cronExpression)
     {
-            if (enabled)
-            {
-                Guard.Argument(timeToLiveInDays, nameof(timeToLiveInDays)).Positive();
-                Guard.Argument(rowsPerRequest, nameof(rowsPerRequest)).Positive();
-            }
-
-            TimeToLiveInDays = timeToLiveInDays;
-            RowsPerRequest = rowsPerRequest;
+        if (enabled)
+        {
+            Guard.Argument(timeToLiveInDays, nameof(timeToLiveInDays)).Positive();
+            Guard.Argument(rowsPerRequest, nameof(rowsPerRequest)).Positive();
         }
+
+        TimeToLiveInDays = timeToLiveInDays;
+        RowsPerRequest = rowsPerRequest;
+    }
 
     public override PollingJobType PollingJobType => PollingJobType.Cleanup;
 

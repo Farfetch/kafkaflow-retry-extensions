@@ -18,7 +18,7 @@ public class CleanupPollingDefinitionTests
     {
         // Act
         Action act = () => new CleanupPollingDefinition(
-            enabled: true,
+            true,
             cronExpression,
             timeToLiveInDays,
             rowsPerRequest);
@@ -39,7 +39,7 @@ public class CleanupPollingDefinitionTests
     {
         // Act
         var actualPollingDefinition = new CleanupPollingDefinition(
-            enabled: false,
+            false,
             cronExpression,
             timeToLiveInDays,
             rowsPerRequest);

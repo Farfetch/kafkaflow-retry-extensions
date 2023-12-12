@@ -9,24 +9,24 @@ internal class EnumParser<T> : IQueryParametersParser<T> where T : struct
 {
     public IEnumerable<T> Parse(IEnumerable<string> parameters, IEnumerable<T> defaultValue)
     {
-            Guard.Argument(parameters, nameof(parameters)).NotNull();
-            Guard.Argument(defaultValue, nameof(defaultValue)).NotNull();
+        Guard.Argument(parameters, nameof(parameters)).NotNull();
+        Guard.Argument(defaultValue, nameof(defaultValue)).NotNull();
 
-            var items = new List<T>();
+        var items = new List<T>();
 
-            if (parameters.Any())
+        if (parameters.Any())
+        {
+            foreach (var param in parameters)
             {
-                foreach (var param in parameters)
+                if (Enum.TryParse<T>(param, out var item))
                 {
-                    if (Enum.TryParse<T>(param, out var item))
-                    {
-                        items.Add(item);
-                    }
+                    items.Add(item);
                 }
-
-                return items;
             }
 
-            return defaultValue;
+            return items;
         }
+
+        return defaultValue;
+    }
 }

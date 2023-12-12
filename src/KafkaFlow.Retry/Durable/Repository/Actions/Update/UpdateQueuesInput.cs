@@ -10,12 +10,12 @@ public class UpdateQueuesInput
 {
     public UpdateQueuesInput(IEnumerable<string> queueGroupKeys, RetryQueueItemStatus status)
     {
-            Guard.Argument(queueGroupKeys).NotNull().NotEmpty();
-            Guard.Argument(status).NotDefault();
+        Guard.Argument(queueGroupKeys).NotNull().NotEmpty();
+        Guard.Argument(status).NotDefault();
 
-            QueueGroupKeys = queueGroupKeys;
-            ItemStatus = status;
-        }
+        QueueGroupKeys = queueGroupKeys;
+        ItemStatus = status;
+    }
 
     public RetryQueueItemStatus ItemStatus { get; }
 

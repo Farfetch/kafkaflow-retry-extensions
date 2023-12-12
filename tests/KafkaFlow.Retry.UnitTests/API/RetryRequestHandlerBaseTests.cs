@@ -1,10 +1,12 @@
 ﻿using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.UnitTests.API.Surrogate;
 using KafkaFlow.Retry.UnitTests.API.Utilities;
 using Microsoft.AspNetCore.Http;
 using Moq;
+using Newtonsoft.Json;
 
 namespace KafkaFlow.Retry.UnitTests.API;
 
@@ -19,7 +21,7 @@ public class RetryRequestHandlerBaseTests
         // Arrange
         var dto = new DtoSurrogate
         {
-            Text = Durable.Repository.Model.RetryQueueStatus.Active
+            Text = RetryQueueStatus.Active
         };
 
         var mockHttpContext = HttpContextHelper.MockHttpContext(ResourcePath, HttpMethod, requestBody: dto);
@@ -28,7 +30,8 @@ public class RetryRequestHandlerBaseTests
         string actualValue = null;
 
         httpResponse
-            .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .Setup(_ => _.Body.WriteAsync(It.IsAny<byte[]>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<CancellationToken>()))
             .Callback((byte[] data, int _, int length, CancellationToken cancellation) =>
             {
                 if (length > 0 && !cancellation.IsCancellationRequested)
@@ -49,7 +52,7 @@ public class RetryRequestHandlerBaseTests
 
         // Assert
         result.Should().BeTrue();
-        Assert.Equal(Newtonsoft.Json.JsonConvert.SerializeObject(dto), actualValue);
+        Assert.Equal(JsonConvert.SerializeObject(dto), actualValue);
     }
 
     [Fact]

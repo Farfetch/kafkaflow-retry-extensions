@@ -14,7 +14,7 @@ public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
     public CheckQueuePendingItemsTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
         : base(bootstrapperRepositoryFixture)
     {
-        }
+    }
 
     [Theory]
     [InlineData(RepositoryType.SqlServer)]
@@ -22,29 +22,29 @@ public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     public async Task CheckQueuePendingItemsAsync_QueueWithOneItem_ReturnsNoPendingItems(RepositoryType repositoryType)
     {
-            // Arrange
-            var repository = GetRepository(repositoryType);
+        // Arrange
+        var repository = GetRepository(repositoryType);
 
-            var expectedResultStatus = QueuePendingItemsResultStatus.NoPendingItems;
+        var expectedResultStatus = QueuePendingItemsResultStatus.NoPendingItems;
 
-            var queue = GetDefaultQueue();
-            var item = queue.Items.Single();
+        var queue = GetDefaultQueue();
+        var item = queue.Items.Single();
 
-            await repository.CreateQueueAsync(queue);
+        await repository.CreateQueueAsync(queue);
 
-            var input = new QueuePendingItemsInput(
-              queue.Id,
-              item.Id,
-              item.Sort
-              );
+        var input = new QueuePendingItemsInput(
+            queue.Id,
+            item.Id,
+            item.Sort
+        );
 
-            // Act
-            var result = await repository.RetryQueueDataProvider.CheckQueuePendingItemsAsync(input);
+        // Act
+        var result = await repository.RetryQueueDataProvider.CheckQueuePendingItemsAsync(input);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Status.Should().Be(expectedResultStatus);
-        }
+        // Assert
+        result.Should().NotBeNull();
+        result.Status.Should().Be(expectedResultStatus);
+    }
 
     [Theory]
     [InlineData(RepositoryType.MongoDb, QueuePendingItemsResultStatus.NoPendingItems, RetryQueueItemStatus.Done)]
@@ -64,33 +64,33 @@ public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
         QueuePendingItemsResultStatus expectedResultStatus,
         RetryQueueItemStatus firstItemStatus)
     {
-            // Arrange
-            var repository = GetRepository(repositoryType);
+        // Arrange
+        var repository = GetRepository(repositoryType);
 
-            var queue = new RetryQueueBuilder()
-                .CreateItem()
-                    .WithStatus(firstItemStatus)
-                    .AddItem()
-                .CreateItem()
-                    .WithWaitingStatus()
-                    .AddItem()
-                .Build();
+        var queue = new RetryQueueBuilder()
+            .CreateItem()
+            .WithStatus(firstItemStatus)
+            .AddItem()
+            .CreateItem()
+            .WithWaitingStatus()
+            .AddItem()
+            .Build();
 
-            await repository.CreateQueueAsync(queue);
+        await repository.CreateQueueAsync(queue);
 
-            var item = GetQueueLastItem(queue);
+        var item = GetQueueLastItem(queue);
 
-            var input = new QueuePendingItemsInput(
-                queue.Id,
-                item.Id,
-                item.Sort
-                );
+        var input = new QueuePendingItemsInput(
+            queue.Id,
+            item.Id,
+            item.Sort
+        );
 
-            // Act
-            var result = await repository.RetryQueueDataProvider.CheckQueuePendingItemsAsync(input);
+        // Act
+        var result = await repository.RetryQueueDataProvider.CheckQueuePendingItemsAsync(input);
 
-            // Assert
-            result.Should().NotBeNull();
-            result.Status.Should().Be(expectedResultStatus);
-        }
+        // Assert
+        result.Should().NotBeNull();
+        result.Status.Should().Be(expectedResultStatus);
+    }
 }

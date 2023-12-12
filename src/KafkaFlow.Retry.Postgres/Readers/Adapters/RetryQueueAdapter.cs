@@ -8,13 +8,13 @@ internal class RetryQueueAdapter : IRetryQueueAdapter
 {
     public RetryQueue Adapt(RetryQueueDbo retryQueueDbo)
     {
-            Guard.Argument(retryQueueDbo).NotNull();
+        Guard.Argument(retryQueueDbo).NotNull();
 
-            return new RetryQueue(retryQueueDbo.IdDomain,
-                        retryQueueDbo.SearchGroupKey,
-                        retryQueueDbo.QueueGroupKey,
-                        retryQueueDbo.CreationDate,
-                        retryQueueDbo.LastExecution,
-                        retryQueueDbo.Status);
-        }
+        return new RetryQueue(retryQueueDbo.IdDomain,
+            retryQueueDbo.SearchGroupKey,
+            retryQueueDbo.QueueGroupKey,
+            retryQueueDbo.CreationDate,
+            retryQueueDbo.LastExecution,
+            retryQueueDbo.Status);
+    }
 }

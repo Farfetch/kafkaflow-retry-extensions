@@ -1,6 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data;
 using System.Linq;
 using System.Threading.Tasks;
 using Dawn;
@@ -8,6 +8,7 @@ using KafkaFlow.Retry.Durable.Common;
 using KafkaFlow.Retry.Durable.Repository.Actions.Read;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.SqlServer.Model;
+using Microsoft.Data.SqlClient;
 
 namespace KafkaFlow.Retry.SqlServer.Repositories;
 
@@ -20,7 +21,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"INSERT INTO [{dbConnection.Schema}].[RetryQueueItems]
                                             (IdDomain, IdRetryQueue, IdDomainRetryQueue, IdItemStatus, IdSeverityLevel, AttemptsCount, Sort, CreationDate, LastExecution, ModifiedStatusDate, Description)
                                       VALUES
@@ -38,7 +39,8 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
             command.Parameters.AddWithValue("attemptsCount", retryQueueItemDbo.AttemptsCount);
             command.Parameters.AddWithValue("creationDate", retryQueueItemDbo.CreationDate);
             command.Parameters.AddWithValue("lastExecution", retryQueueItemDbo.LastExecution ?? (object)DBNull.Value);
-            command.Parameters.AddWithValue("modifiedStatusDate", retryQueueItemDbo.ModifiedStatusDate ?? (object)DBNull.Value);
+            command.Parameters.AddWithValue("modifiedStatusDate",
+                retryQueueItemDbo.ModifiedStatusDate ?? (object)DBNull.Value);
             command.Parameters.AddWithValue("description", retryQueueItemDbo.Description ?? (object)DBNull.Value);
 
             return Convert.ToInt64(await command.ExecuteScalarAsync().ConfigureAwait(false));
@@ -52,7 +54,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"SELECT 1 WHERE EXISTS(
                                         SELECT TOP 1 * FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
@@ -76,7 +78,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"SELECT *
                                         FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
@@ -88,14 +90,15 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
         }
     }
 
-    public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection, Guid domainRetryQueueId)
+    public async Task<IList<RetryQueueItemDbo>> GetItemsByQueueOrderedAsync(IDbConnection dbConnection,
+        Guid domainRetryQueueId)
     {
         Guard.Argument(dbConnection, nameof(dbConnection)).NotNull();
         Guard.Argument(domainRetryQueueId, nameof(domainRetryQueueId)).NotDefault();
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"SELECT *
                                         FROM [{dbConnection.Schema}].[RetryQueueItems]
                                         WITH (NOLOCK)
@@ -122,9 +125,9 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
 
-            string query = $@"SET DEADLOCK_PRIORITY HIGH
+            var query = @"SET DEADLOCK_PRIORITY HIGH
                                SELECT ";
 
             if (top is object)
@@ -139,7 +142,8 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
             if (stuckStatusFilter is null)
             {
-                query = string.Concat(query, $" AND IdItemStatus IN({string.Join(",", statuses.Select(x => (byte)x))})");
+                query = string.Concat(query,
+                    $" AND IdItemStatus IN({string.Join(",", statuses.Select(x => (byte)x))})");
             }
             else
             {
@@ -154,7 +158,8 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
             if (severities is object && severities.Any())
             {
-                query = string.Concat(query, $" AND (IdSeverityLevel IN ({string.Join(",", severities.Select(x => (byte)x))}))");
+                query = string.Concat(query,
+                    $" AND (IdSeverityLevel IN ({string.Join(",", severities.Select(x => (byte)x))}))");
             }
 
             command.CommandText = string.Concat(query, " ORDER BY IdRetryQueue, Id");
@@ -164,14 +169,15 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
         }
     }
 
-    public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+    public async Task<IList<RetryQueueItemDbo>> GetNewestItemsAsync(IDbConnection dbConnection, Guid queueIdDomain,
+        int sort)
     {
         Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
         Guard.Argument(sort, nameof(sort)).NotNegative();
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"SELECT *
                                          FROM [{dbConnection.Schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
@@ -189,14 +195,15 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
         }
     }
 
-    public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain, int sort)
+    public async Task<IList<RetryQueueItemDbo>> GetPendingItemsAsync(IDbConnection dbConnection, Guid queueIdDomain,
+        int sort)
     {
         Guard.Argument(queueIdDomain, nameof(queueIdDomain)).NotDefault();
         Guard.Argument(sort, nameof(sort)).NotNegative();
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"SELECT *
                                          FROM [{dbConnection.Schema}].[RetryQueueItems]
                                          WITH (NOLOCK)
@@ -218,8 +225,8 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
     {
         var sortedItems = await GetItemsOrderedAsync(
                 dbConnection,
-                new Guid[] { item.DomainRetryQueueId },
-                new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
+                new[] { item.DomainRetryQueueId },
+                new[] { RetryQueueItemStatus.Waiting },
                 null,
                 1)
             .ConfigureAwait(false);
@@ -232,11 +239,12 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
         return false;
     }
 
-    public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status, int attemptsCount, DateTime lastExecution, string description)
+    public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueItemStatus status,
+        int attemptsCount, DateTime lastExecution, string description)
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             AttemptsCount = @AttemptsCount,
@@ -250,7 +258,8 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
             command.Parameters.AddWithValue("AttemptsCount", attemptsCount);
             command.Parameters.AddWithValue("LastExecution", lastExecution);
             command.Parameters.AddWithValue("DateTimeUtcNow ", DateTime.UtcNow);
-            command.Parameters.AddWithValue("Description", string.IsNullOrEmpty(description) ? (object)DBNull.Value : description);
+            command.Parameters.AddWithValue("Description",
+                string.IsNullOrEmpty(description) ? DBNull.Value : description);
 
             return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
         }
@@ -264,7 +273,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = $@"UPDATE [{dbConnection.Schema}].[RetryQueueItems]
                                         SET IdItemStatus = @IdItemStatus,
                                             ModifiedStatusDate = @DateTimeUtcNow
@@ -319,8 +328,10 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
             RetryQueueId = reader.GetInt64(reader.GetOrdinal("IdRetryQueue")),
             DomainRetryQueueId = reader.GetGuid(reader.GetOrdinal("IdDomainRetryQueue")),
             CreationDate = reader.GetDateTime(reader.GetOrdinal("CreationDate")),
-            LastExecution = reader.IsDBNull(lastExecutionOrdinal) ? null : (DateTime?)reader.GetDateTime(lastExecutionOrdinal),
-            ModifiedStatusDate = reader.IsDBNull(modifiedStatusDateOrdinal) ? null : (DateTime?)reader.GetDateTime(modifiedStatusDateOrdinal),
+            LastExecution = reader.IsDBNull(lastExecutionOrdinal) ? null : reader.GetDateTime(lastExecutionOrdinal),
+            ModifiedStatusDate = reader.IsDBNull(modifiedStatusDateOrdinal)
+                ? null
+                : reader.GetDateTime(modifiedStatusDateOrdinal),
             AttemptsCount = reader.GetInt32(reader.GetOrdinal("AttemptsCount")),
             Sort = reader.GetInt32(reader.GetOrdinal("Sort")),
             Status = (RetryQueueItemStatus)reader.GetByte(reader.GetOrdinal("IdItemStatus")),

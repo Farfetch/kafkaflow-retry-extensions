@@ -20,61 +20,61 @@ internal class RetryDurableConsumerLatestMiddleware : IMessageMiddleware
         IRetryDurableQueueRepository retryDurableQueueRepository,
         IUtf8Encoder utf8Encoder)
     {
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(utf8Encoder).NotNull();
+        Guard.Argument(logHandler).NotNull();
+        Guard.Argument(retryDurableQueueRepository).NotNull();
+        Guard.Argument(utf8Encoder).NotNull();
 
-            _logHandler = logHandler;
-            _retryDurableQueueRepository = retryDurableQueueRepository;
-            _utf8Encoder = utf8Encoder;
-        }
+        _logHandler = logHandler;
+        _retryDurableQueueRepository = retryDurableQueueRepository;
+        _utf8Encoder = utf8Encoder;
+    }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
-            var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
-            var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
-            var sort = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
+        var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
+        var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
+        var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
+        var sort = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
 
-            var newestItems = await ThereAreNewestItemsAsync(
-                           queueId,
-                           itemId,
-                           sort)
-                       .ConfigureAwait(false);
+        var newestItems = await ThereAreNewestItemsAsync(
+                queueId,
+                itemId,
+                sort)
+            .ConfigureAwait(false);
 
-            if (newestItems)
-            {
-                await UpdateAsync(
-                        RetryQueueItemStatus.Cancelled,
-                        queueId,
-                        itemId,
-                        attemptsCount
-                    ).ConfigureAwait(false);
+        if (newestItems)
+        {
+            await UpdateAsync(
+                RetryQueueItemStatus.Cancelled,
+                queueId,
+                itemId,
+                attemptsCount
+            ).ConfigureAwait(false);
 
-                return;
-            }
-
-            await next(context).ConfigureAwait(false);
+            return;
         }
+
+        await next(context).ConfigureAwait(false);
+    }
 
     private async Task<bool> ThereAreNewestItemsAsync(
         Guid queueId,
         Guid itemId,
         int sort)
     {
-            var queueNewestItemsInput = new
-                       QueueNewestItemsInput(
-                           queueId,
-                           itemId,
-                           sort
-                       );
+        var queueNewestItemsInput = new
+            QueueNewestItemsInput(
+                queueId,
+                itemId,
+                sort
+            );
 
-            var queueNewestItemsResult = await _retryDurableQueueRepository
-                .CheckQueueNewestItemsAsync(queueNewestItemsInput)
-                .ConfigureAwait(false);
+        var queueNewestItemsResult = await _retryDurableQueueRepository
+            .CheckQueueNewestItemsAsync(queueNewestItemsInput)
+            .ConfigureAwait(false);
 
-            return queueNewestItemsResult.Status == QueueNewestItemsResultStatus.HasNewestItems;
-        }
+        return queueNewestItemsResult.Status == QueueNewestItemsResultStatus.HasNewestItems;
+    }
 
     private async Task UpdateAsync(
         RetryQueueItemStatus targetStatus,
@@ -83,17 +83,17 @@ internal class RetryDurableConsumerLatestMiddleware : IMessageMiddleware
         int attemptsCount,
         Exception exception = null)
     {
-            await _retryDurableQueueRepository
-                .UpdateItemAsync(
-                    new UpdateItemExecutionInfoInput(
-                        queueId,
-                        itemId,
-                        targetStatus,
-                        attemptsCount,
-                        DateTime.UtcNow,
-                        exception?.ToString()
-                    )
+        await _retryDurableQueueRepository
+            .UpdateItemAsync(
+                new UpdateItemExecutionInfoInput(
+                    queueId,
+                    itemId,
+                    targetStatus,
+                    attemptsCount,
+                    DateTime.UtcNow,
+                    exception?.ToString()
                 )
-                .ConfigureAwait(false);
-        }
+            )
+            .ConfigureAwait(false);
+    }
 }

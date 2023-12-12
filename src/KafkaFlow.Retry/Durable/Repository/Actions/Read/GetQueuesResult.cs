@@ -10,10 +10,10 @@ public class GetQueuesResult
 {
     public GetQueuesResult(IEnumerable<RetryQueue> retryQueues)
     {
-            Guard.Argument(retryQueues, nameof(retryQueues)).NotNull();
+        Guard.Argument(retryQueues, nameof(retryQueues)).NotNull();
 
-            RetryQueues = retryQueues;
-        }
+        RetryQueues = retryQueues;
+    }
 
     public IEnumerable<RetryQueue> RetryQueues { get; }
 }

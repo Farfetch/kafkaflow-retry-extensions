@@ -1,13 +1,14 @@
 ﻿using System;
+using Confluent.Kafka;
 using Confluent.SchemaRegistry;
 using Confluent.SchemaRegistry.Serdes;
-using SchemaRegistry;
 using KafkaFlow.Configuration;
 using KafkaFlow.Retry.MongoDb;
 using KafkaFlow.Retry.SchemaRegistry.Sample.ContractResolvers;
 using KafkaFlow.Retry.SchemaRegistry.Sample.Exceptions;
 using KafkaFlow.Retry.SchemaRegistry.Sample.Handlers;
 using Newtonsoft.Json;
+using SchemaRegistry;
 
 namespace KafkaFlow.Retry.SchemaRegistry.Sample.Helpers;
 
@@ -25,7 +26,7 @@ internal static class KafkaClusterConfigurationBuilderHelper
                 "kafka-flow-retry-durable-mongodb-avro-producer",
                 producer => producer
                     .DefaultTopic("sample-kafka-flow-retry-durable-mongodb-avro-topic")
-                    .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                    .WithCompression(CompressionType.Gzip)
                     .AddMiddlewares(
                         middlewares => middlewares
                             .AddSchemaRegistryAvroSerializer(
@@ -72,10 +73,12 @@ internal static class KafkaClusterConfigurationBuilderHelper
                                     .WithEmbeddedRetryCluster(
                                         cluster,
                                         configure => configure
-                                            .WithRetryTopicName("sample-kafka-flow-retry-durable-mongodb-avro-topic-retry")
+                                            .WithRetryTopicName(
+                                                "sample-kafka-flow-retry-durable-mongodb-avro-topic-retry")
                                             .WithRetryConsumerBufferSize(4)
                                             .WithRetryConsumerWorkersCount(2)
-                                            .WithRetryConsumerStrategy(RetryConsumerStrategy.GuaranteeOrderedConsumption)
+                                            .WithRetryConsumerStrategy(
+                                                RetryConsumerStrategy.GuaranteeOrderedConsumption)
                                             .WithRetryTypedHandlers(
                                                 handlers => handlers
                                                     .WithHandlerLifetime(InstanceLifetime.Transient)

@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+using System.Data;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -12,6 +12,7 @@ using KafkaFlow.Retry.SqlServer.Model;
 using KafkaFlow.Retry.SqlServer.Readers;
 using KafkaFlow.Retry.SqlServer.Readers.Adapters;
 using KafkaFlow.Retry.SqlServer.Repositories;
+using Microsoft.Data.SqlClient;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
 
@@ -58,7 +59,7 @@ internal class SqlServerRepository : IRepository
     {
         using var dbConnection = _connectionProvider.Create(_sqlServerDbSettings);
         using var command = dbConnection.CreateCommand();
-        command.CommandType = System.Data.CommandType.Text;
+        command.CommandType = CommandType.Text;
         command.CommandText = @"
                     delete from [dbo].[RetryItemMessageHeaders];
                     delete from [dbo].[ItemMessages];
@@ -77,7 +78,7 @@ internal class SqlServerRepository : IRepository
             LastExecution = queue.LastExecution,
             QueueGroupKey = queue.QueueGroupKey,
             SearchGroupKey = queue.SearchGroupKey,
-            Status = queue.Status,
+            Status = queue.Status
         };
 
         using var dbConnection = _connectionProvider.CreateWithinTransaction(_sqlServerDbSettings);
@@ -143,9 +144,12 @@ internal class SqlServerRepository : IRepository
                 return null;
             }
 
-            var retryQueueItemsDbo = await _retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
-            var itemMessagesDbo = await _retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
-            var messageHeadersDbo = await _retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
+            var retryQueueItemsDbo =
+                await _retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
+            var itemMessagesDbo =
+                await _retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
+            var messageHeadersDbo =
+                await _retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
 
             var dboWrapper = new RetryQueuesDboWrapper
             {
@@ -162,7 +166,7 @@ internal class SqlServerRepository : IRepository
     public async Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey)
     {
         var start = DateTime.Now;
-        Guid retryQueueId = Guid.Empty;
+        var retryQueueId = Guid.Empty;
         RetryQueue retryQueue;
         do
         {
@@ -176,8 +180,9 @@ internal class SqlServerRepository : IRepository
             using (var dbConnection = _connectionProvider.Create(_sqlServerDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
-                command.CommandType = System.Data.CommandType.Text;
-                command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
+                command.CommandType = CommandType.Text;
+                command.CommandText =
+                    @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
                                 FROM [RetryQueues]
                                 WHERE QueueGroupKey LIKE '%'+@QueueGroupKey
                                 ORDER BY Id";
@@ -195,7 +200,8 @@ internal class SqlServerRepository : IRepository
         return retryQueue;
     }
 
-    public async Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId, Func<IList<RetryQueueItem>, bool> stopCondition)
+    public async Task<IList<RetryQueueItem>> GetRetryQueueItemsAsync(Guid retryQueueId,
+        Func<IList<RetryQueueItem>, bool> stopCondition)
     {
         var start = DateTime.Now;
         IList<RetryQueueItem> retryQueueItems = null;
@@ -211,7 +217,7 @@ internal class SqlServerRepository : IRepository
             using (var dbConnection = _connectionProvider.Create(_sqlServerDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
-                command.CommandType = System.Data.CommandType.Text;
+                command.CommandType = CommandType.Text;
                 command.CommandText = @"SELECT *
                                 FROM [RetryQueueItems]
                                 WHERE IdDomainRetryQueue = @IdDomainRetryQueue
@@ -276,8 +282,8 @@ internal class SqlServerRepository : IRepository
             reader.GetInt32(reader.GetOrdinal("AttemptsCount")),
             reader.GetDateTime(reader.GetOrdinal("CreationDate")),
             reader.GetInt32(reader.GetOrdinal("Sort")),
-            reader.IsDBNull(lastExecutionOrdinal) ? null : (DateTime?)reader.GetDateTime(lastExecutionOrdinal),
-            reader.IsDBNull(modifiedStatusDateOrdinal) ? null : (DateTime?)reader.GetDateTime(modifiedStatusDateOrdinal),
+            reader.IsDBNull(lastExecutionOrdinal) ? null : reader.GetDateTime(lastExecutionOrdinal),
+            reader.IsDBNull(modifiedStatusDateOrdinal) ? null : reader.GetDateTime(modifiedStatusDateOrdinal),
             (RetryQueueItemStatus)reader.GetByte(reader.GetOrdinal("IdItemStatus")),
             (SeverityLevel)reader.GetByte(reader.GetOrdinal("IdSeverityLevel")),
             reader.IsDBNull(descriptionOrdinal) ? null : reader.GetString(descriptionOrdinal)

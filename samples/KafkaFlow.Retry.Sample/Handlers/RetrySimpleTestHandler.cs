@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Threading.Tasks;
-using KafkaFlow;
 using KafkaFlow.Retry.Sample.Exceptions;
 using KafkaFlow.Retry.Sample.Messages;
 

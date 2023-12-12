@@ -21,7 +21,8 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
     [InlineData(RepositoryType.Postgres)]
-    public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsItemIsNotTheFirstWaitingInQueue(RepositoryType repositoryType)
+    public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsItemIsNotTheFirstWaitingInQueue(
+        RepositoryType repositoryType)
     {
         // Arrange
         var repository = GetRepository(repositoryType);
@@ -55,7 +56,8 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
     [InlineData(RepositoryType.Postgres)]
-    public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsUpdatedStatus(RepositoryType repositoryType)
+    public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsUpdatedStatus(
+        RepositoryType repositoryType)
     {
         // Arrange
         var repository = GetRepository(repositoryType);
@@ -89,7 +91,8 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
     [InlineData(RepositoryType.Postgres)]
-    public async Task UpdateItemsTestsAsync_ExistingItemWithNotInWaitingState_ReturnsItemIsNotInWaitingState(RepositoryType repositoryType)
+    public async Task UpdateItemsTestsAsync_ExistingItemWithNotInWaitingState_ReturnsItemIsNotInWaitingState(
+        RepositoryType repositoryType)
     {
         // Arrange
         var repository = GetRepository(repositoryType);
@@ -120,7 +123,8 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
     [InlineData(RepositoryType.Postgres)]
-    public async Task UpdateItemsTestsAsync_ExistingItemWithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(RepositoryType repositoryType)
+    public async Task UpdateItemsTestsAsync_ExistingItemWithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(
+        RepositoryType repositoryType)
     {
         // Arrange
         var repository = GetRepository(repositoryType);

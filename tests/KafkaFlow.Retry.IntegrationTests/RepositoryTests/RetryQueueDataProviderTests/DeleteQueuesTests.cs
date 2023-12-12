@@ -25,7 +25,8 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
     [InlineData(RepositoryType.Postgres)]
-    public async Task DeleteQueuesAsync_TestingMaxRowsToDelete_DeleteAllEligibleQueuesAfterTwoDeletions(RepositoryType repositoryType)
+    public async Task DeleteQueuesAsync_TestingMaxRowsToDelete_DeleteAllEligibleQueuesAfterTwoDeletions(
+        RepositoryType repositoryType)
     {
         // Arrange
         var repository = GetRepository(repositoryType);
@@ -33,7 +34,8 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
         var maxRowsToDelete = 2;
         var maxLastExecutionDateToBeKept = new DateTime(2023, 2, 10, 12, 0, 0);
 
-        var queuesInput = new[] {
+        var queuesInput = new[]
+        {
             new DeleteQueueTestInput
             {
                 EligibleToDelete = true,
@@ -59,7 +61,8 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
 
         await CreateQueuesAsync(repository, queuesInput);
 
-        var deleteQueuesInput = new DeleteQueuesInput(SearchGroupKeyToDelete, QueueStatusToDelete, maxLastExecutionDateToBeKept, maxRowsToDelete);
+        var deleteQueuesInput = new DeleteQueuesInput(SearchGroupKeyToDelete, QueueStatusToDelete,
+            maxLastExecutionDateToBeKept, maxRowsToDelete);
 
         // Act
         var result1 = await repository.RetryQueueDataProvider.DeleteQueuesAsync(deleteQueuesInput);
@@ -84,7 +87,8 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
 
         var maxLastExecutionDateToBeKept = new DateTime(2023, 2, 10, 12, 0, 0);
 
-        var queuesInput = new[] {
+        var queuesInput = new[]
+        {
             new DeleteQueueTestInput
             {
                 EligibleToDelete = true,
@@ -131,7 +135,8 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
 
         await CreateQueuesAsync(repository, queuesInput);
 
-        var deleteQueuesInput = new DeleteQueuesInput(SearchGroupKeyToDelete, QueueStatusToDelete, maxLastExecutionDateToBeKept, 100);
+        var deleteQueuesInput = new DeleteQueuesInput(SearchGroupKeyToDelete, QueueStatusToDelete,
+            maxLastExecutionDateToBeKept, 100);
 
         // Act
         var result = await repository.RetryQueueDataProvider.DeleteQueuesAsync(deleteQueuesInput);

@@ -11,28 +11,28 @@ internal class ItemAdapter : IItemAdapter
 
     public ItemAdapter(IMessageAdapter messageAdater)
     {
-            Guard.Argument(messageAdater, nameof(messageAdater)).NotNull();
+        Guard.Argument(messageAdater, nameof(messageAdater)).NotNull();
 
-            _messageAdapter = messageAdater;
-        }
+        _messageAdapter = messageAdater;
+    }
 
     public RetryQueueItem Adapt(RetryQueueItemDbo itemDbo)
     {
-            Guard.Argument(itemDbo, nameof(itemDbo)).NotNull();
+        Guard.Argument(itemDbo, nameof(itemDbo)).NotNull();
 
-            return new RetryQueueItem(
-                itemDbo.Id,
-                itemDbo.AttemptsCount,
-                itemDbo.CreationDate,
-                itemDbo.Sort,
-                itemDbo.LastExecution,
-                itemDbo.ModifiedStatusDate,
-                itemDbo.Status,
-                itemDbo.SeverityLevel,
-                itemDbo.Description
-            )
-            {
-                Message = _messageAdapter.Adapt(itemDbo.Message)
-            };
-        }
+        return new RetryQueueItem(
+            itemDbo.Id,
+            itemDbo.AttemptsCount,
+            itemDbo.CreationDate,
+            itemDbo.Sort,
+            itemDbo.LastExecution,
+            itemDbo.ModifiedStatusDate,
+            itemDbo.Status,
+            itemDbo.SeverityLevel,
+            itemDbo.Description
+        )
+        {
+            Message = _messageAdapter.Adapt(itemDbo.Message)
+        };
+    }
 }

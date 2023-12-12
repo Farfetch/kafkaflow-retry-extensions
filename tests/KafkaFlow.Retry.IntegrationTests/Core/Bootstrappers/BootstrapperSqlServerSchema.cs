@@ -1,76 +1,78 @@
-﻿using System.Collections.Generic;
-using Microsoft.Data.SqlClient;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers;
 
 internal static class BootstrapperSqlServerSchema
 {
-    private static readonly SemaphoreSlim s_semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
+    private static readonly SemaphoreSlim s_semaphoreOneThreadAtTime = new(1, 1);
     private static bool s_schemaInitialized;
 
     internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
     {
-            await s_semaphoreOneThreadAtTime.WaitAsync();
-            try
+        await s_semaphoreOneThreadAtTime.WaitAsync();
+        try
+        {
+            if (s_schemaInitialized)
             {
-                if (s_schemaInitialized)
+                return;
+            }
+
+            using (var openCon = new SqlConnection(connectionString))
+            {
+                openCon.Open();
+
+                var scripts = GetScriptsForSchemaCreation();
+
+                foreach (var script in scripts)
                 {
-                    return;
-                }
+                    var batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" },
+                        StringSplitOptions.RemoveEmptyEntries);
 
-                using (SqlConnection openCon = new SqlConnection(connectionString))
-                {
-                    openCon.Open();
-
-                    var scripts = GetScriptsForSchemaCreation();
-
-                    foreach (var script in scripts)
+                    foreach (var batch in batches)
                     {
-                        string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                        var replacedBatch = batch.Replace("@dbname", databaseName);
 
-                        foreach (var batch in batches)
+                        using (var queryCommand = new SqlCommand(replacedBatch))
                         {
-                            string replacedBatch = batch.Replace("@dbname", databaseName);
+                            queryCommand.Connection = openCon;
 
-                            using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
-                            {
-                                queryCommand.Connection = openCon;
-
-                                await queryCommand.ExecuteNonQueryAsync();
-                            }
+                            await queryCommand.ExecuteNonQueryAsync();
                         }
                     }
                 }
+            }
 
-                s_schemaInitialized = true;
-            }
-            finally
-            {
-                s_semaphoreOneThreadAtTime.Release();
-            }
+            s_schemaInitialized = true;
         }
+        finally
+        {
+            s_semaphoreOneThreadAtTime.Release();
+        }
+    }
 
     private static IEnumerable<string> GetScriptsForSchemaCreation()
     {
-            Assembly sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
-            return sqlServerAssembly
-                .GetManifestResourceNames()
-                .OrderBy(x => x)
-                .Select(script =>
+        var sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
+        return sqlServerAssembly
+            .GetManifestResourceNames()
+            .OrderBy(x => x)
+            .Select(script =>
+            {
+                using (var s = sqlServerAssembly.GetManifestResourceStream(script))
                 {
-                    using (Stream s = sqlServerAssembly.GetManifestResourceStream(script))
+                    using (var sr = new StreamReader(s))
                     {
-                        using (StreamReader sr = new StreamReader(s))
-                        {
-                            return sr.ReadToEnd();
-                        }
+                        return sr.ReadToEnd();
                     }
-                })
-                .ToList();
-        }
+                }
+            })
+            .ToList();
+    }
 }

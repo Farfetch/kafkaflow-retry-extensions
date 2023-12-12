@@ -15,15 +15,15 @@ internal class NewtonsoftJsonMessageAdapter : IMessageAdapter
         INewtonsoftJsonSerializer newtonsoftJsonSerializer,
         IUtf8Encoder utf8Encoder)
     {
-            _gzipCompressor = gzipCompressor;
-            _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            _utf8Encoder = utf8Encoder;
-        }
+        _gzipCompressor = gzipCompressor;
+        _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+        _utf8Encoder = utf8Encoder;
+    }
 
     public byte[] AdaptMessageToRepository(object message)
     {
-            var messageSerialized = _newtonsoftJsonSerializer.SerializeObject(message);
-            var messageEncoded = _utf8Encoder.Encode(messageSerialized);
-            return _gzipCompressor.Compress(messageEncoded);
-        }
+        var messageSerialized = _newtonsoftJsonSerializer.SerializeObject(message);
+        var messageEncoded = _utf8Encoder.Encode(messageSerialized);
+        return _gzipCompressor.Compress(messageEncoded);
+    }
 }

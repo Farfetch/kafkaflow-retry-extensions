@@ -10,5 +10,5 @@ public class UpdateItemStatusInput : UpdateItemInput
     public UpdateItemStatusInput(Guid itemId, RetryQueueItemStatus status)
         : base(itemId, status)
     {
-        }
+    }
 }

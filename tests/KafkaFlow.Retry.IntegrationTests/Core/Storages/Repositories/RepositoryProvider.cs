@@ -12,7 +12,10 @@ internal class RepositoryProvider : IRepositoryProvider
         _repositories = repositories;
     }
 
-    public IEnumerable<IRepository> GetAllRepositories() => _repositories;
+    public IEnumerable<IRepository> GetAllRepositories()
+    {
+        return _repositories;
+    }
 
     public IRepository GetRepositoryOfType(RepositoryType repositoryType)
     {

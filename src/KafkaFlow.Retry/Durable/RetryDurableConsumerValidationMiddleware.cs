@@ -19,43 +19,43 @@ internal class RetryDurableConsumerValidationMiddleware : IMessageMiddleware
         IRetryDurableQueueRepository retryDurableQueueRepository,
         IUtf8Encoder utf8Encoder)
     {
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(retryDurableQueueRepository).NotNull();
-            Guard.Argument(utf8Encoder).NotNull();
+        Guard.Argument(logHandler).NotNull();
+        Guard.Argument(retryDurableQueueRepository).NotNull();
+        Guard.Argument(utf8Encoder).NotNull();
 
-            _logHandler = logHandler;
-            _retryDurableQueueRepository = retryDurableQueueRepository;
-            _utf8Encoder = utf8Encoder;
-        }
+        _logHandler = logHandler;
+        _retryDurableQueueRepository = retryDurableQueueRepository;
+        _utf8Encoder = utf8Encoder;
+    }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
-            var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
-            var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
+        var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
+        var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
+        var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
 
-            try
-            {
-                await next(context).ConfigureAwait(false);
+        try
+        {
+            await next(context).ConfigureAwait(false);
 
-                await UpdateAsync(
-                        RetryQueueItemStatus.Done,
-                        queueId,
-                        itemId,
-                        ++attemptsCount)
-                    .ConfigureAwait(false);
-            }
-            catch (Exception exception)
-            {
-                await UpdateAsync(
-                        RetryQueueItemStatus.Waiting,
-                        queueId,
-                        itemId,
-                        ++attemptsCount,
-                        exception)
-                    .ConfigureAwait(false);
-            }
+            await UpdateAsync(
+                    RetryQueueItemStatus.Done,
+                    queueId,
+                    itemId,
+                    ++attemptsCount)
+                .ConfigureAwait(false);
         }
+        catch (Exception exception)
+        {
+            await UpdateAsync(
+                    RetryQueueItemStatus.Waiting,
+                    queueId,
+                    itemId,
+                    ++attemptsCount,
+                    exception)
+                .ConfigureAwait(false);
+        }
+    }
 
     private async Task UpdateAsync(
         RetryQueueItemStatus targetStatus,
@@ -64,17 +64,17 @@ internal class RetryDurableConsumerValidationMiddleware : IMessageMiddleware
         int attemptsCount,
         Exception exception = null)
     {
-            await _retryDurableQueueRepository
-                .UpdateItemAsync(
-                    new UpdateItemExecutionInfoInput(
-                        queueId,
-                        itemId,
-                        targetStatus,
-                        attemptsCount,
-                        DateTime.UtcNow,
-                        exception?.ToString()
-                    )
+        await _retryDurableQueueRepository
+            .UpdateItemAsync(
+                new UpdateItemExecutionInfoInput(
+                    queueId,
+                    itemId,
+                    targetStatus,
+                    attemptsCount,
+                    DateTime.UtcNow,
+                    exception?.ToString()
                 )
-                .ConfigureAwait(false);
-        }
+            )
+            .ConfigureAwait(false);
+    }
 }

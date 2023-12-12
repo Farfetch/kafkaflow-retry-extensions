@@ -14,16 +14,18 @@ internal class RetryForeverDefinition
         IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions
     )
     {
-            Guard.Argument(retryWhenExceptions).NotNull("At least an exception should be defined");
-            Guard.Argument(retryWhenExceptions.Count).NotNegative(value => "At least an exception should be defined");
-            Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
+        Guard.Argument(retryWhenExceptions).NotNull("At least an exception should be defined");
+        Guard.Argument(retryWhenExceptions.Count).NotNegative(value => "At least an exception should be defined");
+        Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
 
-            TimeBetweenTriesPlan = timeBetweenTriesPlan;
-            _retryWhenExceptions = retryWhenExceptions;
-        }
+        TimeBetweenTriesPlan = timeBetweenTriesPlan;
+        _retryWhenExceptions = retryWhenExceptions;
+    }
 
     public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
-    public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        _retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+    public bool ShouldRetry(RetryContext kafkaRetryContext)
+    {
+        return _retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+    }
 }

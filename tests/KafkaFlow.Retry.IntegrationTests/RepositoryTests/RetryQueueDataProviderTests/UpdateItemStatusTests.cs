@@ -14,7 +14,7 @@ public class UpdateItemStatusTests : RetryQueueDataProviderTestsTemplate
     public UpdateItemStatusTests(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
         : base(bootstrapperRepositoryFixture)
     {
-        }
+    }
 
     [Theory]
     [InlineData(RepositoryType.MongoDb)]
@@ -22,31 +22,31 @@ public class UpdateItemStatusTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.Postgres)]
     public async Task UpdateItemStatusAsync_ExistingItem_ReturnsUpdatedStatus(RepositoryType repositoryType)
     {
-            // Arrange
-            var repository = GetRepository(repositoryType);
+        // Arrange
+        var repository = GetRepository(repositoryType);
 
-            var expectedItemStatus = RetryQueueItemStatus.Done;
+        var expectedItemStatus = RetryQueueItemStatus.Done;
 
-            var queue = GetDefaultQueue();
+        var queue = GetDefaultQueue();
 
-            await repository.CreateQueueAsync(queue);
+        await repository.CreateQueueAsync(queue);
 
-            var item = queue.Items.Single();
-            var itemPreviousStatus = item.Status;
+        var item = queue.Items.Single();
+        var itemPreviousStatus = item.Status;
 
-            var inputUpdate = new UpdateItemStatusInput(item.Id, expectedItemStatus);
+        var inputUpdate = new UpdateItemStatusInput(item.Id, expectedItemStatus);
 
-            // Act
-            var result = await repository.RetryQueueDataProvider.UpdateItemStatusAsync(inputUpdate);
+        // Act
+        var result = await repository.RetryQueueDataProvider.UpdateItemStatusAsync(inputUpdate);
 
-            // Assert
-            result.Status.Should().Be(UpdateItemResultStatus.Updated);
+        // Assert
+        result.Status.Should().Be(UpdateItemResultStatus.Updated);
 
-            var actualQueue = await repository.GetAllRetryQueueDataAsync(queue.QueueGroupKey);
-            actualQueue.Should().NotBeNull();
-            actualQueue.Items.Should().HaveCount(1);
-            actualQueue.Items.Single().Status.Should().Be(expectedItemStatus).And.NotBe(itemPreviousStatus);
-        }
+        var actualQueue = await repository.GetAllRetryQueueDataAsync(queue.QueueGroupKey);
+        actualQueue.Should().NotBeNull();
+        actualQueue.Items.Should().HaveCount(1);
+        actualQueue.Items.Single().Status.Should().Be(expectedItemStatus).And.NotBe(itemPreviousStatus);
+    }
 
     [Theory]
     [InlineData(RepositoryType.MongoDb)]
@@ -54,15 +54,15 @@ public class UpdateItemStatusTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.Postgres)]
     public async Task UpdateItemStatusAsync_NonExistingItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
     {
-            // Arrange
-            var repository = GetRepository(repositoryType);
+        // Arrange
+        var repository = GetRepository(repositoryType);
 
-            var inputUpdate = new UpdateItemStatusInput(Guid.NewGuid(), RetryQueueItemStatus.Done);
+        var inputUpdate = new UpdateItemStatusInput(Guid.NewGuid(), RetryQueueItemStatus.Done);
 
-            // Act
-            var result = await repository.RetryQueueDataProvider.UpdateItemStatusAsync(inputUpdate);
+        // Act
+        var result = await repository.RetryQueueDataProvider.UpdateItemStatusAsync(inputUpdate);
 
-            // Assert
-            result.Status.Should().Be(UpdateItemResultStatus.ItemNotFound);
-        }
+        // Assert
+        result.Status.Should().Be(UpdateItemResultStatus.ItemNotFound);
+    }
 }

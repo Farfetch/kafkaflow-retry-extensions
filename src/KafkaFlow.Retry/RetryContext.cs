@@ -7,10 +7,10 @@ public class RetryContext
 {
     public RetryContext(Exception exception)
     {
-            Guard.Argument(exception, nameof(exception)).NotNull();
+        Guard.Argument(exception, nameof(exception)).NotNull();
 
-            Exception = exception;
-        }
+        Exception = exception;
+    }
 
     public Exception Exception { get; }
 }

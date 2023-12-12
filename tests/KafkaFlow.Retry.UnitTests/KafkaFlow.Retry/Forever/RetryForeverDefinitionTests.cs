@@ -6,19 +6,22 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Forever;
 
 public class RetryForeverDefinitionTests
 {
-    public static IEnumerable<object[]> DataTest() => new List<object[]>
+    public static IEnumerable<object[]> DataTest()
     {
-        new object[]
+        return new List<object[]>
         {
-            null,
-            new List<Func<RetryContext, bool>>()
-        },
-        new object[]
-        {
-            new Func<int, TimeSpan>((_) => new TimeSpan()),
-            null,
-        }
-    };
+            new object[]
+            {
+                null,
+                new List<Func<RetryContext, bool>>()
+            },
+            new object[]
+            {
+                new Func<int, TimeSpan>(_ => new TimeSpan()),
+                null
+            }
+        };
+    }
 
     [Theory]
     [MemberData(nameof(DataTest))]
@@ -39,7 +42,7 @@ public class RetryForeverDefinitionTests
         // Arrange
         var exception = new Exception();
         var retryContext = new RetryContext(exception);
-        var timeBetweenTriesPlan = new Func<int, TimeSpan>((_) => new TimeSpan());
+        var timeBetweenTriesPlan = new Func<int, TimeSpan>(_ => new TimeSpan());
         var retryWhenExceptions = new List<Func<RetryContext, bool>>();
 
         var retry = new RetryForeverDefinition(timeBetweenTriesPlan, retryWhenExceptions);
@@ -57,10 +60,10 @@ public class RetryForeverDefinitionTests
         // Arrange
         var exception = new Exception();
         var retryContext = new RetryContext(exception);
-        var timeBetweenTriesPlan = new Func<int, TimeSpan>((_) => new TimeSpan());
+        var timeBetweenTriesPlan = new Func<int, TimeSpan>(_ => new TimeSpan());
         var retryWhenExceptions = new List<Func<RetryContext, bool>>
         {
-            new Func<RetryContext, bool>((d) => d == retryContext )
+            d => d == retryContext
         };
 
         var retry = new RetryForeverDefinition(timeBetweenTriesPlan, retryWhenExceptions);

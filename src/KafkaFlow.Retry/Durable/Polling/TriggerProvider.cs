@@ -6,11 +6,14 @@ namespace KafkaFlow.Retry.Durable.Polling;
 internal class TriggerProvider : ITriggerProvider
 {
     public ITrigger GetPollingTrigger(string schedulerId, PollingDefinition pollingDefinition)
-        => TriggerBuilder
+    {
+        return TriggerBuilder
             .Create()
             .WithIdentity($"pollingJobTrigger_{schedulerId}_{pollingDefinition.PollingJobType}", "queueTrackerGroup")
-            .WithCronSchedule(pollingDefinition.CronExpression, cronBuilder => cronBuilder.WithMisfireHandlingInstructionDoNothing())
+            .WithCronSchedule(pollingDefinition.CronExpression,
+                cronBuilder => cronBuilder.WithMisfireHandlingInstructionDoNothing())
             .StartNow()
             .WithPriority(1)
             .Build();
+    }
 }

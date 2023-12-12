@@ -8,10 +8,10 @@ public class CheckQueueResult
 {
     public CheckQueueResult(CheckQueueResultStatus status)
     {
-            Guard.Argument(status).NotDefault();
+        Guard.Argument(status).NotDefault();
 
-            Status = status;
-        }
+        Status = status;
+    }
 
     public CheckQueueResultStatus Status { get; }
 }

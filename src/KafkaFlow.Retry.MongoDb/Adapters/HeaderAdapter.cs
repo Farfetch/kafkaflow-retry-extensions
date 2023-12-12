@@ -9,19 +9,19 @@ internal class HeaderAdapter : IHeaderAdapter
 {
     public RetryQueueHeaderDbo Adapt(MessageHeader header)
     {
-            Guard.Argument(header, nameof(header)).NotNull();
+        Guard.Argument(header, nameof(header)).NotNull();
 
-            return new RetryQueueHeaderDbo
-            {
-                Key = header.Key,
-                Value = header.Value
-            };
-        }
+        return new RetryQueueHeaderDbo
+        {
+            Key = header.Key,
+            Value = header.Value
+        };
+    }
 
     public MessageHeader Adapt(RetryQueueHeaderDbo headerDbo)
     {
-            Guard.Argument(headerDbo, nameof(headerDbo)).NotNull();
+        Guard.Argument(headerDbo, nameof(headerDbo)).NotNull();
 
-            return new MessageHeader(headerDbo.Key, headerDbo.Value);
-        }
+        return new MessageHeader(headerDbo.Key, headerDbo.Value);
+    }
 }

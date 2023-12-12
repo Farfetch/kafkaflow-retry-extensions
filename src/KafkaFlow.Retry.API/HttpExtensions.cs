@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using Microsoft.AspNetCore.Http;
 
 namespace KafkaFlow.Retry.API;
@@ -17,7 +16,7 @@ internal static class HttpExtensions
 
     public static string ExtendResourcePath(this string resource, string extension)
     {
-        return String.Concat(resource, ResourcePathDelimiter, extension);
+        return string.Concat(resource, ResourcePathDelimiter, extension);
     }
 
     public static IEnumerable<string> ReadQueryParams(this HttpRequest httpRequest, string paramKey)

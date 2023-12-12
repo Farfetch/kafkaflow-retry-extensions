@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading.Tasks;
-using SchemaRegistry;
 using KafkaFlow.Retry.SchemaRegistry.Sample.Exceptions;
+using SchemaRegistry;
 
 namespace KafkaFlow.Retry.SchemaRegistry.Sample.Handlers;
 

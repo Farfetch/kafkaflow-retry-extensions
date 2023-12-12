@@ -13,7 +13,7 @@ namespace KafkaFlow.Retry.IntegrationTests;
 public class RetrySimpleTests
 {
     private readonly BootstrapperHostFixture _bootstrapperHostFixture;
-    private readonly Fixture _fixture = new Fixture();
+    private readonly Fixture _fixture = new();
 
     public RetrySimpleTests(BootstrapperHostFixture bootstrapperHostFixture)
     {
@@ -25,7 +25,8 @@ public class RetrySimpleTests
     public async Task RetrySimpleTest()
     {
         // Arrange
-        var producer1 = _bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetrySimpleProducer>>();
+        var producer1 = _bootstrapperHostFixture.ServiceProvider
+            .GetRequiredService<IMessageProducer<RetrySimpleProducer>>();
         var messages = _fixture.CreateMany<RetrySimpleTestMessage>(10).ToList();
 
         // Act

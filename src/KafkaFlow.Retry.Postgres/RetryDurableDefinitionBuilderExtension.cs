@@ -7,15 +7,15 @@ public static class RetryDurableDefinitionBuilderExtension
         string connectionString,
         string databaseName)
     {
-            retryDurableDefinitionBuilder.WithRepositoryProvider(
-                new PostgresDbDataProviderFactory()
-                    .Create(
-                        new PostgresDbSettings(
-                            connectionString,
-                            databaseName)
-                    )
-                );
+        retryDurableDefinitionBuilder.WithRepositoryProvider(
+            new PostgresDbDataProviderFactory()
+                .Create(
+                    new PostgresDbSettings(
+                        connectionString,
+                        databaseName)
+                )
+        );
 
-            return retryDurableDefinitionBuilder;
-        }
+        return retryDurableDefinitionBuilder;
+    }
 }

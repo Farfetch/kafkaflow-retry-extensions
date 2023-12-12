@@ -54,7 +54,8 @@ public class SaveToQueueTests : RetryQueueDataProviderTestsTemplate
 
         actualQueue.Should().NotBeNull();
         actualQueue.Status.Should().Be(RetryQueueStatus.Active);
-        actualQueue.Items.Should().NotBeNullOrEmpty().And.HaveCount(2).And.Contain(x => x.Status == RetryQueueItemStatus.Waiting);
+        actualQueue.Items.Should().NotBeNullOrEmpty().And.HaveCount(2).And
+            .Contain(x => x.Status == RetryQueueItemStatus.Waiting);
         actualQueue.Items.Should().ContainSingle(x => x.SeverityLevel == SeverityLevel.Medium);
         actualQueue.Items.Should().ContainSingle(x => x.SeverityLevel == SeverityLevel.High);
         actualQueue.Items.ElementAt(1).Description.Should().Be(saveToQueueInput.Description);
@@ -125,7 +126,8 @@ public class SaveToQueueTests : RetryQueueDataProviderTestsTemplate
         queue.Should().NotBeNull();
         queue.Status.Should().Be(RetryQueueStatus.Active);
 
-        queue.Items.Should().NotBeNullOrEmpty().And.HaveCount(1).And.OnlyContain(x => x.Status == RetryQueueItemStatus.Waiting);
+        queue.Items.Should().NotBeNullOrEmpty().And.HaveCount(1).And
+            .OnlyContain(x => x.Status == RetryQueueItemStatus.Waiting);
 
         queue.Items.First().Message.Should().NotBeNull();
         queue.Items.First().Message.Headers.Should().NotBeNull().And.HaveSameCount(saveToQueueInput.Message.Headers);

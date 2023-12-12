@@ -115,7 +115,8 @@ public class UpdateQueuesTests : RetryQueueDataProviderTestsTemplate
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
     [InlineData(RepositoryType.Postgres)]
-    public async Task UpdateQueuesAsync_WithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(RepositoryType repositoryType)
+    public async Task UpdateQueuesAsync_WithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(
+        RepositoryType repositoryType)
     {
         // Arrange
         var repository = GetRepository(repositoryType);

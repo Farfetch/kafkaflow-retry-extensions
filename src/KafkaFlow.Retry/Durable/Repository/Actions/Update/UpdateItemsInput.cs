@@ -11,12 +11,12 @@ public class UpdateItemsInput
 {
     public UpdateItemsInput(IEnumerable<Guid> itemIds, RetryQueueItemStatus status)
     {
-            Guard.Argument(itemIds, nameof(itemIds)).NotNull().NotEmpty();
-            Guard.Argument(status, nameof(status)).NotDefault();
+        Guard.Argument(itemIds, nameof(itemIds)).NotNull().NotEmpty();
+        Guard.Argument(status, nameof(status)).NotDefault();
 
-            ItemIds = itemIds;
-            Status = status;
-        }
+        ItemIds = itemIds;
+        Status = status;
+    }
 
     public IEnumerable<Guid> ItemIds { get; }
     public RetryQueueItemStatus Status { get; }

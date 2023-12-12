@@ -4,26 +4,27 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 
 [CollectionDefinition("BootstrapperRepositoryCollection")]
 public class BootstrapperRepositoryCollectionFixture : ICollectionFixture<BootstrapperRepositoryFixture>
-{ }
+{
+}
 
 public class BootstrapperRepositoryFixture : BootstrapperFixtureTemplate
 {
     public BootstrapperRepositoryFixture()
     {
-            var config = new ConfigurationBuilder()
-              .AddJsonFile(ConfigurationFilePath)
-              .Build();
+        var config = new ConfigurationBuilder()
+            .AddJsonFile(ConfigurationFilePath)
+            .Build();
 
-            InitializeDatabasesAsync(config).GetAwaiter().GetResult();
-        }
+        InitializeDatabasesAsync(config).GetAwaiter().GetResult();
+    }
 
     public override void Dispose()
     {
-            var repositories = RepositoryProvider.GetAllRepositories();
+        var repositories = RepositoryProvider.GetAllRepositories();
 
-            foreach (var repository in repositories)
-            {
-                repository.CleanDatabaseAsync().GetAwaiter().GetResult();
-            }
+        foreach (var repository in repositories)
+        {
+            repository.CleanDatabaseAsync().GetAwaiter().GetResult();
         }
+    }
 }

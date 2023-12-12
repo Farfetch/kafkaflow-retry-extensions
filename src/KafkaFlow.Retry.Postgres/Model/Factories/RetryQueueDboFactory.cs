@@ -8,16 +8,16 @@ internal sealed class RetryQueueDboFactory : IRetryQueueDboFactory
 {
     public RetryQueueDbo Create(SaveToQueueInput input)
     {
-            Guard.Argument(input).NotNull();
+        Guard.Argument(input).NotNull();
 
-            return new RetryQueueDbo
-            {
-                IdDomain = Guid.NewGuid(),
-                SearchGroupKey = input.SearchGroupKey,
-                QueueGroupKey = input.QueueGroupKey,
-                CreationDate = input.CreationDate,
-                LastExecution = input.LastExecution.Value,
-                Status = input.QueueStatus
-            };
-        }
+        return new RetryQueueDbo
+        {
+            IdDomain = Guid.NewGuid(),
+            SearchGroupKey = input.SearchGroupKey,
+            QueueGroupKey = input.QueueGroupKey,
+            CreationDate = input.CreationDate,
+            LastExecution = input.LastExecution.Value,
+            Status = input.QueueStatus
+        };
+    }
 }

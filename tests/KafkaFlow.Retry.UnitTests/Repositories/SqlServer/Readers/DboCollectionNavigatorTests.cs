@@ -12,11 +12,11 @@ public class DboCollectionNavigatorTests
 {
     private readonly DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem> _dboCollectionNavigator;
 
-    private readonly Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>> _dboDomainAdapter = new Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>>();
+    private readonly Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>> _dboDomainAdapter = new();
 
     private readonly IList<RetryQueueItemDbo> _dbos = new List<RetryQueueItemDbo>
     {
-        new RetryQueueItemDbo
+        new()
         {
             CreationDate = DateTime.UtcNow,
             Id = Guid.NewGuid(),
@@ -32,7 +32,7 @@ public class DboCollectionNavigatorTests
             {
                 Headers = new List<RetryQueueHeaderDbo>
                 {
-                    new RetryQueueHeaderDbo()
+                    new()
                 },
                 Key = new byte[] { 1, 3 },
                 Offset = 2,
@@ -46,48 +46,58 @@ public class DboCollectionNavigatorTests
 
     public DboCollectionNavigatorTests()
     {
-        _dboCollectionNavigator = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(_dbos, _dboDomainAdapter.Object);
+        _dboCollectionNavigator =
+            new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(_dbos, _dboDomainAdapter.Object);
     }
 
-    public static IEnumerable<object[]> DataTestCtor() => new List<object[]>
+    public static IEnumerable<object[]> DataTestCtor()
     {
-        new object[]
+        return new List<object[]>
         {
-            null,
-            Mock.Of<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>>()
-        },
-        new object[]
-        {
-            Mock.Of<IList<RetryQueueItemDbo>>(),
-            null
-        }
-    };
+            new object[]
+            {
+                null,
+                Mock.Of<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>>()
+            },
+            new object[]
+            {
+                Mock.Of<IList<RetryQueueItemDbo>>(),
+                null
+            }
+        };
+    }
 
-    public static IEnumerable<object[]> DataTestNavigate() => new List<object[]>
+    public static IEnumerable<object[]> DataTestNavigate()
     {
-        new object[]
+        return new List<object[]>
         {
-            null,
-            new Predicate<RetryQueueItemDbo>((_)=> true)
-        },
-        new object[]
-        {
-            new Action<RetryQueueItem>((_) =>
-                new RetryQueueItem(Guid.NewGuid(), 1, DateTime.UtcNow,0,null,null, RetryQueueItemStatus.Waiting, SeverityLevel.High, "description")
-                {
-                    Message = new RetryQueueItemMessage("topicName", new byte[1], new byte[1], 1, 1, DateTime.UtcNow)
-                }),
-            null
-        }
-    };
+            new object[]
+            {
+                null,
+                new Predicate<RetryQueueItemDbo>(_ => true)
+            },
+            new object[]
+            {
+                new Action<RetryQueueItem>(_ =>
+                    new RetryQueueItem(Guid.NewGuid(), 1, DateTime.UtcNow, 0, null, null, RetryQueueItemStatus.Waiting,
+                        SeverityLevel.High, "description")
+                    {
+                        Message = new RetryQueueItemMessage("topicName", new byte[1], new byte[1], 1, 1,
+                            DateTime.UtcNow)
+                    }),
+                null
+            }
+        };
+    }
 
     [Fact]
     public void DboCollectionNavigator_Navigate_Success()
     {
         // Arrange
-        var action = new Predicate<RetryQueueItemDbo>((_) => true);
-        var navigatingCondition = new Action<RetryQueueItem>((_) =>
-            new RetryQueueItem(Guid.NewGuid(), 1, DateTime.UtcNow, 0, null, null, RetryQueueItemStatus.Waiting, SeverityLevel.High, "description")
+        var action = new Predicate<RetryQueueItemDbo>(_ => true);
+        var navigatingCondition = new Action<RetryQueueItem>(_ =>
+            new RetryQueueItem(Guid.NewGuid(), 1, DateTime.UtcNow, 0, null, null, RetryQueueItemStatus.Waiting,
+                SeverityLevel.High, "description")
             {
                 Message = new RetryQueueItemMessage("topicName", new byte[1], new byte[1], 1, 1, DateTime.UtcNow)
             });
@@ -106,7 +116,7 @@ public class DboCollectionNavigatorTests
         Predicate<RetryQueueItemDbo> navigatingCondition)
     {
         // Act
-        Action act = () => _dboCollectionNavigator.Navigate(action, navigatingCondition);
+        var act = () => _dboCollectionNavigator.Navigate(action, navigatingCondition);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

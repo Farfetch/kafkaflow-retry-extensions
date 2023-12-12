@@ -7,18 +7,18 @@ internal sealed class RetryQueueItemMessageDboFactory : IRetryQueueItemMessageDb
 {
     public RetryQueueItemMessageDbo Create(RetryQueueItemMessage retryQueueItemMessage, long retryQueueItemId)
     {
-            Guard.Argument(retryQueueItemMessage, nameof(retryQueueItemMessage)).NotNull();
-            Guard.Argument(retryQueueItemId, nameof(retryQueueItemId)).Positive();
+        Guard.Argument(retryQueueItemMessage, nameof(retryQueueItemMessage)).NotNull();
+        Guard.Argument(retryQueueItemId, nameof(retryQueueItemId)).Positive();
 
-            return new RetryQueueItemMessageDbo()
-            {
-                IdRetryQueueItem = retryQueueItemId,
-                Key = retryQueueItemMessage.Key,
-                Value = retryQueueItemMessage.Value,
-                Offset = retryQueueItemMessage.Offset,
-                Partition = retryQueueItemMessage.Partition,
-                TopicName = retryQueueItemMessage.TopicName,
-                UtcTimeStamp = retryQueueItemMessage.UtcTimeStamp,
-            };
-        }
+        return new RetryQueueItemMessageDbo
+        {
+            IdRetryQueueItem = retryQueueItemId,
+            Key = retryQueueItemMessage.Key,
+            Value = retryQueueItemMessage.Value,
+            Offset = retryQueueItemMessage.Offset,
+            Partition = retryQueueItemMessage.Partition,
+            TopicName = retryQueueItemMessage.TopicName,
+            UtcTimeStamp = retryQueueItemMessage.UtcTimeStamp
+        };
+    }
 }

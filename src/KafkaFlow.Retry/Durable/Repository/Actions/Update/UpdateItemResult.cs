@@ -9,12 +9,12 @@ public class UpdateItemResult
 {
     public UpdateItemResult(Guid id, UpdateItemResultStatus status)
     {
-            Guard.Argument(id, nameof(id)).NotDefault();
-            Guard.Argument(status, nameof(status)).NotDefault();
+        Guard.Argument(id, nameof(id)).NotDefault();
+        Guard.Argument(status, nameof(status)).NotDefault();
 
-            Id = id;
-            Status = status;
-        }
+        Id = id;
+        Status = status;
+    }
 
     public Guid Id { get; }
 

@@ -22,11 +22,11 @@ namespace KafkaFlow.Retry.UnitTests.API.Handlers;
 public class GetItemsHandlerTests
 {
     private readonly string _httpMethod = "GET";
-    private readonly Mock<IGetItemsInputAdapter> _mockGetItemsInputAdapter = new Mock<IGetItemsInputAdapter>();
-    private readonly Mock<IGetItemsRequestDtoReader> _mockGetItemsRequestDtoReader = new Mock<IGetItemsRequestDtoReader>();
-    private readonly Mock<IGetItemsResponseDtoAdapter> _mockGetItemsResponseDtoReader = new Mock<IGetItemsResponseDtoAdapter>();
+    private readonly Mock<IGetItemsInputAdapter> _mockGetItemsInputAdapter = new();
+    private readonly Mock<IGetItemsRequestDtoReader> _mockGetItemsRequestDtoReader = new();
+    private readonly Mock<IGetItemsResponseDtoAdapter> _mockGetItemsResponseDtoReader = new();
     private readonly string _resourcePath = "/testendpoint/retry/items";
-    private readonly Mock<IRetryDurableQueueRepositoryProvider> _retryDurableQueueRepositoryProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
+    private readonly Mock<IRetryDurableQueueRepositoryProvider> _retryDurableQueueRepositoryProvider = new();
 
     [Fact]
     public async Task GetItemsHandler_HandleAsync_WithEndpointPrefix_Success()
@@ -136,7 +136,7 @@ public class GetItemsHandlerTests
     {
         return new GetQueuesInput(
             RetryQueueStatus.Active,
-            new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
+            new[] { RetryQueueItemStatus.Waiting },
             GetQueuesSortOption.ByCreationDateDescending,
             100)
         {
@@ -148,8 +148,8 @@ public class GetItemsHandlerTests
     {
         return new GetItemsRequestDto
         {
-            ItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-            SeverityLevels = new SeverityLevel[] { SeverityLevel.High },
+            ItemsStatuses = new[] { RetryQueueItemStatus.Waiting },
+            SeverityLevels = new[] { SeverityLevel.High },
             TopItemsByQueue = 100,
             TopQueues = 1000
         };
@@ -175,13 +175,16 @@ public class GetItemsHandlerTests
     {
         var retryQueueItems = new[]
         {
-            new RetryQueueItem(Guid.NewGuid(), 3, DateTime.UtcNow, 1, DateTime.UtcNow, DateTime.UtcNow, RetryQueueItemStatus.Waiting, SeverityLevel.High, "description"),
-            new RetryQueueItem(Guid.NewGuid(), 0, DateTime.UtcNow, 2, null, DateTime.UtcNow, RetryQueueItemStatus.Waiting, SeverityLevel.High, "description"),
+            new RetryQueueItem(Guid.NewGuid(), 3, DateTime.UtcNow, 1, DateTime.UtcNow, DateTime.UtcNow,
+                RetryQueueItemStatus.Waiting, SeverityLevel.High, "description"),
+            new RetryQueueItem(Guid.NewGuid(), 0, DateTime.UtcNow, 2, null, DateTime.UtcNow,
+                RetryQueueItemStatus.Waiting, SeverityLevel.High, "description")
         };
 
         return new[]
         {
-            new RetryQueue(Guid.NewGuid(), "orderGroupKey", "searchGroupKey", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, retryQueueItems)
+            new RetryQueue(Guid.NewGuid(), "orderGroupKey", "searchGroupKey", DateTime.UtcNow, DateTime.UtcNow,
+                RetryQueueStatus.Active, retryQueueItems)
         };
     }
 
@@ -268,6 +271,9 @@ public class GetItemsHandlerTests
             };
         }
 
-        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+        IEnumerator IEnumerable.GetEnumerator()
+        {
+            return GetEnumerator();
+        }
     }
 }

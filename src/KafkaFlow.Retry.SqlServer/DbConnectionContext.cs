@@ -1,6 +1,6 @@
-﻿using Microsoft.Data.SqlClient;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using Dawn;
+using Microsoft.Data.SqlClient;
 
 namespace KafkaFlow.Retry.SqlServer;
 
@@ -9,7 +9,7 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 {
     private readonly SqlServerDbSettings _sqlServerDbSettings;
     private readonly bool _withinTransaction;
-    private bool _committed = false;
+    private bool _committed;
     private SqlConnection _sqlConnection;
     private SqlTransaction _sqlTransaction;
 
@@ -51,6 +51,7 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
             {
                 Rollback();
             }
+
             _sqlTransaction.Dispose();
         }
 
@@ -76,6 +77,7 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
             _sqlConnection.Open();
             _sqlConnection.ChangeDatabase(_sqlServerDbSettings.DatabaseName);
         }
+
         return _sqlConnection;
     }
 
@@ -85,6 +87,7 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
         {
             _sqlTransaction = GetDbConnection().BeginTransaction();
         }
+
         return _sqlTransaction;
     }
 }

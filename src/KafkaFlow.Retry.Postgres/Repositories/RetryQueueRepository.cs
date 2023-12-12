@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Threading.Tasks;
 using KafkaFlow.Retry.Durable.Repository.Actions.Read;
 using KafkaFlow.Retry.Durable.Repository.Model;
@@ -14,7 +15,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = @"INSERT INTO retry_queues
                                             (IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution)
                                         VALUES
@@ -22,7 +23,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
                                         RETURNING id";
 
             command.Parameters.AddWithValue("idDomain", retryQueueDbo.IdDomain);
-            command.Parameters.AddWithValue("idStatus", (byte) retryQueueDbo.Status);
+            command.Parameters.AddWithValue("idStatus", (byte)retryQueueDbo.Status);
             command.Parameters.AddWithValue("searchGroupKey", retryQueueDbo.SearchGroupKey);
             command.Parameters.AddWithValue("queueGroupKey", retryQueueDbo.QueueGroupKey);
             command.Parameters.AddWithValue("creationDate", retryQueueDbo.CreationDate);
@@ -37,7 +38,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = @"DELETE FROM retry_queues WHERE Id IN
                                         (
                                             SELECT Id FROM retry_queues rq
@@ -51,7 +52,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
 
             command.Parameters.AddWithValue("SearchGroupKey", searchGroupKey);
             command.Parameters.AddWithValue("MaxLastExecutionDateToBeKept", maxLastExecutionDateToBeKept);
-            command.Parameters.AddWithValue("IdStatus", (byte) retryQueueStatus);
+            command.Parameters.AddWithValue("IdStatus", (byte)retryQueueStatus);
             command.Parameters.AddWithValue("MaxRowsToDelete", maxRowsToDelete);
 
             return await command.ExecuteNonQueryAsync().ConfigureAwait(false);
@@ -62,13 +63,13 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = @"SELECT COUNT(1)
                                         FROM retry_queues
                                         WHERE QueueGroupKey = @QueueGroupKey AND IdStatus <> @IdStatus";
 
             command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
-            command.Parameters.AddWithValue("IdStatus", (byte) RetryQueueStatus.Done);
+            command.Parameters.AddWithValue("IdStatus", (byte)RetryQueueStatus.Done);
 
             return Convert.ToInt32(await command.ExecuteScalarAsync().ConfigureAwait(false)) > 0;
         }
@@ -78,8 +79,9 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
-            command.CommandText = @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
+            command.CommandType = CommandType.Text;
+            command.CommandText =
+                @"SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
                                         FROM retry_queues
                                         WHERE QueueGroupKey = @QueueGroupKey
                                         ORDER BY Id";
@@ -90,13 +92,15 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
         }
     }
 
-    public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top)
+    public async Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection,
+        RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top)
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
 
-            var innerQuery = $@" SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
+            var innerQuery =
+                @" SELECT Id, IdDomain, IdStatus, SearchGroupKey, QueueGroupKey, CreationDate, LastExecution
                                         FROM retry_queues
                                         WHERE IdStatus = @IdStatus";
 
@@ -108,7 +112,8 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
             innerQuery = string.Concat(innerQuery, GetOrderByCommandString(sortOption));
             innerQuery = string.Concat(innerQuery, $" LIMIT {top}");
 
-            var orderedByIdQuery = String.Concat("; WITH SortedItems AS ( ", innerQuery, " ) SELECT * FROM SortedItems ORDER BY Id ");
+            var orderedByIdQuery = string.Concat("; WITH SortedItems AS ( ", innerQuery,
+                " ) SELECT * FROM SortedItems ORDER BY Id ");
 
             command.CommandText = orderedByIdQuery;
 
@@ -118,11 +123,12 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
         }
     }
 
-    public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus, DateTime lastExecution)
+    public async Task<int> UpdateAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus,
+        DateTime lastExecution)
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = @"UPDATE retry_queues
                                       SET IdStatus = @IdStatus,
                                           LastExecution = @LastExecution
@@ -140,7 +146,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = @"UPDATE retry_queues
                                       SET LastExecution = @LastExecution
                                       WHERE IdDomain = @IdDomain";
@@ -152,11 +158,12 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
         }
     }
 
-    public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain, RetryQueueStatus retryQueueStatus)
+    public async Task<int> UpdateStatusAsync(IDbConnection dbConnection, Guid idDomain,
+        RetryQueueStatus retryQueueStatus)
     {
         using (var command = dbConnection.CreateCommand())
         {
-            command.CommandType = System.Data.CommandType.Text;
+            command.CommandType = CommandType.Text;
             command.CommandText = @"UPDATE retry_queues
                                       SET IdStatus = @IdStatus
                                       WHERE IdDomain = @IdDomain";

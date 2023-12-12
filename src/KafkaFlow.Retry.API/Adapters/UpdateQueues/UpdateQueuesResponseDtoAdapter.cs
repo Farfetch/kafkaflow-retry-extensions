@@ -14,7 +14,8 @@ internal class UpdateQueuesResponseDtoAdapter : IUpdateQueuesResponseDtoAdapter
 
         foreach (var res in updateQueuesResult.Results)
         {
-            resultDto.UpdateQueuesResults.Add(new UpdateQueueResultDto(res.QueueGroupKey, res.Status, res.RetryQueueStatus));
+            resultDto.UpdateQueuesResults.Add(new UpdateQueueResultDto(res.QueueGroupKey, res.Status,
+                res.RetryQueueStatus));
         }
 
         return resultDto;

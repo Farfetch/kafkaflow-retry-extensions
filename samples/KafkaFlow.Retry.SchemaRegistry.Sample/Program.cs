@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using SchemaRegistry;
 using KafkaFlow.Producers;
 using KafkaFlow.Retry.Common.Sample.Helpers;
 using KafkaFlow.Retry.SchemaRegistry.Sample.Helpers;
 using Microsoft.Extensions.DependencyInjection;
+using SchemaRegistry;
 
 namespace KafkaFlow.Retry.SchemaRegistry.Sample;
 
@@ -23,7 +23,7 @@ internal class Program
         var topics = new[]
         {
             "sample-kafka-flow-retry-durable-mongodb-avro-topic",
-            "sample-kafka-flow-retry-durable-mongodb-avro-topic-retry",
+            "sample-kafka-flow-retry-durable-mongodb-avro-topic-retry"
         };
 
         KafkaHelper.CreateKafkaTopics(brokers, topics).GetAwaiter().GetResult();

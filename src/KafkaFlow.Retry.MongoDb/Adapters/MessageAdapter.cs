@@ -12,38 +12,38 @@ internal class MessageAdapter : IMessageAdapter
 
     public MessageAdapter(IHeaderAdapter headerAdapter)
     {
-            Guard.Argument(headerAdapter, nameof(headerAdapter)).NotNull();
+        Guard.Argument(headerAdapter, nameof(headerAdapter)).NotNull();
 
-            _headerAdapter = headerAdapter;
-        }
+        _headerAdapter = headerAdapter;
+    }
 
     public RetryQueueItemMessage Adapt(RetryQueueItemMessageDbo messageDbo)
     {
-            Guard.Argument(messageDbo, nameof(messageDbo)).NotNull();
+        Guard.Argument(messageDbo, nameof(messageDbo)).NotNull();
 
-            return new RetryQueueItemMessage(
-                messageDbo.TopicName,
-                messageDbo.Key,
-                messageDbo.Value,
-                messageDbo.Partition,
-                messageDbo.Offset,
-                messageDbo.UtcTimeStamp,
-                messageDbo.Headers?.Select(headerDbo => _headerAdapter.Adapt(headerDbo)));
-        }
+        return new RetryQueueItemMessage(
+            messageDbo.TopicName,
+            messageDbo.Key,
+            messageDbo.Value,
+            messageDbo.Partition,
+            messageDbo.Offset,
+            messageDbo.UtcTimeStamp,
+            messageDbo.Headers?.Select(headerDbo => _headerAdapter.Adapt(headerDbo)));
+    }
 
     public RetryQueueItemMessageDbo Adapt(RetryQueueItemMessage message)
     {
-            Guard.Argument(message, nameof(message)).NotNull();
+        Guard.Argument(message, nameof(message)).NotNull();
 
-            return new RetryQueueItemMessageDbo
-            {
-                Key = message.Key,
-                Value = message.Value,
-                Offset = message.Offset,
-                Partition = message.Partition,
-                TopicName = message.TopicName,
-                UtcTimeStamp = message.UtcTimeStamp,
-                Headers = message.Headers.Select(h => _headerAdapter.Adapt(h))
-            };
-        }
+        return new RetryQueueItemMessageDbo
+        {
+            Key = message.Key,
+            Value = message.Value,
+            Offset = message.Offset,
+            Partition = message.Partition,
+            TopicName = message.TopicName,
+            UtcTimeStamp = message.UtcTimeStamp,
+            Headers = message.Headers.Select(h => _headerAdapter.Adapt(h))
+        };
+    }
 }

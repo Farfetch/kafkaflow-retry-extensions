@@ -6,10 +6,10 @@ public class DeleteQueuesResult
 {
     public DeleteQueuesResult(int totalQueuesDeleted)
     {
-            Guard.Argument(totalQueuesDeleted, nameof(totalQueuesDeleted)).NotNegative();
+        Guard.Argument(totalQueuesDeleted, nameof(totalQueuesDeleted)).NotNegative();
 
-            TotalQueuesDeleted = totalQueuesDeleted;
-        }
+        TotalQueuesDeleted = totalQueuesDeleted;
+    }
 
     public int TotalQueuesDeleted { get; }
 }

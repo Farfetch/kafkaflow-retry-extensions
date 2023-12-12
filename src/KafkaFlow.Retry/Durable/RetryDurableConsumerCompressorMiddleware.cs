@@ -10,13 +10,14 @@ internal class RetryDurableConsumerCompressorMiddleware : IMessageMiddleware
 
     public RetryDurableConsumerCompressorMiddleware(IGzipCompressor gzipCompressor)
     {
-            Guard.Argument(gzipCompressor).NotNull();
+        Guard.Argument(gzipCompressor).NotNull();
 
-            _gzipCompressor = gzipCompressor;
-        }
+        _gzipCompressor = gzipCompressor;
+    }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            await next(context.SetMessage(context.Message.Key, _gzipCompressor.Decompress((byte[])context.Message.Value))).ConfigureAwait(false);
-        }
+        await next(context.SetMessage(context.Message.Key, _gzipCompressor.Decompress((byte[])context.Message.Value)))
+            .ConfigureAwait(false);
+    }
 }
