@@ -9,45 +9,47 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repositories", "Repositories", "{90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry", "KafkaFlow.Retry\KafkaFlow.Retry.csproj", "{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry", "src\KafkaFlow.Retry\KafkaFlow.Retry.csproj", "{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{B1D2A20A-0742-4D8E-A773-66EB95560152}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Sample", "..\samples\KafkaFlow.Retry.Sample\KafkaFlow.Retry.Sample.csproj", "{745CB854-1FFE-4C60-AD15-69A3A784CC9F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Sample", "samples\KafkaFlow.Retry.Sample\KafkaFlow.Retry.Sample.csproj", "{745CB854-1FFE-4C60-AD15-69A3A784CC9F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SqlServer", "KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj", "{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SqlServer", "src\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj", "{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.MongoDb", "KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj", "{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.MongoDb", "src\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj", "{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API", "KafkaFlow.Retry.API\KafkaFlow.Retry.API.csproj", "{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API", "src\KafkaFlow.Retry.API\KafkaFlow.Retry.API.csproj", "{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API.Sample", "..\samples\KafkaFlow.Retry.API.Sample\KafkaFlow.Retry.API.Sample.csproj", "{F27309CD-D796-425B-B5D6-780B7B57E9C7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API.Sample", "samples\KafkaFlow.Retry.API.Sample\KafkaFlow.Retry.API.Sample.csproj", "{F27309CD-D796-425B-B5D6-780B7B57E9C7}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.UnitTests", "..\tests\KafkaFlow.Retry.UnitTests\KafkaFlow.Retry.UnitTests.csproj", "{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.UnitTests", "tests\KafkaFlow.Retry.UnitTests\KafkaFlow.Retry.UnitTests.csproj", "{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.IntegrationTests", "..\tests\KafkaFlow.Retry.IntegrationTests\KafkaFlow.Retry.IntegrationTests.csproj", "{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.IntegrationTests", "tests\KafkaFlow.Retry.IntegrationTests\KafkaFlow.Retry.IntegrationTests.csproj", "{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9557F908-472F-4872-BCF8-8EC028EFDA9B}"
 	ProjectSection(SolutionItems) = preProject
-		CodeCoverage.runsettings = CodeCoverage.runsettings
 		Directory.Build.props = Directory.Build.props
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SchemaRegistry.Sample", "..\samples\KafkaFlow.Retry.SchemaRegistry.Sample\KafkaFlow.Retry.SchemaRegistry.Sample.csproj", "{510D65E8-B62C-402C-9CE3-47C7055A29FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SchemaRegistry.Sample", "samples\KafkaFlow.Retry.SchemaRegistry.Sample\KafkaFlow.Retry.SchemaRegistry.Sample.csproj", "{510D65E8-B62C-402C-9CE3-47C7055A29FF}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Common.Sample", "..\samples\KafkaFlow.Retry.Common.Sample\KafkaFlow.Retry.Common.Sample.csproj", "{B14C5859-85C5-4E2F-80C7-D8B29E36481A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Common.Sample", "samples\KafkaFlow.Retry.Common.Sample\KafkaFlow.Retry.Common.Sample.csproj", "{B14C5859-85C5-4E2F-80C7-D8B29E36481A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{2A0BC610-E0FE-4BC3-B232-A8B918BE7381}"
 	ProjectSection(SolutionItems) = preProject
-		..\.github\workflows\build.yml = ..\.github\workflows\build.yml
-		..\.github\workflows\publish.yml = ..\.github\workflows\publish.yml
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
 	EndProjectSection
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.Postgres", "KafkaFlow.Retry.Postgres\KafkaFlow.Retry.Postgres.csproj", "{B7E4C23D-48DC-4056-8658-19D54AF7008A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.Postgres", "src\KafkaFlow.Retry.Postgres\KafkaFlow.Retry.Postgres.csproj", "{B7E4C23D-48DC-4056-8658-19D54AF7008A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0192C262-63AF-4918-B142-EC07DBB9E501}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{18F1AB11-9DC0-442F-9B6D-7098A93727B8}"
+	ProjectSection(SolutionItems) = preProject
+		CodeCoverage.runsettings = tests\CodeCoverage.runsettings
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
