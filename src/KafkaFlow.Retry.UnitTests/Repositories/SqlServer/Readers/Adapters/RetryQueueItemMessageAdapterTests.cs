@@ -1,9 +1,7 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.SqlServer.Model;
-using global::KafkaFlow.Retry.SqlServer.Readers.Adapters;
-using Xunit;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.SqlServer.Model;
+using KafkaFlow.Retry.SqlServer.Readers.Adapters;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers.Adapters;
 

@@ -67,7 +67,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
@@ -133,7 +133,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionSqlServerProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
@@ -143,7 +143,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
@@ -207,7 +207,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetryDurableGuaranteeOrderedConsumptionPostgresProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
@@ -217,7 +217,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-guarantee-ordered-consumption-postgres")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
@@ -283,7 +283,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetryDurableLatestConsumptionMongoDbProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-durable-latest-consumption-mongo-db")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
@@ -293,7 +293,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-latest-consumption-mongo-db")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
@@ -359,7 +359,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetryDurableLatestConsumptionSqlServerProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-durable-latest-consumption-sql-server")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
@@ -369,7 +369,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-latest-consumption-sql-server")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset((KafkaFlow.AutoOffsetReset)AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset((AutoOffsetReset)AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
@@ -434,7 +434,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetryDurableLatestConsumptionPostgresProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-durable-latest-consumption-postgres")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryDurableTestMessage, NewtonsoftJsonSerializer>()))
@@ -444,7 +444,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-durable-latest-consumption-postgres")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset((KafkaFlow.AutoOffsetReset)AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset((AutoOffsetReset)AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
@@ -505,7 +505,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetryForeverProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-forever")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetryForeverTestMessage, ProtobufNetSerializer>()))
@@ -515,7 +515,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-forever")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<ProtobufNetDeserializer>(typeof(RetryForeverTestMessage))
@@ -537,7 +537,7 @@ internal static class BootstrapperKafka
                 .AddProducer<RetrySimpleProducer>(
                     producer => producer
                         .DefaultTopic("test-kafka-flow-retry-retry-simple")
-                        .WithCompression(Confluent.Kafka.CompressionType.Gzip)
+                        .WithCompression(CompressionType.Gzip)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeSerializer<RetrySimpleTestMessage, NewtonsoftJsonSerializer>()))
@@ -547,7 +547,7 @@ internal static class BootstrapperKafka
                         .WithGroupId("test-consumer-kafka-flow-retry-retry-simple")
                         .WithBufferSize(100)
                         .WithWorkersCount(10)
-                        .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
+                        .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
                                 .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetrySimpleTestMessage))

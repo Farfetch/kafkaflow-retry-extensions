@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Forever;
-using Xunit;
+using KafkaFlow.Retry.Forever;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Forever;
 

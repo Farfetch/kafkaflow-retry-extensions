@@ -6,7 +6,7 @@ internal abstract class PollingDefinition
 {
     protected PollingDefinition(bool enabled, string cronExpression)
     {
-            Guard.Argument(this.PollingJobType, nameof(this.PollingJobType)).NotDefault();
+            Guard.Argument(PollingJobType, nameof(PollingJobType)).NotDefault();
 
             if (enabled)
             {
@@ -14,8 +14,8 @@ internal abstract class PollingDefinition
                      .True("The cron expression that was defined is not valid");
             }
 
-            this.Enabled = enabled;
-            this.CronExpression = cronExpression;
+            Enabled = enabled;
+            CronExpression = cronExpression;
         }
 
     public string CronExpression { get; }

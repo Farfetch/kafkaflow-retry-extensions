@@ -7,7 +7,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -25,7 +24,7 @@ public class SaveToQueueTests : RetryQueueDataProviderTestsTemplate
     public async Task SaveToQueueAsync_ExistingQueueWithOneItem_ReturnsAddedStatus(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var saveToQueueInput = new RetryQueueBuilder()
             .CreateItem()
@@ -68,7 +67,7 @@ public class SaveToQueueTests : RetryQueueDataProviderTestsTemplate
     public async Task SaveToQueueAsync_ExistingQueueWithStatusDone_ReturnsAddedStatus(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var saveToQueueInput = new RetryQueueBuilder()
             .WithDefaultItem()
@@ -108,7 +107,7 @@ public class SaveToQueueTests : RetryQueueDataProviderTestsTemplate
     public async Task SaveToQueueAsync_NonExistingQueue_ReturnsCreatedStatus(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var saveToQueueInput = new RetryQueueBuilder()
             .WithDefaultItem()

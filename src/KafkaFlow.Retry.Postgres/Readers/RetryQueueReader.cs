@@ -38,16 +38,16 @@ internal class RetryQueueReader : IRetryQueueReader
             RetryQueueDbo previousRetryQueue = null;
             RetryQueue currentRetryQueue = null;
 
-            var items = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dboWrapper.ItemsDbos, this.retryQueueItemAdapter);
-            var messages = new DboCollectionNavigator<RetryQueueItemMessageDbo, RetryQueueItemMessage>(dboWrapper.MessagesDbos, this.retryQueueItemMessageAdapter);
-            var headers = new DboCollectionNavigator<RetryQueueItemMessageHeaderDbo, MessageHeader>(dboWrapper.HeadersDbos, this.retryQueueItemMessageHeaderAdapter);
+            var items = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dboWrapper.ItemsDbos, retryQueueItemAdapter);
+            var messages = new DboCollectionNavigator<RetryQueueItemMessageDbo, RetryQueueItemMessage>(dboWrapper.MessagesDbos, retryQueueItemMessageAdapter);
+            var headers = new DboCollectionNavigator<RetryQueueItemMessageHeaderDbo, MessageHeader>(dboWrapper.HeadersDbos, retryQueueItemMessageHeaderAdapter);
 
             foreach (var retryQueue in dboWrapper.QueuesDbos)
             {
                 // check if we're still in the same retry queue as the previous
                 if (previousRetryQueue is null || previousRetryQueue.Id != retryQueue.Id)
                 {
-                    currentRetryQueue = this.retryQueueAdapter.Adapt(retryQueue);
+                    currentRetryQueue = retryQueueAdapter.Adapt(retryQueue);
 
                     retryQueues.Add(currentRetryQueue);
                 }

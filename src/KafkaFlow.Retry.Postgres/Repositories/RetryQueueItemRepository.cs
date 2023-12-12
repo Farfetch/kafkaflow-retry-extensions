@@ -82,7 +82,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
                 command.Parameters.AddWithValue("IdDomain", domainId);
 
-                return await this.ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -101,7 +101,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
 
                 command.Parameters.AddWithValue("IdDomainRetryQueue", domainRetryQueueId);
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -157,7 +157,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
                 command.CommandText = query;
                 command.Parameters.AddWithValue("DateTimeUtcNow", DateTime.UtcNow);
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -181,7 +181,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
                 command.Parameters.AddWithValue("IdItemStatusInRetry", (byte)RetryQueueItemStatus.InRetry);
                 command.Parameters.AddWithValue("Sort", sort);
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -205,13 +205,13 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
                 command.Parameters.AddWithValue("IdItemStatusInRetry", (byte)RetryQueueItemStatus.InRetry);
                 command.Parameters.AddWithValue("Sort", sort);
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 
     public async Task<bool> IsFirstWaitingInQueueAsync(IDbConnection dbConnection, RetryQueueItemDbo item)
     {
-            var sortedItems = await this.GetItemsOrderedAsync(
+            var sortedItems = await GetItemsOrderedAsync(
                     dbConnection,
                     new Guid[] { item.DomainRetryQueueId },
                     new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
@@ -281,7 +281,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
             {
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
-                    items.Add(this.FillDbo(reader));
+                    items.Add(FillDbo(reader));
                 }
             }
 
@@ -294,7 +294,7 @@ internal sealed class RetryQueueItemRepository : IRetryQueueItemRepository
             {
                 if (await reader.ReadAsync().ConfigureAwait(false))
                 {
-                    return this.FillDbo(reader);
+                    return FillDbo(reader);
                 }
             }
 

@@ -12,8 +12,8 @@ public class CheckQueueInput
             Guard.Argument(message).NotNull();
             Guard.Argument(queueGroupKey).NotNull().NotEmpty();
 
-            this.Message = message;
-            this.QueueGroupKey = queueGroupKey;
+            Message = message;
+            QueueGroupKey = queueGroupKey;
         }
 
     public RetryQueueItemMessage Message { get; }

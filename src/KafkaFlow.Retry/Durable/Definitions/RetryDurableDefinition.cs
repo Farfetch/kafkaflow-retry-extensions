@@ -21,8 +21,8 @@ internal class RetryDurableDefinition
             Guard.Argument(retryDurableQueueRepository).NotNull();
 
             this.retryWhenExceptions = retryWhenExceptions;
-            this.RetryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinition;
-            this.RetryDurableQueueRepository = retryDurableQueueRepository;
+            RetryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinition;
+            RetryDurableQueueRepository = retryDurableQueueRepository;
         }
 
     public IRetryDurableQueueRepository RetryDurableQueueRepository { get; }
@@ -30,5 +30,5 @@ internal class RetryDurableDefinition
     public RetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
 
     public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+        retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
 }

@@ -26,7 +26,7 @@ internal class QueuesAdapter : IQueuesAdapter
                 queuesDbo.ToDictionary
                 (
                     queueDbo => queueDbo.Id,
-                    queueDbo => this.Adapt(queueDbo)
+                    queueDbo => Adapt(queueDbo)
                 )
             );
 
@@ -35,7 +35,7 @@ internal class QueuesAdapter : IQueuesAdapter
                 Guard.Argument(queuesDictionary.ContainsKey(itemDbo.RetryQueueId), nameof(itemDbo.RetryQueueId))
                      .True($"{nameof(itemDbo.RetryQueueId)} not found in queues list.");
 
-                queuesDictionary[itemDbo.RetryQueueId].AddItem(this.itemAdapter.Adapt(itemDbo));
+                queuesDictionary[itemDbo.RetryQueueId].AddItem(itemAdapter.Adapt(itemDbo));
             }
 
             return queuesDictionary.Values;

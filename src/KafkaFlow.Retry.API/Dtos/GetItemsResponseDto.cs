@@ -6,7 +6,7 @@ public class GetItemsResponseDto
 {
     public GetItemsResponseDto(IEnumerable<RetryQueueItemDto> queueItemDtos)
     {
-            this.QueueItems = queueItemDtos;
+            QueueItems = queueItemDtos;
         }
 
     public IEnumerable<RetryQueueItemDto> QueueItems { get; set; }

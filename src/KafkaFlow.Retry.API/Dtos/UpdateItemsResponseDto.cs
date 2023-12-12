@@ -6,7 +6,7 @@ public class UpdateItemsResponseDto
 {
     public UpdateItemsResponseDto()
     {
-            this.UpdateItemsResults = new List<UpdateItemResultDto>();
+            UpdateItemsResults = new List<UpdateItemResultDto>();
         }
 
     public IList<UpdateItemResultDto> UpdateItemsResults { get; set; }

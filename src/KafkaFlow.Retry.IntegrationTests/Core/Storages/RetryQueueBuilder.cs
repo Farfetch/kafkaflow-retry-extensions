@@ -22,40 +22,40 @@ internal class RetryQueueBuilder
     public RetryQueueBuilder()
     {
         // defaults
-        this.queueId = Guid.NewGuid();
-        this.searchGroupKey = "default-search-group-key-repositories-tests";
-        this.queueGroupKey = $"queue-group-key-{this.queueId}";
-        this.status = RetryQueueStatus.Active;
-        this.creationDate = DefaultDateTime;
-        this.lastExecution = DefaultDateTime;
+        queueId = Guid.NewGuid();
+        searchGroupKey = "default-search-group-key-repositories-tests";
+        queueGroupKey = $"queue-group-key-{queueId}";
+        status = RetryQueueStatus.Active;
+        creationDate = DefaultDateTime;
+        lastExecution = DefaultDateTime;
 
-        this.items = new List<RetryQueueItem>();
+        items = new List<RetryQueueItem>();
     }
 
     public RetryQueue Build()
     {
         return new RetryQueue(
-            this.queueId,
-            this.searchGroupKey,
-            this.queueGroupKey,
-            this.DefaultDateResilience(this.creationDate),
-            this.DefaultDateResilience(this.lastExecution),
-            this.status,
-            this.items
+            queueId,
+            searchGroupKey,
+            queueGroupKey,
+            DefaultDateResilience(creationDate),
+            DefaultDateResilience(lastExecution),
+            status,
+            items
         );
     }
 
     public SaveToQueueInput BuildAsInput()
     {
-        Guard.Argument(this.items, nameof(this.items)).Count(1);
+        Guard.Argument(items, nameof(items)).Count(1);
 
-        var item = this.items.Single();
+        var item = items.Single();
 
         return new SaveToQueueInput(
             item.Message,
-            this.searchGroupKey,
-            this.queueGroupKey,
-            this.status,
+            searchGroupKey,
+            queueGroupKey,
+            status,
             item.Status,
             item.SeverityLevel,
             item.CreationDate,
@@ -68,7 +68,7 @@ internal class RetryQueueBuilder
 
     public RetryQueueItemBuilder CreateItem()
     {
-        return new RetryQueueItemBuilder(this, this.items.Count);
+        return new RetryQueueItemBuilder(this, items.Count);
     }
 
     public RetryQueueBuilder WithCreationDate(DateTime creationDate)
@@ -79,14 +79,14 @@ internal class RetryQueueBuilder
 
     public RetryQueueBuilder WithDefaultItem()
     {
-        return this.CreateItem()
+        return CreateItem()
             .WithWaitingStatus()
             .AddItem();
     }
 
     public RetryQueueBuilder WithItem(RetryQueueItem item)
     {
-        this.items.Add(item);
+        items.Add(item);
         return this;
     }
 

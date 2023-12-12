@@ -30,8 +30,7 @@ internal class RetryDurableMiddleware : IMessageMiddleware
     {
             try
             {
-                var resultAddIfQueueExistsAsync = await this
-                    .retryDurableDefinition
+                var resultAddIfQueueExistsAsync = await retryDurableDefinition
                     .RetryDurableQueueRepository
                     .AddIfQueueExistsAsync(context)
                     .ConfigureAwait(false);
@@ -48,24 +47,24 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             }
 
             var policy = Policy
-                .Handle<Exception>(exception => this.retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
-                    this.retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
-                    (retryNumber, c) => this.retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
+                    retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
+                    (retryNumber, c) => retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (this.retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.PauseConsumer
-                        && !this.controlWorkerId.HasValue)
+                        if (retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.PauseConsumer
+                        && !controlWorkerId.HasValue)
                         {
-                            lock (this.syncPauseAndResume)
+                            lock (syncPauseAndResume)
                             {
-                                if (!this.controlWorkerId.HasValue)
+                                if (!controlWorkerId.HasValue)
                                 {
-                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
+                                    controlWorkerId = context.ConsumerContext.WorkerId;
 
                                     context.ConsumerContext.Pause();
 
-                                    this.logHandler.Info(
+                                    logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
@@ -77,7 +76,7 @@ internal class RetryDurableMiddleware : IMessageMiddleware
                             }
                         }
 
-                        this.logHandler.Error(
+                        logHandler.Error(
                             $"Exception captured by {nameof(RetryDurableMiddleware)}. Retry in process.",
                             exception,
                             new
@@ -109,10 +108,9 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             }
             catch (Exception exception)
             {
-                if (this.retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
+                if (retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
                 {
-                    var resultSaveToQueue = await this
-                        .retryDurableDefinition
+                    var resultSaveToQueue = await retryDurableDefinition
                         .RetryDurableQueueRepository
                         .SaveToQueueAsync(context, exception.Message)
                         .ConfigureAwait(false);
@@ -130,17 +128,17 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             }
             finally
             {
-                if (this.controlWorkerId == context.ConsumerContext.WorkerId)
+                if (controlWorkerId == context.ConsumerContext.WorkerId)
                 {
-                    lock (this.syncPauseAndResume)
+                    lock (syncPauseAndResume)
                     {
-                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
+                        if (controlWorkerId == context.ConsumerContext.WorkerId)
                         {
-                            this.controlWorkerId = null;
+                            controlWorkerId = null;
 
                             context.ConsumerContext.Resume();
 
-                            this.logHandler.Info(
+                            logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {

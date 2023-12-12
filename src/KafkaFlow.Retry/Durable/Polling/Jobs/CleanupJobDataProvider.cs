@@ -26,7 +26,7 @@ internal class CleanupJobDataProvider : IJobDataProvider
 
         this.cleanupPollingDefinition = cleanupPollingDefinition;
         this.trigger = trigger;
-        this.jobDetail = JobBuilder
+        jobDetail = JobBuilder
             .Create<CleanupPollingJob>()
             .WithIdentity($"pollingJob_{schedulerId}_{cleanupPollingDefinition.PollingJobType}", "queueTrackerGroup")
             .SetJobData(
@@ -40,9 +40,9 @@ internal class CleanupJobDataProvider : IJobDataProvider
             .Build();
     }
 
-    public IJobDetail JobDetail => this.jobDetail;
+    public IJobDetail JobDetail => jobDetail;
 
-    public PollingDefinition PollingDefinition => this.cleanupPollingDefinition;
+    public PollingDefinition PollingDefinition => cleanupPollingDefinition;
 
-    public ITrigger Trigger => this.trigger;
+    public ITrigger Trigger => trigger;
 }

@@ -13,7 +13,7 @@ internal class GetItemsResponseDtoAdapter : IGetItemsResponseDtoAdapter
 
     public GetItemsResponseDtoAdapter()
     {
-        this.retryQueueItemAdapter = new RetryQueueItemAdapter();
+        retryQueueItemAdapter = new RetryQueueItemAdapter();
     }
 
     public GetItemsResponseDto Adapt(GetQueuesResult getQueuesResult)
@@ -27,7 +27,7 @@ internal class GetItemsResponseDtoAdapter : IGetItemsResponseDtoAdapter
         {
             foreach (var item in queue.Items)
             {
-                itemsDto.Add(this.retryQueueItemAdapter.Adapt(item, queue.QueueGroupKey));
+                itemsDto.Add(retryQueueItemAdapter.Adapt(item, queue.QueueGroupKey));
             }
         }
 

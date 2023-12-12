@@ -18,12 +18,12 @@ internal class RetryForeverDefinition
             Guard.Argument(retryWhenExceptions.Count).NotNegative(value => "At least an exception should be defined");
             Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
 
-            this.TimeBetweenTriesPlan = timeBetweenTriesPlan;
+            TimeBetweenTriesPlan = timeBetweenTriesPlan;
             this.retryWhenExceptions = retryWhenExceptions;
         }
 
     public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
     public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+        retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
 }

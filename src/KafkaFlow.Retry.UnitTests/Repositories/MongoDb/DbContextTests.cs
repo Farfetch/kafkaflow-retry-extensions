@@ -1,9 +1,7 @@
-﻿using FluentAssertions;
-using KafkaFlow.Retry.MongoDb;
+﻿using KafkaFlow.Retry.MongoDb;
 using KafkaFlow.Retry.MongoDb.Model;
 using MongoDB.Driver;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 

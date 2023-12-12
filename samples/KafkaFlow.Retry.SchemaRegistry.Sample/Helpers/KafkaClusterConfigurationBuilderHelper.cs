@@ -1,7 +1,7 @@
 ﻿using System;
 using Confluent.SchemaRegistry;
 using Confluent.SchemaRegistry.Serdes;
-using global::SchemaRegistry;
+using SchemaRegistry;
 using KafkaFlow.Configuration;
 using KafkaFlow.Retry.MongoDb;
 using KafkaFlow.Retry.SchemaRegistry.Sample.ContractResolvers;

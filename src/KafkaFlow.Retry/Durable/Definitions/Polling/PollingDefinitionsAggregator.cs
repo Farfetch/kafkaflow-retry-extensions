@@ -14,8 +14,8 @@ internal class PollingDefinitionsAggregator
         var pollingJobTypes = pollingDefinitions.Select(pd => pd.PollingJobType);
         Guard.Argument(pollingJobTypes, nameof(pollingJobTypes)).DoesNotContainDuplicate();
 
-        this.SchedulerId = schedulerId;
-        this.PollingDefinitions = pollingDefinitions.ToDictionary(pd => pd.PollingJobType, pd => pd);
+        SchedulerId = schedulerId;
+        PollingDefinitions = pollingDefinitions.ToDictionary(pd => pd.PollingJobType, pd => pd);
     }
 
     public IDictionary<PollingJobType, PollingDefinition> PollingDefinitions { get; }

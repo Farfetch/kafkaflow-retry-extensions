@@ -24,7 +24,7 @@ internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
             Guard.Argument(action).NotNull();
             Guard.Argument(navigatingCondition).NotNull();
 
-            this.Navigate((domain, _) => action(domain), navigatingCondition);
+            Navigate((domain, _) => action(domain), navigatingCondition);
         }
 
     public void Navigate(Action<TDomain, TDbo> action, Predicate<TDbo> navigatingCondition)
@@ -32,18 +32,18 @@ internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
             Guard.Argument(action).NotNull();
             Guard.Argument(navigatingCondition).NotNull();
 
-            while (this.currentIndex < this.dbos.Count)
+            while (currentIndex < dbos.Count)
             {
-                var currentDbo = this.dbos[this.currentIndex];
+                var currentDbo = dbos[currentIndex];
 
                 if (!navigatingCondition(currentDbo))
                 {
                     return;
                 }
 
-                action(this.dboDomainAdapter.Adapt(currentDbo), currentDbo);
+                action(dboDomainAdapter.Adapt(currentDbo), currentDbo);
 
-                this.currentIndex++;
+                currentIndex++;
             }
         }
 }

@@ -12,8 +12,8 @@ public class UpdateItemsInQueueInput
             Guard.Argument(queueGroupKey, nameof(queueGroupKey)).NotNull();
             Guard.Argument(status, nameof(status)).NotDefault();
 
-            this.QueueGroupKey = queueGroupKey;
-            this.ItemStatus = status;
+            QueueGroupKey = queueGroupKey;
+            ItemStatus = status;
         }
 
     public RetryQueueItemStatus ItemStatus { get; }

@@ -7,7 +7,6 @@ using KafkaFlow.Retry.Durable.Repository;
 using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
 using Moq;
 using Quartz;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling.Jobs;
 

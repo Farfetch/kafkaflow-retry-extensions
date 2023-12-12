@@ -42,7 +42,7 @@ public sealed class SqlServerDbDataProviderFactory
                 new RetryQueueItemMessageHeaderDboFactory());
         }
 
-    public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings) => new RetrySchemaCreator(sqlServerDbSettings, this.GetScriptsForSchemaCreation());
+    public IRetrySchemaCreator CreateSchemaCreator(SqlServerDbSettings sqlServerDbSettings) => new RetrySchemaCreator(sqlServerDbSettings, GetScriptsForSchemaCreation());
 
     private IEnumerable<Script> GetScriptsForSchemaCreation()
     {

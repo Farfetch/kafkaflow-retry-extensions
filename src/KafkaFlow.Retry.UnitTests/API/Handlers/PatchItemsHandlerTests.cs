@@ -4,18 +4,16 @@ using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
-using global::KafkaFlow.Retry.API.Dtos;
-using global::KafkaFlow.Retry.API.Dtos.Common;
-using global::KafkaFlow.Retry.API.Handlers;
-using global::KafkaFlow.Retry.Durable.Repository;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.UnitTests.API.Utilities;
+using KafkaFlow.Retry.API.Adapters.UpdateItems;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.API.Dtos.Common;
+using KafkaFlow.Retry.API.Handlers;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.UnitTests.API.Utilities;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API.Handlers;
 
@@ -31,13 +29,13 @@ public class PatchItemsHandlerTests
     public async Task PatchItemsHandler_HandleAsync_Success()
     {
         // Arrange
-        var updateItemsRequestDto = this.CreateRequestDto();
+        var updateItemsRequestDto = CreateRequestDto();
 
-        var httpContext = await HttpContextHelper.CreateContext(this.resourcePath, this.httpMethod, updateItemsRequestDto);
+        var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateItemsRequestDto);
 
-        var updateItemsInput = this.CreateInput();
-        var updateItemsResult = this.CreateResult();
-        var expectedUpdateItemsResponseDto = this.CreateResponseDto();
+        var updateItemsInput = CreateInput();
+        var updateItemsResult = CreateResult();
+        var expectedUpdateItemsResponseDto = CreateResponseDto();
 
         var mockUpdateItemsInputAdapter = new Mock<IUpdateItemsInputAdapter>();
         mockUpdateItemsInputAdapter
@@ -81,7 +79,7 @@ public class PatchItemsHandlerTests
         string expectedDataException = "Newtonsoft.Json.JsonSerializationException";
         var wrongDto = new List<FakeDto> { new FakeDto { DummyProperty = "some text" } };
 
-        var mockHttpContext = HttpContextHelper.MockHttpContext(this.resourcePath, this.httpMethod, requestBody: wrongDto);
+        var mockHttpContext = HttpContextHelper.MockHttpContext(resourcePath, httpMethod, requestBody: wrongDto);
 
         var httpResponse = new Mock<HttpResponse>();
         string actualData = null;
@@ -124,9 +122,9 @@ public class PatchItemsHandlerTests
         int expectedStatusCode)
     {
         // arrange
-        var updateItemsRequestDto = this.CreateRequestDto();
+        var updateItemsRequestDto = CreateRequestDto();
 
-        var httpContext = await HttpContextHelper.CreateContext(this.resourcePath, this.httpMethod, updateItemsRequestDto);
+        var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateItemsRequestDto);
 
         var handler = new PatchItemsHandler(
             retryQueueDataProvider,

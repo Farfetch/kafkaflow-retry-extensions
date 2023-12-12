@@ -60,20 +60,20 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
               .ExecuteAsync(
                 async () =>
                 {
-                    return await this.AddIfQueueExistsAsync(
+                    return await AddIfQueueExistsAsync(
                         context,
                         new SaveToQueueInput(
                             new RetryQueueItemMessage(
                                 context.ConsumerContext.Topic,
                                 (byte[])context.Message.Key,
-                                this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
+                                messageAdapter.AdaptMessageToRepository(context.Message.Value),
                                 context.ConsumerContext.Partition,
                                 context.ConsumerContext.Offset,
                                 context.ConsumerContext.MessageTimestamp,
-                                this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
+                                messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                             ),
-                            this.pollingDefinitionsAggregator.SchedulerId,
-                            $"{this.pollingDefinitionsAggregator.SchedulerId}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
+                            pollingDefinitionsAggregator.SchedulerId,
+                            $"{pollingDefinitionsAggregator.SchedulerId}-{utf8Encoder.Decode((byte[])context.Message.Key)}",
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -92,11 +92,11 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
     {
             try
             {
-                return await this.retryDurableRepositoryProvider.CheckQueueNewestItemsAsync(queueNewestItemsInput).ConfigureAwait(false);
+                return await retryDurableRepositoryProvider.CheckQueueNewestItemsAsync(queueNewestItemsInput).ConfigureAwait(false);
             }
             catch (Exception ex) when (!(ex is RetryDurableException))
             {
-                var kafkaException = this.GetCheckQueueException(
+                var kafkaException = GetCheckQueueException(
                     $"An error occurred when checking the queue pending items.",
                     queueNewestItemsInput
                 );
@@ -116,11 +116,11 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
 
             try
             {
-                return await this.retryDurableRepositoryProvider.CheckQueuePendingItemsAsync(queuePendingItemsInput).ConfigureAwait(false);
+                return await retryDurableRepositoryProvider.CheckQueuePendingItemsAsync(queuePendingItemsInput).ConfigureAwait(false);
             }
             catch (Exception ex) when (!(ex is RetryDurableException))
             {
-                var kafkaException = this.GetCheckQueueException(
+                var kafkaException = GetCheckQueueException(
                     $"An error occurred when checking the queue pending items.",
                     queuePendingItemsInput
                 );
@@ -133,14 +133,14 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
 
     public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput)
     {
-            return await this.retryDurableRepositoryProvider.DeleteQueuesAsync(deleteQueuesInput).ConfigureAwait(false);
+            return await retryDurableRepositoryProvider.DeleteQueuesAsync(deleteQueuesInput).ConfigureAwait(false);
         }
 
     public async Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput)
     {
             try
             {
-                var getQueuesResult = await this.retryDurableRepositoryProvider.GetQueuesAsync(getQueuesInput).ConfigureAwait(false);
+                var getQueuesResult = await retryDurableRepositoryProvider.GetQueuesAsync(getQueuesInput).ConfigureAwait(false);
 
                 return getQueuesResult?.RetryQueues ?? Enumerable.Empty<RetryQueue>();
             }
@@ -166,19 +166,19 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
                     {
                         var refDate = DateTime.UtcNow;
 
-                        return await this.SaveToQueueAsync(context,
+                        return await SaveToQueueAsync(context,
                            new SaveToQueueInput(
                                 new RetryQueueItemMessage(
                                     context.ConsumerContext.Topic,
                                     (byte[])context.Message.Key,
-                                    this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
+                                    messageAdapter.AdaptMessageToRepository(context.Message.Value),
                                     context.ConsumerContext.Partition,
                                     context.ConsumerContext.Offset,
                                     context.ConsumerContext.MessageTimestamp,
-                                    this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
+                                    messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                                 ),
-                            this.pollingDefinitionsAggregator.SchedulerId,
-                            $"{this.pollingDefinitionsAggregator.SchedulerId}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
+                            pollingDefinitionsAggregator.SchedulerId,
+                            $"{pollingDefinitionsAggregator.SchedulerId}-{utf8Encoder.Decode((byte[])context.Message.Key)}",
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -195,7 +195,7 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
 
     public async Task UpdateItemAsync(UpdateItemInput updateItemInput)
     {
-            foreach (var handler in this.updateItemHandlers)
+            foreach (var handler in updateItemHandlers)
             {
                 if (handler.CanHandle(updateItemInput))
                 {
@@ -233,11 +233,11 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
             {
                 var checkQueueInput = new CheckQueueInput(saveToQueueInput.Message, saveToQueueInput.QueueGroupKey);
 
-                var checkQueueResult = await this.retryDurableRepositoryProvider.CheckQueueAsync(checkQueueInput).ConfigureAwait(false);
+                var checkQueueResult = await retryDurableRepositoryProvider.CheckQueueAsync(checkQueueInput).ConfigureAwait(false);
 
                 if (checkQueueResult.Status == CheckQueueResultStatus.Exists)
                 {
-                    var saveToQueueResult = await this.retryDurableRepositoryProvider.SaveToQueueAsync(saveToQueueInput).ConfigureAwait(false);
+                    var saveToQueueResult = await retryDurableRepositoryProvider.SaveToQueueAsync(saveToQueueInput).ConfigureAwait(false);
 
                     if (saveToQueueResult.Status == SaveToQueueResultStatus.Added)
                     {
@@ -289,7 +289,7 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
     {
             try
             {
-                var result = await this.retryDurableRepositoryProvider.SaveToQueueAsync(input).ConfigureAwait(false);
+                var result = await retryDurableRepositoryProvider.SaveToQueueAsync(input).ConfigureAwait(false);
 
                 if (result.Status == SaveToQueueResultStatus.Added)
                 {

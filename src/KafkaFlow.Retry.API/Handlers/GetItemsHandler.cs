@@ -38,19 +38,19 @@ internal class GetItemsHandler : RetryRequestHandlerBase
     {
         try
         {
-            var requestDto = this.getItemsRequestDtoReader.Read(request);
+            var requestDto = getItemsRequestDtoReader.Read(request);
 
-            var input = this.getItemsInputAdapter.Adapt(requestDto);
+            var input = getItemsInputAdapter.Adapt(requestDto);
 
-            var result = await this.retryDurableQueueRepositoryProvider.GetQueuesAsync(input).ConfigureAwait(false);
+            var result = await retryDurableQueueRepositoryProvider.GetQueuesAsync(input).ConfigureAwait(false);
 
-            var responseDto = this.getItemsResponseDtoAdapter.Adapt(result);
+            var responseDto = getItemsResponseDtoAdapter.Adapt(result);
 
-            await this.WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
+            await WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
         }
         catch (System.Exception ex)
         {
-            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+            await WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
         }
     }
 }

@@ -1,8 +1,6 @@
 ﻿using System.Collections.Generic;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Repository.Adapters;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using Xunit;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Repository.Adapters;
 
@@ -46,7 +44,7 @@ public class MessageHeadersAdapterTests
     {
         private readonly IDictionary<string, byte[]> keyValuePairs = new Dictionary<string, byte[]>();
 
-        public byte[] this[string key] { get => this.keyValuePairs[key]; set => this.keyValuePairs[key] = value; }
+        public byte[] this[string key] { get => keyValuePairs[key]; set => keyValuePairs[key] = value; }
 
         public void Add(string key, byte[] value)
         {

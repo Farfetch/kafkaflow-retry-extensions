@@ -17,8 +17,8 @@ internal class CleanupPollingDefinition : PollingDefinition
                 Guard.Argument(rowsPerRequest, nameof(rowsPerRequest)).Positive();
             }
 
-            this.TimeToLiveInDays = timeToLiveInDays;
-            this.RowsPerRequest = rowsPerRequest;
+            TimeToLiveInDays = timeToLiveInDays;
+            RowsPerRequest = rowsPerRequest;
         }
 
     public override PollingJobType PollingJobType => PollingJobType.Cleanup;

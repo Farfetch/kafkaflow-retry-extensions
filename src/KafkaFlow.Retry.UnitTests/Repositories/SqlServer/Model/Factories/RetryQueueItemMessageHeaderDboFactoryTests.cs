@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.SqlServer.Model;
-using global::KafkaFlow.Retry.SqlServer.Model.Factories;
-using Xunit;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.SqlServer.Model;
+using KafkaFlow.Retry.SqlServer.Model.Factories;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Factories;
 

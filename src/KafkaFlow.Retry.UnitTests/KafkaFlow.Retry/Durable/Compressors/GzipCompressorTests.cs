@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Compression;
-using Xunit;
+using KafkaFlow.Retry.Durable.Compression;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Compressors;
 
@@ -16,7 +14,7 @@ public class GzipCompressorTests
         var data = new byte[0];
 
         // Act
-        var result = this.gzipCompressor.Compress(data);
+        var result = gzipCompressor.Compress(data);
 
         // Assert
         result.Should().BeEquivalentTo(data);
@@ -26,7 +24,7 @@ public class GzipCompressorTests
     public void GzipCompressor_Compress_WithNullArg_ThrowsException()
     {
         // Act
-        Action act = () => this.gzipCompressor.Compress(null);
+        Action act = () => gzipCompressor.Compress(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();
@@ -39,7 +37,7 @@ public class GzipCompressorTests
         var data = new byte[0];
 
         // Act
-        var result = this.gzipCompressor.Decompress(data);
+        var result = gzipCompressor.Decompress(data);
 
         // Assert
         result.Should().BeEquivalentTo(data);
@@ -49,7 +47,7 @@ public class GzipCompressorTests
     public void GzipCompressor_Decompress_WithNullArg_ThrowsException()
     {
         // Act
-        Action act = () => this.gzipCompressor.Decompress(null);
+        Action act = () => gzipCompressor.Decompress(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

@@ -3,7 +3,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -38,6 +37,6 @@ public abstract class RetryQueueDataProviderTestsTemplate
 
     protected IRepository GetRepository(RepositoryType repositoryType)
     {
-        return this.bootstrapperRepositoryFixture.RepositoryProvider.GetRepositoryOfType(repositoryType);
+        return bootstrapperRepositoryFixture.RepositoryProvider.GetRepositoryOfType(repositoryType);
     }
 }

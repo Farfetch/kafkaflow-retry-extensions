@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
 using KafkaFlow.Retry.SqlServer;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer;
 

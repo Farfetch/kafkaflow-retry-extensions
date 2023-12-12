@@ -8,7 +8,7 @@ public class Script
     {
             Guard.Argument(value, nameof(value)).NotNull();
 
-            this.Value = value;
+            Value = value;
         }
 
     public string Value { get; set; }

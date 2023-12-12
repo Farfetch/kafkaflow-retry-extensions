@@ -16,7 +16,7 @@ internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMes
 
             foreach (var header in retryQueueHeadersDbo)
             {
-                await this.AddAsync(dbConnection, header).ConfigureAwait(false);
+                await AddAsync(dbConnection, header).ConfigureAwait(false);
             }
         }
 
@@ -34,7 +34,7 @@ internal sealed class RetryQueueItemMessageHeaderRepository : IRetryQueueItemMes
                                          WHERE h.IdItemMessage IN ({string.Join(",", retryQueueItemMessagesDbo.Select(x => $"'{x.IdRetryQueueItem}'"))})
                                          ORDER BY rqi.IdRetryQueue, h.IdItemMessage";
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 

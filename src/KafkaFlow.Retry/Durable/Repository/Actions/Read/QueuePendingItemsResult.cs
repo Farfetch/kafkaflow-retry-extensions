@@ -10,7 +10,7 @@ public class QueuePendingItemsResult
     {
         Guard.Argument(status, nameof(status)).NotDefault();
 
-        this.Status = status;
+        Status = status;
     }
 
     public QueuePendingItemsResultStatus Status { get; }

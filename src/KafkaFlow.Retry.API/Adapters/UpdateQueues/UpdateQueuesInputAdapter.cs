@@ -11,7 +11,7 @@ internal class UpdateQueuesInputAdapter : IUpdateQueuesInputAdapter
 
     public UpdateQueuesInputAdapter()
     {
-        this.retryQueueItemStatusDtoAdapter = new RetryQueueItemStatusDtoAdapter();
+        retryQueueItemStatusDtoAdapter = new RetryQueueItemStatusDtoAdapter();
     }
 
     public UpdateQueuesInput Adapt(UpdateQueuesRequestDto requestDto)
@@ -20,7 +20,7 @@ internal class UpdateQueuesInputAdapter : IUpdateQueuesInputAdapter
 
         return new UpdateQueuesInput(
             requestDto.QueueGroupKeys,
-            this.retryQueueItemStatusDtoAdapter.Adapt(requestDto.ItemStatus)
+            retryQueueItemStatusDtoAdapter.Adapt(requestDto.ItemStatus)
         );
     }
 }

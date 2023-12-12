@@ -12,9 +12,9 @@ public class UpdateQueueResult
             Guard.Argument(queueGroupKey, nameof(queueGroupKey)).NotNull();
             Guard.Argument(updateStatus, nameof(updateStatus)).NotDefault();
 
-            this.QueueGroupKey = queueGroupKey;
-            this.Status = updateStatus;
-            this.RetryQueueStatus = retryQueueStatus;
+            QueueGroupKey = queueGroupKey;
+            Status = updateStatus;
+            RetryQueueStatus = retryQueueStatus;
         }
 
     public string QueueGroupKey { get; }

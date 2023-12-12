@@ -22,8 +22,8 @@ internal class NewtonsoftJsonMessageAdapter : IMessageAdapter
 
     public byte[] AdaptMessageToRepository(object message)
     {
-            var messageSerialized = this.newtonsoftJsonSerializer.SerializeObject(message);
-            var messageEncoded = this.utf8Encoder.Encode(messageSerialized);
-            return this.gzipCompressor.Compress(messageEncoded);
+            var messageSerialized = newtonsoftJsonSerializer.SerializeObject(message);
+            var messageEncoded = utf8Encoder.Encode(messageSerialized);
+            return gzipCompressor.Compress(messageEncoded);
         }
 }

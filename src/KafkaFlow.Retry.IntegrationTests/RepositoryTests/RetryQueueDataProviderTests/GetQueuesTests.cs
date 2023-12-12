@@ -9,7 +9,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -27,11 +26,11 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_DifferentSearchGroupKeyDifferentQueueStatusDifferentItemStatus_ReturnOnlyRequestedQueuesAndItems(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var searchGroupKeyA = Guid.NewGuid().ToString();
 
-            var inputToGetSearchGroupKeyA = this.GetQueuesInput(searchGroupKeyA);
+            var inputToGetSearchGroupKeyA = GetQueuesInput(searchGroupKeyA);
 
             var searchGroupKeyB = Guid.NewGuid().ToString();
 
@@ -91,11 +90,11 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_ExistingQueue_ReturnsQueue(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
-            var queue = this.GetDefaultQueue();
+            var queue = GetDefaultQueue();
 
-            var input = this.GetQueuesInput(queue.SearchGroupKey);
+            var input = GetQueuesInput(queue.SearchGroupKey);
 
             await repository.CreateQueueAsync(queue);
 
@@ -120,7 +119,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_ExistingQueuesActiveButDifferentSearchGroupKey_DontReturnQueues(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var differentSearchGroupKey = "differentSearchGroupKey";
 
@@ -130,9 +129,9 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
                                         .CreateItem().WithDoneStatus().AddItem()
                                         .Build();
 
-            var input = this.GetQueuesInput(differentSearchGroupKey);
+            var input = GetQueuesInput(differentSearchGroupKey);
 
-            var queue2 = this.GetDefaultQueue();
+            var queue2 = GetDefaultQueue();
 
             await repository.CreateQueueAsync(queue1);
             await repository.CreateQueueAsync(queue2);
@@ -157,14 +156,14 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_ExistingQueueWithDifferentItemStatus_ReturnQueueWithoutItems(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var queue = new RetryQueueBuilder()
                               .CreateItem().WithDoneStatus().AddItem()
                               .CreateItem().WithInRetryStatus().AddItem()
                               .Build();
 
-            var input = this.GetQueuesInput(queue.SearchGroupKey);
+            var input = GetQueuesInput(queue.SearchGroupKey);
 
             await repository.CreateQueueAsync(queue);
 
@@ -187,7 +186,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_ExistingQueueWithDifferentQueueStatus_DontReturnQueues(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var queue = new RetryQueueBuilder()
                                 .WithSearchGroupKey(Guid.NewGuid().ToString())
@@ -195,7 +194,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
                                 .CreateItem().WithDoneStatus().AddItem()
                                 .Build();
 
-            var input = this.GetQueuesInput(queue.SearchGroupKey);
+            var input = GetQueuesInput(queue.SearchGroupKey);
 
             await repository.CreateQueueAsync(queue);
 
@@ -213,7 +212,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_ExistingQueueWithDistinctItemStatus_ReturnsQueueWithFilteredItems(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var queue = new RetryQueueBuilder()
                            .CreateItem().WithDoneStatus().AddItem()
@@ -222,7 +221,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
                            .CreateItem().WithWaitingStatus().AddItem()
                            .Build();
 
-            var input = this.GetQueuesInput(queue.SearchGroupKey);
+            var input = GetQueuesInput(queue.SearchGroupKey);
 
             await repository.CreateQueueAsync(queue);
 
@@ -248,11 +247,11 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_ItemsWithDifferentModifiedDates_ReturnQueueWithItemsandQueueWithNoItem(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var searchGroupKeyA = Guid.NewGuid().ToString();
 
-            var inputToGetSearchGroupKeyA = this.GetQueuesWithStuckStatusInput(searchGroupKeyA);
+            var inputToGetSearchGroupKeyA = GetQueuesWithStuckStatusInput(searchGroupKeyA);
 
             var queueA1 = new RetryQueueBuilder()
                                         .WithSearchGroupKey(searchGroupKeyA)
@@ -309,9 +308,9 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_WithSeverityLevel_ReturnsOnlyItemsWithCorrespondingLevel(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
-            var input = this.GetQueuesInputWithSeverites(new SeverityLevel[] { SeverityLevel.High, SeverityLevel.Medium });
+            var input = GetQueuesInputWithSeverites(new SeverityLevel[] { SeverityLevel.High, SeverityLevel.Medium });
 
             var queueA = new RetryQueueBuilder()
                                 .WithSearchGroupKey("searchGroupKeyA")
@@ -353,7 +352,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task GetQueuesAsync_WithStuckStatusFilter_ReturnsItemsByStatusAndStuckItems(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var expirationInterval = new TimeSpan(1, 0, 0); // 1 hour
 
@@ -377,7 +376,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
                                             .AddItem()
                                         .Build();
 
-            var input = this.GetQueuesInputWithStuckStatusFilter(expirationInterval, queue.SearchGroupKey);
+            var input = GetQueuesInputWithStuckStatusFilter(expirationInterval, queue.SearchGroupKey);
 
             await repository.CreateQueueAsync(queue);
 

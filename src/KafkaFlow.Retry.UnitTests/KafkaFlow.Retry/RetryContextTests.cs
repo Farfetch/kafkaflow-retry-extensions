@@ -1,6 +1,4 @@
 ﻿using System;
-using FluentAssertions;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry;
 

@@ -22,9 +22,9 @@ internal class RetrySimpleDefinition
         Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
 
         this.retryWhenExceptions = retryWhenExceptions;
-        this.TimeBetweenTriesPlan = timeBetweenTriesPlan;
-        this.NumberOfRetries = numberOfRetries;
-        this.PauseConsumer = pauseConsumer;
+        TimeBetweenTriesPlan = timeBetweenTriesPlan;
+        NumberOfRetries = numberOfRetries;
+        PauseConsumer = pauseConsumer;
     }
 
     public int NumberOfRetries { get; }
@@ -34,5 +34,5 @@ internal class RetrySimpleDefinition
     public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
     public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        this.retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+        retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
 }

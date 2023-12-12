@@ -7,9 +7,9 @@ public class UpdateQueueResultDto
 {
     public UpdateQueueResultDto(string queueGroupKey, UpdateQueueResultStatus status, RetryQueueStatus retryQueueStatus)
     {
-        this.QueueGroupKey = queueGroupKey;
-        this.Result = status.ToString();
-        this.QueueStatus = retryQueueStatus.ToString();
+        QueueGroupKey = queueGroupKey;
+        Result = status.ToString();
+        QueueStatus = retryQueueStatus.ToString();
     }
 
     public string QueueGroupKey { get; set; }

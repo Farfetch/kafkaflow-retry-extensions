@@ -8,18 +8,18 @@ public class RetryDurableException : Exception
 {
     public RetryDurableException(RetryError retryError)
     {
-            this.Error = retryError;
+            Error = retryError;
         }
 
     public RetryDurableException(RetryError retryError, string message) : base(message)
     {
-            this.Error = retryError;
+            Error = retryError;
         }
 
     public RetryDurableException(RetryError retryError, string message, Exception exception) : base(message, exception)
     {
-            this.Error = retryError;
-            this.KafkaErrorCode = this.GetErrorCode(exception);
+            Error = retryError;
+            KafkaErrorCode = GetErrorCode(exception);
         }
 
     public RetryError Error { get; }

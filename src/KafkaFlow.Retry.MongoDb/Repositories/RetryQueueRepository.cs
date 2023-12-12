@@ -24,27 +24,27 @@ internal class RetryQueueRepository : IRetryQueueRepository
 
     public async Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds)
     {
-            var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
+            var queuesFilterBuilder = dbContext.RetryQueues.GetFilters();
 
             var deleteFilter = queuesFilterBuilder.In(q => q.Id, queueIds);
 
-            var deleteResult = await this.dbContext.RetryQueues.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
+            var deleteResult = await dbContext.RetryQueues.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
 
-            return new DeleteQueuesResult(this.GetDeletedCount(deleteResult));
+            return new DeleteQueuesResult(GetDeletedCount(deleteResult));
         }
 
     public async Task<RetryQueueDbo> GetQueueAsync(string queueGroupKey)
     {
-            var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
+            var queuesFilterBuilder = dbContext.RetryQueues.GetFilters();
 
             var queuesFilter = queuesFilterBuilder.Eq(q => q.QueueGroupKey, queueGroupKey);
 
-            return await this.dbContext.RetryQueues.GetOneAsync(queuesFilter).ConfigureAwait(false);
+            return await dbContext.RetryQueues.GetOneAsync(queuesFilter).ConfigureAwait(false);
         }
 
     public async Task<IEnumerable<Guid>> GetQueuesToDeleteAsync(string searchGroupKey, RetryQueueStatus status, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
     {
-            var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
+            var queuesFilterBuilder = dbContext.RetryQueues.GetFilters();
 
             var findFilter = queuesFilterBuilder.Eq(q => q.SearchGroupKey, searchGroupKey)
                 & queuesFilterBuilder.Eq(q => q.Status, status)
@@ -55,14 +55,14 @@ internal class RetryQueueRepository : IRetryQueueRepository
                 Limit = maxRowsToDelete
             };
 
-            var queuesToDelete = await this.dbContext.RetryQueues.GetAsync(findFilter, options).ConfigureAwait(false);
+            var queuesToDelete = await dbContext.RetryQueues.GetAsync(findFilter, options).ConfigureAwait(false);
 
             return queuesToDelete.Select(q => q.Id);
         }
 
     public async Task<IEnumerable<RetryQueueDbo>> GetTopSortedQueuesAsync(RetryQueueStatus status, GetQueuesSortOption sortOption, string searchGroupKey, int top)
     {
-            var queuesFilterBuilder = this.dbContext.RetryQueues.GetFilters();
+            var queuesFilterBuilder = dbContext.RetryQueues.GetFilters();
 
             var queuesFilter = queuesFilterBuilder.Eq(q => q.Status, status);
 
@@ -76,12 +76,12 @@ internal class RetryQueueRepository : IRetryQueueRepository
             switch (sortOption)
             {
                 case GetQueuesSortOption.ByLastExecution_Ascending:
-                    sortDefinition = this.dbContext.RetryQueues.GetSortDefinition().Ascending(i => i.LastExecution);
+                    sortDefinition = dbContext.RetryQueues.GetSortDefinition().Ascending(i => i.LastExecution);
                     break;
 
                 case GetQueuesSortOption.ByCreationDate_Descending:
                 default:
-                    sortDefinition = this.dbContext.RetryQueues.GetSortDefinition().Descending(i => i.CreationDate);
+                    sortDefinition = dbContext.RetryQueues.GetSortDefinition().Descending(i => i.CreationDate);
                     break;
             }
 
@@ -91,38 +91,38 @@ internal class RetryQueueRepository : IRetryQueueRepository
                 Limit = top
             };
 
-            return await this.dbContext.RetryQueues.GetAsync(queuesFilter, options).ConfigureAwait(false);
+            return await dbContext.RetryQueues.GetAsync(queuesFilter, options).ConfigureAwait(false);
         }
 
     public async Task<UpdateResult> UpdateLastExecutionAsync(Guid queueId, DateTime lastExecution)
     {
-            var filter = this.dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
+            var filter = dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
 
-            var update = this.dbContext.RetryQueues.GetUpdateDefinition()
+            var update = dbContext.RetryQueues.GetUpdateDefinition()
                              .Set(q => q.LastExecution, lastExecution);
 
-            return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
+            return await dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
         }
 
     public async Task<UpdateResult> UpdateStatusAndLastExecutionAsync(Guid queueId, RetryQueueStatus status, DateTime lastExecution)
     {
-            var filter = this.dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
+            var filter = dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
 
-            var update = this.dbContext.RetryQueues.GetUpdateDefinition()
+            var update = dbContext.RetryQueues.GetUpdateDefinition()
                              .Set(q => q.Status, status)
                              .Set(q => q.LastExecution, lastExecution);
 
-            return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
+            return await dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
         }
 
     public async Task<UpdateResult> UpdateStatusAsync(Guid queueId, RetryQueueStatus status)
     {
-            var filter = this.dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
+            var filter = dbContext.RetryQueues.GetFilters().Eq(q => q.Id, queueId);
 
-            var update = this.dbContext.RetryQueues.GetUpdateDefinition()
+            var update = dbContext.RetryQueues.GetUpdateDefinition()
                              .Set(q => q.Status, status);
 
-            return await this.dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
+            return await dbContext.RetryQueues.UpdateOneAsync(filter, update).ConfigureAwait(false);
         }
 
     private int GetDeletedCount(DeleteResult deleteResult)

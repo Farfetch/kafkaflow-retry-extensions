@@ -11,20 +11,20 @@ public class RetryForeverDefinitionBuilder
 
     public RetryForeverDefinitionBuilder Handle<TException>()
         where TException : Exception
-        => this.Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
+        => Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
 
     public RetryForeverDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
         where TException : Exception
-        => this.Handle(context => context.Exception is TException ex && rule(ex));
+        => Handle(context => context.Exception is TException ex && rule(ex));
 
     public RetryForeverDefinitionBuilder Handle(Func<RetryContext, bool> func)
     {
-            this.retryWhenExceptions.Add(func);
+            retryWhenExceptions.Add(func);
             return this;
         }
 
     public RetryForeverDefinitionBuilder HandleAnyException()
-        => this.Handle(kafkaRetryContext => true);
+        => Handle(kafkaRetryContext => true);
 
     public RetryForeverDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
     {
@@ -33,7 +33,7 @@ public class RetryForeverDefinitionBuilder
         }
 
     public RetryForeverDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
-        => this.WithTimeBetweenTriesPlan(
+        => WithTimeBetweenTriesPlan(
             (retryNumber) =>
                 ((retryNumber - 1) < timeBetweenRetries.Length)
                     ? timeBetweenRetries[retryNumber - 1]
@@ -43,8 +43,8 @@ public class RetryForeverDefinitionBuilder
     internal RetryForeverDefinition Build()
     {
             return new RetryForeverDefinition(
-                this.timeBetweenTriesPlan,
-                this.retryWhenExceptions
+                timeBetweenTriesPlan,
+                retryWhenExceptions
             );
         }
 }

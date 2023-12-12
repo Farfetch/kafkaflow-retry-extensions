@@ -1,10 +1,8 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API;
+using KafkaFlow.Retry.API;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Internal;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API;
 

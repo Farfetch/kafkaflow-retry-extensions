@@ -29,10 +29,10 @@ internal class MongoDbRepository : IRepository
         string retryQueueCollectionName,
         string retryQueueItemCollectionName)
     {
-        this.databaseName = dbName;
-        this.mongoClient = new MongoClient(connectionString);
-        this.retryQueuesCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
-        this.retryQueueItemsCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
+        databaseName = dbName;
+        mongoClient = new MongoClient(connectionString);
+        retryQueuesCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueDbo>(retryQueueCollectionName);
+        retryQueueItemsCollection = mongoClient.GetDatabase(dbName).GetCollection<RetryQueueItemDbo>(retryQueueItemCollectionName);
 
         var dataProviderCreationResult = new MongoDbDataProviderFactory().TryCreate(
             new MongoDbSettings
@@ -43,7 +43,7 @@ internal class MongoDbRepository : IRepository
                 RetryQueueItemCollectionName = retryQueueItemCollectionName
             });
 
-        this.queuesAdapter =
+        queuesAdapter =
             new QueuesAdapter(
                 new ItemAdapter(
                     new MessageAdapter(
@@ -52,7 +52,7 @@ internal class MongoDbRepository : IRepository
         Guard.Argument(dataProviderCreationResult, nameof(dataProviderCreationResult)).NotNull();
         Guard.Argument(dataProviderCreationResult.Success, nameof(dataProviderCreationResult.Success)).True(dataProviderCreationResult.Message);
 
-        this.RetryQueueDataProvider = dataProviderCreationResult.Result;
+        RetryQueueDataProvider = dataProviderCreationResult.Result;
     }
 
     public RepositoryType RepositoryType => RepositoryType.MongoDb;
@@ -76,7 +76,7 @@ internal class MongoDbRepository : IRepository
             Status = queue.Status,
         };
 
-        await this.retryQueuesCollection.InsertOneAsync(queueDbo);
+        await retryQueuesCollection.InsertOneAsync(queueDbo);
 
         foreach (var item in queue.Items)
         {
@@ -109,13 +109,13 @@ internal class MongoDbRepository : IRepository
                 Sort = item.Sort
             };
 
-            await this.retryQueueItemsCollection.InsertOneAsync(itemDbo);
+            await retryQueueItemsCollection.InsertOneAsync(itemDbo);
         }
     }
 
     public async Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey)
     {
-        var queueCursor = await this.retryQueuesCollection.FindAsync(x => x.QueueGroupKey == queueGroupKey);
+        var queueCursor = await retryQueuesCollection.FindAsync(x => x.QueueGroupKey == queueGroupKey);
 
         var queue = await queueCursor.FirstOrDefaultAsync();
 
@@ -124,11 +124,11 @@ internal class MongoDbRepository : IRepository
             return null;
         }
 
-        var itemsCursor = await this.retryQueueItemsCollection.FindAsync(x => x.RetryQueueId == queue.Id);
+        var itemsCursor = await retryQueueItemsCollection.FindAsync(x => x.RetryQueueId == queue.Id);
 
         var items = await itemsCursor.ToListAsync();
 
-        return this.queuesAdapter.Adapt(new[] { queue }, items).First();
+        return queuesAdapter.Adapt(new[] { queue }, items).First();
     }
 
     public async Task<RetryQueue> GetRetryQueueAsync(string queueGroupKey)
@@ -145,7 +145,7 @@ internal class MongoDbRepository : IRepository
 
             await Task.Delay(100).ConfigureAwait(false);
 
-            var retryQueueCursor = await this.retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey)).ConfigureAwait(false);
+            var retryQueueCursor = await retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey)).ConfigureAwait(false);
             var retryQueues = await retryQueueCursor.ToListAsync().ConfigureAwait(false);
             if (retryQueues.Any())
             {

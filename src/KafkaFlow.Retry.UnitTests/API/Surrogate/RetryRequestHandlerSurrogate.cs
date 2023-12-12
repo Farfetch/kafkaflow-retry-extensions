@@ -1,6 +1,6 @@
 ﻿using System.Net;
 using System.Threading.Tasks;
-using global::KafkaFlow.Retry.API;
+using KafkaFlow.Retry.API;
 using Microsoft.AspNetCore.Http;
 
 namespace KafkaFlow.Retry.UnitTests.API.Surrogate;
@@ -16,10 +16,10 @@ internal class RetryRequestHandlerSurrogate : RetryRequestHandlerBase
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {
-        var requestDto = await this.ReadRequestDtoAsync<DtoSurrogate>(request);
+        var requestDto = await ReadRequestDtoAsync<DtoSurrogate>(request);
 
         var responseDto = requestDto;
 
-        await this.WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK);
+        await WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK);
     }
 }

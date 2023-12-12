@@ -12,7 +12,7 @@ internal sealed class RetryQueueItemMessageHeaderDboFactory : IRetryQueueItemMes
             Guard.Argument(headers).NotNull();
             Guard.Argument(retryQueueItemId, nameof(retryQueueItemId)).Positive();
 
-            return headers.Select(h => this.Adapt(h, retryQueueItemId));
+            return headers.Select(h => Adapt(h, retryQueueItemId));
         }
 
     private RetryQueueItemMessageHeaderDbo Adapt(MessageHeader header, long retryQueueItemId)

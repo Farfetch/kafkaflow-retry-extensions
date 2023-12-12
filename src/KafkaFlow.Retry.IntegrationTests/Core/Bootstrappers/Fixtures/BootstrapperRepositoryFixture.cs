@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 
@@ -15,12 +14,12 @@ public class BootstrapperRepositoryFixture : BootstrapperFixtureTemplate
               .AddJsonFile(ConfigurationFilePath)
               .Build();
 
-            this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
+            InitializeDatabasesAsync(config).GetAwaiter().GetResult();
         }
 
     public override void Dispose()
     {
-            var repositories = this.RepositoryProvider.GetAllRepositories();
+            var repositories = RepositoryProvider.GetAllRepositories();
 
             foreach (var repository in repositories)
             {

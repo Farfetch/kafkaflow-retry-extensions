@@ -23,14 +23,14 @@ internal class QueueTrackerFactory : IQueueTrackerFactory
 
     public QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
     {
-            if (this.jobDataProviders is null)
+            if (jobDataProviders is null)
             {
-                this.jobDataProviders = this.jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
+                jobDataProviders = jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
             }
 
             return new QueueTracker(
-                this.schedulerId,
-                this.jobDataProviders,
+                schedulerId,
+                jobDataProviders,
                 logHandler);
         }
 }

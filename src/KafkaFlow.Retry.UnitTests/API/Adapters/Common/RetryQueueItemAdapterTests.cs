@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.Common;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using Xunit;
+using KafkaFlow.Retry.API.Adapters.Common;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common;
 
@@ -51,7 +49,7 @@ public class RetryQueueItemAdapterTests
         );
 
         // Act
-        var retryQueueItemDto = this.adapter.Adapt(retryQueueItem, expectedGroupKey);
+        var retryQueueItemDto = adapter.Adapt(retryQueueItem, expectedGroupKey);
 
         // Assert
         retryQueueItemDto.Should().NotBeNull();
@@ -66,7 +64,7 @@ public class RetryQueueItemAdapterTests
     public void RetryQueueItemAdapter_Adapt_ThrowsException(RetryQueueItem retryQueueItem)
     {
         // Act
-        Action act = () => this.adapter.Adapt(retryQueueItem, string.Empty);
+        Action act = () => adapter.Adapt(retryQueueItem, string.Empty);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

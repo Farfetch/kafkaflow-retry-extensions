@@ -14,8 +14,8 @@ public class UpdateItemsInput
             Guard.Argument(itemIds, nameof(itemIds)).NotNull().NotEmpty();
             Guard.Argument(status, nameof(status)).NotDefault();
 
-            this.ItemIds = itemIds;
-            this.Status = status;
+            ItemIds = itemIds;
+            Status = status;
         }
 
     public IEnumerable<Guid> ItemIds { get; }

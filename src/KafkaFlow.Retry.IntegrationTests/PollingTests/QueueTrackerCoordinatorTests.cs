@@ -3,11 +3,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-using global::KafkaFlow.Retry.Durable.Polling;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Polling;
 using Moq;
 using Quartz;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.PollingTests;
 
@@ -18,9 +17,9 @@ public class QueueTrackerCoordinatorTests
 
     public QueueTrackerCoordinatorTests()
     {
-            this.triggerProvider = new TriggerProvider();
+            triggerProvider = new TriggerProvider();
 
-            this.mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
+            mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
         }
 
     [Fact]
@@ -36,13 +35,13 @@ public class QueueTrackerCoordinatorTests
 
             var cronExpression = $"*/{pollingInSeconds} * * ? * * *";
 
-            var retryDurableJobDataProvider = this.CreateRetryDurableJobDataProvider(schedulerId, cronExpression, jobExecutionContexts);
+            var retryDurableJobDataProvider = CreateRetryDurableJobDataProvider(schedulerId, cronExpression, jobExecutionContexts);
 
-            this.mockJobDataProvidersFactory
+            mockJobDataProvidersFactory
                .Setup(m => m.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                .Returns(new[] { retryDurableJobDataProvider });
 
-            var queueTrackerCoordinator = this.CreateQueueTrackerCoordinator(schedulerId);
+            var queueTrackerCoordinator = CreateQueueTrackerCoordinator(schedulerId);
 
             // act
 
@@ -89,14 +88,14 @@ public class QueueTrackerCoordinatorTests
             var cleanupMinExpectedJobsFired = 1;
             var cleanupMaxExpectedJobsFired = 2;
 
-            var retryDurableJobDataProvider = this.CreateRetryDurableJobDataProvider(schedulerId, retryDurableCronExpression, jobExecutionContexts);
-            var cleanupJobDataProvider = this.CreateCleanupJobDataProvider(schedulerId, cleanupCronExpression, jobExecutionContexts);
+            var retryDurableJobDataProvider = CreateRetryDurableJobDataProvider(schedulerId, retryDurableCronExpression, jobExecutionContexts);
+            var cleanupJobDataProvider = CreateCleanupJobDataProvider(schedulerId, cleanupCronExpression, jobExecutionContexts);
 
-            this.mockJobDataProvidersFactory
+            mockJobDataProvidersFactory
                 .Setup(m => m.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new[] { retryDurableJobDataProvider, cleanupJobDataProvider });
 
-            var queueTrackerCoordinator = this.CreateQueueTrackerCoordinator(schedulerId);
+            var queueTrackerCoordinator = CreateQueueTrackerCoordinator(schedulerId);
 
             // act
             await queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
@@ -138,19 +137,19 @@ public class QueueTrackerCoordinatorTests
                    rowsPerRequest: 10
                );
 
-            return this.CreateJobDataProvider(schedulerId, cleanupPollingDefinition, jobExecutionContexts);
+            return CreateJobDataProvider(schedulerId, cleanupPollingDefinition, jobExecutionContexts);
         }
 
     private JobDataProviderSurrogate CreateJobDataProvider(string schedulerId, PollingDefinition pollingDefinition, List<IJobExecutionContext> jobExecutionContexts)
     {
-            var trigger = this.triggerProvider.GetPollingTrigger(schedulerId, pollingDefinition);
+            var trigger = triggerProvider.GetPollingTrigger(schedulerId, pollingDefinition);
 
             return new JobDataProviderSurrogate(schedulerId, pollingDefinition, trigger, jobExecutionContexts);
         }
 
     private IQueueTrackerCoordinator CreateQueueTrackerCoordinator(string schedulerId)
     {
-            var queueTrackerFactory = new QueueTrackerFactory(schedulerId, this.mockJobDataProvidersFactory.Object);
+            var queueTrackerFactory = new QueueTrackerFactory(schedulerId, mockJobDataProvidersFactory.Object);
 
             return new QueueTrackerCoordinator(queueTrackerFactory);
         }
@@ -165,6 +164,6 @@ public class QueueTrackerCoordinatorTests
                    expirationIntervalFactor: 1
                );
 
-            return this.CreateJobDataProvider(schedulerId, retryDurablePollingDefinition, jobExecutionContexts);
+            return CreateJobDataProvider(schedulerId, retryDurablePollingDefinition, jobExecutionContexts);
         }
 }

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using KafkaFlow.Retry.IntegrationTests.Core.Messages;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Storages;
 

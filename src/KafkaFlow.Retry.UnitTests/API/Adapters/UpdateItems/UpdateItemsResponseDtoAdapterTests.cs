@@ -1,8 +1,6 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.UpdateItems;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
-using Xunit;
+using KafkaFlow.Retry.API.Adapters.UpdateItems;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems;
 
@@ -38,7 +36,7 @@ public class UpdateItemsResponseDtoAdapterTests
     public void UpdateItemsResponseDtoAdapter_Adapt_WithNullArgs_ThrowsException()
     {
         // Act
-        Action act = () => this.adapter.Adapt(null);
+        Action act = () => adapter.Adapt(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

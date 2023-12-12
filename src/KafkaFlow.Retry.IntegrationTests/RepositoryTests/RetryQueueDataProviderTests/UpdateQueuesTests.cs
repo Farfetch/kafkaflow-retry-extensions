@@ -7,7 +7,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -25,7 +24,7 @@ public class UpdateQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateQueuesAsync_WithInactiveQueue_ReturnsQueueIsNotActive(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var expectedItemStatus = RetryQueueItemStatus.Waiting;
 
@@ -57,7 +56,7 @@ public class UpdateQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateQueuesAsync_WithItems_ReturnsUpdatedQueue(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
         var expectedItemStatus = RetryQueueItemStatus.Cancelled;
 
         var queue = new RetryQueueBuilder()
@@ -89,7 +88,7 @@ public class UpdateQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateQueuesAsync_WithNoItems_ReturnsQueueHasNoActiveItems(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
         var expectedItemStatus = RetryQueueItemStatus.Done;
 
         var queue = new RetryQueueBuilder()
@@ -119,10 +118,10 @@ public class UpdateQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateQueuesAsync_WithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
         var expectedItemStatus = RetryQueueItemStatus.Waiting;
 
-        var queue = this.GetDefaultQueue();
+        var queue = GetDefaultQueue();
 
         await repository.CreateQueueAsync(queue);
 

@@ -42,7 +42,7 @@ public sealed class PostgresDbDataProviderFactory
                 new RetryQueueItemMessageHeaderDboFactory());
         }
 
-    public IRetrySchemaCreator CreateSchemaCreator(PostgresDbSettings postgresDbSettings) => new RetrySchemaCreator(postgresDbSettings, this.GetScriptsForSchemaCreation());
+    public IRetrySchemaCreator CreateSchemaCreator(PostgresDbSettings postgresDbSettings) => new RetrySchemaCreator(postgresDbSettings, GetScriptsForSchemaCreation());
 
     private IEnumerable<Script> GetScriptsForSchemaCreation()
     {

@@ -20,24 +20,24 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
         this.withinTransaction = withinTransaction;
     }
 
-    public string Schema => this.sqlServerDbSettings.Schema;
+    public string Schema => sqlServerDbSettings.Schema;
 
     public void Commit()
     {
-        if (this.sqlTransaction is object)
+        if (sqlTransaction is object)
         {
-            this.sqlTransaction.Commit();
-            this.committed = true;
+            sqlTransaction.Commit();
+            committed = true;
         }
     }
 
     public SqlCommand CreateCommand()
     {
-        var dbCommand = this.GetDbConnection().CreateCommand();
+        var dbCommand = GetDbConnection().CreateCommand();
 
-        if (this.withinTransaction)
+        if (withinTransaction)
         {
-            dbCommand.Transaction = this.GetDbTransaction();
+            dbCommand.Transaction = GetDbTransaction();
         }
 
         return dbCommand;
@@ -45,46 +45,46 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 
     public void Dispose()
     {
-        if (this.sqlTransaction is object)
+        if (sqlTransaction is object)
         {
-            if (!this.committed)
+            if (!committed)
             {
-                this.Rollback();
+                Rollback();
             }
-            this.sqlTransaction.Dispose();
+            sqlTransaction.Dispose();
         }
 
-        if (this.sqlConnection is object)
+        if (sqlConnection is object)
         {
-            this.sqlConnection.Dispose();
+            sqlConnection.Dispose();
         }
     }
 
     public void Rollback()
     {
-        if (this.sqlTransaction is object)
+        if (sqlTransaction is object)
         {
-            this.sqlTransaction.Rollback();
+            sqlTransaction.Rollback();
         }
     }
 
     private SqlConnection GetDbConnection()
     {
-        if (this.sqlConnection is null)
+        if (sqlConnection is null)
         {
-            this.sqlConnection = new SqlConnection(this.sqlServerDbSettings.ConnectionString);
-            this.sqlConnection.Open();
-            this.sqlConnection.ChangeDatabase(this.sqlServerDbSettings.DatabaseName);
+            sqlConnection = new SqlConnection(sqlServerDbSettings.ConnectionString);
+            sqlConnection.Open();
+            sqlConnection.ChangeDatabase(sqlServerDbSettings.DatabaseName);
         }
-        return this.sqlConnection;
+        return sqlConnection;
     }
 
     private SqlTransaction GetDbTransaction()
     {
-        if (this.sqlTransaction is null)
+        if (sqlTransaction is null)
         {
-            this.sqlTransaction = this.GetDbConnection().BeginTransaction();
+            sqlTransaction = GetDbConnection().BeginTransaction();
         }
-        return this.sqlTransaction;
+        return sqlTransaction;
     }
 }

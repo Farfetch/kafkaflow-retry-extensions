@@ -15,10 +15,10 @@ public class UpdateItemExecutionInfoInput : UpdateItemInput
             Guard.Argument(attemptCount, nameof(attemptCount)).NotNegative();
             Guard.Argument(lastExecution, nameof(lastExecution)).NotDefault();
 
-            this.QueueId = queueId;
-            this.AttemptCount = attemptCount;
-            this.LastExecution = lastExecution;
-            this.Description = description;
+            QueueId = queueId;
+            AttemptCount = attemptCount;
+            LastExecution = lastExecution;
+            Description = description;
         }
 
     public int AttemptCount { get; }

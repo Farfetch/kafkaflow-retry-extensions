@@ -27,7 +27,7 @@ internal class UpdateRetryQueueItemStatusHandler : IUpdateRetryQueueItemHandler
 
             try
             {
-                await this.retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
+                await retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
             }
             catch (Exception ex)
             {

@@ -17,6 +17,6 @@ internal class RetryDurableConsumerCompressorMiddleware : IMessageMiddleware
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            await next(context.SetMessage(context.Message.Key, this.gzipCompressor.Decompress((byte[])context.Message.Value))).ConfigureAwait(false);
+            await next(context.SetMessage(context.Message.Key, gzipCompressor.Decompress((byte[])context.Message.Value))).ConfigureAwait(false);
         }
 }

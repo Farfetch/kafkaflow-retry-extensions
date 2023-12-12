@@ -7,7 +7,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -29,7 +28,7 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task DeleteQueuesAsync_TestingMaxRowsToDelete_DeleteAllEligibleQueuesAfterTwoDeletions(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var maxRowsToDelete = 2;
         var maxLastExecutionDateToBeKept = new DateTime(2023, 2, 10, 12, 0, 0);
@@ -58,7 +57,7 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
             }
         };
 
-        await this.CreateQueuesAsync(repository, queuesInput);
+        await CreateQueuesAsync(repository, queuesInput);
 
         var deleteQueuesInput = new DeleteQueuesInput(SearchGroupKeyToDelete, QueueStatusToDelete, maxLastExecutionDateToBeKept, maxRowsToDelete);
 
@@ -81,7 +80,7 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
     public async Task DeleteQueuesAsync_WithSeveralScenarios_DeleteAllEligibleQueues(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var maxLastExecutionDateToBeKept = new DateTime(2023, 2, 10, 12, 0, 0);
 
@@ -130,7 +129,7 @@ public class DeleteQueuesTests : RetryQueueDataProviderTestsTemplate
             }
         };
 
-        await this.CreateQueuesAsync(repository, queuesInput);
+        await CreateQueuesAsync(repository, queuesInput);
 
         var deleteQueuesInput = new DeleteQueuesInput(SearchGroupKeyToDelete, QueueStatusToDelete, maxLastExecutionDateToBeKept, 100);
 

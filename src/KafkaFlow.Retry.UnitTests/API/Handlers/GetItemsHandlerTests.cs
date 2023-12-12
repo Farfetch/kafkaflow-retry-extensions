@@ -5,19 +5,17 @@ using System.IO;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.GetItems;
-using global::KafkaFlow.Retry.API.Dtos;
-using global::KafkaFlow.Retry.API.Dtos.Common;
-using global::KafkaFlow.Retry.API.Handlers;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.API.Adapters.GetItems;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.API.Dtos.Common;
+using KafkaFlow.Retry.API.Handlers;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
 using Microsoft.AspNetCore.Http;
 using Moq;
 using Newtonsoft.Json;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API.Handlers;
 
@@ -34,12 +32,12 @@ public class GetItemsHandlerTests
     public async Task GetItemsHandler_HandleAsync_WithEndpointPrefix_Success()
     {
         // Arrange
-        var httpContext = this.CreateHttpContext();
+        var httpContext = CreateHttpContext();
 
-        var getItemsRequestDto = this.CreateRequestDto();
-        var getQueuesInput = this.CreateInput();
-        var getQueuesResult = this.CreateResult();
-        var expectedGetItemsResponseDto = this.CreateResponseDto();
+        var getItemsRequestDto = CreateRequestDto();
+        var getQueuesInput = CreateInput();
+        var getQueuesResult = CreateResult();
+        var expectedGetItemsResponseDto = CreateResponseDto();
 
         mockGetItemsRequestDtoReader
             .Setup(mock => mock.Read(httpContext.Request))
@@ -75,7 +73,7 @@ public class GetItemsHandlerTests
         retryDurableQueueRepositoryProvider.Verify(mock => mock.GetQueuesAsync(getQueuesInput), Times.Once());
         mockGetItemsResponseDtoReader.Verify(mock => mock.Adapt(getQueuesResult), Times.Once());
 
-        await this.AssertResponseAsync(httpContext.Response, expectedGetItemsResponseDto).ConfigureAwait(false);
+        await AssertResponseAsync(httpContext.Response, expectedGetItemsResponseDto).ConfigureAwait(false);
     }
 
     [Theory]
@@ -88,7 +86,7 @@ public class GetItemsHandlerTests
         int expectedStatusCode)
     {
         // Arrange
-        var httpContext = this.CreateHttpContext();
+        var httpContext = CreateHttpContext();
 
         var handler = new GetItemsHandler(
             retryQueueDataProvider,
@@ -126,8 +124,8 @@ public class GetItemsHandlerTests
     {
         var context = new DefaultHttpContext();
 
-        context.Request.Path = this.resourcePath;
-        context.Request.Method = this.httpMethod;
+        context.Request.Path = resourcePath;
+        context.Request.Method = httpMethod;
 
         context.Response.Body = new MemoryStream();
 
@@ -170,7 +168,7 @@ public class GetItemsHandlerTests
 
     private GetQueuesResult CreateResult()
     {
-        return new GetQueuesResult(this.CreateRetryQueues());
+        return new GetQueuesResult(CreateRetryQueues());
     }
 
     private IEnumerable<RetryQueue> CreateRetryQueues()
@@ -200,27 +198,27 @@ public class GetItemsHandlerTests
 
         public DependenciesThrowingExceptionsData()
         {
-            this.requestDtoReader = new Mock<IGetItemsRequestDtoReader>();
-            this.inputAdapter = new Mock<IGetItemsInputAdapter>();
-            this.dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
-            this.responseDtoAdapter = new Mock<IGetItemsResponseDtoAdapter>();
+            requestDtoReader = new Mock<IGetItemsRequestDtoReader>();
+            inputAdapter = new Mock<IGetItemsInputAdapter>();
+            dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
+            responseDtoAdapter = new Mock<IGetItemsResponseDtoAdapter>();
 
-            this.requestDtoReaderWithException = new Mock<IGetItemsRequestDtoReader>();
+            requestDtoReaderWithException = new Mock<IGetItemsRequestDtoReader>();
             requestDtoReaderWithException
                 .Setup(mock => mock.Read(It.IsAny<HttpRequest>()))
                 .Throws(new Exception());
 
-            this.inputAdapterWithException = new Mock<IGetItemsInputAdapter>();
+            inputAdapterWithException = new Mock<IGetItemsInputAdapter>();
             inputAdapterWithException
                 .Setup(mock => mock.Adapt(It.IsAny<GetItemsRequestDto>()))
                 .Throws(new Exception());
 
-            this.dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
+            dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
             dataProviderWithException
                 .Setup(mock => mock.GetQueuesAsync(It.IsAny<GetQueuesInput>()))
                 .ThrowsAsync(new Exception());
 
-            this.responseDtoAdapterWithException = new Mock<IGetItemsResponseDtoAdapter>();
+            responseDtoAdapterWithException = new Mock<IGetItemsResponseDtoAdapter>();
             responseDtoAdapterWithException
                 .Setup(mock => mock.Adapt(It.IsAny<GetQueuesResult>()))
                 .Throws(new Exception());

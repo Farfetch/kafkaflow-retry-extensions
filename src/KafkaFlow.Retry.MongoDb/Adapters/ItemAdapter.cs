@@ -13,7 +13,7 @@ internal class ItemAdapter : IItemAdapter
     {
             Guard.Argument(messageAdater, nameof(messageAdater)).NotNull();
 
-            this.messageAdapter = messageAdater;
+            messageAdapter = messageAdater;
         }
 
     public RetryQueueItem Adapt(RetryQueueItemDbo itemDbo)
@@ -32,7 +32,7 @@ internal class ItemAdapter : IItemAdapter
                 itemDbo.Description
             )
             {
-                Message = this.messageAdapter.Adapt(itemDbo.Message)
+                Message = messageAdapter.Adapt(itemDbo.Message)
             };
         }
 }

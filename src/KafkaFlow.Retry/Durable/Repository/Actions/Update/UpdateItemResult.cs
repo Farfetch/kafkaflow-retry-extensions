@@ -12,8 +12,8 @@ public class UpdateItemResult
             Guard.Argument(id, nameof(id)).NotDefault();
             Guard.Argument(status, nameof(status)).NotDefault();
 
-            this.Id = id;
-            this.Status = status;
+            Id = id;
+            Status = status;
         }
 
     public Guid Id { get; }

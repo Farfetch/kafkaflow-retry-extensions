@@ -1,8 +1,7 @@
 ﻿using System.Threading.Tasks;
-using global::KafkaFlow.Retry.API;
+using KafkaFlow.Retry.API;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API;
 

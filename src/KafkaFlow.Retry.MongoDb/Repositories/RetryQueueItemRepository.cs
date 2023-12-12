@@ -25,32 +25,32 @@ internal class RetryQueueItemRepository : IRetryQueueItemRepository
 
     public async Task<bool> AnyItemStillActiveAsync(Guid retryQueueId)
     {
-            var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
+            var itemsFilterBuilder = dbContext.RetryQueueItems.GetFilters();
 
             var itemsFilter = itemsFilterBuilder.Eq(i => i.RetryQueueId, retryQueueId)
                             & itemsFilterBuilder.Nin(i => i.Status, new RetryQueueItemStatus[] { RetryQueueItemStatus.Done, RetryQueueItemStatus.Cancelled });
 
-            var itemsDbo = await this.dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
+            var itemsDbo = await dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
 
             return itemsDbo.Any();
         }
 
     public async Task DeleteItemsAsync(IEnumerable<Guid> queueIds)
     {
-            var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
+            var itemsFilterBuilder = dbContext.RetryQueueItems.GetFilters();
 
             var deleteFilter = itemsFilterBuilder.In(i => i.RetryQueueId, queueIds);
 
-            await this.dbContext.RetryQueueItems.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
+            await dbContext.RetryQueueItems.DeleteManyAsync(deleteFilter).ConfigureAwait(false);
         }
 
     public async Task<RetryQueueItemDbo> GetItemAsync(Guid itemId)
     {
-            var queueItemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
+            var queueItemsFilterBuilder = dbContext.RetryQueueItems.GetFilters();
 
             var queueItemsFilter = queueItemsFilterBuilder.Eq(q => q.Id, itemId);
 
-            var items = await this.dbContext.RetryQueueItems.GetAsync(queueItemsFilter).ConfigureAwait(false);
+            var items = await dbContext.RetryQueueItems.GetAsync(queueItemsFilter).ConfigureAwait(false);
 
             return items.FirstOrDefault();
         }
@@ -62,7 +62,7 @@ internal class RetryQueueItemRepository : IRetryQueueItemRepository
         int? top = null,
         StuckStatusFilter stuckStatusFilter = null)
     {
-            var itemsFilterBuilder = this.dbContext.RetryQueueItems.GetFilters();
+            var itemsFilterBuilder = dbContext.RetryQueueItems.GetFilters();
 
             var itemsFilter = itemsFilterBuilder.In(i => i.RetryQueueId, queueIds);
 
@@ -85,16 +85,16 @@ internal class RetryQueueItemRepository : IRetryQueueItemRepository
 
             var options = new FindOptions<RetryQueueItemDbo>
             {
-                Sort = this.dbContext.RetryQueueItems.GetSortDefinition().Ascending(i => i.Sort),
+                Sort = dbContext.RetryQueueItems.GetSortDefinition().Ascending(i => i.Sort),
                 Limit = top
             };
 
-            return await this.dbContext.RetryQueueItems.GetAsync(itemsFilter, options).ConfigureAwait(false);
+            return await dbContext.RetryQueueItems.GetAsync(itemsFilter, options).ConfigureAwait(false);
         }
 
     public async Task<bool> IsFirstWaitingInQueue(RetryQueueItemDbo item)
     {
-            var sortedItems = await this.GetItemsAsync(
+            var sortedItems = await GetItemsAsync(
                 new Guid[] { item.RetryQueueId },
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting })
                 .ConfigureAwait(false);
@@ -110,9 +110,9 @@ internal class RetryQueueItemRepository : IRetryQueueItemRepository
     public async Task<UpdateItemResult> UpdateItemAsync(
         Guid itemId, RetryQueueItemStatus status, int attemptsCount, DateTime? lastExecution, string description)
     {
-            var filter = this.dbContext.RetryQueueItems.GetFilters().Eq(i => i.Id, itemId);
+            var filter = dbContext.RetryQueueItems.GetFilters().Eq(i => i.Id, itemId);
 
-            var update = this.dbContext.RetryQueueItems.GetUpdateDefinition()
+            var update = dbContext.RetryQueueItems.GetUpdateDefinition()
                              .Set(i => i.Status, status)
                              .Set(i => i.AttemptsCount, attemptsCount)
                              .Set(i => i.LastExecution, lastExecution)
@@ -124,7 +124,7 @@ internal class RetryQueueItemRepository : IRetryQueueItemRepository
                     .Set(i => i.Description, description);
             }
 
-            var updateResult = await this.dbContext.RetryQueueItems.UpdateOneAsync(filter, update).ConfigureAwait(false);
+            var updateResult = await dbContext.RetryQueueItems.UpdateOneAsync(filter, update).ConfigureAwait(false);
 
             if (updateResult.IsAcknowledged && updateResult.MatchedCount == 0)
             {

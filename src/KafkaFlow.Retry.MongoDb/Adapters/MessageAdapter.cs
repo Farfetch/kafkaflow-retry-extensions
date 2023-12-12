@@ -28,7 +28,7 @@ internal class MessageAdapter : IMessageAdapter
                 messageDbo.Partition,
                 messageDbo.Offset,
                 messageDbo.UtcTimeStamp,
-                messageDbo.Headers?.Select(headerDbo => this.headerAdapter.Adapt(headerDbo)));
+                messageDbo.Headers?.Select(headerDbo => headerAdapter.Adapt(headerDbo)));
         }
 
     public RetryQueueItemMessageDbo Adapt(RetryQueueItemMessage message)
@@ -43,7 +43,7 @@ internal class MessageAdapter : IMessageAdapter
                 Partition = message.Partition,
                 TopicName = message.TopicName,
                 UtcTimeStamp = message.UtcTimeStamp,
-                Headers = message.Headers.Select(h => this.headerAdapter.Adapt(h))
+                Headers = message.Headers.Select(h => headerAdapter.Adapt(h))
             };
         }
 }

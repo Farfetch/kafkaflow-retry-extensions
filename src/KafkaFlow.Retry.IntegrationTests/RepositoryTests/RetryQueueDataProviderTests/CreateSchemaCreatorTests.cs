@@ -2,7 +2,6 @@
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.Postgres;
 using KafkaFlow.Retry.SqlServer;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -18,8 +17,8 @@ public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
     {
             var postgresDataProviderFactory = new PostgresDbDataProviderFactory();
 
-            var connectionString = this.bootstrapperRepositoryFixture.PostgresSettings.ConnectionString;
-            var databaseName = this.bootstrapperRepositoryFixture.PostgresSettings.DatabaseName;
+            var connectionString = bootstrapperRepositoryFixture.PostgresSettings.ConnectionString;
+            var databaseName = bootstrapperRepositoryFixture.PostgresSettings.DatabaseName;
 
             var postgresSettings = new PostgresDbSettings(connectionString, databaseName);
 
@@ -33,9 +32,9 @@ public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
     {
             var sqlDataProviderFactory = new SqlServerDbDataProviderFactory();
 
-            var connectionString = this.bootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
-            var databaseName = this.bootstrapperRepositoryFixture.SqlServerSettings.DatabaseName;
-            var schema = this.bootstrapperRepositoryFixture.SqlServerSettings.Schema;
+            var connectionString = bootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
+            var databaseName = bootstrapperRepositoryFixture.SqlServerSettings.DatabaseName;
+            var schema = bootstrapperRepositoryFixture.SqlServerSettings.Schema;
 
             var sqlSettings = new SqlServerDbSettings(connectionString, databaseName, schema);
 

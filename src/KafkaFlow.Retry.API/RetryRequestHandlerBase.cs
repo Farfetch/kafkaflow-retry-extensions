@@ -28,11 +28,11 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
 
             if (!string.IsNullOrEmpty(endpointPrefix))
             {
-                this.path = this.path
+                path = path
                     .ExtendResourcePath(endpointPrefix);
             }
 
-            this.path = this.path
+            path = path
                 .ExtendResourcePath(RetryResource)
                 .ExtendResourcePath(resource);
         }
@@ -40,12 +40,12 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
 
     public virtual async Task<bool> HandleAsync(HttpRequest request, HttpResponse response)
     {
-            if (!this.CanHandle(request))
+            if (!CanHandle(request))
             {
                 return false;
             }
 
-            await this.HandleRequestAsync(request, response).ConfigureAwait(false);
+            await HandleRequestAsync(request, response).ConfigureAwait(false);
 
             return true;
         }
@@ -54,14 +54,14 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
     {
             var resource = httpRequest.Path.ToUriComponent();
 
-            if (!resource.Equals(this.path))
+            if (!resource.Equals(path))
             {
                 return false;
             }
 
             var method = httpRequest.Method;
 
-            if (!method.Equals(this.HttpMethod.ToString()))
+            if (!method.Equals(HttpMethod.ToString()))
             {
                 return false;
             }
@@ -80,14 +80,14 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
                 requestMessage = await reader.ReadToEndAsync().ConfigureAwait(false);
             }
 
-            var requestDto = JsonConvert.DeserializeObject<T>(requestMessage, this.jsonSerializerSettings);
+            var requestDto = JsonConvert.DeserializeObject<T>(requestMessage, jsonSerializerSettings);
 
             return requestDto;
         }
 
     protected virtual async Task WriteResponseAsync<T>(HttpResponse response, T responseDto, int statusCode)
     {
-            var body = JsonConvert.SerializeObject(responseDto, this.jsonSerializerSettings);
+            var body = JsonConvert.SerializeObject(responseDto, jsonSerializerSettings);
 
             response.ContentType = "application/json";
             response.StatusCode = statusCode;

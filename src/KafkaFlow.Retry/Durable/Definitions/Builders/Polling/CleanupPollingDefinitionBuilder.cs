@@ -24,10 +24,10 @@ public class CleanupPollingDefinitionBuilder : PollingDefinitionBuilder<CleanupP
     internal CleanupPollingDefinition Build()
     {
             return new CleanupPollingDefinition(
-                this.enabled,
-                this.cronExpression,
-                this.timeToLiveInDays,
-                this.rowsPerRequest
+                enabled,
+                cronExpression,
+                timeToLiveInDays,
+                rowsPerRequest
             );
         }
 }

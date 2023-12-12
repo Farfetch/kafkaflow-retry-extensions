@@ -34,7 +34,7 @@ internal class RetryDurableJobDataProvider : IJobDataProvider
 
             this.retryDurablePollingDefinition = retryDurablePollingDefinition;
             this.trigger = trigger;
-            this.jobDetail = JobBuilder
+            jobDetail = JobBuilder
                 .Create<RetryDurablePollingJob>()
                 .WithIdentity($"pollingJob_{schedulerId}_{retryDurablePollingDefinition.PollingJobType}", "queueTrackerGroup")
                 .SetJobData(
@@ -51,9 +51,9 @@ internal class RetryDurableJobDataProvider : IJobDataProvider
                 .Build();
         }
 
-    public IJobDetail JobDetail => this.jobDetail;
+    public IJobDetail JobDetail => jobDetail;
 
-    public PollingDefinition PollingDefinition => this.retryDurablePollingDefinition;
+    public PollingDefinition PollingDefinition => retryDurablePollingDefinition;
 
-    public ITrigger Trigger => this.trigger;
+    public ITrigger Trigger => trigger;
 }

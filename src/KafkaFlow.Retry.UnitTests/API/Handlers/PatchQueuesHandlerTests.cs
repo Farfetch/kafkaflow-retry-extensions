@@ -2,17 +2,15 @@
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.UpdateQueues;
-using global::KafkaFlow.Retry.API.Dtos;
-using global::KafkaFlow.Retry.API.Dtos.Common;
-using global::KafkaFlow.Retry.API.Handlers;
-using global::KafkaFlow.Retry.Durable.Repository;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.UnitTests.API.Utilities;
+using KafkaFlow.Retry.API.Adapters.UpdateQueues;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.API.Dtos.Common;
+using KafkaFlow.Retry.API.Handlers;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.UnitTests.API.Utilities;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API.Handlers;
 
@@ -25,13 +23,13 @@ public class PatchQueuesHandlerTests
     public async Task PatchQueuesHandler_HandleAsync_Success()
     {
             // Arrange
-            var updateQueuesRequestDto = this.CreateRequestDto();
+            var updateQueuesRequestDto = CreateRequestDto();
 
-            var httpContext = await HttpContextHelper.CreateContext(this.resourcePath, this.httpMethod, updateQueuesRequestDto);
+            var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateQueuesRequestDto);
 
-            var updateQueuesInput = this.CreateInput();
-            var updateQueuesResult = this.CreateResult();
-            var expectedUpdateQueuesResponseDto = this.CreateResponseDto();
+            var updateQueuesInput = CreateInput();
+            var updateQueuesResult = CreateResult();
+            var expectedUpdateQueuesResponseDto = CreateResponseDto();
 
             var mockUpdateQueuesInputAdapter = new Mock<IUpdateQueuesInputAdapter>();
             mockUpdateQueuesInputAdapter
@@ -77,9 +75,9 @@ public class PatchQueuesHandlerTests
         int expectedStatusCode)
     {
             // arrange
-            var updateItemsRequestDto = this.CreateRequestDto();
+            var updateItemsRequestDto = CreateRequestDto();
 
-            var httpContext = await HttpContextHelper.CreateContext(this.resourcePath, this.httpMethod, updateItemsRequestDto);
+            var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateItemsRequestDto);
 
             var handler = new PatchQueuesHandler(
                 retryQueueDataProvider,
@@ -143,21 +141,21 @@ public class PatchQueuesHandlerTests
 
         public DependenciesThrowingExceptionsData()
         {
-                this.inputAdapter = new Mock<IUpdateQueuesInputAdapter>();
-                this.dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
-                this.responseDtoAdapter = new Mock<IUpdateQueuesResponseDtoAdapter>();
+                inputAdapter = new Mock<IUpdateQueuesInputAdapter>();
+                dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
+                responseDtoAdapter = new Mock<IUpdateQueuesResponseDtoAdapter>();
 
-                this.inputAdapterWithException = new Mock<IUpdateQueuesInputAdapter>();
+                inputAdapterWithException = new Mock<IUpdateQueuesInputAdapter>();
                 inputAdapterWithException
                     .Setup(mock => mock.Adapt(It.IsAny<UpdateQueuesRequestDto>()))
                     .Throws(new Exception());
 
-                this.dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
+                dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
                 dataProviderWithException
                     .Setup(mock => mock.UpdateQueuesAsync(It.IsAny<UpdateQueuesInput>()))
                     .ThrowsAsync(new Exception());
 
-                this.responseDtoAdapterWithException = new Mock<IUpdateQueuesResponseDtoAdapter>();
+                responseDtoAdapterWithException = new Mock<IUpdateQueuesResponseDtoAdapter>();
                 responseDtoAdapterWithException
                     .Setup(mock => mock.Adapt(It.IsAny<UpdateQueuesResult>()))
                     .Throws(new Exception());

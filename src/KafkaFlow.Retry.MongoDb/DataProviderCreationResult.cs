@@ -6,9 +6,9 @@ public class DataProviderCreationResult
 {
     internal DataProviderCreationResult(string message, IRetryDurableQueueRepositoryProvider result, bool success)
     {
-            this.Message = message;
-            this.Result = result;
-            this.Success = success;
+            Message = message;
+            Result = result;
+            Success = success;
         }
 
     public string Message { get; }

@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using global::KafkaFlow.Retry.Postgres;
-using Xunit;
+﻿using KafkaFlow.Retry.Postgres;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres;
 

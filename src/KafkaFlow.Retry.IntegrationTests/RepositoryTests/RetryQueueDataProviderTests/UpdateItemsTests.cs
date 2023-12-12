@@ -7,7 +7,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -25,7 +24,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsItemIsNotTheFirstWaitingInQueue(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var expectedItemStatus = RetryQueueItemStatus.Waiting;
 
@@ -35,7 +34,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
             .Build();
 
         await repository.CreateQueueAsync(queue);
-        var lastItem = this.GetQueueLastItem(queue);
+        var lastItem = GetQueueLastItem(queue);
 
         var inputUpdate = new UpdateItemsInput(new[] { lastItem.Id }, RetryQueueItemStatus.Cancelled);
 
@@ -59,7 +58,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemsTestsAsync_ExistingItemsInWaitingState_ReturnsUpdatedStatus(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
         var expectedItemStatus = RetryQueueItemStatus.Cancelled;
         var expectedSecondItemStatus = RetryQueueItemStatus.Waiting;
 
@@ -69,7 +68,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
             .Build();
 
         await repository.CreateQueueAsync(queue);
-        var firstItem = this.GetQueueFirstItem(queue);
+        var firstItem = GetQueueFirstItem(queue);
 
         var inputUpdate = new UpdateItemsInput(new[] { firstItem.Id }, RetryQueueItemStatus.Cancelled);
 
@@ -93,7 +92,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemsTestsAsync_ExistingItemWithNotInWaitingState_ReturnsItemIsNotInWaitingState(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
         var expectedItemStatus = RetryQueueItemStatus.InRetry;
 
         var queue = new RetryQueueBuilder()
@@ -124,11 +123,11 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemsTestsAsync_ExistingItemWithStatusNotCancelled_ReturnsUpdatedStatusNotAllowed(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
         var InvalidItemStatus = RetryQueueItemStatus.Done;
         var expectedItemStatus = RetryQueueItemStatus.Waiting;
 
-        var queue = this.GetDefaultQueue();
+        var queue = GetDefaultQueue();
 
         await repository.CreateQueueAsync(queue);
 
@@ -155,7 +154,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemsTestsAsync_NonExistingItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
     {
         // Arrange
-        var repository = this.GetRepository(repositoryType);
+        var repository = GetRepository(repositoryType);
 
         var inputUpdate = new UpdateItemsInput(new[] { Guid.NewGuid() }, RetryQueueItemStatus.Cancelled);
 

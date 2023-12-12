@@ -25,15 +25,15 @@ public class RetryQueueItem
             Guard.Argument(sort).NotNegative();
             Guard.Argument(status).NotDefault();
 
-            this.Id = id;
-            this.AttemptsCount = attemptsCount;
-            this.CreationDate = creationDate;
-            this.Sort = sort;
-            this.LastExecution = lastExecution;
-            this.ModifiedStatusDate = modifiedStatusDate;
-            this.Status = status;
-            this.SeverityLevel = severityLevel;
-            this.Description = description;
+            Id = id;
+            AttemptsCount = attemptsCount;
+            CreationDate = creationDate;
+            Sort = sort;
+            LastExecution = lastExecution;
+            ModifiedStatusDate = modifiedStatusDate;
+            Status = status;
+            SeverityLevel = severityLevel;
+            Description = description;
         }
 
     public int AttemptsCount { get; }

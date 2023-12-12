@@ -34,34 +34,34 @@ internal class PatchItemsHandler : RetryRequestHandlerBase
 
         try
         {
-            requestDto = await this.ReadRequestDtoAsync<UpdateItemsRequestDto>(request).ConfigureAwait(false);
+            requestDto = await ReadRequestDtoAsync<UpdateItemsRequestDto>(request).ConfigureAwait(false);
         }
         catch (JsonSerializationException ex)
         {
-            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.BadRequest).ConfigureAwait(false);
+            await WriteResponseAsync(response, ex, (int)HttpStatusCode.BadRequest).ConfigureAwait(false);
 
             return;
         }
         catch (Exception ex)
         {
-            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+            await WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
 
             return;
         }
 
         try
         {
-            var input = this.updateItemsInputAdapter.Adapt(requestDto);
+            var input = updateItemsInputAdapter.Adapt(requestDto);
 
-            var result = await this.retryDurableQueueRepositoryProvider.UpdateItemsAsync(input).ConfigureAwait(false);
+            var result = await retryDurableQueueRepositoryProvider.UpdateItemsAsync(input).ConfigureAwait(false);
 
-            var responseDto = this.updateItemsResponseDtoAdapter.Adapt(result);
+            var responseDto = updateItemsResponseDtoAdapter.Adapt(result);
 
-            await this.WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
+            await WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
         }
         catch (Exception ex)
         {
-            await this.WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
+            await WriteResponseAsync(response, ex, (int)HttpStatusCode.InternalServerError).ConfigureAwait(false);
         }
     }
 }

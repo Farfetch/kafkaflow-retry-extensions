@@ -17,17 +17,17 @@ internal class QueueTrackerCoordinator : IQueueTrackerCoordinator
 
     public async Task ScheduleJobsAsync(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
     {
-            this.queueTracker = this.queueTrackerFactory
+            queueTracker = queueTrackerFactory
                 .Create(retryDurableMessageProducer, logHandler);
 
-            await this.queueTracker.ScheduleJobsAsync().ConfigureAwait(false);
+            await queueTracker.ScheduleJobsAsync().ConfigureAwait(false);
         }
 
     public async Task UnscheduleJobsAsync()
     {
-            if (this.queueTracker is object)
+            if (queueTracker is object)
             {
-                await this.queueTracker.UnscheduleJobsAsync().ConfigureAwait(false);
+                await queueTracker.UnscheduleJobsAsync().ConfigureAwait(false);
             }
         }
 }

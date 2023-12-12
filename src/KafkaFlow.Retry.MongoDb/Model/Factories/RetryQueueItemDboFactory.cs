@@ -26,7 +26,7 @@ internal class RetryQueueItemDboFactory
                 LastExecution = input.LastExecution,
                 ModifiedStatusDate = input.ModifiedStatusDate,
                 AttemptsCount = input.AttemptsCount,
-                Message = this.messageAdapter.Adapt(input.Message),
+                Message = messageAdapter.Adapt(input.Message),
                 RetryQueueId = queueId,
                 Sort = sort,
                 Status = input.ItemStatus,

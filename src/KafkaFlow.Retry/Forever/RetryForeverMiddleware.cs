@@ -23,22 +23,22 @@ internal class RetryForeverMiddleware : IMessageMiddleware
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
             var policy = Policy
-                .Handle<Exception>(exception => this.retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryForeverAsync(
-                    (retryNumber, c) => this.retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
+                    (retryNumber, c) => retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, attemptNumber, waitTime, c) =>
                     {
-                        if (!this.controlWorkerId.HasValue)
+                        if (!controlWorkerId.HasValue)
                         {
-                            lock (this.syncPauseAndResume)
+                            lock (syncPauseAndResume)
                             {
-                                if (!this.controlWorkerId.HasValue)
+                                if (!controlWorkerId.HasValue)
                                 {
-                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
+                                    controlWorkerId = context.ConsumerContext.WorkerId;
 
                                     context.ConsumerContext.Pause();
 
-                                    this.logHandler.Info(
+                                    logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
@@ -50,7 +50,7 @@ internal class RetryForeverMiddleware : IMessageMiddleware
                             }
                         }
 
-                        this.logHandler.Error(
+                        logHandler.Error(
                             $"Exception captured by {nameof(RetryForeverMiddleware)}. Retry in process.",
                             exception,
                             new
@@ -84,17 +84,17 @@ internal class RetryForeverMiddleware : IMessageMiddleware
             }
             finally
             {
-                if (this.controlWorkerId == context.ConsumerContext.WorkerId)
+                if (controlWorkerId == context.ConsumerContext.WorkerId)
                 {
-                    lock (this.syncPauseAndResume)
+                    lock (syncPauseAndResume)
                     {
-                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
+                        if (controlWorkerId == context.ConsumerContext.WorkerId)
                         {
-                            this.controlWorkerId = null;
+                            controlWorkerId = null;
 
                             context.ConsumerContext.Resume();
 
-                            this.logHandler.Info(
+                            logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {

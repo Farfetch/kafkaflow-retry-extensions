@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
-using global::KafkaFlow.Retry.Simple;
+using KafkaFlow.Retry.Simple;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Simple;
 

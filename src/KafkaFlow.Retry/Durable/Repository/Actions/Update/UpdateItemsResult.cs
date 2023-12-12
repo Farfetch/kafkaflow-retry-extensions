@@ -8,7 +8,7 @@ public class UpdateItemsResult
 {
     public UpdateItemsResult(IEnumerable<UpdateItemResult> results)
     {
-            this.Results = results ?? new List<UpdateItemResult>();
+            Results = results ?? new List<UpdateItemResult>();
         }
 
     public IEnumerable<UpdateItemResult> Results { get; }

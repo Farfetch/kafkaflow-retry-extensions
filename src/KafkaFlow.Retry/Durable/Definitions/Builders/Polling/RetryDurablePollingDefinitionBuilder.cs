@@ -24,10 +24,10 @@ public class RetryDurablePollingDefinitionBuilder : PollingDefinitionBuilder<Ret
     internal RetryDurablePollingDefinition Build()
     {
             return new RetryDurablePollingDefinition(
-                this.enabled,
-                this.cronExpression,
-                this.fetchSize,
-                this.expirationIntervalFactor
+                enabled,
+                cronExpression,
+                fetchSize,
+                expirationIntervalFactor
             );
         }
 }

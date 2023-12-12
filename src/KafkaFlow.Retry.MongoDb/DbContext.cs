@@ -10,13 +10,13 @@ internal sealed class DbContext
     public DbContext(MongoDbSettings mongoDbSettings, IMongoClient mongoClient)
     {
             this.mongoDbSettings = mongoDbSettings;
-            this.MongoClient = mongoClient;
+            MongoClient = mongoClient;
 
-            this.database = mongoClient.GetDatabase(this.mongoDbSettings.DatabaseName);
+            database = mongoClient.GetDatabase(this.mongoDbSettings.DatabaseName);
         }
 
     public IMongoClient MongoClient { get; }
-    public IMongoCollection<RetryQueueItemDbo> RetryQueueItems => database.GetCollection<RetryQueueItemDbo>(this.mongoDbSettings.RetryQueueItemCollectionName);
+    public IMongoCollection<RetryQueueItemDbo> RetryQueueItems => database.GetCollection<RetryQueueItemDbo>(mongoDbSettings.RetryQueueItemCollectionName);
 
-    public IMongoCollection<RetryQueueDbo> RetryQueues => database.GetCollection<RetryQueueDbo>(this.mongoDbSettings.RetryQueueCollectionName);
+    public IMongoCollection<RetryQueueDbo> RetryQueues => database.GetCollection<RetryQueueDbo>(mongoDbSettings.RetryQueueCollectionName);
 }

@@ -6,7 +6,6 @@ using KafkaFlow.Retry.Durable.Repository.Actions.Update;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -24,11 +23,11 @@ public class UpdateItemStatusTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemStatusAsync_ExistingItem_ReturnsUpdatedStatus(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var expectedItemStatus = RetryQueueItemStatus.Done;
 
-            var queue = this.GetDefaultQueue();
+            var queue = GetDefaultQueue();
 
             await repository.CreateQueueAsync(queue);
 
@@ -56,7 +55,7 @@ public class UpdateItemStatusTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemStatusAsync_NonExistingItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var inputUpdate = new UpdateItemStatusInput(Guid.NewGuid(), RetryQueueItemStatus.Done);
 

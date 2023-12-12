@@ -10,7 +10,6 @@ using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests;
 
@@ -23,8 +22,8 @@ public class RetryDurableTests
 
     public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
     {
-        this.serviceProvider = bootstrapperHostFixture.ServiceProvider;
-        this.repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
+        serviceProvider = bootstrapperHostFixture.ServiceProvider;
+        repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
         InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
         InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
     }
@@ -88,10 +87,10 @@ public class RetryDurableTests
         var numberOfMessagesByEachSameKey = 10;
         var numberOfTimesThatEachMessageIsTriedBeforeDurable = 4;
         var numberOfTimesThatEachMessageIsTriedDuringDurable = 2;
-        var producer = this.serviceProvider.GetRequiredService(producerType) as IMessageProducer;
-        var physicalStorageAssert = this.serviceProvider.GetRequiredService(physicalStorageType) as IPhysicalStorageAssert;
-        var messages = this.fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
-        await this.repositoryProvider.GetRepositoryOfType(repositoryType).CleanDatabaseAsync().ConfigureAwait(false);
+        var producer = serviceProvider.GetRequiredService(producerType) as IMessageProducer;
+        var physicalStorageAssert = serviceProvider.GetRequiredService(physicalStorageType) as IPhysicalStorageAssert;
+        var messages = fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
+        await repositoryProvider.GetRepositoryOfType(repositoryType).CleanDatabaseAsync().ConfigureAwait(false);
         // Act
         messages.ForEach(
             m =>

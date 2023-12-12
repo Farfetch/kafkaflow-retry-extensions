@@ -1,8 +1,6 @@
-﻿using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.Common;
-using global::KafkaFlow.Retry.API.Dtos.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using Xunit;
+﻿using KafkaFlow.Retry.API.Adapters.Common;
+using KafkaFlow.Retry.API.Dtos.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common;
 

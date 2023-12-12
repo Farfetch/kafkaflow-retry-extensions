@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
 using KafkaFlow.Retry.API.Adapters.Common.Parsers;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common.Parses;
 
@@ -27,7 +25,7 @@ public class EnumParserTests
             var expectedItems = new[] { EnumTests.Value1, EnumTests.Value2, EnumTests.Value3 };
 
             // Act
-            var result = this.enumParser.Parse(queryParams, this.defaultEnum);
+            var result = enumParser.Parse(queryParams, defaultEnum);
 
             // Assert
             result.Should().BeEquivalentTo(expectedItems);
@@ -40,10 +38,10 @@ public class EnumParserTests
             var queryParams = new string[0];
 
             // Act
-            var result = this.enumParser.Parse(queryParams, this.defaultEnum);
+            var result = enumParser.Parse(queryParams, defaultEnum);
 
             // Assert
-            result.Should().BeEquivalentTo(this.defaultEnum);
+            result.Should().BeEquivalentTo(defaultEnum);
         }
 
     [Theory]
@@ -52,7 +50,7 @@ public class EnumParserTests
     public void EnumParser_Parse_WithNullArgs_ThrowsException(Type nullType)
     {
             // Act
-            Action act = () => this.enumParser.Parse(
+            Action act = () => enumParser.Parse(
                    nullType.Equals(typeof(IEnumerable<string>)) ? null : new String[0],
                    nullType.Equals(typeof(IEnumerable<EnumTests>)) ? null : new EnumTests[0]);
 

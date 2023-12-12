@@ -22,11 +22,11 @@ internal class RetrySchemaCreator : IRetrySchemaCreator
 
     public async Task CreateOrUpdateSchemaAsync(string databaseName)
     {
-            using (SqlConnection openCon = new SqlConnection(this.sqlServerDbSettings.ConnectionString))
+            using (SqlConnection openCon = new SqlConnection(sqlServerDbSettings.ConnectionString))
             {
                 openCon.Open();
 
-                foreach (var script in this.schemaScripts)
+                foreach (var script in schemaScripts)
                 {
                     string[] batches = script.Value.Split(new string[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
 

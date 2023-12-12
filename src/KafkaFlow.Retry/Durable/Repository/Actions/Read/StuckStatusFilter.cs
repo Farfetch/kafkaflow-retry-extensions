@@ -11,8 +11,8 @@ public class StuckStatusFilter
         Guard.Argument(itemStatus, nameof(itemStatus)).NotDefault();
         Guard.Argument(expirationInterval, nameof(expirationInterval)).NotZero().NotNegative();
 
-        this.ItemStatus = itemStatus;
-        this.ExpirationInterval = expirationInterval;
+        ItemStatus = itemStatus;
+        ExpirationInterval = expirationInterval;
     }
 
     public TimeSpan ExpirationInterval { get; }

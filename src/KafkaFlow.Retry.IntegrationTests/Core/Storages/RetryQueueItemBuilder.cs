@@ -37,30 +37,30 @@ internal class RetryQueueItemBuilder
         this.retryQueueBuilder = retryQueueBuilder;
 
         // defaults
-        this.attemptsCount = 0;
-        this.creationDate = RetryQueueBuilder.DefaultDateTime;
+        attemptsCount = 0;
+        creationDate = RetryQueueBuilder.DefaultDateTime;
         this.sort = sort;
-        this.lastExecution = RetryQueueBuilder.DefaultDateTime;
-        this.modifiedStatusDate = RetryQueueBuilder.DefaultDateTime;
-        this.status = RetryQueueItemStatus.Waiting;
-        this.severityLevel = SeverityLevel.Medium;
-        this.description = string.Empty;
-        this.message = DefaultItemMessage;
+        lastExecution = RetryQueueBuilder.DefaultDateTime;
+        modifiedStatusDate = RetryQueueBuilder.DefaultDateTime;
+        status = RetryQueueItemStatus.Waiting;
+        severityLevel = SeverityLevel.Medium;
+        description = string.Empty;
+        message = DefaultItemMessage;
     }
 
     public RetryQueueBuilder AddItem()
     {
-        return this.retryQueueBuilder.WithItem(this.Build());
+        return retryQueueBuilder.WithItem(Build());
     }
 
     public RetryQueueItemBuilder WithDoneStatus()
     {
-        return this.WithStatus(RetryQueueItemStatus.Done);
+        return WithStatus(RetryQueueItemStatus.Done);
     }
 
     public RetryQueueItemBuilder WithInRetryStatus()
     {
-        return this.WithStatus(RetryQueueItemStatus.InRetry);
+        return WithStatus(RetryQueueItemStatus.InRetry);
     }
 
     public RetryQueueItemBuilder WithModifiedStatusDate(DateTime? modifiedStatusDate)
@@ -86,25 +86,25 @@ internal class RetryQueueItemBuilder
 
     public RetryQueueItemBuilder WithWaitingStatus()
     {
-        return this.WithStatus(RetryQueueItemStatus.Waiting);
+        return WithStatus(RetryQueueItemStatus.Waiting);
     }
 
     private RetryQueueItem Build()
     {
-        this.id = this.id == default ? Guid.NewGuid() : this.id;
+        id = id == default ? Guid.NewGuid() : id;
 
         return new RetryQueueItem(
-            this.id,
-            this.attemptsCount,
-            this.creationDate,
-            this.sort,
-            this.lastExecution,
-            this.modifiedStatusDate,
-            this.status,
-            this.severityLevel,
-            this.description)
+            id,
+            attemptsCount,
+            creationDate,
+            sort,
+            lastExecution,
+            modifiedStatusDate,
+            status,
+            severityLevel,
+            description)
         {
-            Message = this.message
+            Message = message
         };
     }
 }

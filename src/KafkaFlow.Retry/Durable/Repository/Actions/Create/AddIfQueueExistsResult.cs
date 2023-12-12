@@ -10,7 +10,7 @@ public class AddIfQueueExistsResult
     {
             Guard.Argument(status).NotDefault();
 
-            this.Status = status;
+            Status = status;
         }
 
     public AddIfQueueExistsResultStatus Status { get; }

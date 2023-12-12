@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Threading;
 using System.Threading.Tasks;
-using global::SchemaRegistry;
+using SchemaRegistry;
 using KafkaFlow.Producers;
 using KafkaFlow.Retry.Common.Sample.Helpers;
 using KafkaFlow.Retry.SchemaRegistry.Sample.Helpers;

@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.SqlServer.Model.Schema;
-using Xunit;
+using KafkaFlow.Retry.SqlServer.Model.Schema;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Schema;
 

@@ -21,6 +21,6 @@ internal class RetryDurableConsumerNewtonsoftJsonSerializerMiddleware : IMessage
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            await next(context.SetMessage(context.Message.Key, this.newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, type))).ConfigureAwait(false);
+            await next(context.SetMessage(context.Message.Key, newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, type))).ConfigureAwait(false);
         }
 }

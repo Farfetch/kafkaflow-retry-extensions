@@ -1,7 +1,5 @@
 ﻿using System.Text;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Encoders;
-using Xunit;
+using KafkaFlow.Retry.Durable.Encoders;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Encoders;
 
@@ -16,7 +14,7 @@ public class Utf8EncoderTests
         var data = new byte[0];
 
         // Act
-        var result = this.utf8Encoder.Decode(data);
+        var result = utf8Encoder.Decode(data);
 
         // Assert
         result.Should().BeEquivalentTo(Encoding.UTF8.GetString(data));
@@ -29,7 +27,7 @@ public class Utf8EncoderTests
         var data = "new";
 
         // Act
-        var result = this.utf8Encoder.Encode(data);
+        var result = utf8Encoder.Encode(data);
 
         // Assert
         result.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(data));

@@ -12,7 +12,7 @@ public class GetQueuesResult
     {
             Guard.Argument(retryQueues, nameof(retryQueues)).NotNull();
 
-            this.RetryQueues = retryQueues;
+            RetryQueues = retryQueues;
         }
 
     public IEnumerable<RetryQueue> RetryQueues { get; }

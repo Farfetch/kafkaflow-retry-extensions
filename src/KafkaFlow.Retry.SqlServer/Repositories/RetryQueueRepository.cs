@@ -85,7 +85,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
 
-                return await this.ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -104,7 +104,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
                     innerQuery = string.Concat(innerQuery, $" AND SearchGroupKey = '{searchGroupKey}' ");
                 }
 
-                innerQuery = string.Concat(innerQuery, this.GetOrderByCommandString(sortOption));
+                innerQuery = string.Concat(innerQuery, GetOrderByCommandString(sortOption));
 
                 var orderedByIdQuery = String.Concat("; WITH SortedItems AS ( ", innerQuery, " ) SELECT * FROM SortedItems ORDER BY Id ");
 
@@ -112,7 +112,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
 
                 command.Parameters.AddWithValue("IdStatus", (byte)retryQueueStatus);
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 
@@ -174,7 +174,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
             {
                 while (await reader.ReadAsync().ConfigureAwait(false))
                 {
-                    queues.Add(this.FillDbo(reader));
+                    queues.Add(FillDbo(reader));
                 }
             }
 
@@ -187,7 +187,7 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
             {
                 if (await reader.ReadAsync().ConfigureAwait(false))
                 {
-                    return this.FillDbo(reader);
+                    return FillDbo(reader);
                 }
             }
 

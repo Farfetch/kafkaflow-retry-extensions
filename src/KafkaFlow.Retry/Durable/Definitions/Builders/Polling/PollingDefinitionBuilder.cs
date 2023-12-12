@@ -9,7 +9,7 @@ public abstract class PollingDefinitionBuilder<TSelf> where TSelf : PollingDefin
 
     public TSelf Enabled(bool value)
     {
-            this.enabled = value;
+            enabled = value;
             return (TSelf)this;
         }
 

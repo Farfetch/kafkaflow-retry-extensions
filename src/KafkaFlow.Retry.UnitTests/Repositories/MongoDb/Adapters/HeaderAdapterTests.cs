@@ -1,9 +1,7 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.MongoDb.Adapters;
-using global::KafkaFlow.Retry.MongoDb.Model;
-using Xunit;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Adapters;
+using KafkaFlow.Retry.MongoDb.Model;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Adapters;
 

@@ -27,7 +27,7 @@ internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemH
 
             try
             {
-                var result = await this.retryDurableQueueRepositoryProvider.UpdateItemExecutionInfoAsync(updateItemExecutionInfoInput).ConfigureAwait(false);
+                var result = await retryDurableQueueRepositoryProvider.UpdateItemExecutionInfoAsync(updateItemExecutionInfoInput).ConfigureAwait(false);
 
                 if (result.Status != UpdateItemResultStatus.Updated)
                 {

@@ -1,13 +1,11 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-using global::KafkaFlow.Retry.Durable.Encoders;
-using global::KafkaFlow.Retry.Durable.Polling;
-using global::KafkaFlow.Retry.Durable.Repository;
-using global::KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Polling;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
 using Moq;
 using Quartz;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling;
 

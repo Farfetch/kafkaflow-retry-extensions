@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
-using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-using global::KafkaFlow.Retry.Durable.Polling;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Polling;
 using Quartz;
 
 namespace KafkaFlow.Retry.IntegrationTests.PollingTests;
@@ -9,13 +9,13 @@ internal class JobDataProviderSurrogate : IJobDataProvider
 {
     public JobDataProviderSurrogate(string schedulerId, PollingDefinition pollingDefinition, ITrigger trigger, List<IJobExecutionContext> jobExecutionContexts)
     {
-        this.PollingDefinition = pollingDefinition;
+        PollingDefinition = pollingDefinition;
 
-        this.Trigger = trigger;
-        this.TriggerName = this.GetTriggerName(schedulerId);
+        Trigger = trigger;
+        TriggerName = GetTriggerName(schedulerId);
 
-        this.JobExecutionContexts = jobExecutionContexts;
-        this.JobDetail = this.CreateJobDetail();
+        JobExecutionContexts = jobExecutionContexts;
+        JobDetail = CreateJobDetail();
     }
 
     public IJobDetail JobDetail { get; }
@@ -30,7 +30,7 @@ internal class JobDataProviderSurrogate : IJobDataProvider
 
     private IJobDetail CreateJobDetail()
     {
-        var dataMap = new JobDataMap { { "JobExecution", this.JobExecutionContexts } };
+        var dataMap = new JobDataMap { { "JobExecution", JobExecutionContexts } };
 
         return JobBuilder
             .Create<JobSurrogate>()
@@ -40,6 +40,6 @@ internal class JobDataProviderSurrogate : IJobDataProvider
 
     private string GetTriggerName(string schedulerId)
     {
-        return $"pollingJobTrigger_{schedulerId}_{this.PollingDefinition.PollingJobType}";
+        return $"pollingJobTrigger_{schedulerId}_{PollingDefinition.PollingJobType}";
     }
 }

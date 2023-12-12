@@ -1,12 +1,10 @@
 ﻿using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
-using global::KafkaFlow.Retry.UnitTests.API.Surrogate;
-using global::KafkaFlow.Retry.UnitTests.API.Utilities;
+using KafkaFlow.Retry.UnitTests.API.Surrogate;
+using KafkaFlow.Retry.UnitTests.API.Utilities;
 using Microsoft.AspNetCore.Http;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API;
 

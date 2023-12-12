@@ -31,17 +31,17 @@ public class SaveToQueueInput
             Guard.Argument(modifiedStatusDate, nameof(modifiedStatusDate)).NotDefault();
             Guard.Argument(attemptsCount, nameof(attemptsCount)).NotNegative();
 
-            this.Message = message;
-            this.SearchGroupKey = searchGroupKey;
-            this.QueueGroupKey = queueGroupKey;
-            this.QueueStatus = queueStatus;
-            this.ItemStatus = itemStatus;
-            this.SeverityLevel = severity;
-            this.CreationDate = creationDate;
-            this.LastExecution = lastExecution;
-            this.ModifiedStatusDate = modifiedStatusDate;
-            this.AttemptsCount = attemptsCount;
-            this.Description = description;
+            Message = message;
+            SearchGroupKey = searchGroupKey;
+            QueueGroupKey = queueGroupKey;
+            QueueStatus = queueStatus;
+            ItemStatus = itemStatus;
+            SeverityLevel = severity;
+            CreationDate = creationDate;
+            LastExecution = lastExecution;
+            ModifiedStatusDate = modifiedStatusDate;
+            AttemptsCount = attemptsCount;
+            Description = description;
         }
 
     public int AttemptsCount { get; }

@@ -1,12 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
 using KafkaFlow.Retry.Durable.Common;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.MongoDb.Model;
 using KafkaFlow.Retry.SqlServer.Readers;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers;
 

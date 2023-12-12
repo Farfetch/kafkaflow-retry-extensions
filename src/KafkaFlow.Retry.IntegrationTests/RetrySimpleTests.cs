@@ -7,7 +7,6 @@ using KafkaFlow.Retry.IntegrationTests.Core.Messages;
 using KafkaFlow.Retry.IntegrationTests.Core.Producers;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using Microsoft.Extensions.DependencyInjection;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests;
 
@@ -28,8 +27,8 @@ public class RetrySimpleTests
     public async Task RetrySimpleTest()
     {
         // Arrange
-        var producer1 = this.bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetrySimpleProducer>>();
-        var messages = this.fixture.CreateMany<RetrySimpleTestMessage>(10).ToList();
+        var producer1 = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IMessageProducer<RetrySimpleProducer>>();
+        var messages = fixture.CreateMany<RetrySimpleTestMessage>(10).ToList();
 
         // Act
         messages.ForEach(m => producer1.Produce(m.Key, m));

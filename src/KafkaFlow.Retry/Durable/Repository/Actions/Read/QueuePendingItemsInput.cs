@@ -13,9 +13,9 @@ public class QueuePendingItemsInput
             Guard.Argument(itemId, nameof(itemId)).NotDefault();
             Guard.Argument(sort, nameof(sort)).NotNegative();
 
-            this.QueueId = queueId;
-            this.ItemId = itemId;
-            this.Sort = sort;
+            QueueId = queueId;
+            ItemId = itemId;
+            Sort = sort;
         }
 
     public Guid ItemId { get; }

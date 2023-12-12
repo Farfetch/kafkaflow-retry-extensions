@@ -25,13 +25,13 @@ public class RetryQueueItemMessage
             Guard.Argument(offset).NotNegative();
             Guard.Argument(utcTimeStamp).NotDefault();
 
-            this.TopicName = topicName;
-            this.Key = key;
-            this.Value = value;
-            this.Partition = partition;
-            this.Offset = offset;
-            this.UtcTimeStamp = utcTimeStamp;
-            this.Headers = headers?.ToList() ?? new List<MessageHeader>();
+            TopicName = topicName;
+            Key = key;
+            Value = value;
+            Partition = partition;
+            Offset = offset;
+            UtcTimeStamp = utcTimeStamp;
+            Headers = headers?.ToList() ?? new List<MessageHeader>();
         }
 
     public IList<MessageHeader> Headers { get; }
@@ -50,6 +50,6 @@ public class RetryQueueItemMessage
 
     public void AddHeader(MessageHeader header)
     {
-            this.Headers.Add(header);
+            Headers.Add(header);
         }
 }

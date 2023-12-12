@@ -13,8 +13,8 @@ public class UpdateQueuesInput
             Guard.Argument(queueGroupKeys).NotNull().NotEmpty();
             Guard.Argument(status).NotDefault();
 
-            this.QueueGroupKeys = queueGroupKeys;
-            this.ItemStatus = status;
+            QueueGroupKeys = queueGroupKeys;
+            ItemStatus = status;
         }
 
     public RetryQueueItemStatus ItemStatus { get; }

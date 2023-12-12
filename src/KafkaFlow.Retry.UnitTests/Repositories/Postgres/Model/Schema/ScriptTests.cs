@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Postgres.Model.Schema;
-using Xunit;
+using KafkaFlow.Retry.Postgres.Model.Schema;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Schema;
 

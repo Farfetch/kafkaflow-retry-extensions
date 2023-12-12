@@ -49,7 +49,7 @@ internal class RetryDurablePollingJob : IJob
                        retryDurablePollingDefinition.FetchSize,
                        new StuckStatusFilter(
                            RetryQueueItemStatus.InRetry,
-                           this.GetExpirationInterval(retryDurablePollingDefinition)
+                           GetExpirationInterval(retryDurablePollingDefinition)
                        )
                    )
                    {
@@ -86,7 +86,7 @@ internal class RetryDurablePollingJob : IJob
 
                     foreach (var item in queue.Items.OrderBy(i => i.Sort))
                     {
-                        if (!this.IsAbleToBeProduced(item, retryDurablePollingDefinition))
+                        if (!IsAbleToBeProduced(item, retryDurablePollingDefinition))
                         {
                             logHandler.Verbose(
                                 $"{nameof(RetryDurablePollingJob)} queue item is not able to be produced",
@@ -116,7 +116,7 @@ internal class RetryDurablePollingJob : IJob
                                 .ProduceAsync(
                                     item.Message.Key,
                                     item.Message.Value,
-                                    this.GetMessageHeaders(messageHeadersAdapter, utf8Encoder, queue.Id, item)
+                                    GetMessageHeaders(messageHeadersAdapter, utf8Encoder, queue.Id, item)
                                 ).ConfigureAwait(false);
 
                             logHandler.Verbose(
@@ -166,9 +166,9 @@ internal class RetryDurablePollingJob : IJob
 
     private TimeSpan GetExpirationInterval(RetryDurablePollingDefinition retryDurablePollingDefinition)
     {
-            if (this.expirationInterval != TimeSpan.Zero)
+            if (expirationInterval != TimeSpan.Zero)
             {
-                return this.expirationInterval;
+                return expirationInterval;
             }
 
             var cron = new CronExpression(retryDurablePollingDefinition.CronExpression);
@@ -186,10 +186,10 @@ internal class RetryDurablePollingJob : IJob
 
             for (var i = 0; i < retryDurablePollingDefinition.ExpirationIntervalFactor; i++)
             {
-                this.expirationInterval += pollingInterval;
+                expirationInterval += pollingInterval;
             }
 
-            return this.expirationInterval;
+            return expirationInterval;
         }
 
     private IMessageHeaders GetMessageHeaders(
@@ -213,6 +213,6 @@ internal class RetryDurablePollingJob : IJob
             return item.Status == RetryQueueItemStatus.Waiting
                  || (item.ModifiedStatusDate.HasValue
                     && item.Status == RetryQueueItemStatus.InRetry
-                    && DateTime.UtcNow > item.ModifiedStatusDate + this.GetExpirationInterval(retryDurablePollingDefinition));
+                    && DateTime.UtcNow > item.ModifiedStatusDate + GetExpirationInterval(retryDurablePollingDefinition));
         }
 }

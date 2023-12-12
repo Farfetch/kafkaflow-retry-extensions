@@ -6,7 +6,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -24,11 +23,11 @@ public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
     public async Task CheckQueuePendingItemsAsync_QueueWithOneItem_ReturnsNoPendingItems(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var expectedResultStatus = QueuePendingItemsResultStatus.NoPendingItems;
 
-            var queue = this.GetDefaultQueue();
+            var queue = GetDefaultQueue();
             var item = queue.Items.Single();
 
             await repository.CreateQueueAsync(queue);
@@ -66,7 +65,7 @@ public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
         RetryQueueItemStatus firstItemStatus)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var queue = new RetryQueueBuilder()
                 .CreateItem()
@@ -79,7 +78,7 @@ public class CheckQueuePendingItemsTests : RetryQueueDataProviderTestsTemplate
 
             await repository.CreateQueueAsync(queue);
 
-            var item = this.GetQueueLastItem(queue);
+            var item = GetQueueLastItem(queue);
 
             var input = new QueuePendingItemsInput(
                 queue.Id,

@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Definitions;
-using global::KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Definitions;
+using KafkaFlow.Retry.Durable.Repository;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Definitions;
 

@@ -56,7 +56,7 @@ internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRe
             command.CommandType = System.Data.CommandType.Text;
             command.CommandText = $@"EXEC {dbConnection.Schema}.P_LoadItemMessages @RetryQueueItemsIds";
 
-            return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+            return await ExecuteReaderAsync(command).ConfigureAwait(false);
         }
     }
 

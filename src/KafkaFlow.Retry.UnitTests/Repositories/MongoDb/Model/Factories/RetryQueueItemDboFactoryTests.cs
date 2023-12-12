@@ -1,13 +1,11 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Create;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
-using global::KafkaFlow.Retry.MongoDb.Model;
-using global::KafkaFlow.Retry.MongoDb.Model.Factories;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
+using KafkaFlow.Retry.MongoDb.Model;
+using KafkaFlow.Retry.MongoDb.Model.Factories;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Model.Factories;
 

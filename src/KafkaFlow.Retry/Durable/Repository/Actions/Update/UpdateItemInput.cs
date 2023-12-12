@@ -13,8 +13,8 @@ public abstract class UpdateItemInput
             Guard.Argument(itemId, nameof(itemId)).NotDefault();
             Guard.Argument(status, nameof(status)).NotDefault();
 
-            this.ItemId = itemId;
-            this.Status = status;
+            ItemId = itemId;
+            Status = status;
         }
 
     public Guid ItemId { get; }

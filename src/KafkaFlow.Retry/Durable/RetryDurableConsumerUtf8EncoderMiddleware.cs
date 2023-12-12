@@ -17,6 +17,6 @@ internal class RetryDurableConsumerUtf8EncoderMiddleware : IMessageMiddleware
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            await next(context.SetMessage(context.Message.Key, this.utf8Encoder.Decode((byte[])context.Message.Value))).ConfigureAwait(false);
+            await next(context.SetMessage(context.Message.Key, utf8Encoder.Decode((byte[])context.Message.Value))).ConfigureAwait(false);
         }
 }

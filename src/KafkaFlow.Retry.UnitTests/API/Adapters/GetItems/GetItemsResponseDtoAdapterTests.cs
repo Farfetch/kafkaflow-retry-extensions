@@ -1,10 +1,8 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.GetItems;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using Xunit;
+using KafkaFlow.Retry.API.Adapters.GetItems;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems;
 
@@ -16,12 +14,12 @@ public class GetItemsResponseDtoAdapterTests
     public void GetItemsResponseDtoAdapter_Adapt_Success()
     {
             // Arrange
-            var item1 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
-            var item2 = this.CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.High);
+            var item1 = CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
+            var item2 = CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.High);
             var itemsA = new[] { item1, item2 };
 
-            var item3 = this.CreateRetryQueueItem(1, RetryQueueItemStatus.Waiting, SeverityLevel.Medium);
-            var item4 = this.CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.Medium);
+            var item3 = CreateRetryQueueItem(1, RetryQueueItemStatus.Waiting, SeverityLevel.Medium);
+            var item4 = CreateRetryQueueItem(2, RetryQueueItemStatus.Waiting, SeverityLevel.Medium);
             var itemsB = new[] { item3, item4 };
 
             var queueA = new RetryQueue(Guid.NewGuid(), "searchGroupKeyA", "queueGroupKeyA", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, itemsA);

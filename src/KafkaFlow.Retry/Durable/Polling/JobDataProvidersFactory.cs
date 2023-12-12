@@ -41,30 +41,30 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
     {
             var jobDataProviders = new List<IJobDataProvider>(2);
 
-            if (this.TryGetPollingDefinition<RetryDurablePollingDefinition>(PollingJobType.RetryDurable, out var retryDurablePollingDefinition))
+            if (TryGetPollingDefinition<RetryDurablePollingDefinition>(PollingJobType.RetryDurable, out var retryDurablePollingDefinition))
             {
                 jobDataProviders.Add(
                     new RetryDurableJobDataProvider(
                         retryDurablePollingDefinition,
-                        this.GetTrigger(retryDurablePollingDefinition),
-                        this.pollingDefinitionsAggregator.SchedulerId,
-                        this.retryDurableQueueRepository,
+                        GetTrigger(retryDurablePollingDefinition),
+                        pollingDefinitionsAggregator.SchedulerId,
+                        retryDurableQueueRepository,
                         logHandler,
-                        this.messageHeadersAdapter,
-                        this.utf8Encoder,
+                        messageHeadersAdapter,
+                        utf8Encoder,
                         retryDurableMessageProducer
                         )
                     );
             }
 
-            if (this.TryGetPollingDefinition<CleanupPollingDefinition>(PollingJobType.Cleanup, out var cleanupPollingDefinition))
+            if (TryGetPollingDefinition<CleanupPollingDefinition>(PollingJobType.Cleanup, out var cleanupPollingDefinition))
             {
                 jobDataProviders.Add(
                     new CleanupJobDataProvider(
                         cleanupPollingDefinition,
-                        this.GetTrigger(cleanupPollingDefinition),
-                        this.pollingDefinitionsAggregator.SchedulerId,
-                        this.retryDurableQueueRepository,
+                        GetTrigger(cleanupPollingDefinition),
+                        pollingDefinitionsAggregator.SchedulerId,
+                        retryDurableQueueRepository,
                         logHandler
                         )
                     );
@@ -75,14 +75,14 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
 
     private ITrigger GetTrigger(PollingDefinition pollingDefinition)
     {
-            return this.triggerProvider.GetPollingTrigger(this.pollingDefinitionsAggregator.SchedulerId, pollingDefinition);
+            return triggerProvider.GetPollingTrigger(pollingDefinitionsAggregator.SchedulerId, pollingDefinition);
         }
 
     private bool TryGetPollingDefinition<TPollingDefinition>(PollingJobType pollingJobType, out TPollingDefinition pollingDefinition) where TPollingDefinition : PollingDefinition
     {
             pollingDefinition = default;
 
-            var pollingDefinitions = this.pollingDefinitionsAggregator.PollingDefinitions;
+            var pollingDefinitions = pollingDefinitionsAggregator.PollingDefinitions;
 
             var pollingDefinitionFound = pollingDefinitions.TryGetValue(pollingJobType, out var pollingDefinitionResult);
 

@@ -1,12 +1,10 @@
 ﻿using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.GetItems;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.API.Adapters.GetItems;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 using Microsoft.AspNetCore.Http;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems;
 
@@ -40,8 +38,8 @@ public class GetItemsRequestDtoReaderTests
     {
         var context = new DefaultHttpContext();
 
-        context.Request.Path = this.resourcePath;
-        context.Request.Method = this.httpMethod;
+        context.Request.Path = resourcePath;
+        context.Request.Method = httpMethod;
 
         context.Response.Body = new MemoryStream();
 

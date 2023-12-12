@@ -14,8 +14,8 @@ internal class RetryDurablePollingDefinition : PollingDefinition
             Guard.Argument(fetchSize, nameof(fetchSize)).Positive();
             Guard.Argument(expirationIntervalFactor, nameof(expirationIntervalFactor)).Positive();
 
-            this.FetchSize = fetchSize;
-            this.ExpirationIntervalFactor = expirationIntervalFactor;
+            FetchSize = fetchSize;
+            ExpirationIntervalFactor = expirationIntervalFactor;
         }
 
     public int ExpirationIntervalFactor { get; }

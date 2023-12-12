@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-using Xunit;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Definitions.Polling;
 

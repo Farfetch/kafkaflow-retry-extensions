@@ -7,8 +7,8 @@ public class MessageHeader
 {
     public MessageHeader(string key, byte[] value)
     {
-            this.Key = key;
-            this.Value = value;
+            Key = key;
+            Value = value;
         }
 
     public string Key { get; }

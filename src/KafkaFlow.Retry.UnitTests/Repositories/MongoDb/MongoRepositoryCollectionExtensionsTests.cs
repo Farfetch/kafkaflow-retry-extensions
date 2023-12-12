@@ -3,14 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using FluentAssertions;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using global::KafkaFlow.Retry.MongoDb;
-using global::KafkaFlow.Retry.MongoDb.Model;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb;
+using KafkaFlow.Retry.MongoDb.Model;
 using MongoDB.Driver;
 using Moq;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 

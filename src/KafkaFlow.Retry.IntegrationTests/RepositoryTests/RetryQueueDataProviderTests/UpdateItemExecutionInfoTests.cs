@@ -7,7 +7,6 @@ using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProviderTests;
 
@@ -28,7 +27,7 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemExecutionInfoAsync_UpdateStatus_ReturnsUpdatedStatus(RepositoryType repositoryType, RetryQueueItemStatus expectedItemStatus)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var expectedAttemptsCount = 2;
             var expectedLastExecution = new DateTime(2022, 3, 31).ToUniversalTime();
@@ -73,7 +72,7 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemExecutionInfoAsync_UpdateToDone_QueueWithoutAllItemsDone_ReturnsUpdatedStatus(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var expectedAttemptsCount = 2;
             var expectedLastExecution = new DateTime(2022, 3, 31).ToUniversalTime();
@@ -90,7 +89,7 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
                .Build();
 
             await repository.CreateQueueAsync(queue);
-            var firstItem = this.GetQueueFirstItem(queue);
+            var firstItem = GetQueueFirstItem(queue);
 
             var input = new UpdateItemExecutionInfoInput(queue.Id, firstItem.Id, expectedItemStatus, expectedAttemptsCount, expectedLastExecution, expectedDescription);
 
@@ -122,14 +121,14 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemExecutionInfoAsync_UpdateToDone_ReturnsUpdatedStatusQueueWithAllItemsDone(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var expectedAttemptsCount = 5;
             var expectedLastExecution = new DateTime(2022, 3, 31).ToUniversalTime();
             var expectedItemStatus = RetryQueueItemStatus.Done;
             var expectedDescription = "ExpectedDescription";
 
-            var queue = this.GetDefaultQueue();
+            var queue = GetDefaultQueue();
 
             await repository.CreateQueueAsync(queue);
             var item = queue.Items.Single();
@@ -164,7 +163,7 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemExecutionInfoAsync_WrongItem_ReturnsItemNotFoundStatus(RepositoryType repositoryType)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var notExpectedItemId = Guid.NewGuid();
             var notExpectedAttemptsCount = 5;
@@ -172,7 +171,7 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
             var notExpectedItemStatus = RetryQueueItemStatus.Done;
             var expectedDescription = "ExpectedDescription";
 
-            var queue = this.GetDefaultQueue();
+            var queue = GetDefaultQueue();
 
             await repository.CreateQueueAsync(queue);
 
@@ -210,7 +209,7 @@ public class UpdateItemExecutionInfoTests : RetryQueueDataProviderTestsTemplate
     public async Task UpdateItemExecutionInfoAsync_WrongQueue_ReturnsQueueNotFoundStatus(RepositoryType repositoryType, RetryQueueItemStatus notExpectedItemStatus)
     {
             // Arrange
-            var repository = this.GetRepository(repositoryType);
+            var repository = GetRepository(repositoryType);
 
             var wrongQueueId = Guid.NewGuid();
             var notExpectedAttemptsCount = 5;

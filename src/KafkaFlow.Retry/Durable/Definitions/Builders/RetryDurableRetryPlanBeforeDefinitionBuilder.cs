@@ -11,7 +11,7 @@ public class RetryDurableRetryPlanBeforeDefinitionBuilder
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder ShouldPauseConsumer(bool pause)
     {
-            this.pauseConsumer = pause;
+            pauseConsumer = pause;
             return this;
         }
 
@@ -28,7 +28,7 @@ public class RetryDurableRetryPlanBeforeDefinitionBuilder
         }
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
-        => this.WithTimeBetweenTriesPlan(
+        => WithTimeBetweenTriesPlan(
             (retryNumber) =>
                 ((retryNumber - 1) < timeBetweenRetries.Length)
                     ? timeBetweenRetries[retryNumber - 1]
@@ -38,9 +38,9 @@ public class RetryDurableRetryPlanBeforeDefinitionBuilder
     internal RetryDurableRetryPlanBeforeDefinition Build()
     {
             return new RetryDurableRetryPlanBeforeDefinition(
-                this.timeBetweenTriesPlan,
-                this.numberOfRetries,
-                this.pauseConsumer
+                timeBetweenTriesPlan,
+                numberOfRetries,
+                pauseConsumer
             );
         }
 }

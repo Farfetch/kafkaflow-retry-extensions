@@ -27,21 +27,21 @@ public class RetryQueue
             Guard.Argument(lastExecution, nameof(lastExecution)).NotDefault();
             Guard.Argument(status, nameof(status)).NotDefault();
 
-            this.Id = id;
-            this.SearchGroupKey = searchGroupKey;
-            this.QueueGroupKey = queueGroupKey;
-            this.CreationDate = creationDate;
-            this.LastExecution = lastExecution;
-            this.Status = status;
+            Id = id;
+            SearchGroupKey = searchGroupKey;
+            QueueGroupKey = queueGroupKey;
+            CreationDate = creationDate;
+            LastExecution = lastExecution;
+            Status = status;
 
-            this.itemsList = items is null ? new SortedList<int, RetryQueueItem>() : new SortedList<int, RetryQueueItem>(items.ToDictionary(i => i.Sort));
+            itemsList = items is null ? new SortedList<int, RetryQueueItem>() : new SortedList<int, RetryQueueItem>(items.ToDictionary(i => i.Sort));
         }
 
     public DateTime CreationDate { get; }
 
     public Guid Id { get; }
 
-    public IEnumerable<RetryQueueItem> Items { get => this.itemsList.Values; }
+    public IEnumerable<RetryQueueItem> Items { get => itemsList.Values; }
 
     public DateTime LastExecution { get; }
 
@@ -53,6 +53,6 @@ public class RetryQueue
 
     public void AddItem(RetryQueueItem item)
     {
-            this.itemsList.Add(item.Sort, item);
+            itemsList.Add(item.Sort, item);
         }
 }

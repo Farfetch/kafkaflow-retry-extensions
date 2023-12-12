@@ -17,10 +17,10 @@ public class DeleteQueuesInput
             Guard.Argument(maxLastExecutionDateToBeKept, nameof(maxLastExecutionDateToBeKept)).NotDefault();
             Guard.Argument(maxRowsToDelete, nameof(maxRowsToDelete)).Positive();
 
-            this.SearchGroupKey = searchGroupKey;
-            this.RetryQueueStatus = retryQueueStatus;
-            this.MaxLastExecutionDateToBeKept = maxLastExecutionDateToBeKept;
-            this.MaxRowsToDelete = maxRowsToDelete;
+            SearchGroupKey = searchGroupKey;
+            RetryQueueStatus = retryQueueStatus;
+            MaxLastExecutionDateToBeKept = maxLastExecutionDateToBeKept;
+            MaxRowsToDelete = maxRowsToDelete;
         }
 
     public DateTime MaxLastExecutionDateToBeKept { get; }

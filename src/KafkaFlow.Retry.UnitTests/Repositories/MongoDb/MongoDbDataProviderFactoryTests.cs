@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.MongoDb;
-using Xunit;
+using KafkaFlow.Retry.MongoDb;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 

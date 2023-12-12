@@ -1,10 +1,8 @@
 ﻿using System;
-using FluentAssertions;
-using global::KafkaFlow.Retry.API.Adapters.GetItems;
-using global::KafkaFlow.Retry.API.Dtos;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
-using Xunit;
+using KafkaFlow.Retry.API.Adapters.GetItems;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Repository.Model;
 
 namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems;
 
@@ -37,7 +35,7 @@ public class GetItemsInputAdapterTests
     public void GetItemsInputAdapter_Adapt_WithNullArg_ThrowsException()
     {
         // Act
-        Action act = () => this.adapter.Adapt(null);
+        Action act = () => adapter.Adapt(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

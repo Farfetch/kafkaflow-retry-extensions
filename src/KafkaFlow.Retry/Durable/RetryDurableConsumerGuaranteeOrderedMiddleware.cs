@@ -31,15 +31,14 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            var queueId = Guid.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
-            var itemId = Guid.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
-            var attemptsCount = int.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
-            var sort = int.Parse(this.utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
+            var queueId = Guid.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
+            var itemId = Guid.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
+            var attemptsCount = int.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
+            var sort = int.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
             var pendingItems = false;
             try
             {
-                pendingItems = await this
-                           .ThereArePendingItemsAsync(
+                pendingItems = await ThereArePendingItemsAsync(
                                queueId,
                                itemId,
                                sort)
@@ -47,8 +46,7 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
 
                 if (pendingItems)
                 {
-                    await this
-                        .UpdateAsync(
+                    await UpdateAsync(
                             RetryQueueItemStatus.Waiting,
                             queueId,
                             itemId,
@@ -62,8 +60,7 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
             }
             catch (Exception exception)
             {
-                await this
-                    .UpdateAsync(
+                await UpdateAsync(
                         RetryQueueItemStatus.Waiting,
                         queueId,
                         itemId,
@@ -85,8 +82,7 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
                            sort
                        );
 
-            var queuePendingItemsResult = await this
-                .retryDurableQueueRepository
+            var queuePendingItemsResult = await retryDurableQueueRepository
                 .CheckQueuePendingItemsAsync(queuePendingItemsInput)
                 .ConfigureAwait(false);
 
@@ -100,8 +96,7 @@ internal class RetryDurableConsumerGuaranteeOrderedMiddleware : IMessageMiddlewa
         int attemptsCount,
         Exception exception = null)
     {
-            await this
-                .retryDurableQueueRepository
+            await retryDurableQueueRepository
                 .UpdateItemAsync(
                     new UpdateItemExecutionInfoInput(
                         queueId,

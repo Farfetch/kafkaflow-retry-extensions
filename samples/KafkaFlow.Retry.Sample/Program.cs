@@ -3,7 +3,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using global::Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection;
 using KafkaFlow.Producers;
 using KafkaFlow.Retry.Common.Sample.Helpers;
 using KafkaFlow.Retry.Sample.Helpers;

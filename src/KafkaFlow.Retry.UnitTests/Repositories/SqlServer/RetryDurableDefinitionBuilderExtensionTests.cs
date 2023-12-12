@@ -1,6 +1,4 @@
-﻿using FluentAssertions;
-using global::KafkaFlow.Retry.SqlServer;
-using Xunit;
+﻿using KafkaFlow.Retry.SqlServer;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer;
 

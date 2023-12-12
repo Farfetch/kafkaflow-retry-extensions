@@ -27,11 +27,11 @@ public class GetQueuesInput
                      .DoesNotContain(stuckStatusFilter.ItemStatus, (statuses, stuckStatus) => $"The status list can't contain the status that can be considered as stuck.");
             }
 
-            this.Status = status;
-            this.ItemsStatuses = itemsStatuses;
-            this.SortOption = sortOption;
-            this.TopQueues = topQueues;
-            this.StuckStatusFilter = stuckStatusFilter;
+            Status = status;
+            ItemsStatuses = itemsStatuses;
+            SortOption = sortOption;
+            TopQueues = topQueues;
+            StuckStatusFilter = stuckStatusFilter;
         }
 
     public IEnumerable<RetryQueueItemStatus> ItemsStatuses { get; }

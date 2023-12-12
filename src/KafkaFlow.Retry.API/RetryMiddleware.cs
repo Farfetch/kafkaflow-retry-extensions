@@ -16,14 +16,14 @@ internal class RetryMiddleware
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        var handled = await this.httpRequestHandler
+        var handled = await httpRequestHandler
             .HandleAsync(httpContext.Request, httpContext.Response)
             .ConfigureAwait(false);
 
         if (!handled)
         {
             // Call the next delegate/middleware in the pipeline
-            await this.next(httpContext).ConfigureAwait(false);
+            await next(httpContext).ConfigureAwait(false);
         }
     }
 }

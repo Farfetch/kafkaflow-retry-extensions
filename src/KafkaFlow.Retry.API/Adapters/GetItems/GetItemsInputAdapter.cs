@@ -13,7 +13,7 @@ internal class GetItemsInputAdapter : IGetItemsInputAdapter
     {
         Guard.Argument(requestDto, nameof(requestDto)).NotNull();
 
-        return new GetQueuesInput(RetryQueueStatus.Active, requestDto.ItemsStatuses, this.sortOption, requestDto.TopQueues)
+        return new GetQueuesInput(RetryQueueStatus.Active, requestDto.ItemsStatuses, sortOption, requestDto.TopQueues)
         {
             SeverityLevels = requestDto.SeverityLevels,
             TopItemsByQueue = requestDto.TopItemsByQueue

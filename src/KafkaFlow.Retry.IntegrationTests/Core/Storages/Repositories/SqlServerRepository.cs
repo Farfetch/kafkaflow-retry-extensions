@@ -31,23 +31,23 @@ internal class SqlServerRepository : IRepository
         string connectionString,
         string dbName)
     {
-        this.sqlServerDbSettings = new SqlServerDbSettings(connectionString, dbName, schema);
+        sqlServerDbSettings = new SqlServerDbSettings(connectionString, dbName, schema);
 
-        this.RetryQueueDataProvider = new SqlServerDbDataProviderFactory().Create(this.sqlServerDbSettings);
+        RetryQueueDataProvider = new SqlServerDbDataProviderFactory().Create(sqlServerDbSettings);
 
-        this.retryQueueItemMessageHeaderRepository = new RetryQueueItemMessageHeaderRepository();
-        this.retryQueueItemMessageRepository = new RetryQueueItemMessageRepository();
-        this.retryQueueItemRepository = new RetryQueueItemRepository();
-        this.retryQueueRepository = new RetryQueueRepository();
+        retryQueueItemMessageHeaderRepository = new RetryQueueItemMessageHeaderRepository();
+        retryQueueItemMessageRepository = new RetryQueueItemMessageRepository();
+        retryQueueItemRepository = new RetryQueueItemRepository();
+        retryQueueRepository = new RetryQueueRepository();
 
-        this.retryQueueReader = new RetryQueueReader(
+        retryQueueReader = new RetryQueueReader(
             new RetryQueueAdapter(),
             new RetryQueueItemAdapter(),
             new RetryQueueItemMessageAdapter(),
             new RetryQueueItemMessageHeaderAdapter()
         );
 
-        this.connectionProvider = new ConnectionProvider();
+        connectionProvider = new ConnectionProvider();
     }
 
     public RepositoryType RepositoryType => RepositoryType.SqlServer;
@@ -56,7 +56,7 @@ internal class SqlServerRepository : IRepository
 
     public async Task CleanDatabaseAsync()
     {
-        using var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings);
+        using var dbConnection = connectionProvider.Create(sqlServerDbSettings);
         using var command = dbConnection.CreateCommand();
         command.CommandType = System.Data.CommandType.Text;
         command.CommandText = @"
@@ -80,9 +80,9 @@ internal class SqlServerRepository : IRepository
             Status = queue.Status,
         };
 
-        using var dbConnection = this.connectionProvider.CreateWithinTransaction(this.sqlServerDbSettings);
+        using var dbConnection = connectionProvider.CreateWithinTransaction(sqlServerDbSettings);
 
-        var queueId = await this.retryQueueRepository.AddAsync(dbConnection, queueDbo);
+        var queueId = await retryQueueRepository.AddAsync(dbConnection, queueDbo);
 
         foreach (var item in queue.Items)
         {
@@ -101,7 +101,7 @@ internal class SqlServerRepository : IRepository
                 Description = item.Description
             };
 
-            var itemId = await this.retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
+            var itemId = await retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
 
             // item message
             var messageDbo = new RetryQueueItemMessageDbo
@@ -115,7 +115,7 @@ internal class SqlServerRepository : IRepository
                 Value = item.Message.Value
             };
 
-            await this.retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo);
+            await retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo);
 
             // message headers
             var messageHeadersDbos = item.Message.Headers
@@ -126,7 +126,7 @@ internal class SqlServerRepository : IRepository
                     Value = h.Value
                 });
 
-            await this.retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos);
+            await retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos);
         }
 
         dbConnection.Commit();
@@ -134,18 +134,18 @@ internal class SqlServerRepository : IRepository
 
     public async Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey)
     {
-        using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+        using (var dbConnection = connectionProvider.Create(sqlServerDbSettings))
         {
-            var retryQueueDbo = await this.retryQueueRepository.GetQueueAsync(dbConnection, queueGroupKey);
+            var retryQueueDbo = await retryQueueRepository.GetQueueAsync(dbConnection, queueGroupKey);
 
             if (retryQueueDbo is null)
             {
                 return null;
             }
 
-            var retryQueueItemsDbo = await this.retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
-            var itemMessagesDbo = await this.retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
-            var messageHeadersDbo = await this.retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
+            var retryQueueItemsDbo = await retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
+            var itemMessagesDbo = await retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
+            var messageHeadersDbo = await retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
 
             var dboWrapper = new RetryQueuesDboWrapper
             {
@@ -155,7 +155,7 @@ internal class SqlServerRepository : IRepository
                 HeadersDbos = messageHeadersDbo
             };
 
-            return this.retryQueueReader.Read(dboWrapper).FirstOrDefault();
+            return retryQueueReader.Read(dboWrapper).FirstOrDefault();
         }
     }
 
@@ -173,7 +173,7 @@ internal class SqlServerRepository : IRepository
 
             await Task.Delay(100).ConfigureAwait(false);
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = connectionProvider.Create(sqlServerDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -183,7 +183,7 @@ internal class SqlServerRepository : IRepository
                                 ORDER BY Id";
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
-                retryQueue = await this.ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
+                retryQueue = await ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
             }
 
             if (retryQueue != null)
@@ -208,7 +208,7 @@ internal class SqlServerRepository : IRepository
 
             await Task.Delay(100).ConfigureAwait(false);
 
-            using (var dbConnection = this.connectionProvider.Create(this.sqlServerDbSettings))
+            using (var dbConnection = connectionProvider.Create(sqlServerDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -218,7 +218,7 @@ internal class SqlServerRepository : IRepository
                                 ORDER BY Sort ASC";
 
                 command.Parameters.AddWithValue("IdDomainRetryQueue", retryQueueId);
-                retryQueueItems = await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                retryQueueItems = await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         } while (stopCondition(retryQueueItems));
 
@@ -233,7 +233,7 @@ internal class SqlServerRepository : IRepository
         {
             while (await reader.ReadAsync())
             {
-                items.Add(this.FillRetryQueueItem(reader));
+                items.Add(FillRetryQueueItem(reader));
             }
         }
 
@@ -246,7 +246,7 @@ internal class SqlServerRepository : IRepository
         {
             if (await reader.ReadAsync())
             {
-                return this.FillRetryQueue(reader);
+                return FillRetryQueue(reader);
             }
         }
 

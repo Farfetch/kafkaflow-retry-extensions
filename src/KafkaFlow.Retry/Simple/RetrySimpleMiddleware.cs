@@ -23,23 +23,23 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
             var policy = Policy
-                .Handle<Exception>(exception => this.retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
-                    this.retrySimpleDefinition.NumberOfRetries,
-                    (retryNumber, c) => this.retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
+                    retrySimpleDefinition.NumberOfRetries,
+                    (retryNumber, c) => retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (this.retrySimpleDefinition.PauseConsumer && !this.controlWorkerId.HasValue)
+                        if (retrySimpleDefinition.PauseConsumer && !controlWorkerId.HasValue)
                         {
-                            lock (this.syncPauseAndResume) // TODO: why we need this lock here?
+                            lock (syncPauseAndResume) // TODO: why we need this lock here?
                             {
-                                if (!this.controlWorkerId.HasValue)
+                                if (!controlWorkerId.HasValue)
                                 {
-                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
+                                    controlWorkerId = context.ConsumerContext.WorkerId;
 
                                     context.ConsumerContext.Pause();
 
-                                    this.logHandler.Info(
+                                    logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
@@ -51,7 +51,7 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
                             }
                         }
 
-                        this.logHandler.Error(
+                        logHandler.Error(
                             $"Exception captured by {nameof(RetrySimpleMiddleware)}. Retry in process.",
                             exception,
                             new
@@ -85,17 +85,17 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
             }
             finally
             {
-                if (this.controlWorkerId == context.ConsumerContext.WorkerId) // TODO: understand why this is necessary and the lock below.
+                if (controlWorkerId == context.ConsumerContext.WorkerId) // TODO: understand why this is necessary and the lock below.
                 {
-                    lock (this.syncPauseAndResume)
+                    lock (syncPauseAndResume)
                     {
-                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
+                        if (controlWorkerId == context.ConsumerContext.WorkerId)
                         {
-                            this.controlWorkerId = null;
+                            controlWorkerId = null;
 
                             context.ConsumerContext.Resume();
 
-                            this.logHandler.Info(
+                            logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {

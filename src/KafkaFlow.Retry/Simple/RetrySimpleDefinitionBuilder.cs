@@ -13,24 +13,24 @@ public class RetrySimpleDefinitionBuilder
 
     public RetrySimpleDefinitionBuilder Handle<TException>()
         where TException : Exception
-        => this.Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
+        => Handle(kafkaRetryContext => kafkaRetryContext.Exception is TException);
 
     public RetrySimpleDefinitionBuilder Handle(Func<RetryContext, bool> func)
     {
-        this.retryWhenExceptions.Add(func);
+        retryWhenExceptions.Add(func);
         return this;
     }
 
     public RetrySimpleDefinitionBuilder Handle<TException>(Func<TException, bool> rule)
         where TException : Exception
-        => this.Handle(context => context.Exception is TException ex && rule(ex));
+        => Handle(context => context.Exception is TException ex && rule(ex));
 
     public RetrySimpleDefinitionBuilder HandleAnyException()
-        => this.Handle(kafkaRetryContext => true);
+        => Handle(kafkaRetryContext => true);
 
     public RetrySimpleDefinitionBuilder ShouldPauseConsumer(bool pause)
     {
-        this.pauseConsumer = pause;
+        pauseConsumer = pause;
         return this;
     }
 
@@ -42,12 +42,12 @@ public class RetrySimpleDefinitionBuilder
 
     public RetrySimpleDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timesBetweenTriesPlan)
     {
-        this.timeBetweenTriesPlan = timesBetweenTriesPlan;
+        timeBetweenTriesPlan = timesBetweenTriesPlan;
         return this;
     }
 
     public RetrySimpleDefinitionBuilder WithTimeBetweenTriesPlan(params TimeSpan[] timeBetweenRetries)
-        => this.WithTimeBetweenTriesPlan(
+        => WithTimeBetweenTriesPlan(
             (retryNumber) =>
                 ((retryNumber - 1) < timeBetweenRetries.Length)
                     ? timeBetweenRetries[retryNumber - 1]
@@ -57,10 +57,10 @@ public class RetrySimpleDefinitionBuilder
     internal RetrySimpleDefinition Build()
     {
         return new RetrySimpleDefinition(
-            this.numberOfRetries,
-            this.retryWhenExceptions,
-            this.pauseConsumer,
-            this.timeBetweenTriesPlan
+            numberOfRetries,
+            retryWhenExceptions,
+            pauseConsumer,
+            timeBetweenTriesPlan
         );
     }
 }

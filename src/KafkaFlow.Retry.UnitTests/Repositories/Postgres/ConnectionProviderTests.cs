@@ -1,7 +1,5 @@
 ﻿using System;
-using FluentAssertions;
 using KafkaFlow.Retry.Postgres;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres;
     

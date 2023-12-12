@@ -20,8 +20,8 @@ internal class GetItemsRequestDtoReader : IGetItemsRequestDtoReader
 
     public GetItemsRequestDtoReader()
     {
-        this.statusesParser = new EnumParser<RetryQueueItemStatus>();
-        this.severitiesParser = new EnumParser<SeverityLevel>();
+        statusesParser = new EnumParser<RetryQueueItemStatus>();
+        severitiesParser = new EnumParser<SeverityLevel>();
     }
 
     public GetItemsRequestDto Read(HttpRequest request)
@@ -33,8 +33,8 @@ internal class GetItemsRequestDtoReader : IGetItemsRequestDtoReader
 
         return new GetItemsRequestDto()
         {
-            ItemsStatuses = this.statusesParser.Parse(statusIds, DefaultItemsStatuses),
-            SeverityLevels = this.severitiesParser.Parse(severityIds, DefaultSeverityLevels),
+            ItemsStatuses = statusesParser.Parse(statusIds, DefaultItemsStatuses),
+            SeverityLevels = severitiesParser.Parse(severityIds, DefaultSeverityLevels),
             TopQueues = int.TryParse(topQueues.LastOrDefault(), out int parsedTopQueues) ? parsedTopQueues : DefaultTopQueuesValue,
             TopItemsByQueue = int.TryParse(topItemsByQueue.LastOrDefault(), out int parsedTopItemsByQueue) ? parsedTopItemsByQueue : DefaultTopItemsByQueueValue
         };

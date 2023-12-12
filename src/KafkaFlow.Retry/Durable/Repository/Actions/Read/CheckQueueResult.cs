@@ -10,7 +10,7 @@ public class CheckQueueResult
     {
             Guard.Argument(status).NotDefault();
 
-            this.Status = status;
+            Status = status;
         }
 
     public CheckQueueResultStatus Status { get; }

@@ -22,11 +22,11 @@ internal class RetrySchemaCreator : IRetrySchemaCreator
 
     public async Task CreateOrUpdateSchemaAsync(string databaseName)
     {
-            using (var openCon = new NpgsqlConnection(this.postgresDbSettings.ConnectionString))
+            using (var openCon = new NpgsqlConnection(postgresDbSettings.ConnectionString))
             {
                 openCon.Open();
 
-                foreach (var script in this.schemaScripts)
+                foreach (var script in schemaScripts)
                 {
                     var batch = script.Value;
 

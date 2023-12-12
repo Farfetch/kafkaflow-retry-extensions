@@ -48,7 +48,7 @@ internal sealed class RetryQueueItemMessageRepository : IRetryQueueItemMessageRe
                 command.Parameters.AddWithValue("retryQueueItemIds", 
                     NpgsqlDbType.Array | NpgsqlDbType.Bigint, retryQueueItemIds.ToArray());
 
-                return await this.ExecuteReaderAsync(command).ConfigureAwait(false);
+                return await ExecuteReaderAsync(command).ConfigureAwait(false);
             }
         }
 

@@ -81,18 +81,18 @@ public class RetryDurableEmbeddedClusterDefinitionBuilder
                 return;
             }
 
-            Guard.Argument(this.cluster).NotNull("A cluster configuration builder should be passed");
-            Guard.Argument(this.retryTopicName).NotNull("A retry topic name should be defined");
-            Guard.Argument(this.retryTypeHandlers).NotNull("A retry type handler should be defined");
-            Guard.Argument(this.retryConsumerBufferSize)
+            Guard.Argument(cluster).NotNull("A cluster configuration builder should be passed");
+            Guard.Argument(retryTopicName).NotNull("A retry topic name should be defined");
+            Guard.Argument(retryTypeHandlers).NotNull("A retry type handler should be defined");
+            Guard.Argument(retryConsumerBufferSize)
                 .NotZero("A buffer size great than zero should be defined")
                 .NotNegative(x => "A buffer size great than zero should be defined");
-            Guard.Argument(this.retryConsumerWorkersCount)
+            Guard.Argument(retryConsumerWorkersCount)
                 .NotZero("A buffer size great than zero should be defined")
                 .NotNegative(x => "A buffer size great than zero should be defined");
 
-            var producerName = $"{RetryDurableConstants.EmbeddedProducerName}-{this.retryTopicName}";
-            var consumerGroupId = $"{RetryDurableConstants.EmbeddedConsumerName}-{this.retryTopicName}";
+            var producerName = $"{RetryDurableConstants.EmbeddedProducerName}-{retryTopicName}";
+            var consumerGroupId = $"{RetryDurableConstants.EmbeddedConsumerName}-{retryTopicName}";
 
             var queueTrackerCoordinator =
                 new QueueTrackerCoordinator(
@@ -108,20 +108,20 @@ public class RetryDurableEmbeddedClusterDefinitionBuilder
                     )
                 );
 
-            this.cluster
+            cluster
                 .AddProducer(
                     producerName,
                     producer => producer
-                        .DefaultTopic(this.retryTopicName)
+                        .DefaultTopic(retryTopicName)
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .WithAcks(Acks.Leader)
                 )
                 .AddConsumer(
                     consumer => consumer
-                        .Topic(this.retryTopicName)
+                        .Topic(retryTopicName)
                         .WithGroupId(consumerGroupId)
-                        .WithBufferSize(this.retryConsumerBufferSize)
-                        .WithWorkersCount(this.retryConsumerWorkersCount)
+                        .WithBufferSize(retryConsumerBufferSize)
+                        .WithWorkersCount(retryConsumerWorkersCount)
                         .WithAutoOffsetReset(AutoOffsetReset.Earliest)
                         .WithPartitionsAssignedHandler(
                             (resolver, partitionsAssignedHandler) =>
@@ -155,14 +155,14 @@ public class RetryDurableEmbeddedClusterDefinitionBuilder
                                 .Add(resolver => new RetryDurableConsumerCompressorMiddleware(gzipCompressor))
                                 .Add(resolver => new RetryDurableConsumerUtf8EncoderMiddleware(utf8Encoder))
                                 .Add(resolver => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(newtonsoftJsonSerializer, messageType))
-                                .WithRetryConsumerStrategy(this.retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
+                                .WithRetryConsumerStrategy(retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
                                 .Add(resolver =>
                                     new RetryDurableConsumerValidationMiddleware(
                                             resolver.Resolve<ILogHandler>(),
                                             retryDurableQueueRepository,
                                             utf8Encoder
                                         ))
-                                .AddTypedHandlers(this.retryTypeHandlers)
+                                .AddTypedHandlers(retryTypeHandlers)
                         )
                 );
         }

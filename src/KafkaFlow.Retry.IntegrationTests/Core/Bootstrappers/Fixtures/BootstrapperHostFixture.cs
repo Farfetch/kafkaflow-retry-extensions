@@ -1,13 +1,12 @@
 ﻿using System;
 using System.IO;
 using System.Threading;
-using global::Microsoft.Extensions.Configuration;
-using global::Microsoft.Extensions.DependencyInjection;
-using global::Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using KafkaFlow.Retry.IntegrationTests.Core.Producers;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
-using Xunit;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers.Fixtures;
 
@@ -25,7 +24,7 @@ public class BootstrapperHostFixture : BootstrapperFixtureTemplate
             .AddJsonFile(ConfigurationFilePath)
             .Build();
 
-        this.InitializeDatabasesAsync(config).GetAwaiter().GetResult();
+        InitializeDatabasesAsync(config).GetAwaiter().GetResult();
 
         var builder = Host
             .CreateDefaultBuilder()
@@ -64,7 +63,7 @@ public class BootstrapperHostFixture : BootstrapperFixtureTemplate
     {
         kafkaBus.StopAsync().GetAwaiter().GetResult();
 
-        var repositories = this.RepositoryProvider.GetAllRepositories();
+        var repositories = RepositoryProvider.GetAllRepositories();
 
         foreach (var repository in repositories)
         {
@@ -74,39 +73,39 @@ public class BootstrapperHostFixture : BootstrapperFixtureTemplate
 
     private void SetupServices(HostBuilderContext context, IServiceCollection services)
     {
-        this.InitializeKafka(context.Configuration);
+        InitializeKafka(context.Configuration);
 
         services.AddKafka(
             kafka => kafka
                 .UseLogHandler<TraceLogHandler>()
                 .AddCluster(
                     cluster => cluster
-                        .WithBrokers(this.KafkaSettings.Brokers.Split(';'))
+                        .WithBrokers(KafkaSettings.Brokers.Split(';'))
                         .CreatAllTestTopicsIfNotExist()
                         .SetupRetrySimpleCluster()
                         .SetupRetryForeverCluster()
                         .SetupRetryDurableGuaranteeOrderedConsumptionMongoDbCluster(
-                            this.MongoDbSettings.ConnectionString,
-                            this.MongoDbSettings.DatabaseName,
-                            this.MongoDbSettings.RetryQueueCollectionName,
-                            this.MongoDbSettings.RetryQueueItemCollectionName)
+                            MongoDbSettings.ConnectionString,
+                            MongoDbSettings.DatabaseName,
+                            MongoDbSettings.RetryQueueCollectionName,
+                            MongoDbSettings.RetryQueueItemCollectionName)
                         .SetupRetryDurableGuaranteeOrderedConsumptionSqlServerCluster(
-                            this.SqlServerSettings.ConnectionString,
-                            this.SqlServerSettings.DatabaseName)
+                            SqlServerSettings.ConnectionString,
+                            SqlServerSettings.DatabaseName)
                         .SetupRetryDurableGuaranteeOrderedConsumptionPostgresCluster(
-                            this.PostgresSettings.ConnectionString,
-                            this.PostgresSettings.DatabaseName)
+                            PostgresSettings.ConnectionString,
+                            PostgresSettings.DatabaseName)
                         .SetupRetryDurableLatestConsumptionMongoDbCluster(
-                            this.MongoDbSettings.ConnectionString,
-                            this.MongoDbSettings.DatabaseName,
-                            this.MongoDbSettings.RetryQueueCollectionName,
-                            this.MongoDbSettings.RetryQueueItemCollectionName)
+                            MongoDbSettings.ConnectionString,
+                            MongoDbSettings.DatabaseName,
+                            MongoDbSettings.RetryQueueCollectionName,
+                            MongoDbSettings.RetryQueueItemCollectionName)
                         .SetupRetryDurableLatestConsumptionSqlServerCluster(
-                            this.SqlServerSettings.ConnectionString,
-                            this.SqlServerSettings.DatabaseName)
+                            SqlServerSettings.ConnectionString,
+                            SqlServerSettings.DatabaseName)
                         .SetupRetryDurableLatestConsumptionPostgresCluster(
-                            this.PostgresSettings.ConnectionString,
-                            this.PostgresSettings.DatabaseName)
+                            PostgresSettings.ConnectionString,
+                            PostgresSettings.DatabaseName)
                 ));
 
         services.AddSingleton<RetrySimpleProducer>();
@@ -117,7 +116,7 @@ public class BootstrapperHostFixture : BootstrapperFixtureTemplate
         services.AddSingleton<RetryDurableLatestConsumptionMongoDbProducer>();
         services.AddSingleton<RetryDurableLatestConsumptionSqlServerProducer>();
         services.AddSingleton<RetryDurableLatestConsumptionPostgresProducer>();
-        services.AddSingleton<IRepositoryProvider>(sp => this.RepositoryProvider);
+        services.AddSingleton<IRepositoryProvider>(sp => RepositoryProvider);
         services.AddSingleton<RetryDurableLatestConsumptionPhysicalStorageAssert>();
         services.AddSingleton<RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert>();
     }

@@ -1,19 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using global::KafkaFlow.Retry.Durable;
-using global::KafkaFlow.Retry.Durable.Common;
-using global::KafkaFlow.Retry.Durable.Definitions.Polling;
-using global::KafkaFlow.Retry.Durable.Encoders;
-using global::KafkaFlow.Retry.Durable.Polling.Jobs;
-using global::KafkaFlow.Retry.Durable.Repository;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Read;
-using global::KafkaFlow.Retry.Durable.Repository.Actions.Update;
-using global::KafkaFlow.Retry.Durable.Repository.Adapters;
-using global::KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.Durable;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Polling.Jobs;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Repository.Model;
 using Moq;
 using Quartz;
-using Xunit;
 
 namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling.Jobs;
 

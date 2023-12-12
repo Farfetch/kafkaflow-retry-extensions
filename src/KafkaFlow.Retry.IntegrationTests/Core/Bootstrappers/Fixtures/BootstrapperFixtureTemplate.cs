@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Data.SqlClient;
 using System.Threading.Tasks;
 using Dawn;
-using global::Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Configuration;
 using Npgsql;
 using KafkaFlow.Retry.IntegrationTests.Core.Settings;
 using KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
