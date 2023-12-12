@@ -10,7 +10,7 @@
 
     <OutputType>Library</OutputType>
     
-    <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\SolutionItems\CodeCoverage.runsettings</RunSettingsFilePath>
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\CodeCoverage.runsettings</RunSettingsFilePath>
 
     <StartupObject />
   </PropertyGroup>

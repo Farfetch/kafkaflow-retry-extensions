@@ -39,22 +39,22 @@ jobs:
         echo "Branch name: $BRANCH_NAME"
         echo "Repository name: $REPOSITORY_NAME"
 
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
       with:
         fetch-depth: 0
         ref: ${{github.event.pull_request.head.ref}}
         repository: ${{github.event.pull_request.head.repo.full_name}}
         
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
         dotnet-version: 6.0.x
         
     - name: Restore dependencies
-      run: dotnet restore src/KafkaFlow.Retry.sln
+      run: dotnet restore KafkaFlow.Retry.sln
       
     - name: Build
-      run: dotnet build --no-restore -c Release src/KafkaFlow.Retry.sln
+      run: dotnet build --no-restore -c Release KafkaFlow.Retry.sln
       
     - name: Start SqlServer
       run: docker run -d -p 1433:1433 -e ACCEPT_EULA=${{ env.ACCEPT_EULA }} -e SA_PASSWORD=${{ env.SQLSERVER_SA_PASSWORD }} -e MSSQL_PID=Developer mcr.microsoft.com/mssql/server:2017-latest
@@ -78,4 +78,4 @@ jobs:
         auto create topic: "true" # Optional, auto create kafka topic
 
     - name: Test
-      run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 src/KafkaFlow.Retry.sln
+      run: dotnet test --no-build  -c Release --verbosity normal --collect:"XPlat Code Coverage" --results-directory:"../../coverage-outputs" -m:1 KafkaFlow.Retry.sln
