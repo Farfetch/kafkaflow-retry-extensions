@@ -1,7 +1,7 @@
 ﻿namespace KafkaFlow.Retry.SqlServer
 {
     using System;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
 
     internal interface IDbConnection : IDisposable
     {

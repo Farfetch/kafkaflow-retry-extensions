@@ -1,7 +1,7 @@
 ﻿namespace KafkaFlow.Retry.SqlServer
 {
     using System.Collections.Generic;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.Threading.Tasks;
     using Dawn;
     using KafkaFlow.Retry.SqlServer.Model.Schema;

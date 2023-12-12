@@ -24,6 +24,7 @@
 # User-specific stuff
 .idea
 
+
 # Gradle and Maven with auto-import
 # When using Gradle or Maven with auto-import, you should exclude module files,
 # since they will be recreated, and may cause churn.  Uncomment if using
@@ -428,5 +429,8 @@ healthchecksdb
 
 # Backup folder for Package Reference Convert tool in Visual Studio 2017
 MigrationBackup/
+
+# macOS
+.DS_Store
 
 # End of https://www.gitignore.io/api/rider,linux,windows,visualstudio

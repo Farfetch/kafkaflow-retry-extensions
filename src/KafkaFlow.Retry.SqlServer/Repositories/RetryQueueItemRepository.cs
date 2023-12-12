@@ -2,7 +2,7 @@ namespace KafkaFlow.Retry.SqlServer.Repositories
 {
     using System;
     using System.Collections.Generic;
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.Linq;
     using System.Threading.Tasks;
     using Dawn;
