@@ -4,19 +4,19 @@ using MongoDB.Driver;
 namespace KafkaFlow.Retry.MongoDb;
 internal sealed class DbContext
 {
-    private readonly IMongoDatabase database;
-    private readonly MongoDbSettings mongoDbSettings;
+    private readonly IMongoDatabase _database;
+    private readonly MongoDbSettings _mongoDbSettings;
 
     public DbContext(MongoDbSettings mongoDbSettings, IMongoClient mongoClient)
     {
-            this.mongoDbSettings = mongoDbSettings;
+            _mongoDbSettings = mongoDbSettings;
             MongoClient = mongoClient;
 
-            database = mongoClient.GetDatabase(this.mongoDbSettings.DatabaseName);
+            _database = mongoClient.GetDatabase(_mongoDbSettings.DatabaseName);
         }
 
     public IMongoClient MongoClient { get; }
-    public IMongoCollection<RetryQueueItemDbo> RetryQueueItems => database.GetCollection<RetryQueueItemDbo>(mongoDbSettings.RetryQueueItemCollectionName);
+    public IMongoCollection<RetryQueueItemDbo> RetryQueueItems => _database.GetCollection<RetryQueueItemDbo>(_mongoDbSettings.RetryQueueItemCollectionName);
 
-    public IMongoCollection<RetryQueueDbo> RetryQueues => database.GetCollection<RetryQueueDbo>(mongoDbSettings.RetryQueueCollectionName);
+    public IMongoCollection<RetryQueueDbo> RetryQueues => _database.GetCollection<RetryQueueDbo>(_mongoDbSettings.RetryQueueCollectionName);
 }

@@ -18,39 +18,39 @@ internal class RetryQueueItemBuilder
         new List<MessageHeader> { new MessageHeader("headerKey1", new byte[3]) }
     );
 
-    private readonly int attemptsCount;
-    private readonly DateTime creationDate;
-    private readonly string description;
-    private readonly RetryQueueItemMessage message;
-    private readonly RetryQueueBuilder retryQueueBuilder;
-    private readonly int sort;
-    private Guid id;
-    private DateTime? lastExecution;
-    private DateTime? modifiedStatusDate;
-    private SeverityLevel severityLevel;
-    private RetryQueueItemStatus status;
+    private readonly int _attemptsCount;
+    private readonly DateTime _creationDate;
+    private readonly string _description;
+    private readonly RetryQueueItemMessage _message;
+    private readonly RetryQueueBuilder _retryQueueBuilder;
+    private readonly int _sort;
+    private Guid _id;
+    private DateTime? _lastExecution;
+    private DateTime? _modifiedStatusDate;
+    private SeverityLevel _severityLevel;
+    private RetryQueueItemStatus _status;
 
     public RetryQueueItemBuilder(RetryQueueBuilder retryQueueBuilder, int sort)
     {
         Guard.Argument(retryQueueBuilder, nameof(retryQueueBuilder)).NotNull();
 
-        this.retryQueueBuilder = retryQueueBuilder;
+        _retryQueueBuilder = retryQueueBuilder;
 
         // defaults
-        attemptsCount = 0;
-        creationDate = RetryQueueBuilder.DefaultDateTime;
-        this.sort = sort;
-        lastExecution = RetryQueueBuilder.DefaultDateTime;
-        modifiedStatusDate = RetryQueueBuilder.DefaultDateTime;
-        status = RetryQueueItemStatus.Waiting;
-        severityLevel = SeverityLevel.Medium;
-        description = string.Empty;
-        message = DefaultItemMessage;
+        _attemptsCount = 0;
+        _creationDate = RetryQueueBuilder.DefaultDateTime;
+        _sort = sort;
+        _lastExecution = RetryQueueBuilder.DefaultDateTime;
+        _modifiedStatusDate = RetryQueueBuilder.DefaultDateTime;
+        _status = RetryQueueItemStatus.Waiting;
+        _severityLevel = SeverityLevel.Medium;
+        _description = string.Empty;
+        _message = DefaultItemMessage;
     }
 
     public RetryQueueBuilder AddItem()
     {
-        return retryQueueBuilder.WithItem(Build());
+        return _retryQueueBuilder.WithItem(Build());
     }
 
     public RetryQueueItemBuilder WithDoneStatus()
@@ -65,21 +65,21 @@ internal class RetryQueueItemBuilder
 
     public RetryQueueItemBuilder WithModifiedStatusDate(DateTime? modifiedStatusDate)
     {
-        this.modifiedStatusDate = modifiedStatusDate;
+        _modifiedStatusDate = modifiedStatusDate;
 
         return this;
     }
 
     public RetryQueueItemBuilder WithSeverityLevel(SeverityLevel severityLevel)
     {
-        this.severityLevel = severityLevel;
+        _severityLevel = severityLevel;
 
         return this;
     }
 
     public RetryQueueItemBuilder WithStatus(RetryQueueItemStatus status)
     {
-        this.status = status;
+        _status = status;
 
         return this;
     }
@@ -91,20 +91,20 @@ internal class RetryQueueItemBuilder
 
     private RetryQueueItem Build()
     {
-        id = id == default ? Guid.NewGuid() : id;
+        _id = _id == default ? Guid.NewGuid() : _id;
 
         return new RetryQueueItem(
-            id,
-            attemptsCount,
-            creationDate,
-            sort,
-            lastExecution,
-            modifiedStatusDate,
-            status,
-            severityLevel,
-            description)
+            _id,
+            _attemptsCount,
+            _creationDate,
+            _sort,
+            _lastExecution,
+            _modifiedStatusDate,
+            _status,
+            _severityLevel,
+            _description)
         {
-            Message = message
+            Message = _message
         };
     }
 }

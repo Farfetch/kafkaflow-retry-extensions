@@ -7,9 +7,9 @@ namespace KafkaFlow.Retry.Durable.Polling.Jobs;
 
 internal class CleanupJobDataProvider : IJobDataProvider
 {
-    private readonly CleanupPollingDefinition cleanupPollingDefinition;
-    private readonly IJobDetail jobDetail;
-    private readonly ITrigger trigger;
+    private readonly CleanupPollingDefinition _cleanupPollingDefinition;
+    private readonly IJobDetail _jobDetail;
+    private readonly ITrigger _trigger;
 
     public CleanupJobDataProvider(
         CleanupPollingDefinition cleanupPollingDefinition,
@@ -24,9 +24,9 @@ internal class CleanupJobDataProvider : IJobDataProvider
         Guard.Argument(retryDurableQueueRepository, nameof(retryDurableQueueRepository)).NotNull();
         Guard.Argument(logHandler, nameof(logHandler)).NotNull();
 
-        this.cleanupPollingDefinition = cleanupPollingDefinition;
-        this.trigger = trigger;
-        jobDetail = JobBuilder
+        _cleanupPollingDefinition = cleanupPollingDefinition;
+        _trigger = trigger;
+        _jobDetail = JobBuilder
             .Create<CleanupPollingJob>()
             .WithIdentity($"pollingJob_{schedulerId}_{cleanupPollingDefinition.PollingJobType}", "queueTrackerGroup")
             .SetJobData(
@@ -40,9 +40,9 @@ internal class CleanupJobDataProvider : IJobDataProvider
             .Build();
     }
 
-    public IJobDetail JobDetail => jobDetail;
+    public IJobDetail JobDetail => _jobDetail;
 
-    public PollingDefinition PollingDefinition => cleanupPollingDefinition;
+    public PollingDefinition PollingDefinition => _cleanupPollingDefinition;
 
-    public ITrigger Trigger => trigger;
+    public ITrigger Trigger => _trigger;
 }

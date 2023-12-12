@@ -18,36 +18,36 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
 internal class PostgresRepository : IRepository
 {
     private const int TimeoutSec = 60;
-    private readonly ConnectionProvider connectionProvider;
+    private readonly ConnectionProvider _connectionProvider;
 
-    private readonly IRetryQueueItemMessageHeaderRepository retryQueueItemMessageHeaderRepository;
-    private readonly IRetryQueueItemMessageRepository retryQueueItemMessageRepository;
-    private readonly IRetryQueueItemRepository retryQueueItemRepository;
-    private readonly RetryQueueReader retryQueueReader;
-    private readonly IRetryQueueRepository retryQueueRepository;
-    private readonly PostgresDbSettings postgresDbSettings;
+    private readonly IRetryQueueItemMessageHeaderRepository _retryQueueItemMessageHeaderRepository;
+    private readonly IRetryQueueItemMessageRepository _retryQueueItemMessageRepository;
+    private readonly IRetryQueueItemRepository _retryQueueItemRepository;
+    private readonly RetryQueueReader _retryQueueReader;
+    private readonly IRetryQueueRepository _retryQueueRepository;
+    private readonly PostgresDbSettings _postgresDbSettings;
 
     public PostgresRepository(
         string connectionString,
         string dbName)
     {
-        postgresDbSettings = new PostgresDbSettings(connectionString, dbName);
+        _postgresDbSettings = new PostgresDbSettings(connectionString, dbName);
 
-        RetryQueueDataProvider = new PostgresDbDataProviderFactory().Create(postgresDbSettings);
+        RetryQueueDataProvider = new PostgresDbDataProviderFactory().Create(_postgresDbSettings);
 
-        retryQueueItemMessageHeaderRepository = new RetryQueueItemMessageHeaderRepository();
-        retryQueueItemMessageRepository = new RetryQueueItemMessageRepository();
-        retryQueueItemRepository = new RetryQueueItemRepository();
-        retryQueueRepository = new RetryQueueRepository();
+        _retryQueueItemMessageHeaderRepository = new RetryQueueItemMessageHeaderRepository();
+        _retryQueueItemMessageRepository = new RetryQueueItemMessageRepository();
+        _retryQueueItemRepository = new RetryQueueItemRepository();
+        _retryQueueRepository = new RetryQueueRepository();
 
-        retryQueueReader = new RetryQueueReader(
+        _retryQueueReader = new RetryQueueReader(
             new RetryQueueAdapter(),
             new RetryQueueItemAdapter(),
             new RetryQueueItemMessageAdapter(),
             new RetryQueueItemMessageHeaderAdapter()
         );
 
-        connectionProvider = new ConnectionProvider();
+        _connectionProvider = new ConnectionProvider();
     }
 
     public RepositoryType RepositoryType => RepositoryType.Postgres;
@@ -56,7 +56,7 @@ internal class PostgresRepository : IRepository
 
     public async Task CleanDatabaseAsync()
     {
-        using var dbConnection = connectionProvider.Create(postgresDbSettings);
+        using var dbConnection = _connectionProvider.Create(_postgresDbSettings);
         using var command = dbConnection.CreateCommand();
         command.CommandType = System.Data.CommandType.Text;
         command.CommandText = @"
@@ -80,9 +80,9 @@ internal class PostgresRepository : IRepository
             Status = queue.Status,
         };
 
-        using var dbConnection = connectionProvider.CreateWithinTransaction(postgresDbSettings);
+        using var dbConnection = _connectionProvider.CreateWithinTransaction(_postgresDbSettings);
 
-        var queueId = await retryQueueRepository.AddAsync(dbConnection, queueDbo);
+        var queueId = await _retryQueueRepository.AddAsync(dbConnection, queueDbo);
 
         foreach (var item in queue.Items)
         {
@@ -101,7 +101,7 @@ internal class PostgresRepository : IRepository
                 Description = item.Description
             };
 
-            var itemId = await retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
+            var itemId = await _retryQueueItemRepository.AddAsync(dbConnection, itemDbo);
 
             // item message
             var messageDbo = new RetryQueueItemMessageDbo
@@ -115,7 +115,7 @@ internal class PostgresRepository : IRepository
                 Value = item.Message.Value
             };
 
-            await retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo);
+            await _retryQueueItemMessageRepository.AddAsync(dbConnection, messageDbo);
 
             // message headers
             var messageHeadersDbos = item.Message.Headers
@@ -126,7 +126,7 @@ internal class PostgresRepository : IRepository
                     Value = h.Value
                 });
 
-            await retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos);
+            await _retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, messageHeadersDbos);
         }
 
         dbConnection.Commit();
@@ -134,18 +134,18 @@ internal class PostgresRepository : IRepository
 
     public async Task<RetryQueue> GetAllRetryQueueDataAsync(string queueGroupKey)
     {
-        using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+        using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
         {
-            var retryQueueDbo = await retryQueueRepository.GetQueueAsync(dbConnection, queueGroupKey);
+            var retryQueueDbo = await _retryQueueRepository.GetQueueAsync(dbConnection, queueGroupKey);
 
             if (retryQueueDbo is null)
             {
                 return null;
             }
 
-            var retryQueueItemsDbo = await retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
-            var itemMessagesDbo = await retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
-            var messageHeadersDbo = await retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
+            var retryQueueItemsDbo = await _retryQueueItemRepository.GetItemsByQueueOrderedAsync(dbConnection, retryQueueDbo.IdDomain);
+            var itemMessagesDbo = await _retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, retryQueueItemsDbo);
+            var messageHeadersDbo = await _retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, itemMessagesDbo);
 
             var dboWrapper = new RetryQueuesDboWrapper
             {
@@ -155,7 +155,7 @@ internal class PostgresRepository : IRepository
                 HeadersDbos = messageHeadersDbo
             };
 
-            return retryQueueReader.Read(dboWrapper).FirstOrDefault();
+            return _retryQueueReader.Read(dboWrapper).FirstOrDefault();
         }
     }
 
@@ -173,7 +173,7 @@ internal class PostgresRepository : IRepository
 
             await Task.Delay(100).ConfigureAwait(false);
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;
@@ -208,7 +208,7 @@ internal class PostgresRepository : IRepository
 
             await Task.Delay(100).ConfigureAwait(false);
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             using (var command = dbConnection.CreateCommand())
             {
                 command.CommandType = System.Data.CommandType.Text;

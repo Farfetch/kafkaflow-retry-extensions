@@ -10,10 +10,10 @@ namespace KafkaFlow.Retry.Durable;
 
 internal class RetryDurableMiddleware : IMessageMiddleware
 {
-    private readonly ILogHandler logHandler;
-    private readonly RetryDurableDefinition retryDurableDefinition;
-    private readonly object syncPauseAndResume = new object();
-    private int? controlWorkerId;
+    private readonly ILogHandler _logHandler;
+    private readonly RetryDurableDefinition _retryDurableDefinition;
+    private readonly object _syncPauseAndResume = new object();
+    private int? _controlWorkerId;
 
     public RetryDurableMiddleware(
         ILogHandler logHandler,
@@ -22,15 +22,15 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             Guard.Argument(logHandler).NotNull();
             Guard.Argument(retryDurableDefinition).NotNull();
 
-            this.logHandler = logHandler;
-            this.retryDurableDefinition = retryDurableDefinition;
+            _logHandler = logHandler;
+            _retryDurableDefinition = retryDurableDefinition;
         }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
             try
             {
-                var resultAddIfQueueExistsAsync = await retryDurableDefinition
+                var resultAddIfQueueExistsAsync = await _retryDurableDefinition
                     .RetryDurableQueueRepository
                     .AddIfQueueExistsAsync(context)
                     .ConfigureAwait(false);
@@ -47,24 +47,24 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             }
 
             var policy = Policy
-                .Handle<Exception>(exception => retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => _retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
-                    retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
-                    (retryNumber, c) => retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
+                    _retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
+                    (retryNumber, c) => _retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.PauseConsumer
-                        && !controlWorkerId.HasValue)
+                        if (_retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.PauseConsumer
+                        && !_controlWorkerId.HasValue)
                         {
-                            lock (syncPauseAndResume)
+                            lock (_syncPauseAndResume)
                             {
-                                if (!controlWorkerId.HasValue)
+                                if (!_controlWorkerId.HasValue)
                                 {
-                                    controlWorkerId = context.ConsumerContext.WorkerId;
+                                    _controlWorkerId = context.ConsumerContext.WorkerId;
 
                                     context.ConsumerContext.Pause();
 
-                                    logHandler.Info(
+                                    _logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
@@ -76,7 +76,7 @@ internal class RetryDurableMiddleware : IMessageMiddleware
                             }
                         }
 
-                        logHandler.Error(
+                        _logHandler.Error(
                             $"Exception captured by {nameof(RetryDurableMiddleware)}. Retry in process.",
                             exception,
                             new
@@ -108,9 +108,9 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             }
             catch (Exception exception)
             {
-                if (retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
+                if (_retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
                 {
-                    var resultSaveToQueue = await retryDurableDefinition
+                    var resultSaveToQueue = await _retryDurableDefinition
                         .RetryDurableQueueRepository
                         .SaveToQueueAsync(context, exception.Message)
                         .ConfigureAwait(false);
@@ -128,17 +128,17 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             }
             finally
             {
-                if (controlWorkerId == context.ConsumerContext.WorkerId)
+                if (_controlWorkerId == context.ConsumerContext.WorkerId)
                 {
-                    lock (syncPauseAndResume)
+                    lock (_syncPauseAndResume)
                     {
-                        if (controlWorkerId == context.ConsumerContext.WorkerId)
+                        if (_controlWorkerId == context.ConsumerContext.WorkerId)
                         {
-                            controlWorkerId = null;
+                            _controlWorkerId = null;
 
                             context.ConsumerContext.Resume();
 
-                            logHandler.Info(
+                            _logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {

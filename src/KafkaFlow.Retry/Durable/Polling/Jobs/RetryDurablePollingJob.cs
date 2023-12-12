@@ -17,7 +17,7 @@ namespace KafkaFlow.Retry.Durable.Polling.Jobs;
 [DisallowConcurrentExecutionAttribute]
 internal class RetryDurablePollingJob : IJob
 {
-    private TimeSpan expirationInterval = TimeSpan.Zero;
+    private TimeSpan _expirationInterval = TimeSpan.Zero;
 
     public async Task Execute(IJobExecutionContext context)
     {
@@ -45,7 +45,7 @@ internal class RetryDurablePollingJob : IJob
                    new GetQueuesInput(
                        RetryQueueStatus.Active,
                        new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-                       GetQueuesSortOption.ByLastExecution_Ascending,
+                       GetQueuesSortOption.ByLastExecutionAscending,
                        retryDurablePollingDefinition.FetchSize,
                        new StuckStatusFilter(
                            RetryQueueItemStatus.InRetry,
@@ -166,9 +166,9 @@ internal class RetryDurablePollingJob : IJob
 
     private TimeSpan GetExpirationInterval(RetryDurablePollingDefinition retryDurablePollingDefinition)
     {
-            if (expirationInterval != TimeSpan.Zero)
+            if (_expirationInterval != TimeSpan.Zero)
             {
-                return expirationInterval;
+                return _expirationInterval;
             }
 
             var cron = new CronExpression(retryDurablePollingDefinition.CronExpression);
@@ -186,10 +186,10 @@ internal class RetryDurablePollingJob : IJob
 
             for (var i = 0; i < retryDurablePollingDefinition.ExpirationIntervalFactor; i++)
             {
-                expirationInterval += pollingInterval;
+                _expirationInterval += pollingInterval;
             }
 
-            return expirationInterval;
+            return _expirationInterval;
         }
 
     private IMessageHeaders GetMessageHeaders(

@@ -5,17 +5,17 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
 
 internal class RepositoryProvider : IRepositoryProvider
 {
-    private readonly IEnumerable<IRepository> repositories;
+    private readonly IEnumerable<IRepository> _repositories;
 
     public RepositoryProvider(IEnumerable<IRepository> repositories)
     {
-        this.repositories = repositories;
+        _repositories = repositories;
     }
 
-    public IEnumerable<IRepository> GetAllRepositories() => repositories;
+    public IEnumerable<IRepository> GetAllRepositories() => _repositories;
 
     public IRepository GetRepositoryOfType(RepositoryType repositoryType)
     {
-        return repositories.Single(r => r.RepositoryType == repositoryType);
+        return _repositories.Single(r => r.RepositoryType == repositoryType);
     }
 }

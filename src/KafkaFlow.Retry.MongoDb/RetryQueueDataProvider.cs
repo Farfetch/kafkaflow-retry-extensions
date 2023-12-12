@@ -21,11 +21,11 @@ namespace KafkaFlow.Retry.MongoDb;
 
 internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
 {
-    private readonly DbContext dbContext;
-    private readonly IQueuesAdapter queuesAdapter;
-    private readonly RetryQueueItemDboFactory retryQueueItemDboFactory;
-    private readonly IRetryQueueItemRepository retryQueueItemRepository;
-    private readonly IRetryQueueRepository retryQueueRepository;
+    private readonly DbContext _dbContext;
+    private readonly IQueuesAdapter _queuesAdapter;
+    private readonly RetryQueueItemDboFactory _retryQueueItemDboFactory;
+    private readonly IRetryQueueItemRepository _retryQueueItemRepository;
+    private readonly IRetryQueueRepository _retryQueueRepository;
 
     internal RetryQueueDataProvider(
         DbContext dbContext,
@@ -34,13 +34,13 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(dbContext).NotNull();
 
-            this.dbContext = dbContext;
-            this.retryQueueRepository = retryQueueRepository;
-            this.retryQueueItemRepository = retryQueueItemRepository;
+            _dbContext = dbContext;
+            _retryQueueRepository = retryQueueRepository;
+            _retryQueueItemRepository = retryQueueItemRepository;
             var messageAdapter = new MessageAdapter(new HeaderAdapter());
 
-            retryQueueItemDboFactory = new RetryQueueItemDboFactory(messageAdapter);
-            queuesAdapter = new QueuesAdapter(new ItemAdapter(messageAdapter));
+            _retryQueueItemDboFactory = new RetryQueueItemDboFactory(messageAdapter);
+            _queuesAdapter = new QueuesAdapter(new ItemAdapter(messageAdapter));
         }
 
     public async Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input)
@@ -48,7 +48,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
             Guard.Argument(input).NotNull();
 
             // Tries to find an active queue for the GroupKey
-            var retryQueueDbo = await dbContext.RetryQueues
+            var retryQueueDbo = await _dbContext.RetryQueues
                 .AsQueryable()
                 .FirstOrDefaultAsync(q =>
                     q.QueueGroupKey == input.QueueGroupKey &&
@@ -67,13 +67,13 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            var itemsFilterBuilder = dbContext.RetryQueueItems.GetFilters();
+            var itemsFilterBuilder = _dbContext.RetryQueueItems.GetFilters();
 
             var itemsFilter = itemsFilterBuilder.Eq(i => i.RetryQueueId, input.QueueId)
                             & itemsFilterBuilder.In(i => i.Status, new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry })
                             & itemsFilterBuilder.Gt(i => i.Sort, input.Sort);
 
-            var itemsDbo = await dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
+            var itemsDbo = await _dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
 
             if (itemsDbo.Any())
             {
@@ -87,13 +87,13 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            var itemsFilterBuilder = dbContext.RetryQueueItems.GetFilters();
+            var itemsFilterBuilder = _dbContext.RetryQueueItems.GetFilters();
 
             var itemsFilter = itemsFilterBuilder.Eq(i => i.RetryQueueId, input.QueueId)
                             & itemsFilterBuilder.In(i => i.Status, new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry })
                             & itemsFilterBuilder.Lt(i => i.Sort, input.Sort);
 
-            var itemsDbo = await dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
+            var itemsDbo = await _dbContext.RetryQueueItems.GetAsync(itemsFilter).ConfigureAwait(false);
 
             if (itemsDbo.Any())
             {
@@ -107,7 +107,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            var queueIdsToDelete = await retryQueueRepository
+            var queueIdsToDelete = await _retryQueueRepository
                                              .GetQueuesToDeleteAsync(
                                                 input.SearchGroupKey,
                                                 input.RetryQueueStatus,
@@ -115,11 +115,11 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                                                 input.MaxRowsToDelete)
                                              .ConfigureAwait(false);
 
-            await retryQueueItemRepository
+            await _retryQueueItemRepository
                       .DeleteItemsAsync(queueIdsToDelete)
                       .ConfigureAwait(false);
 
-            return await retryQueueRepository
+            return await _retryQueueRepository
                              .DeleteQueuesAsync(queueIdsToDelete)
                              .ConfigureAwait(false);
         }
@@ -128,7 +128,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            var queuesDbo = await retryQueueRepository.GetTopSortedQueuesAsync(input.Status, input.SortOption, input.SearchGroupKey, input.TopQueues).ConfigureAwait(false);
+            var queuesDbo = await _retryQueueRepository.GetTopSortedQueuesAsync(input.Status, input.SortOption, input.SearchGroupKey, input.TopQueues).ConfigureAwait(false);
 
             if (!queuesDbo.Any())
             {
@@ -141,7 +141,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
             foreach (var queueId in queueIds)
             {
-                var queueeItemsDbo = await retryQueueItemRepository.GetItemsAsync(
+                var queueeItemsDbo = await _retryQueueItemRepository.GetItemsAsync(
                                         new Guid[] { queueId },
                                         input.ItemsStatuses,
                                         input.SeverityLevels,
@@ -152,7 +152,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                 itemsDbo.AddRange(queueeItemsDbo);
             }
 
-            var queues = queuesAdapter.Adapt(queuesDbo, itemsDbo);
+            var queues = _queuesAdapter.Adapt(queuesDbo, itemsDbo);
 
             return new GetQueuesResult(queues);
         }
@@ -161,7 +161,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input).NotNull();
 
-            var retryQueueDbo = await dbContext.RetryQueues
+            var retryQueueDbo = await _dbContext.RetryQueues
                 .AsQueryable()
                 .FirstOrDefaultAsync(q => q.QueueGroupKey == input.QueueGroupKey);
 
@@ -202,12 +202,12 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            var filter = dbContext.RetryQueueItems.GetFilters().Eq(i => i.Id, input.ItemId);
+            var filter = _dbContext.RetryQueueItems.GetFilters().Eq(i => i.Id, input.ItemId);
 
-            var update = dbContext.RetryQueueItems.GetUpdateDefinition().Set(i => i.Status, input.Status)
+            var update = _dbContext.RetryQueueItems.GetUpdateDefinition().Set(i => i.Status, input.Status)
                                                                              .Set(i => i.ModifiedStatusDate, DateTime.UtcNow);
 
-            var updateResult = await dbContext.RetryQueueItems.UpdateOneAsync(filter, update).ConfigureAwait(false);
+            var updateResult = await _dbContext.RetryQueueItems.UpdateOneAsync(filter, update).ConfigureAwait(false);
 
             if (updateResult.IsAcknowledged && updateResult.MatchedCount == 0)
             {
@@ -236,20 +236,20 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     private async Task AddItemIntoAnExistingQueueAsync(SaveToQueueInput input, RetryQueueDbo retryQueueDbo)
     {
             // Gets the total items in the queue.
-            var totalItemsInQueue = dbContext.RetryQueueItems
+            var totalItemsInQueue = _dbContext.RetryQueueItems
                 .AsQueryable()
                 .Where(i => i.RetryQueueId == retryQueueDbo.Id)
                 .Count();
 
             // Inserts the new item at the last position in the queue.
-            var retryQueueItemDbo = retryQueueItemDboFactory.Create(input, retryQueueDbo.Id, totalItemsInQueue);
-            await dbContext.RetryQueueItems.InsertOneAsync(retryQueueItemDbo).ConfigureAwait(false);
+            var retryQueueItemDbo = _retryQueueItemDboFactory.Create(input, retryQueueDbo.Id, totalItemsInQueue);
+            await _dbContext.RetryQueueItems.InsertOneAsync(retryQueueItemDbo).ConfigureAwait(false);
 
             // Verifies whether to change the queue status.
             if (retryQueueDbo.Status == RetryQueueStatus.Done)
             {
                 // The queue was marked as DONE. With this new item, the status should return to ACTIVE.
-                await dbContext.RetryQueues
+                await _dbContext.RetryQueues
                     .FindOneAndUpdateAsync(
                         q => q.Id == retryQueueDbo.Id,
                         Builders<RetryQueueDbo>.Update.Set(q => q.Status, RetryQueueStatus.Active)
@@ -261,11 +261,11 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             // Creates the queue
             var retryQueueDbo = RetryQueueDboFactory.Create(input);
-            await dbContext.RetryQueues.InsertOneAsync(retryQueueDbo).ConfigureAwait(false);
+            await _dbContext.RetryQueues.InsertOneAsync(retryQueueDbo).ConfigureAwait(false);
 
             // Adds the item
-            var retryQueueItemDbo = retryQueueItemDboFactory.Create(input, retryQueueDbo.Id);
-            await dbContext.RetryQueueItems.InsertOneAsync(retryQueueItemDbo).ConfigureAwait(false);
+            var retryQueueItemDbo = _retryQueueItemDboFactory.Create(input, retryQueueDbo.Id);
+            await _dbContext.RetryQueueItems.InsertOneAsync(retryQueueItemDbo).ConfigureAwait(false);
         }
 
     private bool IsItemInWaitingState(RetryQueueItemDbo item)
@@ -275,11 +275,11 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
     private async Task<UpdateQueueResultStatus> TryUpdateQueueToDoneAsync(Guid queueId)
     {
-            var anyItemStillActive = await retryQueueItemRepository.AnyItemStillActiveAsync(queueId).ConfigureAwait(false);
+            var anyItemStillActive = await _retryQueueItemRepository.AnyItemStillActiveAsync(queueId).ConfigureAwait(false);
 
             if (!anyItemStillActive)
             {
-                var updateQueueResult = await retryQueueRepository.UpdateStatusAsync(queueId, RetryQueueStatus.Done).ConfigureAwait(false);
+                var updateQueueResult = await _retryQueueRepository.UpdateStatusAsync(queueId, RetryQueueStatus.Done).ConfigureAwait(false);
 
                 if (updateQueueResult.IsAcknowledged && updateQueueResult.MatchedCount == 0)
                 {
@@ -299,7 +299,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                 return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.UpdateIsNotAllowed);
             }
 
-            var item = await retryQueueItemRepository.GetItemAsync(input.ItemId).ConfigureAwait(false);
+            var item = await _retryQueueItemRepository.GetItemAsync(input.ItemId).ConfigureAwait(false);
 
             if (item is null)
             {
@@ -311,7 +311,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                 return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.ItemIsNotInWaitingState);
             }
 
-            if (!await retryQueueItemRepository.IsFirstWaitingInQueue(item).ConfigureAwait(false))
+            if (!await _retryQueueItemRepository.IsFirstWaitingInQueue(item).ConfigureAwait(false))
             {
                 return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.ItemIsNotTheFirstWaitingInQueue);
             }
@@ -336,7 +336,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     private async Task<UpdateItemResult> UpdateItemAndTryUpdateQueueToDoneAsync(UpdateItemExecutionInfoInput input)
     {
             //update item
-            var updateItemResult = await retryQueueItemRepository
+            var updateItemResult = await _retryQueueItemRepository
                .UpdateItemAsync(input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description).ConfigureAwait(false);
 
             if (updateItemResult.Status == UpdateItemResultStatus.ItemNotFound)
@@ -357,7 +357,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
     private async Task<UpdateQueueResult> UpdateQueueAndAllItemsAsync(UpdateItemsInQueueInput input)
     {
-            var queue = await retryQueueRepository.GetQueueAsync(input.QueueGroupKey).ConfigureAwait(false);
+            var queue = await _retryQueueRepository.GetQueueAsync(input.QueueGroupKey).ConfigureAwait(false);
 
             if (queue is null)
             {
@@ -374,7 +374,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                 return new UpdateQueueResult(input.QueueGroupKey, UpdateQueueResultStatus.QueueIsNotActive, queue.Status);
             }
 
-            var items = await retryQueueItemRepository
+            var items = await _retryQueueItemRepository
                 .GetItemsAsync(new Guid[] { queue.Id }, new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting })
                 .ConfigureAwait(false);
 
@@ -400,19 +400,19 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                 return new UpdateQueueResult(input.QueueGroupKey, UpdateQueueResultStatus.AllItemsUpdatedButFailedToUpdateQueue, queue.Status);
             }
 
-            queue = await retryQueueRepository.GetQueueAsync(input.QueueGroupKey).ConfigureAwait(false);
+            queue = await _retryQueueRepository.GetQueueAsync(input.QueueGroupKey).ConfigureAwait(false);
 
             return new UpdateQueueResult(input.QueueGroupKey, updateQueueResultStatus, queue.Status);
         }
 
     private async Task<UpdateQueueResultStatus> UpdateQueueLastExecutionAndTryUpdateQueueToDoneAsync(Guid queueId, DateTime lastExecution)
     {
-            var anyItemStillActive = await retryQueueItemRepository.AnyItemStillActiveAsync(queueId).ConfigureAwait(false);
+            var anyItemStillActive = await _retryQueueItemRepository.AnyItemStillActiveAsync(queueId).ConfigureAwait(false);
 
             if (anyItemStillActive)
             {
                 // update queue last execution only
-                var updateQueueLastExecutionResult = await retryQueueRepository.UpdateLastExecutionAsync(queueId, lastExecution).ConfigureAwait(false);
+                var updateQueueLastExecutionResult = await _retryQueueRepository.UpdateLastExecutionAsync(queueId, lastExecution).ConfigureAwait(false);
 
                 if (updateQueueLastExecutionResult.IsAcknowledged && updateQueueLastExecutionResult.MatchedCount == 0)
                 {
@@ -422,7 +422,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
             else
             {
                 // update queue last execution and the status to done
-                var updateQueueResult = await retryQueueRepository.UpdateStatusAndLastExecutionAsync(queueId, RetryQueueStatus.Done, lastExecution).ConfigureAwait(false);
+                var updateQueueResult = await _retryQueueRepository.UpdateStatusAndLastExecutionAsync(queueId, RetryQueueStatus.Done, lastExecution).ConfigureAwait(false);
 
                 if (updateQueueResult.IsAcknowledged && updateQueueResult.MatchedCount == 0)
                 {

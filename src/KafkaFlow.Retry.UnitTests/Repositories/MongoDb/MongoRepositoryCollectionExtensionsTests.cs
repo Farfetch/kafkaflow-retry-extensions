@@ -14,10 +14,10 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 
 public class MongoRepositoryCollectionExtensionsTests
 {
-    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> collection = new Mock<IMongoCollection<RetryQueueItemDbo>>();
-    private readonly Mock<IAsyncCursor<RetryQueueItemDbo>> retries = new Mock<IAsyncCursor<RetryQueueItemDbo>>();
+    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> _collection = new Mock<IMongoCollection<RetryQueueItemDbo>>();
+    private readonly Mock<IAsyncCursor<RetryQueueItemDbo>> _retries = new Mock<IAsyncCursor<RetryQueueItemDbo>>();
 
-    private readonly IEnumerable<RetryQueueItemDbo> retryQueueItemDbos = new List<RetryQueueItemDbo>
+    private readonly IEnumerable<RetryQueueItemDbo> _retryQueueItemDbos = new List<RetryQueueItemDbo>
     {
         new RetryQueueItemDbo
         {
@@ -37,18 +37,18 @@ public class MongoRepositoryCollectionExtensionsTests
 
     public MongoRepositoryCollectionExtensionsTests()
     {
-        retries.SetupSequence(d => d.MoveNextAsync(It.IsAny<CancellationToken>()))
+        _retries.SetupSequence(d => d.MoveNextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        retries.Setup(d => d.Current).Returns(() => retryQueueItemDbos);
+        _retries.Setup(d => d.Current).Returns(() => _retryQueueItemDbos);
 
-        collection
+        _collection
             .Setup(d => d.FindAsync(
                 It.IsAny<FilterDefinition<RetryQueueItemDbo>>(),
                 It.IsAny<FindOptions<RetryQueueItemDbo, RetryQueueItemDbo>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(retries.Object);
+            .ReturnsAsync(_retries.Object);
     }
 
     [Fact]
@@ -58,12 +58,12 @@ public class MongoRepositoryCollectionExtensionsTests
         var filter = FilterDefinition<RetryQueueItemDbo>.Empty;
 
         // Act
-        var result = await collection.Object.GetAsync(filter).ConfigureAwait(false);
+        var result = await _collection.Object.GetAsync(filter).ConfigureAwait(false);
 
         // Assert
         result.Should().NotBeEmpty();
-        result.Should().BeEquivalentTo(retryQueueItemDbos);
-        collection.Verify(d =>
+        result.Should().BeEquivalentTo(_retryQueueItemDbos);
+        _collection.Verify(d =>
                 d.FindAsync(
                     It.IsAny<FilterDefinition<RetryQueueItemDbo>>(),
                     It.IsAny<FindOptions<RetryQueueItemDbo, RetryQueueItemDbo>>(),
@@ -75,7 +75,7 @@ public class MongoRepositoryCollectionExtensionsTests
     public void MongoRepositoryCollectionExtensions_GetFilters_Success()
     {
         // Act
-        var result = collection.Object.GetFilters();
+        var result = _collection.Object.GetFilters();
 
         // Assert
         result.Should().NotBeNull();
@@ -88,12 +88,12 @@ public class MongoRepositoryCollectionExtensionsTests
         var filter = FilterDefinition<RetryQueueItemDbo>.Empty;
 
         // Act
-        var result = await collection.Object.GetOneAsync(filter).ConfigureAwait(false);
+        var result = await _collection.Object.GetOneAsync(filter).ConfigureAwait(false);
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().Be(retryQueueItemDbos.FirstOrDefault());
-        collection.Verify(d =>
+        result.Should().Be(_retryQueueItemDbos.FirstOrDefault());
+        _collection.Verify(d =>
                 d.FindAsync(
                     It.IsAny<FilterDefinition<RetryQueueItemDbo>>(),
                     It.IsAny<FindOptions<RetryQueueItemDbo, RetryQueueItemDbo>>(),
@@ -105,7 +105,7 @@ public class MongoRepositoryCollectionExtensionsTests
     public void MongoRepositoryCollectionExtensions_GetSortDefinition_Success()
     {
         // Act
-        var result = collection.Object.GetSortDefinition();
+        var result = _collection.Object.GetSortDefinition();
 
         // Assert
         result.Should().NotBeNull();
@@ -115,7 +115,7 @@ public class MongoRepositoryCollectionExtensionsTests
     public void MongoRepositoryCollectionExtensions_GetUpdateDefinition_Success()
     {
         // Act
-        var result = collection.Object.GetUpdateDefinition();
+        var result = _collection.Object.GetUpdateDefinition();
 
         // Assert
         result.Should().NotBeNull();

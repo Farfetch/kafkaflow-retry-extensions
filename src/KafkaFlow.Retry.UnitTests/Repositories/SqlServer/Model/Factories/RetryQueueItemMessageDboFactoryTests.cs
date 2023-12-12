@@ -7,14 +7,14 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Factories;
 
 public class RetryQueueItemMessageDboFactoryTests
 {
-    private readonly RetryQueueItemMessageDboFactory factory = new RetryQueueItemMessageDboFactory();
-    private readonly RetryQueueItemMessage message = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
+    private readonly RetryQueueItemMessageDboFactory _factory = new RetryQueueItemMessageDboFactory();
+    private readonly RetryQueueItemMessage _message = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
 
     [Fact]
     public void RetryQueueItemMessageDboFactory_Create_Success()
     {
         // Act
-        var result = factory.Create(message, 1);
+        var result = _factory.Create(_message, 1);
 
         // Assert
         result.Should().NotBeNull();
@@ -25,7 +25,7 @@ public class RetryQueueItemMessageDboFactoryTests
     public void RetryQueueItemMessageDboFactory_Create_WithNegativeRetryQueueItemId_ThrowsException()
     {
         // Act
-        Action act = () => factory.Create(message, -1);
+        Action act = () => _factory.Create(_message, -1);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -38,7 +38,7 @@ public class RetryQueueItemMessageDboFactoryTests
         RetryQueueItemMessage messasgeNull = null;
 
         // Act
-        Action act = () => factory.Create(messasgeNull, 1);
+        Action act = () => _factory.Create(messasgeNull, 1);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

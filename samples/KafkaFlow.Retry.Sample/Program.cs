@@ -140,11 +140,11 @@ internal static class Program
                 case "retry-forever":
                 {
                     Console.Write("Number of messages to produce: ");
-                    int.TryParse(Console.ReadLine(), out var num_of_messages);
+                    int.TryParse(Console.ReadLine(), out var numOfMessages);
                     await producers["kafka-flow-retry-forever-producer"]
                         .BatchProduceAsync(
                             Enumerable
-                                .Range(0, num_of_messages)
+                                .Range(0, numOfMessages)
                                 .Select(
                                     x => new BatchProduceItem(
                                         "sample-kafka-flow-retry-forever-topic",
@@ -160,11 +160,11 @@ internal static class Program
                 case "retry-simple":
                 {
                     Console.Write("Number of messages to produce:");
-                    int.TryParse(Console.ReadLine(), out var num_of_messages);
+                    int.TryParse(Console.ReadLine(), out var numOfMessages);
                     await producers["kafka-flow-retry-simple-producer"]
                         .BatchProduceAsync(
                             Enumerable
-                                .Range(0, num_of_messages)
+                                .Range(0, numOfMessages)
                                 .Select(
                                     x => new BatchProduceItem(
                                         "sample-kafka-flow-retry-simple-topic",

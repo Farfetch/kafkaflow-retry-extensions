@@ -7,7 +7,7 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers.Adapters;
 
 public class RetryQueueAdapterTests
 {
-    private readonly RetryQueueAdapter adapter = new RetryQueueAdapter();
+    private readonly RetryQueueAdapter _adapter = new RetryQueueAdapter();
 
     [Fact]
     public void RetryQueueAdapter_Adapt_Success()
@@ -25,7 +25,7 @@ public class RetryQueueAdapterTests
         };
 
         // Act
-        var result = adapter.Adapt(retryQueue);
+        var result = _adapter.Adapt(retryQueue);
 
         // Assert
         result.Should().NotBeNull();
@@ -39,7 +39,7 @@ public class RetryQueueAdapterTests
         RetryQueueDbo retryQueue = null;
 
         // Act
-        Action act = () => adapter.Adapt(retryQueue);
+        Action act = () => _adapter.Adapt(retryQueue);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

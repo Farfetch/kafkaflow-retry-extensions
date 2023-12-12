@@ -17,8 +17,8 @@ public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
     {
             var postgresDataProviderFactory = new PostgresDbDataProviderFactory();
 
-            var connectionString = bootstrapperRepositoryFixture.PostgresSettings.ConnectionString;
-            var databaseName = bootstrapperRepositoryFixture.PostgresSettings.DatabaseName;
+            var connectionString = BootstrapperRepositoryFixture.PostgresSettings.ConnectionString;
+            var databaseName = BootstrapperRepositoryFixture.PostgresSettings.DatabaseName;
 
             var postgresSettings = new PostgresDbSettings(connectionString, databaseName);
 
@@ -32,9 +32,9 @@ public class CreateSchemaCreatorTests : RetryQueueDataProviderTestsTemplate
     {
             var sqlDataProviderFactory = new SqlServerDbDataProviderFactory();
 
-            var connectionString = bootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
-            var databaseName = bootstrapperRepositoryFixture.SqlServerSettings.DatabaseName;
-            var schema = bootstrapperRepositoryFixture.SqlServerSettings.Schema;
+            var connectionString = BootstrapperRepositoryFixture.SqlServerSettings.ConnectionString;
+            var databaseName = BootstrapperRepositoryFixture.SqlServerSettings.DatabaseName;
+            var schema = BootstrapperRepositoryFixture.SqlServerSettings.Schema;
 
             var sqlSettings = new SqlServerDbSettings(connectionString, databaseName, schema);
 

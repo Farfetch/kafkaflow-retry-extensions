@@ -9,11 +9,11 @@ namespace KafkaFlow.Retry.IntegrationTests.RepositoryTests.RetryQueueDataProvide
 [Collection("BootstrapperRepositoryCollection")]
 public abstract class RetryQueueDataProviderTestsTemplate
 {
-    protected readonly BootstrapperRepositoryFixture bootstrapperRepositoryFixture;
+    protected readonly BootstrapperRepositoryFixture BootstrapperRepositoryFixture;
 
     protected RetryQueueDataProviderTestsTemplate(BootstrapperRepositoryFixture bootstrapperRepositoryFixture)
     {
-        this.bootstrapperRepositoryFixture = bootstrapperRepositoryFixture;
+        BootstrapperRepositoryFixture = bootstrapperRepositoryFixture;
     }
 
     protected RetryQueue GetDefaultQueue()
@@ -37,6 +37,6 @@ public abstract class RetryQueueDataProviderTestsTemplate
 
     protected IRepository GetRepository(RepositoryType repositoryType)
     {
-        return bootstrapperRepositoryFixture.RepositoryProvider.GetRepositoryOfType(repositoryType);
+        return BootstrapperRepositoryFixture.RepositoryProvider.GetRepositoryOfType(repositoryType);
     }
 }

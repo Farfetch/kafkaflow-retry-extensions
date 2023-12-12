@@ -12,14 +12,14 @@ namespace KafkaFlow.Retry.IntegrationTests.PollingTests;
 
 public class QueueTrackerCoordinatorTests
 {
-    private readonly Mock<IJobDataProvidersFactory> mockJobDataProvidersFactory;
-    private readonly ITriggerProvider triggerProvider;
+    private readonly Mock<IJobDataProvidersFactory> _mockJobDataProvidersFactory;
+    private readonly ITriggerProvider _triggerProvider;
 
     public QueueTrackerCoordinatorTests()
     {
-            triggerProvider = new TriggerProvider();
+            _triggerProvider = new TriggerProvider();
 
-            mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
+            _mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
         }
 
     [Fact]
@@ -37,7 +37,7 @@ public class QueueTrackerCoordinatorTests
 
             var retryDurableJobDataProvider = CreateRetryDurableJobDataProvider(schedulerId, cronExpression, jobExecutionContexts);
 
-            mockJobDataProvidersFactory
+            _mockJobDataProvidersFactory
                .Setup(m => m.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                .Returns(new[] { retryDurableJobDataProvider });
 
@@ -91,7 +91,7 @@ public class QueueTrackerCoordinatorTests
             var retryDurableJobDataProvider = CreateRetryDurableJobDataProvider(schedulerId, retryDurableCronExpression, jobExecutionContexts);
             var cleanupJobDataProvider = CreateCleanupJobDataProvider(schedulerId, cleanupCronExpression, jobExecutionContexts);
 
-            mockJobDataProvidersFactory
+            _mockJobDataProvidersFactory
                 .Setup(m => m.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new[] { retryDurableJobDataProvider, cleanupJobDataProvider });
 
@@ -142,14 +142,14 @@ public class QueueTrackerCoordinatorTests
 
     private JobDataProviderSurrogate CreateJobDataProvider(string schedulerId, PollingDefinition pollingDefinition, List<IJobExecutionContext> jobExecutionContexts)
     {
-            var trigger = triggerProvider.GetPollingTrigger(schedulerId, pollingDefinition);
+            var trigger = _triggerProvider.GetPollingTrigger(schedulerId, pollingDefinition);
 
             return new JobDataProviderSurrogate(schedulerId, pollingDefinition, trigger, jobExecutionContexts);
         }
 
     private IQueueTrackerCoordinator CreateQueueTrackerCoordinator(string schedulerId)
     {
-            var queueTrackerFactory = new QueueTrackerFactory(schedulerId, mockJobDataProvidersFactory.Object);
+            var queueTrackerFactory = new QueueTrackerFactory(schedulerId, _mockJobDataProvidersFactory.Object);
 
             return new QueueTrackerCoordinator(queueTrackerFactory);
         }

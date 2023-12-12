@@ -10,15 +10,15 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Bootstrappers;
 
 internal static class BootstrapperPostgresSchema
 {
-    private static readonly SemaphoreSlim semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
-    private static bool schemaInitialized;
+    private static readonly SemaphoreSlim s_semaphoreOneThreadAtTime = new SemaphoreSlim(1, 1);
+    private static bool s_schemaInitialized;
 
     internal static async Task RecreatePostgresSchemaAsync(string databaseName, string connectionString)
     {
-        await semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
+        await s_semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
         try
         {
-            if (schemaInitialized)
+            if (s_schemaInitialized)
             {
                 return;
             }
@@ -41,11 +41,11 @@ internal static class BootstrapperPostgresSchema
                 }
             }
 
-            schemaInitialized = true;
+            s_schemaInitialized = true;
         }
         finally
         {
-            semaphoreOneThreadAtTime.Release();
+            s_semaphoreOneThreadAtTime.Release();
         }
     }
 

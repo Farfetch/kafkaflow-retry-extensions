@@ -10,11 +10,11 @@ namespace KafkaFlow.Retry.API;
 internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
 {
 
-    private readonly string path;
+    private readonly string _path;
     private const string RetryResource = "retry";
 
 
-    protected JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings()
+    protected JsonSerializerSettings JsonSerializerSettings = new JsonSerializerSettings()
     {
         DateTimeZoneHandling = DateTimeZoneHandling.Utc,
         TypeNameHandling = TypeNameHandling.None
@@ -28,11 +28,11 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
 
             if (!string.IsNullOrEmpty(endpointPrefix))
             {
-                path = path
+                _path = _path
                     .ExtendResourcePath(endpointPrefix);
             }
 
-            path = path
+            _path = _path
                 .ExtendResourcePath(RetryResource)
                 .ExtendResourcePath(resource);
         }
@@ -54,7 +54,7 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
     {
             var resource = httpRequest.Path.ToUriComponent();
 
-            if (!resource.Equals(path))
+            if (!resource.Equals(_path))
             {
                 return false;
             }
@@ -80,14 +80,14 @@ internal abstract class RetryRequestHandlerBase : IHttpRequestHandler
                 requestMessage = await reader.ReadToEndAsync().ConfigureAwait(false);
             }
 
-            var requestDto = JsonConvert.DeserializeObject<T>(requestMessage, jsonSerializerSettings);
+            var requestDto = JsonConvert.DeserializeObject<T>(requestMessage, JsonSerializerSettings);
 
             return requestDto;
         }
 
     protected virtual async Task WriteResponseAsync<T>(HttpResponse response, T responseDto, int statusCode)
     {
-            var body = JsonConvert.SerializeObject(responseDto, jsonSerializerSettings);
+            var body = JsonConvert.SerializeObject(responseDto, JsonSerializerSettings);
 
             response.ContentType = "application/json";
             response.StatusCode = statusCode;

@@ -9,9 +9,9 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Model.Factories;
 
 public class RetryQueueItemMessageHeaderDboFactoryTests
 {
-    private readonly RetryQueueItemMessageHeaderDboFactory factory = new RetryQueueItemMessageHeaderDboFactory();
+    private readonly RetryQueueItemMessageHeaderDboFactory _factory = new RetryQueueItemMessageHeaderDboFactory();
 
-    private readonly IEnumerable<MessageHeader> headers = new List<MessageHeader>
+    private readonly IEnumerable<MessageHeader> _headers = new List<MessageHeader>
     {
         new MessageHeader("key", new byte[1])
     };
@@ -20,7 +20,7 @@ public class RetryQueueItemMessageHeaderDboFactoryTests
     public void RetryQueueItemMessageHeaderDboFactory_Create_Success()
     {
         // Act
-        var result = factory.Create(headers, 1);
+        var result = _factory.Create(_headers, 1);
 
         // Assert
         result.Should().NotBeNull();
@@ -32,7 +32,7 @@ public class RetryQueueItemMessageHeaderDboFactoryTests
     public void RetryQueueItemMessageHeaderDboFactory_Create_WithNegativeRetryQueueItemId_ThrowsException()
     {
         // Act
-        Action act = () => factory.Create(headers, -1);
+        Action act = () => _factory.Create(_headers, -1);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -45,7 +45,7 @@ public class RetryQueueItemMessageHeaderDboFactoryTests
         IEnumerable<MessageHeader> headersNull = null;
 
         // Act
-        Action act = () => factory.Create(headersNull, 1);
+        Action act = () => _factory.Create(headersNull, 1);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

@@ -16,14 +16,14 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Repositories;
 
 public class RetryQueueRepositoryTests
 {
-    private readonly Mock<IMongoCollection<RetryQueueDbo>> collection = new Mock<IMongoCollection<RetryQueueDbo>>();
+    private readonly Mock<IMongoCollection<RetryQueueDbo>> _collection = new Mock<IMongoCollection<RetryQueueDbo>>();
 
-    private readonly Mock<IMongoClient> mongoClient = new Mock<IMongoClient>();
-    private readonly Mock<IMongoDatabase> mongoDatabase = new Mock<IMongoDatabase>();
-    private readonly RetryQueueRepository repository;
-    private readonly Mock<IAsyncCursor<RetryQueueDbo>> retries = new Mock<IAsyncCursor<RetryQueueDbo>>();
+    private readonly Mock<IMongoClient> _mongoClient = new Mock<IMongoClient>();
+    private readonly Mock<IMongoDatabase> _mongoDatabase = new Mock<IMongoDatabase>();
+    private readonly RetryQueueRepository _repository;
+    private readonly Mock<IAsyncCursor<RetryQueueDbo>> _retries = new Mock<IAsyncCursor<RetryQueueDbo>>();
 
-    private readonly RetryQueueDbo retryQueueDbo = new RetryQueueDbo
+    private readonly RetryQueueDbo _retryQueueDbo = new RetryQueueDbo
     {
         Id = Guid.NewGuid(),
         CreationDate = DateTime.UtcNow,
@@ -35,39 +35,39 @@ public class RetryQueueRepositoryTests
 
     public RetryQueueRepositoryTests()
     {
-        retries.SetupSequence(d => d.MoveNextAsync(It.IsAny<CancellationToken>()))
+        _retries.SetupSequence(d => d.MoveNextAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(true)
             .ReturnsAsync(false);
 
-        retries.Setup(d => d.Current).Returns(() => new List<RetryQueueDbo>
+        _retries.Setup(d => d.Current).Returns(() => new List<RetryQueueDbo>
         {
-            retryQueueDbo
+            _retryQueueDbo
         });
 
-        collection
+        _collection
             .Setup(d => d.FindAsync(
                 It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                 It.IsAny<FindOptions<RetryQueueDbo, RetryQueueDbo>>(),
                 It.IsAny<CancellationToken>()))
-            .ReturnsAsync(retries.Object);
+            .ReturnsAsync(_retries.Object);
 
-        collection
+        _collection
             .Setup(d => d.UpdateOneAsync(
                 It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                 It.IsAny<UpdateDefinition<RetryQueueDbo>>(),
                 It.IsAny<UpdateOptions>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, BsonBinaryData.Create(retryQueueDbo.Id)));
+            .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, BsonBinaryData.Create(_retryQueueDbo.Id)));
 
-        mongoDatabase.Setup(d => d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
-            .Returns(collection.Object);
+        _mongoDatabase.Setup(d => d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+            .Returns(_collection.Object);
 
-        mongoClient.Setup(d => d.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
-            .Returns(mongoDatabase.Object);
+        _mongoClient.Setup(d => d.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
+            .Returns(_mongoDatabase.Object);
 
-        var dbContext = new DbContext(new MongoDbSettings(), mongoClient.Object);
-        repository = new RetryQueueRepository(dbContext);
+        var dbContext = new DbContext(new MongoDbSettings(), _mongoClient.Object);
+        _repository = new RetryQueueRepository(dbContext);
     }
 
     [Fact]
@@ -84,15 +84,15 @@ public class RetryQueueRepositoryTests
     public async Task RetryQueueRepository_GetQueueAsync_Success()
     {
         // Act
-        var result = await repository
-            .GetQueueAsync(retryQueueDbo.SearchGroupKey)
+        var result = await _repository
+            .GetQueueAsync(_retryQueueDbo.SearchGroupKey)
             .ConfigureAwait(false);
 
         // Assert
         result.Should().NotBeNull();
-        result.Should().Be(retryQueueDbo);
+        result.Should().Be(_retryQueueDbo);
 
-        collection.Verify(d =>
+        _collection.Verify(d =>
                 d.FindAsync(
                     It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                     It.IsAny<FindOptions<RetryQueueDbo, RetryQueueDbo>>(),
@@ -101,24 +101,24 @@ public class RetryQueueRepositoryTests
     }
 
     [Theory]
-    [InlineData(GetQueuesSortOption.ByCreationDate_Descending)]
-    [InlineData(GetQueuesSortOption.ByLastExecution_Ascending)]
+    [InlineData(GetQueuesSortOption.ByCreationDateDescending)]
+    [InlineData(GetQueuesSortOption.ByLastExecutionAscending)]
     public async Task RetryQueueRepository_GetTopSortedQueuesAsync_ByCreationDate_Descending_Success(GetQueuesSortOption getQueuesSortOption)
     {
         // Act
-        var result = await repository
+        var result = await _repository
             .GetTopSortedQueuesAsync(
                 RetryQueueStatus.Active,
                 getQueuesSortOption,
-                retryQueueDbo.SearchGroupKey,
+                _retryQueueDbo.SearchGroupKey,
                 1)
             .ConfigureAwait(false);
 
         // Assert
         result.Should().NotBeEmpty();
-        result.FirstOrDefault().Should().Be(retryQueueDbo);
+        result.FirstOrDefault().Should().Be(_retryQueueDbo);
 
-        collection.Verify(d =>
+        _collection.Verify(d =>
                 d.FindAsync(
                     It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                     It.IsAny<FindOptions<RetryQueueDbo, RetryQueueDbo>>(),
@@ -130,8 +130,8 @@ public class RetryQueueRepositoryTests
     public async Task RetryQueueRepository_UpdateLastExecutionAsync_Success()
     {
         // Act
-        var result = await repository
-            .UpdateLastExecutionAsync(retryQueueDbo.Id, DateTime.UtcNow)
+        var result = await _repository
+            .UpdateLastExecutionAsync(_retryQueueDbo.Id, DateTime.UtcNow)
             .ConfigureAwait(false);
 
         // Assert
@@ -139,7 +139,7 @@ public class RetryQueueRepositoryTests
         result.IsAcknowledged.Should().BeTrue();
         result.ModifiedCount.Should().Be(1);
 
-        collection.Verify(d =>
+        _collection.Verify(d =>
                 d.UpdateOneAsync(
                     It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                     It.IsAny<UpdateDefinition<RetryQueueDbo>>(),
@@ -152,8 +152,8 @@ public class RetryQueueRepositoryTests
     public async Task RetryQueueRepository_UpdateStatusAndLastExecutionAsync_Success()
     {
         // Act
-        var result = await repository
-            .UpdateStatusAndLastExecutionAsync(retryQueueDbo.Id, RetryQueueStatus.Done, DateTime.UtcNow)
+        var result = await _repository
+            .UpdateStatusAndLastExecutionAsync(_retryQueueDbo.Id, RetryQueueStatus.Done, DateTime.UtcNow)
             .ConfigureAwait(false);
 
         // Assert
@@ -161,7 +161,7 @@ public class RetryQueueRepositoryTests
         result.IsAcknowledged.Should().BeTrue();
         result.ModifiedCount.Should().Be(1);
 
-        collection.Verify(d =>
+        _collection.Verify(d =>
                 d.UpdateOneAsync(
                     It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                     It.IsAny<UpdateDefinition<RetryQueueDbo>>(),
@@ -174,8 +174,8 @@ public class RetryQueueRepositoryTests
     public async Task RetryQueueRepository_UpdateStatusAsync_Success()
     {
         // Act
-        var result = await repository
-            .UpdateStatusAsync(retryQueueDbo.Id, RetryQueueStatus.Done)
+        var result = await _repository
+            .UpdateStatusAsync(_retryQueueDbo.Id, RetryQueueStatus.Done)
             .ConfigureAwait(false);
 
         // Assert
@@ -183,7 +183,7 @@ public class RetryQueueRepositoryTests
         result.IsAcknowledged.Should().BeTrue();
         result.ModifiedCount.Should().Be(1);
 
-        collection.Verify(d =>
+        _collection.Verify(d =>
                 d.UpdateOneAsync(
                     It.IsAny<FilterDefinition<RetryQueueDbo>>(),
                     It.IsAny<UpdateDefinition<RetryQueueDbo>>(),

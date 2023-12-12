@@ -2,20 +2,20 @@
 
 public abstract class PollingDefinitionBuilder<TSelf> where TSelf : PollingDefinitionBuilder<TSelf>
 {
-    protected string cronExpression;
-    protected bool enabled;
+    protected string CronExpression;
+    protected bool IsEnabled;
 
     internal abstract bool Required { get; }
 
     public TSelf Enabled(bool value)
     {
-            enabled = value;
-            return (TSelf)this;
-        }
+        IsEnabled = value;
+        return (TSelf)this;
+    }
 
     public TSelf WithCronExpression(string cronExpression)
     {
-            this.cronExpression = cronExpression;
-            return (TSelf)this;
-        }
+        CronExpression = cronExpression;
+        return (TSelf)this;
+    }
 }

@@ -5,25 +5,25 @@ namespace KafkaFlow.Retry.API;
 
 internal class RetryMiddleware
 {
-    private readonly IHttpRequestHandler httpRequestHandler;
-    private readonly RequestDelegate next;
+    private readonly IHttpRequestHandler _httpRequestHandler;
+    private readonly RequestDelegate _next;
 
     public RetryMiddleware(RequestDelegate next, IHttpRequestHandler httpRequestHandler)
     {
-        this.next = next;
-        this.httpRequestHandler = httpRequestHandler;
+        _next = next;
+        _httpRequestHandler = httpRequestHandler;
     }
 
     public async Task InvokeAsync(HttpContext httpContext)
     {
-        var handled = await httpRequestHandler
+        var handled = await _httpRequestHandler
             .HandleAsync(httpContext.Request, httpContext.Response)
             .ConfigureAwait(false);
 
         if (!handled)
         {
             // Call the next delegate/middleware in the pipeline
-            await next(httpContext).ConfigureAwait(false);
+            await _next(httpContext).ConfigureAwait(false);
         }
     }
 }

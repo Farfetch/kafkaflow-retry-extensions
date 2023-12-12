@@ -10,11 +10,11 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.SqlServer.Readers;
 
 public class DboCollectionNavigatorTests
 {
-    private readonly DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem> dboCollectionNavigator;
+    private readonly DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem> _dboCollectionNavigator;
 
-    private readonly Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>> dboDomainAdapter = new Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>>();
+    private readonly Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>> _dboDomainAdapter = new Mock<IDboDomainAdapter<RetryQueueItemDbo, RetryQueueItem>>();
 
-    private readonly IList<RetryQueueItemDbo> dbos = new List<RetryQueueItemDbo>
+    private readonly IList<RetryQueueItemDbo> _dbos = new List<RetryQueueItemDbo>
     {
         new RetryQueueItemDbo
         {
@@ -46,7 +46,7 @@ public class DboCollectionNavigatorTests
 
     public DboCollectionNavigatorTests()
     {
-        dboCollectionNavigator = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dbos, dboDomainAdapter.Object);
+        _dboCollectionNavigator = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(_dbos, _dboDomainAdapter.Object);
     }
 
     public static IEnumerable<object[]> DataTestCtor() => new List<object[]>
@@ -93,10 +93,10 @@ public class DboCollectionNavigatorTests
             });
 
         // Act
-        dboCollectionNavigator.Navigate(navigatingCondition, action);
+        _dboCollectionNavigator.Navigate(navigatingCondition, action);
 
         // Assert
-        dboDomainAdapter.Verify(d => d.Adapt(It.IsAny<RetryQueueItemDbo>()), Times.Once);
+        _dboDomainAdapter.Verify(d => d.Adapt(It.IsAny<RetryQueueItemDbo>()), Times.Once);
     }
 
     [Theory]
@@ -106,7 +106,7 @@ public class DboCollectionNavigatorTests
         Predicate<RetryQueueItemDbo> navigatingCondition)
     {
         // Act
-        Action act = () => dboCollectionNavigator.Navigate(action, navigatingCondition);
+        Action act = () => _dboCollectionNavigator.Navigate(action, navigatingCondition);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

@@ -10,13 +10,13 @@ namespace KafkaFlow.Retry.MongoDb.Adapters;
 
 internal class QueuesAdapter : IQueuesAdapter
 {
-    private readonly IItemAdapter itemAdapter;
+    private readonly IItemAdapter _itemAdapter;
 
     public QueuesAdapter(IItemAdapter itemAdapter)
     {
             Guard.Argument(itemAdapter, nameof(itemAdapter)).NotNull();
 
-            this.itemAdapter = itemAdapter;
+            _itemAdapter = itemAdapter;
         }
 
     public IEnumerable<RetryQueue> Adapt(IEnumerable<RetryQueueDbo> queuesDbo, IEnumerable<RetryQueueItemDbo> itemsDbo)
@@ -35,7 +35,7 @@ internal class QueuesAdapter : IQueuesAdapter
                 Guard.Argument(queuesDictionary.ContainsKey(itemDbo.RetryQueueId), nameof(itemDbo.RetryQueueId))
                      .True($"{nameof(itemDbo.RetryQueueId)} not found in queues list.");
 
-                queuesDictionary[itemDbo.RetryQueueId].AddItem(itemAdapter.Adapt(itemDbo));
+                queuesDictionary[itemDbo.RetryQueueId].AddItem(_itemAdapter.Adapt(itemDbo));
             }
 
             return queuesDictionary.Values;

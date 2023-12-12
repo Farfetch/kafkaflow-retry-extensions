@@ -7,7 +7,7 @@ namespace KafkaFlow.Retry.Simple;
 
 internal class RetrySimpleDefinition
 {
-    private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
+    private readonly IReadOnlyCollection<Func<RetryContext, bool>> _retryWhenExceptions;
 
     public RetrySimpleDefinition(
         int numberOfRetries,
@@ -21,7 +21,7 @@ internal class RetrySimpleDefinition
         Guard.Argument(retryWhenExceptions.Count).NotNegative(value => "At least an exception should be defined");
         Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
 
-        this.retryWhenExceptions = retryWhenExceptions;
+        _retryWhenExceptions = retryWhenExceptions;
         TimeBetweenTriesPlan = timeBetweenTriesPlan;
         NumberOfRetries = numberOfRetries;
         PauseConsumer = pauseConsumer;
@@ -34,5 +34,5 @@ internal class RetrySimpleDefinition
     public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
     public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+        _retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
 }

@@ -7,38 +7,38 @@ namespace KafkaFlow.Retry.Forever;
 
 internal class RetryForeverMiddleware : IMessageMiddleware
 {
-    private readonly ILogHandler logHandler;
-    private readonly RetryForeverDefinition retryForeverDefinition;
-    private readonly object syncPauseAndResume = new object();
-    private int? controlWorkerId;
+    private readonly ILogHandler _logHandler;
+    private readonly RetryForeverDefinition _retryForeverDefinition;
+    private readonly object _syncPauseAndResume = new object();
+    private int? _controlWorkerId;
 
     public RetryForeverMiddleware(
         ILogHandler logHandler,
         RetryForeverDefinition retryForeverDefinition)
     {
-            this.logHandler = logHandler;
-            this.retryForeverDefinition = retryForeverDefinition;
+            _logHandler = logHandler;
+            _retryForeverDefinition = retryForeverDefinition;
         }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
             var policy = Policy
-                .Handle<Exception>(exception => retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => _retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryForeverAsync(
-                    (retryNumber, c) => retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
+                    (retryNumber, c) => _retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, attemptNumber, waitTime, c) =>
                     {
-                        if (!controlWorkerId.HasValue)
+                        if (!_controlWorkerId.HasValue)
                         {
-                            lock (syncPauseAndResume)
+                            lock (_syncPauseAndResume)
                             {
-                                if (!controlWorkerId.HasValue)
+                                if (!_controlWorkerId.HasValue)
                                 {
-                                    controlWorkerId = context.ConsumerContext.WorkerId;
+                                    _controlWorkerId = context.ConsumerContext.WorkerId;
 
                                     context.ConsumerContext.Pause();
 
-                                    logHandler.Info(
+                                    _logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
@@ -50,7 +50,7 @@ internal class RetryForeverMiddleware : IMessageMiddleware
                             }
                         }
 
-                        logHandler.Error(
+                        _logHandler.Error(
                             $"Exception captured by {nameof(RetryForeverMiddleware)}. Retry in process.",
                             exception,
                             new
@@ -84,17 +84,17 @@ internal class RetryForeverMiddleware : IMessageMiddleware
             }
             finally
             {
-                if (controlWorkerId == context.ConsumerContext.WorkerId)
+                if (_controlWorkerId == context.ConsumerContext.WorkerId)
                 {
-                    lock (syncPauseAndResume)
+                    lock (_syncPauseAndResume)
                     {
-                        if (controlWorkerId == context.ConsumerContext.WorkerId)
+                        if (_controlWorkerId == context.ConsumerContext.WorkerId)
                         {
-                            controlWorkerId = null;
+                            _controlWorkerId = null;
 
                             context.ConsumerContext.Resume();
 
-                            logHandler.Info(
+                            _logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {

@@ -8,25 +8,25 @@ namespace KafkaFlow.Retry.Postgres;
 
 internal class RetrySchemaCreator : IRetrySchemaCreator
 {
-    private readonly IEnumerable<Script> schemaScripts;
-    private readonly PostgresDbSettings postgresDbSettings;
+    private readonly IEnumerable<Script> _schemaScripts;
+    private readonly PostgresDbSettings _postgresDbSettings;
 
     public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
     {
             Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
             Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-            this.postgresDbSettings = postgresDbSettings;
-            this.schemaScripts = schemaScripts;
+            _postgresDbSettings = postgresDbSettings;
+            _schemaScripts = schemaScripts;
         }
 
     public async Task CreateOrUpdateSchemaAsync(string databaseName)
     {
-            using (var openCon = new NpgsqlConnection(postgresDbSettings.ConnectionString))
+            using (var openCon = new NpgsqlConnection(_postgresDbSettings.ConnectionString))
             {
                 openCon.Open();
 
-                foreach (var script in schemaScripts)
+                foreach (var script in _schemaScripts)
                 {
                     var batch = script.Value;
 

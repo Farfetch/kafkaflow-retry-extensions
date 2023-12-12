@@ -17,52 +17,52 @@ namespace KafkaFlow.Retry;
 public class RetryDurableEmbeddedClusterDefinitionBuilder
 {
     private const int DefaultPartitionElection = 0;
-    private readonly IClusterConfigurationBuilder cluster;
-    private bool enabled;
-    private int retryConsumerBufferSize;
-    private int retryConsumerWorkersCount;
-    private RetryConsumerStrategy retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
-    private string retryTopicName;
-    private Action<TypedHandlerConfigurationBuilder> retryTypeHandlers;
+    private readonly IClusterConfigurationBuilder _cluster;
+    private bool _enabled;
+    private int _retryConsumerBufferSize;
+    private int _retryConsumerWorkersCount;
+    private RetryConsumerStrategy _retryConusmerStrategy = RetryConsumerStrategy.GuaranteeOrderedConsumption;
+    private string _retryTopicName;
+    private Action<TypedHandlerConfigurationBuilder> _retryTypeHandlers;
 
     public RetryDurableEmbeddedClusterDefinitionBuilder(IClusterConfigurationBuilder cluster)
     {
-            this.cluster = cluster;
+            _cluster = cluster;
         }
 
     public RetryDurableEmbeddedClusterDefinitionBuilder Enabled(bool enabled)
     {
-            this.enabled = enabled;
+            _enabled = enabled;
             return this;
         }
 
     public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerBufferSize(int retryConsumerBufferSize)
     {
-            this.retryConsumerBufferSize = retryConsumerBufferSize;
+            _retryConsumerBufferSize = retryConsumerBufferSize;
             return this;
         }
 
     public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerStrategy(RetryConsumerStrategy retryConusmerStrategy)
     {
-            this.retryConusmerStrategy = retryConusmerStrategy;
+            _retryConusmerStrategy = retryConusmerStrategy;
             return this;
         }
 
     public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryConsumerWorkersCount(int retryConsumerWorkersCount)
     {
-            this.retryConsumerWorkersCount = retryConsumerWorkersCount;
+            _retryConsumerWorkersCount = retryConsumerWorkersCount;
             return this;
         }
 
     public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryTopicName(string retryTopicName)
     {
-            this.retryTopicName = retryTopicName;
+            _retryTopicName = retryTopicName;
             return this;
         }
 
     public RetryDurableEmbeddedClusterDefinitionBuilder WithRetryTypedHandlers(Action<TypedHandlerConfigurationBuilder> retryTypeHandlers)
     {
-            this.retryTypeHandlers = retryTypeHandlers;
+            _retryTypeHandlers = retryTypeHandlers;
             return this;
         }
 
@@ -76,23 +76,23 @@ public class RetryDurableEmbeddedClusterDefinitionBuilder
         PollingDefinitionsAggregator pollingDefinitionsAggregator,
         ITriggerProvider triggerProvider)
     {
-            if (!enabled)
+            if (!_enabled)
             {
                 return;
             }
 
-            Guard.Argument(cluster).NotNull("A cluster configuration builder should be passed");
-            Guard.Argument(retryTopicName).NotNull("A retry topic name should be defined");
-            Guard.Argument(retryTypeHandlers).NotNull("A retry type handler should be defined");
-            Guard.Argument(retryConsumerBufferSize)
+            Guard.Argument(_cluster).NotNull("A cluster configuration builder should be passed");
+            Guard.Argument(_retryTopicName).NotNull("A retry topic name should be defined");
+            Guard.Argument(_retryTypeHandlers).NotNull("A retry type handler should be defined");
+            Guard.Argument(_retryConsumerBufferSize)
                 .NotZero("A buffer size great than zero should be defined")
                 .NotNegative(x => "A buffer size great than zero should be defined");
-            Guard.Argument(retryConsumerWorkersCount)
+            Guard.Argument(_retryConsumerWorkersCount)
                 .NotZero("A buffer size great than zero should be defined")
                 .NotNegative(x => "A buffer size great than zero should be defined");
 
-            var producerName = $"{RetryDurableConstants.EmbeddedProducerName}-{retryTopicName}";
-            var consumerGroupId = $"{RetryDurableConstants.EmbeddedConsumerName}-{retryTopicName}";
+            var producerName = $"{RetryDurableConstants.EmbeddedProducerName}-{_retryTopicName}";
+            var consumerGroupId = $"{RetryDurableConstants.EmbeddedConsumerName}-{_retryTopicName}";
 
             var queueTrackerCoordinator =
                 new QueueTrackerCoordinator(
@@ -108,20 +108,20 @@ public class RetryDurableEmbeddedClusterDefinitionBuilder
                     )
                 );
 
-            cluster
+            _cluster
                 .AddProducer(
                     producerName,
                     producer => producer
-                        .DefaultTopic(retryTopicName)
+                        .DefaultTopic(_retryTopicName)
                         .WithCompression(Confluent.Kafka.CompressionType.Gzip)
                         .WithAcks(Acks.Leader)
                 )
                 .AddConsumer(
                     consumer => consumer
-                        .Topic(retryTopicName)
+                        .Topic(_retryTopicName)
                         .WithGroupId(consumerGroupId)
-                        .WithBufferSize(retryConsumerBufferSize)
-                        .WithWorkersCount(retryConsumerWorkersCount)
+                        .WithBufferSize(_retryConsumerBufferSize)
+                        .WithWorkersCount(_retryConsumerWorkersCount)
                         .WithAutoOffsetReset(AutoOffsetReset.Earliest)
                         .WithPartitionsAssignedHandler(
                             (resolver, partitionsAssignedHandler) =>
@@ -155,14 +155,14 @@ public class RetryDurableEmbeddedClusterDefinitionBuilder
                                 .Add(resolver => new RetryDurableConsumerCompressorMiddleware(gzipCompressor))
                                 .Add(resolver => new RetryDurableConsumerUtf8EncoderMiddleware(utf8Encoder))
                                 .Add(resolver => new RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(newtonsoftJsonSerializer, messageType))
-                                .WithRetryConsumerStrategy(retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
+                                .WithRetryConsumerStrategy(_retryConusmerStrategy, retryDurableQueueRepository, utf8Encoder)
                                 .Add(resolver =>
                                     new RetryDurableConsumerValidationMiddleware(
                                             resolver.Resolve<ILogHandler>(),
                                             retryDurableQueueRepository,
                                             utf8Encoder
                                         ))
-                                .AddTypedHandlers(retryTypeHandlers)
+                                .AddTypedHandlers(_retryTypeHandlers)
                         )
                 );
         }

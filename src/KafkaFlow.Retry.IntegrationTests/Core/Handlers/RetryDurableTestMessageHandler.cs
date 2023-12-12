@@ -8,11 +8,11 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Handlers;
 
 internal class RetryDurableTestMessageHandler : IMessageHandler<RetryDurableTestMessage>
 {
-    private readonly ILogHandler logHandler;
+    private readonly ILogHandler _logHandler;
 
     public RetryDurableTestMessageHandler(ILogHandler logHandler)
     {
-            this.logHandler = logHandler;
+            _logHandler = logHandler;
         }
 
     public Task Handle(IMessageContext context, RetryDurableTestMessage message)

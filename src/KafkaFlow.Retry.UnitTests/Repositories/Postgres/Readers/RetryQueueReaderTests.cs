@@ -11,26 +11,26 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers;
 
 public class RetryQueueReaderTests
 {
-    private readonly RetryQueueReader reader;
+    private readonly RetryQueueReader _reader;
 
-    private readonly Mock<IRetryQueueAdapter> retryQueueAdapter = new Mock<IRetryQueueAdapter>();
+    private readonly Mock<IRetryQueueAdapter> _retryQueueAdapter = new Mock<IRetryQueueAdapter>();
         
-    private readonly Mock<IRetryQueueItemAdapter> retryQueueItemAdapter = new Mock<IRetryQueueItemAdapter>();
+    private readonly Mock<IRetryQueueItemAdapter> _retryQueueItemAdapter = new Mock<IRetryQueueItemAdapter>();
         
-    private readonly Mock<IRetryQueueItemMessageAdapter> retryQueueItemMessageAdapter = new Mock<IRetryQueueItemMessageAdapter>();
+    private readonly Mock<IRetryQueueItemMessageAdapter> _retryQueueItemMessageAdapter = new Mock<IRetryQueueItemMessageAdapter>();
         
-    private readonly Mock<IRetryQueueItemMessageHeaderAdapter> retryQueueItemMessageHeaderAdapter = new Mock<IRetryQueueItemMessageHeaderAdapter>();
+    private readonly Mock<IRetryQueueItemMessageHeaderAdapter> _retryQueueItemMessageHeaderAdapter = new Mock<IRetryQueueItemMessageHeaderAdapter>();
 
     public RetryQueueReaderTests()
     {
             var item1 = CreateRetryQueueItem(1, RetryQueueItemStatus.InRetry, SeverityLevel.High);
             var itemsA = new[] { item1 };
 
-            retryQueueAdapter
+            _retryQueueAdapter
                 .Setup(d => d.Adapt(It.IsAny<RetryQueueDbo>()))
                 .Returns(new RetryQueue(Guid.NewGuid(), "searchGroupKeyA", "queueGroupKeyA", DateTime.UtcNow, DateTime.UtcNow, RetryQueueStatus.Active, itemsA));
 
-            retryQueueItemAdapter
+            _retryQueueItemAdapter
                 .Setup(d => d.Adapt(It.IsAny<RetryQueueItemDbo>()))
                 .Returns(new RetryQueueItem(
                             id: Guid.NewGuid(),
@@ -43,19 +43,19 @@ public class RetryQueueReaderTests
                             severityLevel: SeverityLevel.Low,
                             description: "test"));
 
-            retryQueueItemMessageAdapter
+            _retryQueueItemMessageAdapter
                 .Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>()))
                 .Returns(new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow));
 
-            retryQueueItemMessageHeaderAdapter
+            _retryQueueItemMessageHeaderAdapter
                 .Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageHeaderDbo>()))
                 .Returns(new MessageHeader("key", new byte[2]));
 
-            reader = new RetryQueueReader(
-                retryQueueAdapter.Object,
-                retryQueueItemAdapter.Object,
-                retryQueueItemMessageAdapter.Object,
-                retryQueueItemMessageHeaderAdapter.Object);
+            _reader = new RetryQueueReader(
+                _retryQueueAdapter.Object,
+                _retryQueueItemAdapter.Object,
+                _retryQueueItemMessageAdapter.Object,
+                _retryQueueItemMessageHeaderAdapter.Object);
         }
 
     public static IEnumerable<object[]> DataTest() => new List<object[]>
@@ -168,7 +168,7 @@ public class RetryQueueReaderTests
             };
 
             // Act
-            var result = reader.Read(wrapper);
+            var result = _reader.Read(wrapper);
 
             // Assert
             result.Should().NotBeEmpty();
@@ -181,7 +181,7 @@ public class RetryQueueReaderTests
         RetryQueuesDboWrapper wrapper)
     {
             // Act
-            Action act = () => reader.Read(wrapper);
+            Action act = () => _reader.Read(wrapper);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

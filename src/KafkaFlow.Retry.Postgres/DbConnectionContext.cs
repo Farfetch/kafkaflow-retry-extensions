@@ -7,25 +7,25 @@ namespace KafkaFlow.Retry.Postgres;
 [ExcludeFromCodeCoverage]
 internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 {
-    private readonly PostgresDbSettings postgresDbSettings;
-    private readonly bool withinTransaction;
-    private bool committed;
-    private NpgsqlConnection sqlConnection;
-    private NpgsqlTransaction sqlTransaction;
+    private readonly PostgresDbSettings _postgresDbSettings;
+    private readonly bool _withinTransaction;
+    private bool _committed;
+    private NpgsqlConnection _sqlConnection;
+    private NpgsqlTransaction _sqlTransaction;
 
     public DbConnectionContext(PostgresDbSettings postgresDbSettings, bool withinTransaction)
     {
             Guard.Argument(postgresDbSettings).NotNull();
-            this.postgresDbSettings = postgresDbSettings;
-            this.withinTransaction = withinTransaction;
+            _postgresDbSettings = postgresDbSettings;
+            _withinTransaction = withinTransaction;
         }
 
     public void Commit()
     {
-            if (sqlTransaction is object)
+            if (_sqlTransaction is object)
             {
-                sqlTransaction.Commit();
-                committed = true;
+                _sqlTransaction.Commit();
+                _committed = true;
             }
         }
 
@@ -33,7 +33,7 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
     {
             var dbCommand = GetDbConnection().CreateCommand();
 
-            if (withinTransaction)
+            if (_withinTransaction)
             {
                 dbCommand.Transaction = GetDbTransaction();
             }
@@ -43,46 +43,46 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 
     public void Dispose()
     {
-            if (sqlTransaction is object)
+            if (_sqlTransaction is object)
             {
-                if (!committed)
+                if (!_committed)
                 {
                     Rollback();
                 }
-                sqlTransaction.Dispose();
+                _sqlTransaction.Dispose();
             }
 
-            if (sqlConnection is object)
+            if (_sqlConnection is object)
             {
-                sqlConnection.Dispose();
+                _sqlConnection.Dispose();
             }
         }
 
     public void Rollback()
     {
-            if (sqlTransaction is object)
+            if (_sqlTransaction is object)
             {
-                sqlTransaction.Rollback();
+                _sqlTransaction.Rollback();
             }
         }
 
     private NpgsqlConnection GetDbConnection()
     {
-            if (sqlConnection is null)
+            if (_sqlConnection is null)
             {
-                sqlConnection = new NpgsqlConnection(postgresDbSettings.ConnectionString);
-                sqlConnection.Open();
-                sqlConnection.ChangeDatabase(postgresDbSettings.DatabaseName);
+                _sqlConnection = new NpgsqlConnection(_postgresDbSettings.ConnectionString);
+                _sqlConnection.Open();
+                _sqlConnection.ChangeDatabase(_postgresDbSettings.DatabaseName);
             }
-            return sqlConnection;
+            return _sqlConnection;
         }
 
     private NpgsqlTransaction GetDbTransaction()
     {
-            if (sqlTransaction is null)
+            if (_sqlTransaction is null)
             {
-                sqlTransaction = GetDbConnection().BeginTransaction();
+                _sqlTransaction = GetDbConnection().BeginTransaction();
             }
-            return sqlTransaction;
+            return _sqlTransaction;
         }
 }

@@ -9,9 +9,9 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories;
 
 public class RetryQueueItemDboFactoryTests
 {
-    private readonly RetryQueueItemDboFactory factory = new RetryQueueItemDboFactory();
+    private readonly RetryQueueItemDboFactory _factory = new RetryQueueItemDboFactory();
 
-    private readonly SaveToQueueInput saveToQueueInput = new SaveToQueueInput(
+    private readonly SaveToQueueInput _saveToQueueInput = new SaveToQueueInput(
         new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow),
         "searchGroupKey",
         "queueGroupKey",
@@ -28,7 +28,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_Success()
     {
         // Act
-        var result = factory.Create(saveToQueueInput, 1, Guid.NewGuid());
+        var result = _factory.Create(_saveToQueueInput, 1, Guid.NewGuid());
 
         // Assert
         result.Should().NotBeNull();
@@ -39,7 +39,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_WithDefaultQueueId_ThrowsException()
     {
         // Act
-        Action act = () => factory.Create(saveToQueueInput, 1, default);
+        Action act = () => _factory.Create(_saveToQueueInput, 1, default);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -49,7 +49,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_WithNegativeRetryQueueId_ThrowsException()
     {
         // Act
-        Action act = () => factory.Create(saveToQueueInput, -1, default);
+        Action act = () => _factory.Create(_saveToQueueInput, -1, default);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -62,7 +62,7 @@ public class RetryQueueItemDboFactoryTests
         SaveToQueueInput saveToQueueInputNull = null;
 
         // Act
-        Action act = () => factory.Create(saveToQueueInputNull, 1, default);
+        Action act = () => _factory.Create(saveToQueueInputNull, 1, default);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

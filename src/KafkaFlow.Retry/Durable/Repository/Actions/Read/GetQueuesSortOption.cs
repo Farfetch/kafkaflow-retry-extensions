@@ -3,6 +3,6 @@
 public enum GetQueuesSortOption
 {
     None = 0,
-    ByLastExecution_Ascending = 1,
-    ByCreationDate_Descending = 2,
+    ByLastExecutionAscending = 1,
+    ByCreationDateDescending = 2,
 }

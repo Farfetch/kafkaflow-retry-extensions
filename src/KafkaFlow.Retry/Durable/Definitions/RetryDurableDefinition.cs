@@ -8,7 +8,7 @@ namespace KafkaFlow.Retry.Durable.Definitions;
 
 internal class RetryDurableDefinition
 {
-    private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
+    private readonly IReadOnlyCollection<Func<RetryContext, bool>> _retryWhenExceptions;
 
     public RetryDurableDefinition(
         IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions,
@@ -20,7 +20,7 @@ internal class RetryDurableDefinition
             Guard.Argument(retryDurableRetryPlanBeforeDefinition).NotNull();
             Guard.Argument(retryDurableQueueRepository).NotNull();
 
-            this.retryWhenExceptions = retryWhenExceptions;
+            _retryWhenExceptions = retryWhenExceptions;
             RetryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinition;
             RetryDurableQueueRepository = retryDurableQueueRepository;
         }
@@ -30,5 +30,5 @@ internal class RetryDurableDefinition
     public RetryDurableRetryPlanBeforeDefinition RetryDurableRetryPlanBeforeDefinition { get; }
 
     public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+        _retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
 }

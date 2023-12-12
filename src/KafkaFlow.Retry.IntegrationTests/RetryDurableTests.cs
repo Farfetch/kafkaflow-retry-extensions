@@ -16,14 +16,14 @@ namespace KafkaFlow.Retry.IntegrationTests;
 [Collection("BootstrapperHostCollection")]
 public class RetryDurableTests
 {
-    private readonly Fixture fixture = new Fixture();
-    private readonly IRepositoryProvider repositoryProvider;
-    private readonly IServiceProvider serviceProvider;
+    private readonly Fixture _fixture = new Fixture();
+    private readonly IRepositoryProvider _repositoryProvider;
+    private readonly IServiceProvider _serviceProvider;
 
     public RetryDurableTests(BootstrapperHostFixture bootstrapperHostFixture)
     {
-        serviceProvider = bootstrapperHostFixture.ServiceProvider;
-        repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
+        _serviceProvider = bootstrapperHostFixture.ServiceProvider;
+        _repositoryProvider = bootstrapperHostFixture.ServiceProvider.GetRequiredService<IRepositoryProvider>();
         InMemoryAuxiliarStorage<RetryDurableTestMessage>.Clear();
         InMemoryAuxiliarStorage<RetryDurableTestMessage>.ThrowException = true;
     }
@@ -87,10 +87,10 @@ public class RetryDurableTests
         var numberOfMessagesByEachSameKey = 10;
         var numberOfTimesThatEachMessageIsTriedBeforeDurable = 4;
         var numberOfTimesThatEachMessageIsTriedDuringDurable = 2;
-        var producer = serviceProvider.GetRequiredService(producerType) as IMessageProducer;
-        var physicalStorageAssert = serviceProvider.GetRequiredService(physicalStorageType) as IPhysicalStorageAssert;
-        var messages = fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
-        await repositoryProvider.GetRepositoryOfType(repositoryType).CleanDatabaseAsync().ConfigureAwait(false);
+        var producer = _serviceProvider.GetRequiredService(producerType) as IMessageProducer;
+        var physicalStorageAssert = _serviceProvider.GetRequiredService(physicalStorageType) as IPhysicalStorageAssert;
+        var messages = _fixture.CreateMany<RetryDurableTestMessage>(numberOfMessages).ToList();
+        await _repositoryProvider.GetRepositoryOfType(repositoryType).CleanDatabaseAsync().ConfigureAwait(false);
         // Act
         messages.ForEach(
             m =>

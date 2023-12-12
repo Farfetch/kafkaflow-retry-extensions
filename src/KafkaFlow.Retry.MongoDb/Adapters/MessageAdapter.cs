@@ -8,13 +8,13 @@ namespace KafkaFlow.Retry.MongoDb.Adapters;
 
 internal class MessageAdapter : IMessageAdapter
 {
-    private readonly IHeaderAdapter headerAdapter;
+    private readonly IHeaderAdapter _headerAdapter;
 
     public MessageAdapter(IHeaderAdapter headerAdapter)
     {
             Guard.Argument(headerAdapter, nameof(headerAdapter)).NotNull();
 
-            this.headerAdapter = headerAdapter;
+            _headerAdapter = headerAdapter;
         }
 
     public RetryQueueItemMessage Adapt(RetryQueueItemMessageDbo messageDbo)
@@ -28,7 +28,7 @@ internal class MessageAdapter : IMessageAdapter
                 messageDbo.Partition,
                 messageDbo.Offset,
                 messageDbo.UtcTimeStamp,
-                messageDbo.Headers?.Select(headerDbo => headerAdapter.Adapt(headerDbo)));
+                messageDbo.Headers?.Select(headerDbo => _headerAdapter.Adapt(headerDbo)));
         }
 
     public RetryQueueItemMessageDbo Adapt(RetryQueueItemMessage message)
@@ -43,7 +43,7 @@ internal class MessageAdapter : IMessageAdapter
                 Partition = message.Partition,
                 TopicName = message.TopicName,
                 UtcTimeStamp = message.UtcTimeStamp,
-                Headers = message.Headers.Select(h => headerAdapter.Adapt(h))
+                Headers = message.Headers.Select(h => _headerAdapter.Adapt(h))
             };
         }
 }

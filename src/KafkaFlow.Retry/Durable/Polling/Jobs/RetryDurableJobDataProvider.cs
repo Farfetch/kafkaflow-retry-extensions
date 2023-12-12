@@ -9,9 +9,9 @@ namespace KafkaFlow.Retry.Durable.Polling.Jobs;
 
 internal class RetryDurableJobDataProvider : IJobDataProvider
 {
-    private readonly IJobDetail jobDetail;
-    private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
-    private readonly ITrigger trigger;
+    private readonly IJobDetail _jobDetail;
+    private readonly RetryDurablePollingDefinition _retryDurablePollingDefinition;
+    private readonly ITrigger _trigger;
 
     public RetryDurableJobDataProvider(
         RetryDurablePollingDefinition retryDurablePollingDefinition,
@@ -32,9 +32,9 @@ internal class RetryDurableJobDataProvider : IJobDataProvider
             Guard.Argument(utf8Encoder, nameof(utf8Encoder)).NotNull();
             Guard.Argument(retryDurableMessageProducer, nameof(retryDurableMessageProducer)).NotNull();
 
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
-            this.trigger = trigger;
-            jobDetail = JobBuilder
+            _retryDurablePollingDefinition = retryDurablePollingDefinition;
+            _trigger = trigger;
+            _jobDetail = JobBuilder
                 .Create<RetryDurablePollingJob>()
                 .WithIdentity($"pollingJob_{schedulerId}_{retryDurablePollingDefinition.PollingJobType}", "queueTrackerGroup")
                 .SetJobData(
@@ -51,9 +51,9 @@ internal class RetryDurableJobDataProvider : IJobDataProvider
                 .Build();
         }
 
-    public IJobDetail JobDetail => jobDetail;
+    public IJobDetail JobDetail => _jobDetail;
 
-    public PollingDefinition PollingDefinition => retryDurablePollingDefinition;
+    public PollingDefinition PollingDefinition => _retryDurablePollingDefinition;
 
-    public ITrigger Trigger => trigger;
+    public ITrigger Trigger => _trigger;
 }

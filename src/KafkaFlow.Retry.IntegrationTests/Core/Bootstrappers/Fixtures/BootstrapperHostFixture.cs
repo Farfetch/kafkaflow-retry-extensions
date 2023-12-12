@@ -16,7 +16,7 @@ public class BootstrapperHostCollectionFixture : ICollectionFixture<Bootstrapper
 
 public class BootstrapperHostFixture : BootstrapperFixtureTemplate
 {
-    private readonly IKafkaBus kafkaBus;
+    private readonly IKafkaBus _kafkaBus;
 
     public BootstrapperHostFixture()
     {
@@ -48,8 +48,8 @@ public class BootstrapperHostFixture : BootstrapperFixtureTemplate
                 });
 
         var host = builder.Build();
-        kafkaBus = host.Services.CreateKafkaBus();
-        kafkaBus.StartAsync().GetAwaiter().GetResult();
+        _kafkaBus = host.Services.CreateKafkaBus();
+        _kafkaBus.StartAsync().GetAwaiter().GetResult();
 
         // Wait partition assignment
         Thread.Sleep(10000);
@@ -61,7 +61,7 @@ public class BootstrapperHostFixture : BootstrapperFixtureTemplate
 
     public override void Dispose()
     {
-        kafkaBus.StopAsync().GetAwaiter().GetResult();
+        _kafkaBus.StopAsync().GetAwaiter().GetResult();
 
         var repositories = RepositoryProvider.GetAllRepositories();
 

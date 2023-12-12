@@ -7,44 +7,44 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 
 public class DbContextTests
 {
-    private readonly Mock<IMongoCollection<RetryQueueDbo>> collectionRetryQueueDbo = new Mock<IMongoCollection<RetryQueueDbo>>();
-    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> collectionRetryQueueItemDbo = new Mock<IMongoCollection<RetryQueueItemDbo>>();
-    private readonly DbContext dbContext;
-    private readonly Mock<IMongoClient> mongoClient = new Mock<IMongoClient>();
-    private readonly Mock<IMongoDatabase> mongoDatabase = new Mock<IMongoDatabase>();
+    private readonly Mock<IMongoCollection<RetryQueueDbo>> _collectionRetryQueueDbo = new Mock<IMongoCollection<RetryQueueDbo>>();
+    private readonly Mock<IMongoCollection<RetryQueueItemDbo>> _collectionRetryQueueItemDbo = new Mock<IMongoCollection<RetryQueueItemDbo>>();
+    private readonly DbContext _dbContext;
+    private readonly Mock<IMongoClient> _mongoClient = new Mock<IMongoClient>();
+    private readonly Mock<IMongoDatabase> _mongoDatabase = new Mock<IMongoDatabase>();
 
     public DbContextTests()
     {
-        mongoDatabase.Setup(d => d.GetCollection<RetryQueueItemDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
-            .Returns(collectionRetryQueueItemDbo.Object);
+        _mongoDatabase.Setup(d => d.GetCollection<RetryQueueItemDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+            .Returns(_collectionRetryQueueItemDbo.Object);
 
-        mongoDatabase.Setup(d => d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
-            .Returns(collectionRetryQueueDbo.Object);
+        _mongoDatabase.Setup(d => d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
+            .Returns(_collectionRetryQueueDbo.Object);
 
-        mongoClient.Setup(d => d.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
-            .Returns(mongoDatabase.Object);
+        _mongoClient.Setup(d => d.GetDatabase(It.IsAny<string>(), It.IsAny<MongoDatabaseSettings>()))
+            .Returns(_mongoDatabase.Object);
 
-        dbContext = new DbContext(new MongoDbSettings(), mongoClient.Object);
+        _dbContext = new DbContext(new MongoDbSettings(), _mongoClient.Object);
     }
 
     [Fact]
     public void DbContext_MongoClient_Success()
     {
         // Act
-        var result = dbContext.MongoClient;
+        var result = _dbContext.MongoClient;
 
         // Assert
-        result.Should().Be(mongoClient.Object);
+        result.Should().Be(_mongoClient.Object);
     }
 
     [Fact]
     public void DbContext_RetryQueueItems_Success()
     {
         // Act
-        _ = dbContext.RetryQueueItems;
+        _ = _dbContext.RetryQueueItems;
 
         // Assert
-        mongoDatabase
+        _mongoDatabase
             .Verify(d => d.GetCollection<RetryQueueItemDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()), Times.Once);
     }
 
@@ -52,10 +52,10 @@ public class DbContextTests
     public void DbContext_RetryQueues_Success()
     {
         // Act
-        _ = dbContext.RetryQueues;
+        _ = _dbContext.RetryQueues;
 
         // Assert
-        mongoDatabase
+        _mongoDatabase
             .Verify(d => d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()), Times.Once);
     }
 }

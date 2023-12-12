@@ -406,7 +406,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
             return new GetQueuesInput(
                 RetryQueueStatus.Active,
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-                GetQueuesSortOption.ByLastExecution_Ascending,
+                GetQueuesSortOption.ByLastExecutionAscending,
                 100)
             {
                 SearchGroupKey = searchGroupKey
@@ -418,7 +418,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
             return new GetQueuesInput(
                RetryQueueStatus.Active,
                new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-               GetQueuesSortOption.ByLastExecution_Ascending,
+               GetQueuesSortOption.ByLastExecutionAscending,
                100)
             {
                 SeverityLevels = severities
@@ -430,7 +430,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
             return new GetQueuesInput(
                 RetryQueueStatus.Active,
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-                GetQueuesSortOption.ByLastExecution_Ascending,
+                GetQueuesSortOption.ByLastExecutionAscending,
                 100,
                 new StuckStatusFilter(RetryQueueItemStatus.InRetry, expirationInterval))
             {
@@ -443,7 +443,7 @@ public class GetQueuesTests : RetryQueueDataProviderTestsTemplate
             return new GetQueuesInput(
                 RetryQueueStatus.Active,
                 new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting },
-                GetQueuesSortOption.ByLastExecution_Ascending,
+                GetQueuesSortOption.ByLastExecutionAscending,
                 100,
                 stuckStatusFilter: new StuckStatusFilter(RetryQueueItemStatus.InRetry, new TimeSpan(0, 3, 0)))
             {

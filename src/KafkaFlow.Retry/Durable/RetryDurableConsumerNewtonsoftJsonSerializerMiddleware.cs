@@ -7,20 +7,20 @@ namespace KafkaFlow.Retry.Durable;
 
 internal class RetryDurableConsumerNewtonsoftJsonSerializerMiddleware : IMessageMiddleware
 {
-    private readonly INewtonsoftJsonSerializer newtonsoftJsonSerializer;
-    private readonly Type type;
+    private readonly INewtonsoftJsonSerializer _newtonsoftJsonSerializer;
+    private readonly Type _type;
 
     public RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(INewtonsoftJsonSerializer newtonsoftJsonSerializer, Type type)
     {
             Guard.Argument(newtonsoftJsonSerializer).NotNull();
             Guard.Argument(type).NotNull();
 
-            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            this.type = type;
+            _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+            _type = type;
         }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            await next(context.SetMessage(context.Message.Key, newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, type))).ConfigureAwait(false);
+            await next(context.SetMessage(context.Message.Key, _newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, _type))).ConfigureAwait(false);
         }
 }

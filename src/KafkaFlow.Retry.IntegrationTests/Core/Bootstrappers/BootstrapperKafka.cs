@@ -18,7 +18,7 @@ internal static class BootstrapperKafka
     private const int NumberOfPartitions = 6;
     private const int ReplicationFactor = 1;
 
-    private static readonly string[] TestTopics = new[]
+    private static readonly string[] s_testTopics = new[]
         {
              "test-kafka-flow-retry-retry-simple",
              "test-kafka-flow-retry-retry-forever",
@@ -38,7 +38,7 @@ internal static class BootstrapperKafka
 
     internal static IClusterConfigurationBuilder CreatAllTestTopicsIfNotExist(this IClusterConfigurationBuilder cluster)
     {
-            foreach (var topic in TestTopics)
+            foreach (var topic in s_testTopics)
             {
                 cluster.CreateTopicIfNotExists(topic, NumberOfPartitions, ReplicationFactor);
             }

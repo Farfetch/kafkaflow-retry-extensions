@@ -8,13 +8,13 @@ namespace KafkaFlow.Retry.Durable.Repository;
 
 internal class UpdateRetryQueueItemStatusHandler : IUpdateRetryQueueItemHandler
 {
-    private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
+    private readonly IRetryDurableQueueRepositoryProvider _retryDurableQueueRepositoryProvider;
 
     public UpdateRetryQueueItemStatusHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
     {
             Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
 
-            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+            _retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
         }
 
     public bool CanHandle(UpdateItemInput input) => input is UpdateItemStatusInput;
@@ -27,12 +27,12 @@ internal class UpdateRetryQueueItemStatusHandler : IUpdateRetryQueueItemHandler
 
             try
             {
-                await retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
+                await _retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
             }
             catch (Exception ex)
             {
                 var kafkaException = new RetryDurableException(
-                  new RetryError(RetryErrorCode.DataProvider_UpdateItem),
+                  new RetryError(RetryErrorCode.DataProviderUpdateItem),
                   $"An error ocurred while updating the retry queue item status.", ex);
 
                 throw kafkaException;

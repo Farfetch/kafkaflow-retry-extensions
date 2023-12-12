@@ -7,11 +7,11 @@ namespace KafkaFlow.Retry.MongoDb.Model.Factories;
 
 internal class RetryQueueItemDboFactory
 {
-    private readonly IMessageAdapter messageAdapter;
+    private readonly IMessageAdapter _messageAdapter;
 
     public RetryQueueItemDboFactory(IMessageAdapter messageAdapter)
     {
-            this.messageAdapter = messageAdapter;
+            _messageAdapter = messageAdapter;
         }
 
     public RetryQueueItemDbo Create(SaveToQueueInput input, Guid queueId, int sort = 0)
@@ -26,7 +26,7 @@ internal class RetryQueueItemDboFactory
                 LastExecution = input.LastExecution,
                 ModifiedStatusDate = input.ModifiedStatusDate,
                 AttemptsCount = input.AttemptsCount,
-                Message = messageAdapter.Adapt(input.Message),
+                Message = _messageAdapter.Adapt(input.Message),
                 RetryQueueId = queueId,
                 Sort = sort,
                 Status = input.ItemStatus,

@@ -6,9 +6,9 @@ namespace KafkaFlow.Retry.UnitTests.API.Adapters.Common.Parses;
 
 public class EnumParserTests
 {
-    private readonly EnumTests[] defaultEnum = new[] { EnumTests.Value1 };
+    private readonly EnumTests[] _defaultEnum = new[] { EnumTests.Value1 };
 
-    private readonly EnumParser<EnumTests> enumParser = new EnumParser<EnumTests>();
+    private readonly EnumParser<EnumTests> _enumParser = new EnumParser<EnumTests>();
 
     private enum EnumTests
     {
@@ -25,7 +25,7 @@ public class EnumParserTests
             var expectedItems = new[] { EnumTests.Value1, EnumTests.Value2, EnumTests.Value3 };
 
             // Act
-            var result = enumParser.Parse(queryParams, defaultEnum);
+            var result = _enumParser.Parse(queryParams, _defaultEnum);
 
             // Assert
             result.Should().BeEquivalentTo(expectedItems);
@@ -38,10 +38,10 @@ public class EnumParserTests
             var queryParams = new string[0];
 
             // Act
-            var result = enumParser.Parse(queryParams, defaultEnum);
+            var result = _enumParser.Parse(queryParams, _defaultEnum);
 
             // Assert
-            result.Should().BeEquivalentTo(defaultEnum);
+            result.Should().BeEquivalentTo(_defaultEnum);
         }
 
     [Theory]
@@ -50,7 +50,7 @@ public class EnumParserTests
     public void EnumParser_Parse_WithNullArgs_ThrowsException(Type nullType)
     {
             // Act
-            Action act = () => enumParser.Parse(
+            Action act = () => _enumParser.Parse(
                    nullType.Equals(typeof(IEnumerable<string>)) ? null : new String[0],
                    nullType.Equals(typeof(IEnumerable<EnumTests>)) ? null : new EnumTests[0]);
 

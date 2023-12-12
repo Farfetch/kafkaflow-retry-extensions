@@ -6,24 +6,24 @@ namespace KafkaFlow.Retry.Durable.Repository.Adapters;
 
 internal class NewtonsoftJsonMessageAdapter : IMessageAdapter
 {
-    private readonly IGzipCompressor gzipCompressor;
-    private readonly INewtonsoftJsonSerializer newtonsoftJsonSerializer;
-    private readonly IUtf8Encoder utf8Encoder;
+    private readonly IGzipCompressor _gzipCompressor;
+    private readonly INewtonsoftJsonSerializer _newtonsoftJsonSerializer;
+    private readonly IUtf8Encoder _utf8Encoder;
 
     public NewtonsoftJsonMessageAdapter(
         IGzipCompressor gzipCompressor,
         INewtonsoftJsonSerializer newtonsoftJsonSerializer,
         IUtf8Encoder utf8Encoder)
     {
-            this.gzipCompressor = gzipCompressor;
-            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            this.utf8Encoder = utf8Encoder;
+            _gzipCompressor = gzipCompressor;
+            _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+            _utf8Encoder = utf8Encoder;
         }
 
     public byte[] AdaptMessageToRepository(object message)
     {
-            var messageSerialized = newtonsoftJsonSerializer.SerializeObject(message);
-            var messageEncoded = utf8Encoder.Encode(messageSerialized);
-            return gzipCompressor.Compress(messageEncoded);
+            var messageSerialized = _newtonsoftJsonSerializer.SerializeObject(message);
+            var messageEncoded = _utf8Encoder.Encode(messageSerialized);
+            return _gzipCompressor.Compress(messageEncoded);
         }
 }

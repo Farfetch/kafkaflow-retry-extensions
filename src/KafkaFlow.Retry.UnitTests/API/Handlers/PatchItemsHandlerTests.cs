@@ -19,11 +19,11 @@ namespace KafkaFlow.Retry.UnitTests.API.Handlers;
 
 public class PatchItemsHandlerTests
 {
-    private readonly string httpMethod = "PATCH";
-    private readonly Guid itemId1 = Guid.NewGuid();
-    private readonly Guid itemId2 = Guid.NewGuid();
-    private readonly Guid itemId3 = Guid.NewGuid();
-    private readonly string resourcePath = "/retry/items";
+    private readonly string _httpMethod = "PATCH";
+    private readonly Guid _itemId1 = Guid.NewGuid();
+    private readonly Guid _itemId2 = Guid.NewGuid();
+    private readonly Guid _itemId3 = Guid.NewGuid();
+    private readonly string _resourcePath = "/retry/items";
 
     [Fact]
     public async Task PatchItemsHandler_HandleAsync_Success()
@@ -31,7 +31,7 @@ public class PatchItemsHandlerTests
         // Arrange
         var updateItemsRequestDto = CreateRequestDto();
 
-        var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateItemsRequestDto);
+        var httpContext = await HttpContextHelper.CreateContext(_resourcePath, _httpMethod, updateItemsRequestDto);
 
         var updateItemsInput = CreateInput();
         var updateItemsResult = CreateResult();
@@ -79,7 +79,7 @@ public class PatchItemsHandlerTests
         string expectedDataException = "Newtonsoft.Json.JsonSerializationException";
         var wrongDto = new List<FakeDto> { new FakeDto { DummyProperty = "some text" } };
 
-        var mockHttpContext = HttpContextHelper.MockHttpContext(resourcePath, httpMethod, requestBody: wrongDto);
+        var mockHttpContext = HttpContextHelper.MockHttpContext(_resourcePath, _httpMethod, requestBody: wrongDto);
 
         var httpResponse = new Mock<HttpResponse>();
         string actualData = null;
@@ -124,7 +124,7 @@ public class PatchItemsHandlerTests
         // arrange
         var updateItemsRequestDto = CreateRequestDto();
 
-        var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateItemsRequestDto);
+        var httpContext = await HttpContextHelper.CreateContext(_resourcePath, _httpMethod, updateItemsRequestDto);
 
         var handler = new PatchItemsHandler(
             retryQueueDataProvider,
@@ -143,7 +143,7 @@ public class PatchItemsHandlerTests
     private UpdateItemsInput CreateInput()
     {
         return new UpdateItemsInput(
-            new[] { itemId1, itemId2, itemId3 },
+            new[] { _itemId1, _itemId2, _itemId3 },
             RetryQueueItemStatus.Cancelled
         );
     }
@@ -152,7 +152,7 @@ public class PatchItemsHandlerTests
     {
         return new UpdateItemsRequestDto
         {
-            ItemIds = new[] { itemId1, itemId2, itemId3 },
+            ItemIds = new[] { _itemId1, _itemId2, _itemId3 },
             Status = RetryQueueItemStatusDto.Cancelled
         };
     }
@@ -162,9 +162,9 @@ public class PatchItemsHandlerTests
         return new UpdateItemsResponseDto
         {
             UpdateItemsResults = new[] {
-                new UpdateItemResultDto(itemId1, UpdateItemResultStatus.Updated),
-                new UpdateItemResultDto(itemId2, UpdateItemResultStatus.QueueNotFound),
-                new UpdateItemResultDto(itemId3, UpdateItemResultStatus.ItemIsNotTheFirstWaitingInQueue),
+                new UpdateItemResultDto(_itemId1, UpdateItemResultStatus.Updated),
+                new UpdateItemResultDto(_itemId2, UpdateItemResultStatus.QueueNotFound),
+                new UpdateItemResultDto(_itemId3, UpdateItemResultStatus.ItemIsNotTheFirstWaitingInQueue),
             }
         };
     }
@@ -173,9 +173,9 @@ public class PatchItemsHandlerTests
     {
         return new UpdateItemsResult(
             new[] {
-                new UpdateItemResult(itemId1, UpdateItemResultStatus.Updated),
-                new UpdateItemResult(itemId2, UpdateItemResultStatus.QueueNotFound),
-                new UpdateItemResult(itemId3, UpdateItemResultStatus.ItemIsNotInWaitingState)
+                new UpdateItemResult(_itemId1, UpdateItemResultStatus.Updated),
+                new UpdateItemResult(_itemId2, UpdateItemResultStatus.QueueNotFound),
+                new UpdateItemResult(_itemId3, UpdateItemResultStatus.ItemIsNotInWaitingState)
             });
     }
 

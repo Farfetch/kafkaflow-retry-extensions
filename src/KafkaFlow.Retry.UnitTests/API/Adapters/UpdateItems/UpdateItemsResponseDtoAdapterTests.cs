@@ -6,7 +6,7 @@ namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems;
 
 public class UpdateItemsResponseDtoAdapterTests
 {
-    private readonly IUpdateItemsResponseDtoAdapter adapter = new UpdateItemsResponseDtoAdapter();
+    private readonly IUpdateItemsResponseDtoAdapter _adapter = new UpdateItemsResponseDtoAdapter();
 
     [Fact]
     public void UpdateItemsResponseDtoAdapter_Adapt_Success()
@@ -22,7 +22,7 @@ public class UpdateItemsResponseDtoAdapterTests
         var updateItemsResult = new UpdateItemsResult(expectedResults);
 
         // Act
-        var responseDto = adapter.Adapt(updateItemsResult);
+        var responseDto = _adapter.Adapt(updateItemsResult);
 
         // Assert
         for (int i = 0; i < responseDto.UpdateItemsResults.Count; i++)
@@ -36,7 +36,7 @@ public class UpdateItemsResponseDtoAdapterTests
     public void UpdateItemsResponseDtoAdapter_Adapt_WithNullArgs_ThrowsException()
     {
         // Act
-        Action act = () => adapter.Adapt(null);
+        Action act = () => _adapter.Adapt(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

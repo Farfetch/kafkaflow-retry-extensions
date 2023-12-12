@@ -7,39 +7,39 @@ namespace KafkaFlow.Retry.Simple;
 
 internal class RetrySimpleMiddleware : IMessageMiddleware
 {
-    private readonly ILogHandler logHandler;
-    private readonly RetrySimpleDefinition retrySimpleDefinition;
-    private readonly object syncPauseAndResume = new object();
-    private int? controlWorkerId;
+    private readonly ILogHandler _logHandler;
+    private readonly RetrySimpleDefinition _retrySimpleDefinition;
+    private readonly object _syncPauseAndResume = new object();
+    private int? _controlWorkerId;
 
     public RetrySimpleMiddleware(
         ILogHandler logHandler,
         RetrySimpleDefinition retrySimpleDefinition)
     {
-            this.logHandler = logHandler;
-            this.retrySimpleDefinition = retrySimpleDefinition;
+            _logHandler = logHandler;
+            _retrySimpleDefinition = retrySimpleDefinition;
         }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
             var policy = Policy
-                .Handle<Exception>(exception => retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
+                .Handle<Exception>(exception => _retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
                 .WaitAndRetryAsync(
-                    retrySimpleDefinition.NumberOfRetries,
-                    (retryNumber, c) => retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
+                    _retrySimpleDefinition.NumberOfRetries,
+                    (retryNumber, c) => _retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
                     (exception, waitTime, attemptNumber, c) =>
                     {
-                        if (retrySimpleDefinition.PauseConsumer && !controlWorkerId.HasValue)
+                        if (_retrySimpleDefinition.PauseConsumer && !_controlWorkerId.HasValue)
                         {
-                            lock (syncPauseAndResume) // TODO: why we need this lock here?
+                            lock (_syncPauseAndResume) // TODO: why we need this lock here?
                             {
-                                if (!controlWorkerId.HasValue)
+                                if (!_controlWorkerId.HasValue)
                                 {
-                                    controlWorkerId = context.ConsumerContext.WorkerId;
+                                    _controlWorkerId = context.ConsumerContext.WorkerId;
 
                                     context.ConsumerContext.Pause();
 
-                                    logHandler.Info(
+                                    _logHandler.Info(
                                         "Consumer paused by retry process",
                                         new
                                         {
@@ -51,7 +51,7 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
                             }
                         }
 
-                        logHandler.Error(
+                        _logHandler.Error(
                             $"Exception captured by {nameof(RetrySimpleMiddleware)}. Retry in process.",
                             exception,
                             new
@@ -85,17 +85,17 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
             }
             finally
             {
-                if (controlWorkerId == context.ConsumerContext.WorkerId) // TODO: understand why this is necessary and the lock below.
+                if (_controlWorkerId == context.ConsumerContext.WorkerId) // TODO: understand why this is necessary and the lock below.
                 {
-                    lock (syncPauseAndResume)
+                    lock (_syncPauseAndResume)
                     {
-                        if (controlWorkerId == context.ConsumerContext.WorkerId)
+                        if (_controlWorkerId == context.ConsumerContext.WorkerId)
                         {
-                            controlWorkerId = null;
+                            _controlWorkerId = null;
 
                             context.ConsumerContext.Resume();
 
-                            logHandler.Info(
+                            _logHandler.Info(
                                 "Consumer resumed by retry process",
                                 new
                                 {

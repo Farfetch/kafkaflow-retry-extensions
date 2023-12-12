@@ -9,7 +9,7 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Model.Factories;
 
 public class RetryQueueDboFactoryTests
 {
-    private readonly RetryQueueDboFactory factory = new RetryQueueDboFactory();
+    private readonly RetryQueueDboFactory _factory = new RetryQueueDboFactory();
 
     [Fact]
     public void RetryQueueDboFactory_Create_Success()
@@ -29,7 +29,7 @@ public class RetryQueueDboFactoryTests
             "description");
 
         // Act
-        var result = factory.Create(saveToQueueInput);
+        var result = _factory.Create(saveToQueueInput);
 
         // Assert
         result.Should().NotBeNull();
@@ -43,7 +43,7 @@ public class RetryQueueDboFactoryTests
         SaveToQueueInput saveToQueueInput = null;
 
         // Act
-        Action act = () => factory.Create(saveToQueueInput);
+        Action act = () => _factory.Create(saveToQueueInput);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

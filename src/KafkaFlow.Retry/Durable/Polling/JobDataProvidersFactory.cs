@@ -11,11 +11,11 @@ namespace KafkaFlow.Retry.Durable.Polling;
 
 internal class JobDataProvidersFactory : IJobDataProvidersFactory
 {
-    private readonly IMessageHeadersAdapter messageHeadersAdapter;
-    private readonly PollingDefinitionsAggregator pollingDefinitionsAggregator;
-    private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
-    private readonly ITriggerProvider triggerProvider;
-    private readonly IUtf8Encoder utf8Encoder;
+    private readonly IMessageHeadersAdapter _messageHeadersAdapter;
+    private readonly PollingDefinitionsAggregator _pollingDefinitionsAggregator;
+    private readonly IRetryDurableQueueRepository _retryDurableQueueRepository;
+    private readonly ITriggerProvider _triggerProvider;
+    private readonly IUtf8Encoder _utf8Encoder;
 
     public JobDataProvidersFactory(
         PollingDefinitionsAggregator pollingDefinitionsAggregator,
@@ -30,11 +30,11 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
             Guard.Argument(messageHeadersAdapter).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
 
-            this.pollingDefinitionsAggregator = pollingDefinitionsAggregator;
-            this.retryDurableQueueRepository = retryDurableQueueRepository;
-            this.messageHeadersAdapter = messageHeadersAdapter;
-            this.utf8Encoder = utf8Encoder;
-            this.triggerProvider = triggerProvider;
+            _pollingDefinitionsAggregator = pollingDefinitionsAggregator;
+            _retryDurableQueueRepository = retryDurableQueueRepository;
+            _messageHeadersAdapter = messageHeadersAdapter;
+            _utf8Encoder = utf8Encoder;
+            _triggerProvider = triggerProvider;
         }
 
     public IEnumerable<IJobDataProvider> Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
@@ -47,11 +47,11 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
                     new RetryDurableJobDataProvider(
                         retryDurablePollingDefinition,
                         GetTrigger(retryDurablePollingDefinition),
-                        pollingDefinitionsAggregator.SchedulerId,
-                        retryDurableQueueRepository,
+                        _pollingDefinitionsAggregator.SchedulerId,
+                        _retryDurableQueueRepository,
                         logHandler,
-                        messageHeadersAdapter,
-                        utf8Encoder,
+                        _messageHeadersAdapter,
+                        _utf8Encoder,
                         retryDurableMessageProducer
                         )
                     );
@@ -63,8 +63,8 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
                     new CleanupJobDataProvider(
                         cleanupPollingDefinition,
                         GetTrigger(cleanupPollingDefinition),
-                        pollingDefinitionsAggregator.SchedulerId,
-                        retryDurableQueueRepository,
+                        _pollingDefinitionsAggregator.SchedulerId,
+                        _retryDurableQueueRepository,
                         logHandler
                         )
                     );
@@ -75,14 +75,14 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
 
     private ITrigger GetTrigger(PollingDefinition pollingDefinition)
     {
-            return triggerProvider.GetPollingTrigger(pollingDefinitionsAggregator.SchedulerId, pollingDefinition);
+            return _triggerProvider.GetPollingTrigger(_pollingDefinitionsAggregator.SchedulerId, pollingDefinition);
         }
 
     private bool TryGetPollingDefinition<TPollingDefinition>(PollingJobType pollingJobType, out TPollingDefinition pollingDefinition) where TPollingDefinition : PollingDefinition
     {
             pollingDefinition = default;
 
-            var pollingDefinitions = pollingDefinitionsAggregator.PollingDefinitions;
+            var pollingDefinitions = _pollingDefinitionsAggregator.PollingDefinitions;
 
             var pollingDefinitionFound = pollingDefinitions.TryGetValue(pollingJobType, out var pollingDefinitionResult);
 

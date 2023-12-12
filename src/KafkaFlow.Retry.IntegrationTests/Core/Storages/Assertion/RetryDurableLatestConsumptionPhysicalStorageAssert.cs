@@ -10,23 +10,23 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Assertion;
 
 internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalStorageAssert
 {
-    private readonly IRepositoryProvider repositoryProvider;
+    private readonly IRepositoryProvider _repositoryProvider;
 
     public RetryDurableLatestConsumptionPhysicalStorageAssert(IRepositoryProvider repositoryProvider)
     {
-        this.repositoryProvider = repositoryProvider;
+        _repositoryProvider = repositoryProvider;
     }
 
     public async Task AssertRetryDurableMessageCreationAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int count)
     {
-        var retryQueue = await repositoryProvider
+        var retryQueue = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueAsync(message.Key)
             .ConfigureAwait(false);
 
         Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Creation Get Retry Queue cannot be asserted.");
 
-        var retryQueueItems = await repositoryProvider
+        var retryQueueItems = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueItemsAsync(retryQueue.Id, rqi =>
             {
@@ -44,14 +44,14 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
 
     public async Task AssertRetryDurableMessageDoneAsync(RepositoryType repositoryType, RetryDurableTestMessage message)
     {
-        var retryQueue = await repositoryProvider
+        var retryQueue = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueAsync(message.Key)
             .ConfigureAwait(false);
 
         Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Done Get Retry Queue cannot be asserted.");
 
-        var retryQueueItems = await repositoryProvider
+        var retryQueueItems = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueItemsAsync(
                 retryQueue.Id,
@@ -67,13 +67,13 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
 
     public async Task AssertRetryDurableMessageRetryingAsync(RepositoryType repositoryType, RetryDurableTestMessage message, int retryCount)
     {
-        var retryQueue = await repositoryProvider
+        var retryQueue = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueAsync(message.Key).ConfigureAwait(false);
 
         Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Retrying Get Retry Queue cannot be asserted.");
 
-        var retryQueueItems = await repositoryProvider
+        var retryQueueItems = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueItemsAsync(
                 retryQueue.Id,

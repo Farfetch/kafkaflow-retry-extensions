@@ -11,11 +11,11 @@ namespace KafkaFlow.Retry.Durable.Polling;
 
 internal class QueueTracker
 {
-    private static readonly object internalLock = new object();
-    private readonly IEnumerable<IJobDataProvider> jobDataProviders;
-    private readonly ILogHandler logHandler;
-    private readonly string schedulerId;
-    private IScheduler scheduler;
+    private static readonly object s_internalLock = new object();
+    private readonly IEnumerable<IJobDataProvider> _jobDataProviders;
+    private readonly ILogHandler _logHandler;
+    private readonly string _schedulerId;
+    private IScheduler _scheduler;
 
     public QueueTracker(
         string schedulerId,
@@ -27,15 +27,15 @@ internal class QueueTracker
             Guard.Argument(jobDataProviders).NotNull().NotEmpty();
             Guard.Argument(logHandler).NotNull();
 
-            this.schedulerId = schedulerId;
-            this.jobDataProviders = jobDataProviders;
-            this.logHandler = logHandler;
+            _schedulerId = schedulerId;
+            _jobDataProviders = jobDataProviders;
+            _logHandler = logHandler;
         }
 
-    private bool IsSchedulerActive
-        => scheduler is object
-           && scheduler.IsStarted
-           && !scheduler.IsShutdown;
+    private bool _isSchedulerActive
+        => _scheduler is object
+           && _scheduler.IsStarted
+           && !_scheduler.IsShutdown;
 
     internal async Task ScheduleJobsAsync(CancellationToken cancellationToken = default)
     {
@@ -45,19 +45,19 @@ internal class QueueTracker
             }
             catch (Exception ex)
             {
-                logHandler.Error("PollingJob ERROR starting scheduler", ex, new { SchedulerId = schedulerId });
+                _logHandler.Error("PollingJob ERROR starting scheduler", ex, new { SchedulerId = _schedulerId });
                 return;
             }
 
-            foreach (var jobDataProvider in jobDataProviders)
+            foreach (var jobDataProvider in _jobDataProviders)
             {
                 if (!jobDataProvider.PollingDefinition.Enabled)
                 {
-                    logHandler.Warning(
+                    _logHandler.Warning(
                         "PollingJob Scheduler not enabled",
                         new
                         {
-                            SchedulerId = schedulerId,
+                            SchedulerId = _schedulerId,
                             PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
                             CronExpression = jobDataProvider.PollingDefinition.CronExpression
                         });
@@ -71,7 +71,7 @@ internal class QueueTracker
 
     internal async Task UnscheduleJobsAsync(CancellationToken cancellationToken = default)
     {
-            foreach (var jobDataProvider in jobDataProviders)
+            foreach (var jobDataProvider in _jobDataProviders)
             {
                 if (!jobDataProvider.PollingDefinition.Enabled)
                 {
@@ -80,21 +80,21 @@ internal class QueueTracker
 
                 var trigger = jobDataProvider.Trigger;
 
-                logHandler.Info(
+                _logHandler.Info(
                     "PollingJob unscheduler started",
                     new
                     {
-                        SchedulerId = schedulerId,
+                        SchedulerId = _schedulerId,
                         PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
                         TriggerKey = trigger.Key.ToString()
                     });
 
-                var unscheduledJob = await scheduler.UnscheduleJob(trigger.Key).ConfigureAwait(false);
+                var unscheduledJob = await _scheduler.UnscheduleJob(trigger.Key).ConfigureAwait(false);
 
-                logHandler.Info("PollingJob unscheduler finished",
+                _logHandler.Info("PollingJob unscheduler finished",
                     new
                     {
-                        SchedulerId = schedulerId,
+                        SchedulerId = _schedulerId,
                         PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
                         TriggerKey = trigger.Key.ToString(),
                         UnscheduledJob = unscheduledJob.ToString()
@@ -109,13 +109,13 @@ internal class QueueTracker
                 var job = jobDataProvider.JobDetail;
                 var trigger = jobDataProvider.Trigger;
 
-                var scheduledJob = await scheduler.ScheduleJob(job, trigger, cancellationToken).ConfigureAwait(false);
+                var scheduledJob = await _scheduler.ScheduleJob(job, trigger, cancellationToken).ConfigureAwait(false);
 
-                logHandler.Info(
+                _logHandler.Info(
                     "PollingJob Scheduler scheduled",
                     new
                     {
-                        SchedulerId = schedulerId,
+                        SchedulerId = _schedulerId,
                         PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
                         CronExpression = jobDataProvider.PollingDefinition.CronExpression,
                         ScheduleJob = scheduledJob.ToString()
@@ -123,12 +123,12 @@ internal class QueueTracker
             }
             catch (Exception ex)
             {
-                logHandler.Error(
+                _logHandler.Error(
                     "PollingJob Scheduler ERROR scheduling",
                     ex,
                     new
                     {
-                        SchedulerId = schedulerId,
+                        SchedulerId = _schedulerId,
                         PollingJobType = jobDataProvider.PollingDefinition.PollingJobType.ToString(),
                         CronExpression = jobDataProvider.PollingDefinition.CronExpression
                     });
@@ -137,22 +137,22 @@ internal class QueueTracker
 
     private async Task StartSchedulerAsync(CancellationToken cancellationToken)
     {
-            lock (internalLock)
+            lock (s_internalLock)
             {
-                Guard.Argument(scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
+                Guard.Argument(_scheduler).Null(s => "Scheduler was already started. Please call this method just once.");
 
                 StdSchedulerFactory fact = new StdSchedulerFactory();
-                fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", schedulerId } });
-                scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();
+                fact.Initialize(new NameValueCollection { { "quartz.scheduler.instanceName", _schedulerId } });
+                _scheduler = fact.GetScheduler(cancellationToken).GetAwaiter().GetResult();
 
-                logHandler.Info("PollingJob Scheduler acquired", new { SchedulerId = schedulerId });
+                _logHandler.Info("PollingJob Scheduler acquired", new { SchedulerId = _schedulerId });
             }
 
-            if (!IsSchedulerActive)
+            if (!_isSchedulerActive)
             {
-                await scheduler.Start(cancellationToken).ConfigureAwait(false);
+                await _scheduler.Start(cancellationToken).ConfigureAwait(false);
 
-                logHandler.Info("PollingJob Scheduler started", new { SchedulerId = schedulerId });
+                _logHandler.Info("PollingJob Scheduler started", new { SchedulerId = _schedulerId });
             }
         }
 }

@@ -5,13 +5,13 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb;
 
 public class MongoDbDataProviderFactoryTests
 {
-    private readonly MongoDbDataProviderFactory mongoDbDataProviderFactory = new MongoDbDataProviderFactory();
+    private readonly MongoDbDataProviderFactory _mongoDbDataProviderFactory = new MongoDbDataProviderFactory();
 
     [Fact]
     public void MongoDbDataProviderFactory_TryCreate_ReturnsDataProviderCreationResult()
     {
         // Act
-        var result = mongoDbDataProviderFactory.TryCreate(new MongoDbSettings());
+        var result = _mongoDbDataProviderFactory.TryCreate(new MongoDbSettings());
 
         // Arrange
         result.Should().NotBeNull();
@@ -22,7 +22,7 @@ public class MongoDbDataProviderFactoryTests
     public void MongoDbDataProviderFactory_TryCreate_WithoutMongoDbSettings_ThrowsException()
     {
         // Act
-        Action act = () => mongoDbDataProviderFactory.TryCreate(null);
+        Action act = () => _mongoDbDataProviderFactory.TryCreate(null);
 
         // Arrange
         act.Should().Throw<ArgumentNullException>();

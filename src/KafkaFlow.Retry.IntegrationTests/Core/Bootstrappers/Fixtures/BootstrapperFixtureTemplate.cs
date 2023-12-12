@@ -14,15 +14,15 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
 {
     protected const string ConfigurationFilePath = "conf/appsettings.json";
 
-    private bool databasesInitialized;
+    private bool _databasesInitialized;
 
-    private IRepositoryProvider repositoryProvider;
+    private IRepositoryProvider _repositoryProvider;
 
     internal KafkaSettings KafkaSettings { get; private set; }
 
     internal MongoDbRepositorySettings MongoDbSettings { get; private set; }
 
-    internal IRepositoryProvider RepositoryProvider => this.repositoryProvider ?? this.CreateRepositoryProvider();
+    internal IRepositoryProvider RepositoryProvider => _repositoryProvider ?? CreateRepositoryProvider();
 
     internal SqlServerRepositorySettings SqlServerSettings { get; private set; }
       
@@ -32,60 +32,60 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
 
     protected async Task InitializeDatabasesAsync(IConfiguration configuration)
     {
-        this.InitializeMongoDb(configuration);
-        await this.InitializeSqlServerAsync(configuration).ConfigureAwait(false);
-        await this.InitializePostgresAsync(configuration).ConfigureAwait(false);
+        InitializeMongoDb(configuration);
+        await InitializeSqlServerAsync(configuration).ConfigureAwait(false);
+        await InitializePostgresAsync(configuration).ConfigureAwait(false);
 
-        this.databasesInitialized = true;
+        _databasesInitialized = true;
     }
 
     protected void InitializeKafka(IConfiguration configuration)
     {
-        this.KafkaSettings = configuration.GetSection("Kafka").Get<KafkaSettings>();
+        KafkaSettings = configuration.GetSection("Kafka").Get<KafkaSettings>();
     }
 
     private IRepositoryProvider CreateRepositoryProvider()
     {
-        Guard.Argument(this.databasesInitialized, nameof(this.databasesInitialized)).True($"Call {nameof(this.InitializeDatabasesAsync)} first.");
+        Guard.Argument(_databasesInitialized, nameof(_databasesInitialized)).True($"Call {nameof(InitializeDatabasesAsync)} first.");
 
         var repositories = new List<IRepository>
         {
-            new MongoDbRepository( this.MongoDbSettings.ConnectionString, this.MongoDbSettings.DatabaseName, this.MongoDbSettings.RetryQueueCollectionName, this.MongoDbSettings.RetryQueueItemCollectionName),
-            new SqlServerRepository(this.SqlServerSettings.ConnectionString, this.SqlServerSettings.DatabaseName),
-            new PostgresRepository(this.PostgresSettings.ConnectionString, this.PostgresSettings.DatabaseName)
+            new MongoDbRepository( MongoDbSettings.ConnectionString, MongoDbSettings.DatabaseName, MongoDbSettings.RetryQueueCollectionName, MongoDbSettings.RetryQueueItemCollectionName),
+            new SqlServerRepository(SqlServerSettings.ConnectionString, SqlServerSettings.DatabaseName),
+            new PostgresRepository(PostgresSettings.ConnectionString, PostgresSettings.DatabaseName)
         };
 
-        this.repositoryProvider = new RepositoryProvider(repositories);
+        _repositoryProvider = new RepositoryProvider(repositories);
 
-        return this.repositoryProvider;
+        return _repositoryProvider;
     }
 
     private void InitializeMongoDb(IConfiguration configuration)
     {
-        this.MongoDbSettings = configuration.GetSection("MongoDbRepository").Get<MongoDbRepositorySettings>();
+        MongoDbSettings = configuration.GetSection("MongoDbRepository").Get<MongoDbRepositorySettings>();
     }
 
     private async Task InitializeSqlServerAsync(IConfiguration configuration)
     {
-        this.SqlServerSettings = configuration.GetSection("SqlServerRepository").Get<SqlServerRepositorySettings>();
+        SqlServerSettings = configuration.GetSection("SqlServerRepository").Get<SqlServerRepositorySettings>();
 
-        var sqlServerConnectionStringBuilder = new SqlConnectionStringBuilder(this.SqlServerSettings.ConnectionString);
+        var sqlServerConnectionStringBuilder = new SqlConnectionStringBuilder(SqlServerSettings.ConnectionString);
         if (Environment.GetEnvironmentVariable("SQLSERVER_INTEGRATED_SECURITY") != null)
         {
             sqlServerConnectionStringBuilder.IntegratedSecurity = false;
         }
-        this.SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
+        SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
-        await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(this.SqlServerSettings.DatabaseName, this.SqlServerSettings.ConnectionString).ConfigureAwait(false);
+        await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(SqlServerSettings.DatabaseName, SqlServerSettings.ConnectionString).ConfigureAwait(false);
     }
 
     private async Task InitializePostgresAsync(IConfiguration configuration)
     {
-        this.PostgresSettings = configuration.GetSection("PostgresRepository").Get<PostgresRepositorySettings>();
+        PostgresSettings = configuration.GetSection("PostgresRepository").Get<PostgresRepositorySettings>();
 
-        var postgresConnectionStringBuilder = new NpgsqlConnectionStringBuilder(this.PostgresSettings.ConnectionString);
-        this.PostgresSettings.ConnectionString = postgresConnectionStringBuilder.ToString();
+        var postgresConnectionStringBuilder = new NpgsqlConnectionStringBuilder(PostgresSettings.ConnectionString);
+        PostgresSettings.ConnectionString = postgresConnectionStringBuilder.ToString();
 
-        await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(this.PostgresSettings.DatabaseName, this.PostgresSettings.ConnectionString).ConfigureAwait(false);
+        await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(PostgresSettings.DatabaseName, PostgresSettings.ConnectionString).ConfigureAwait(false);
     }
 }

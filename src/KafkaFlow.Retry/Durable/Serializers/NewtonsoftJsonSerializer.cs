@@ -5,7 +5,7 @@ namespace KafkaFlow.Retry.Durable.Serializers;
 
 internal class NewtonsoftJsonSerializer : INewtonsoftJsonSerializer
 {
-    private readonly JsonSerializerSettings jsonSerializerSettings;
+    private readonly JsonSerializerSettings _jsonSerializerSettings;
 
     public NewtonsoftJsonSerializer()
         : this(new JsonSerializerSettings())
@@ -13,16 +13,16 @@ internal class NewtonsoftJsonSerializer : INewtonsoftJsonSerializer
 
     public NewtonsoftJsonSerializer(JsonSerializerSettings jsonSerializerSettings)
     {
-            this.jsonSerializerSettings = jsonSerializerSettings;
+            _jsonSerializerSettings = jsonSerializerSettings;
         }
 
     public object DeserializeObject(string data, Type type)
     {
-            return JsonConvert.DeserializeObject(data, type, jsonSerializerSettings);
+            return JsonConvert.DeserializeObject(data, type, _jsonSerializerSettings);
         }
 
     public string SerializeObject(object data)
     {
-            return JsonConvert.SerializeObject(data, jsonSerializerSettings);
+            return JsonConvert.SerializeObject(data, _jsonSerializerSettings);
         }
 }

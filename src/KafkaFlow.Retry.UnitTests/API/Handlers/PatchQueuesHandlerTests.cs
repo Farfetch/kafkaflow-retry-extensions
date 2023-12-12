@@ -16,8 +16,8 @@ namespace KafkaFlow.Retry.UnitTests.API.Handlers;
 
 public class PatchQueuesHandlerTests
 {
-    private readonly string httpMethod = "PATCH";
-    private readonly string resourcePath = "/retry/queues";
+    private readonly string _httpMethod = "PATCH";
+    private readonly string _resourcePath = "/retry/queues";
 
     [Fact]
     public async Task PatchQueuesHandler_HandleAsync_Success()
@@ -25,7 +25,7 @@ public class PatchQueuesHandlerTests
             // Arrange
             var updateQueuesRequestDto = CreateRequestDto();
 
-            var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateQueuesRequestDto);
+            var httpContext = await HttpContextHelper.CreateContext(_resourcePath, _httpMethod, updateQueuesRequestDto);
 
             var updateQueuesInput = CreateInput();
             var updateQueuesResult = CreateResult();
@@ -77,7 +77,7 @@ public class PatchQueuesHandlerTests
             // arrange
             var updateItemsRequestDto = CreateRequestDto();
 
-            var httpContext = await HttpContextHelper.CreateContext(resourcePath, httpMethod, updateItemsRequestDto);
+            var httpContext = await HttpContextHelper.CreateContext(_resourcePath, _httpMethod, updateItemsRequestDto);
 
             var handler = new PatchQueuesHandler(
                 retryQueueDataProvider,
@@ -132,31 +132,31 @@ public class PatchQueuesHandlerTests
 
     private class DependenciesThrowingExceptionsData : IEnumerable<object[]>
     {
-        private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProvider;
-        private readonly Mock<IRetryDurableQueueRepositoryProvider> dataProviderWithException;
-        private readonly Mock<IUpdateQueuesInputAdapter> inputAdapter;
-        private readonly Mock<IUpdateQueuesInputAdapter> inputAdapterWithException;
-        private readonly Mock<IUpdateQueuesResponseDtoAdapter> responseDtoAdapter;
-        private readonly Mock<IUpdateQueuesResponseDtoAdapter> responseDtoAdapterWithException;
+        private readonly Mock<IRetryDurableQueueRepositoryProvider> _dataProvider;
+        private readonly Mock<IRetryDurableQueueRepositoryProvider> _dataProviderWithException;
+        private readonly Mock<IUpdateQueuesInputAdapter> _inputAdapter;
+        private readonly Mock<IUpdateQueuesInputAdapter> _inputAdapterWithException;
+        private readonly Mock<IUpdateQueuesResponseDtoAdapter> _responseDtoAdapter;
+        private readonly Mock<IUpdateQueuesResponseDtoAdapter> _responseDtoAdapterWithException;
 
         public DependenciesThrowingExceptionsData()
         {
-                inputAdapter = new Mock<IUpdateQueuesInputAdapter>();
-                dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
-                responseDtoAdapter = new Mock<IUpdateQueuesResponseDtoAdapter>();
+                _inputAdapter = new Mock<IUpdateQueuesInputAdapter>();
+                _dataProvider = new Mock<IRetryDurableQueueRepositoryProvider>();
+                _responseDtoAdapter = new Mock<IUpdateQueuesResponseDtoAdapter>();
 
-                inputAdapterWithException = new Mock<IUpdateQueuesInputAdapter>();
-                inputAdapterWithException
+                _inputAdapterWithException = new Mock<IUpdateQueuesInputAdapter>();
+                _inputAdapterWithException
                     .Setup(mock => mock.Adapt(It.IsAny<UpdateQueuesRequestDto>()))
                     .Throws(new Exception());
 
-                dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
-                dataProviderWithException
+                _dataProviderWithException = new Mock<IRetryDurableQueueRepositoryProvider>();
+                _dataProviderWithException
                     .Setup(mock => mock.UpdateQueuesAsync(It.IsAny<UpdateQueuesInput>()))
                     .ThrowsAsync(new Exception());
 
-                responseDtoAdapterWithException = new Mock<IUpdateQueuesResponseDtoAdapter>();
-                responseDtoAdapterWithException
+                _responseDtoAdapterWithException = new Mock<IUpdateQueuesResponseDtoAdapter>();
+                _responseDtoAdapterWithException
                     .Setup(mock => mock.Adapt(It.IsAny<UpdateQueuesResult>()))
                     .Throws(new Exception());
             }
@@ -165,30 +165,30 @@ public class PatchQueuesHandlerTests
         {
                 yield return new object[] // success case
                 {
-                    inputAdapter.Object,
-                    dataProvider.Object,
-                    responseDtoAdapter.Object,
+                    _inputAdapter.Object,
+                    _dataProvider.Object,
+                    _responseDtoAdapter.Object,
                     (int)HttpStatusCode.OK
                 };
                 yield return new object[]
                 {
-                    inputAdapterWithException.Object,
-                    dataProvider.Object,
-                    responseDtoAdapter.Object,
+                    _inputAdapterWithException.Object,
+                    _dataProvider.Object,
+                    _responseDtoAdapter.Object,
                     (int)HttpStatusCode.InternalServerError
                 };
                 yield return new object[]
                 {
-                    inputAdapter.Object,
-                    dataProviderWithException.Object,
-                    responseDtoAdapter.Object,
+                    _inputAdapter.Object,
+                    _dataProviderWithException.Object,
+                    _responseDtoAdapter.Object,
                     (int)HttpStatusCode.InternalServerError
                 };
                 yield return new object[]
                 {
-                    inputAdapter.Object,
-                    dataProvider.Object,
-                    responseDtoAdapterWithException.Object,
+                    _inputAdapter.Object,
+                    _dataProvider.Object,
+                    _responseDtoAdapterWithException.Object,
                     (int)HttpStatusCode.InternalServerError
                 };
             }

@@ -11,10 +11,10 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Model.Factories;
 
 public class RetryQueueItemDboFactoryTests
 {
-    private readonly RetryQueueItemDboFactory factory;
-    private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();
+    private readonly RetryQueueItemDboFactory _factory;
+    private readonly Mock<IMessageAdapter> _messageAdapter = new Mock<IMessageAdapter>();
 
-    private readonly SaveToQueueInput saveToQueueInput = new SaveToQueueInput(
+    private readonly SaveToQueueInput _saveToQueueInput = new SaveToQueueInput(
         new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow),
         "searchGroupKey",
         "queueGroupKey",
@@ -30,15 +30,15 @@ public class RetryQueueItemDboFactoryTests
     public RetryQueueItemDboFactoryTests()
     {
             var retryQueueItemMessage = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
-            messageAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>())).Returns(retryQueueItemMessage);
-            factory = new RetryQueueItemDboFactory(messageAdapter.Object);
+            _messageAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>())).Returns(retryQueueItemMessage);
+            _factory = new RetryQueueItemDboFactory(_messageAdapter.Object);
         }
 
     [Fact]
     public void RetryQueueItemDboFactory_Create_Success()
     {
             // Act
-            var result = factory.Create(saveToQueueInput, Guid.NewGuid());
+            var result = _factory.Create(_saveToQueueInput, Guid.NewGuid());
 
             // Assert
             result.Should().NotBeNull();
@@ -49,7 +49,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_WithDefaultQueueId_ThrowsException()
     {
             // Act
-            Action act = () => factory.Create(saveToQueueInput, default);
+            Action act = () => _factory.Create(_saveToQueueInput, default);
 
             // Assert
             act.Should().Throw<ArgumentException>();
@@ -59,7 +59,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_WithNegativeSort_ThrowsException()
     {
             // Act
-            Action act = () => factory.Create(saveToQueueInput, Guid.NewGuid(), -1);
+            Action act = () => _factory.Create(_saveToQueueInput, Guid.NewGuid(), -1);
 
             // Assert
             act.Should().Throw<ArgumentOutOfRangeException>();
@@ -72,7 +72,7 @@ public class RetryQueueItemDboFactoryTests
             SaveToQueueInput saveToQueueInputNull = null;
 
             // Act
-            Action act = () => factory.Create(saveToQueueInputNull, Guid.NewGuid());
+            Action act = () => _factory.Create(saveToQueueInputNull, Guid.NewGuid());
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

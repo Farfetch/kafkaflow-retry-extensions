@@ -12,11 +12,11 @@ public class GetItemsRequestDtoReaderTests
 {
     private const int DefaultTopItemsByQueueValue = 100;
     private const int DefaultTopQueuesValue = 10000;
-    private readonly IEnumerable<RetryQueueItemStatus> DefaultItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
-    private readonly IEnumerable<SeverityLevel> DefaultSeverityLevels = Enumerable.Empty<SeverityLevel>();
-    private readonly string httpMethod = "GET";
-    private readonly IGetItemsRequestDtoReader reader = new GetItemsRequestDtoReader();
-    private readonly string resourcePath = "/retry/items";
+    private readonly IEnumerable<RetryQueueItemStatus> _defaultItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
+    private readonly IEnumerable<SeverityLevel> _defaultSeverityLevels = Enumerable.Empty<SeverityLevel>();
+    private readonly string _httpMethod = "GET";
+    private readonly IGetItemsRequestDtoReader _reader = new GetItemsRequestDtoReader();
+    private readonly string _resourcePath = "/retry/items";
 
     [Fact]
     public void GetItemsRequestDtoReader_Read_Success()
@@ -25,11 +25,11 @@ public class GetItemsRequestDtoReaderTests
         var requestDto = CreateHttpContext();
 
         // Act
-        var queuesInput = reader.Read(requestDto.Request);
+        var queuesInput = _reader.Read(requestDto.Request);
 
         // Assert
-        queuesInput.ItemsStatuses.Should().BeEquivalentTo(DefaultItemsStatuses);
-        queuesInput.SeverityLevels.Should().BeEquivalentTo(DefaultSeverityLevels);
+        queuesInput.ItemsStatuses.Should().BeEquivalentTo(_defaultItemsStatuses);
+        queuesInput.SeverityLevels.Should().BeEquivalentTo(_defaultSeverityLevels);
         queuesInput.TopQueues.Should().Be(DefaultTopQueuesValue);
         queuesInput.TopItemsByQueue.Should().Be(DefaultTopItemsByQueueValue);
     }
@@ -38,8 +38,8 @@ public class GetItemsRequestDtoReaderTests
     {
         var context = new DefaultHttpContext();
 
-        context.Request.Path = resourcePath;
-        context.Request.Method = httpMethod;
+        context.Request.Path = _resourcePath;
+        context.Request.Method = _httpMethod;
 
         context.Response.Body = new MemoryStream();
 

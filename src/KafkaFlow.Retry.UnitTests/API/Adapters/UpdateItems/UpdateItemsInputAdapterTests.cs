@@ -7,7 +7,7 @@ namespace KafkaFlow.Retry.UnitTests.API.Adapters.UpdateItems;
 
 public class UpdateItemsInputAdapterTests
 {
-    private readonly IUpdateItemsInputAdapter adapter = new UpdateItemsInputAdapter();
+    private readonly IUpdateItemsInputAdapter _adapter = new UpdateItemsInputAdapter();
 
     [Fact]
     public void UpdateItemsInputAdapter_Adapt_Success()
@@ -20,7 +20,7 @@ public class UpdateItemsInputAdapterTests
         };
 
         // Act
-        var input = adapter.Adapt(requestDto);
+        var input = _adapter.Adapt(requestDto);
 
         // Assert
         input.Should().NotBeNull();
@@ -31,7 +31,7 @@ public class UpdateItemsInputAdapterTests
     public void UpdateItemsInputAdapter_Adapt_WithNullArgs_ThrowsException()
     {
         // Act
-        Action act = () => adapter.Adapt(null);
+        Action act = () => _adapter.Adapt(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

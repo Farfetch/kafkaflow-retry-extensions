@@ -11,9 +11,9 @@ namespace KafkaFlow.Retry.API.Handlers;
 
 internal class PatchQueuesHandler : RetryRequestHandlerBase
 {
-    private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
-    private readonly IUpdateQueuesInputAdapter updateQueuesInputAdapter;
-    private readonly IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter;
+    private readonly IRetryDurableQueueRepositoryProvider _retryDurableQueueRepositoryProvider;
+    private readonly IUpdateQueuesInputAdapter _updateQueuesInputAdapter;
+    private readonly IUpdateQueuesResponseDtoAdapter _updateQueuesResponseDtoAdapter;
 
     public PatchQueuesHandler(
         IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
@@ -21,13 +21,13 @@ internal class PatchQueuesHandler : RetryRequestHandlerBase
         IUpdateQueuesResponseDtoAdapter updateQueuesResponseDtoAdapter,
         string endpointPrefix) : base(endpointPrefix, "queues")
     {
-        this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
-        this.updateQueuesInputAdapter = updateQueuesInputAdapter;
-        this.updateQueuesResponseDtoAdapter = updateQueuesResponseDtoAdapter;
+        _retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+        _updateQueuesInputAdapter = updateQueuesInputAdapter;
+        _updateQueuesResponseDtoAdapter = updateQueuesResponseDtoAdapter;
     }
 
 
-    protected override HttpMethod HttpMethod => HttpMethod.PATCH;
+    protected override HttpMethod HttpMethod => HttpMethod.Patch;
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {
@@ -52,11 +52,11 @@ internal class PatchQueuesHandler : RetryRequestHandlerBase
 
         try
         {
-            var input = updateQueuesInputAdapter.Adapt(requestDto);
+            var input = _updateQueuesInputAdapter.Adapt(requestDto);
 
-            var result = await retryDurableQueueRepositoryProvider.UpdateQueuesAsync(input).ConfigureAwait(false);
+            var result = await _retryDurableQueueRepositoryProvider.UpdateQueuesAsync(input).ConfigureAwait(false);
 
-            var responseDto = updateQueuesResponseDtoAdapter.Adapt(result);
+            var responseDto = _updateQueuesResponseDtoAdapter.Adapt(result);
 
             await WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
         }

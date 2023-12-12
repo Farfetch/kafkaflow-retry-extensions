@@ -8,10 +8,10 @@ namespace KafkaFlow.Retry.Postgres.Readers;
 
 internal class RetryQueueReader : IRetryQueueReader
 {
-    private readonly IRetryQueueAdapter retryQueueAdapter;
-    private readonly IRetryQueueItemAdapter retryQueueItemAdapter;
-    private readonly IRetryQueueItemMessageAdapter retryQueueItemMessageAdapter;
-    private readonly IRetryQueueItemMessageHeaderAdapter retryQueueItemMessageHeaderAdapter;
+    private readonly IRetryQueueAdapter _retryQueueAdapter;
+    private readonly IRetryQueueItemAdapter _retryQueueItemAdapter;
+    private readonly IRetryQueueItemMessageAdapter _retryQueueItemMessageAdapter;
+    private readonly IRetryQueueItemMessageHeaderAdapter _retryQueueItemMessageHeaderAdapter;
 
     public RetryQueueReader(
         IRetryQueueAdapter retryQueueAdapter,
@@ -19,10 +19,10 @@ internal class RetryQueueReader : IRetryQueueReader
         IRetryQueueItemMessageAdapter retryQueueItemMessageAdapter,
         IRetryQueueItemMessageHeaderAdapter retryQueueItemMessageHeaderAdapter)
     {
-            this.retryQueueAdapter = retryQueueAdapter;
-            this.retryQueueItemAdapter = retryQueueItemAdapter;
-            this.retryQueueItemMessageAdapter = retryQueueItemMessageAdapter;
-            this.retryQueueItemMessageHeaderAdapter = retryQueueItemMessageHeaderAdapter;
+            _retryQueueAdapter = retryQueueAdapter;
+            _retryQueueItemAdapter = retryQueueItemAdapter;
+            _retryQueueItemMessageAdapter = retryQueueItemMessageAdapter;
+            _retryQueueItemMessageHeaderAdapter = retryQueueItemMessageHeaderAdapter;
         }
 
     public ICollection<RetryQueue> Read(RetryQueuesDboWrapper dboWrapper)
@@ -38,16 +38,16 @@ internal class RetryQueueReader : IRetryQueueReader
             RetryQueueDbo previousRetryQueue = null;
             RetryQueue currentRetryQueue = null;
 
-            var items = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dboWrapper.ItemsDbos, retryQueueItemAdapter);
-            var messages = new DboCollectionNavigator<RetryQueueItemMessageDbo, RetryQueueItemMessage>(dboWrapper.MessagesDbos, retryQueueItemMessageAdapter);
-            var headers = new DboCollectionNavigator<RetryQueueItemMessageHeaderDbo, MessageHeader>(dboWrapper.HeadersDbos, retryQueueItemMessageHeaderAdapter);
+            var items = new DboCollectionNavigator<RetryQueueItemDbo, RetryQueueItem>(dboWrapper.ItemsDbos, _retryQueueItemAdapter);
+            var messages = new DboCollectionNavigator<RetryQueueItemMessageDbo, RetryQueueItemMessage>(dboWrapper.MessagesDbos, _retryQueueItemMessageAdapter);
+            var headers = new DboCollectionNavigator<RetryQueueItemMessageHeaderDbo, MessageHeader>(dboWrapper.HeadersDbos, _retryQueueItemMessageHeaderAdapter);
 
             foreach (var retryQueue in dboWrapper.QueuesDbos)
             {
                 // check if we're still in the same retry queue as the previous
                 if (previousRetryQueue is null || previousRetryQueue.Id != retryQueue.Id)
                 {
-                    currentRetryQueue = retryQueueAdapter.Adapt(retryQueue);
+                    currentRetryQueue = _retryQueueAdapter.Adapt(retryQueue);
 
                     retryQueues.Add(currentRetryQueue);
                 }

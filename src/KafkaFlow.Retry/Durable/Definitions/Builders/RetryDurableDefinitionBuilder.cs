@@ -16,13 +16,13 @@ namespace KafkaFlow.Retry;
 
 public class RetryDurableDefinitionBuilder
 {
-    private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-    private JsonSerializerSettings jsonSerializerSettings = new JsonSerializerSettings();
-    private Type messageType;
-    private PollingDefinitionsAggregator pollingDefinitionsAggregator;
-    private RetryDurableEmbeddedClusterDefinitionBuilder retryDurableEmbeddedClusterDefinitionBuilder;
-    private IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
-    private RetryDurableRetryPlanBeforeDefinition retryDurableRetryPlanBeforeDefinition;
+    private readonly List<Func<RetryContext, bool>> _retryWhenExceptions = new List<Func<RetryContext, bool>>();
+    private JsonSerializerSettings _jsonSerializerSettings = new JsonSerializerSettings();
+    private Type _messageType;
+    private PollingDefinitionsAggregator _pollingDefinitionsAggregator;
+    private RetryDurableEmbeddedClusterDefinitionBuilder _retryDurableEmbeddedClusterDefinitionBuilder;
+    private IRetryDurableQueueRepositoryProvider _retryDurableRepositoryProvider;
+    private RetryDurableRetryPlanBeforeDefinition _retryDurableRetryPlanBeforeDefinition;
 
     internal RetryDurableDefinitionBuilder()
     { }
@@ -37,7 +37,7 @@ public class RetryDurableDefinitionBuilder
 
     public RetryDurableDefinitionBuilder Handle(Func<RetryContext, bool> func)
     {
-            retryWhenExceptions.Add(func);
+            _retryWhenExceptions.Add(func);
             return this;
         }
 
@@ -51,21 +51,21 @@ public class RetryDurableDefinitionBuilder
     {
             Guard.Argument(configure, nameof(configure)).NotNull();
 
-            retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
-            configure(retryDurableEmbeddedClusterDefinitionBuilder);
+            _retryDurableEmbeddedClusterDefinitionBuilder = new RetryDurableEmbeddedClusterDefinitionBuilder(cluster);
+            configure(_retryDurableEmbeddedClusterDefinitionBuilder);
 
             return this;
         }
 
     public RetryDurableDefinitionBuilder WithMessageSerializeSettings(JsonSerializerSettings jsonSerializerSettings)
     {
-            this.jsonSerializerSettings = jsonSerializerSettings;
+            _jsonSerializerSettings = jsonSerializerSettings;
             return this;
         }
 
     public RetryDurableDefinitionBuilder WithMessageType(Type messageType)
     {
-            this.messageType = messageType;
+            _messageType = messageType;
             return this;
         }
 
@@ -75,14 +75,14 @@ public class RetryDurableDefinitionBuilder
 
             var pollingDefinitionsAggregatorBuilder = new PollingDefinitionsAggregatorBuilder();
             configure(pollingDefinitionsAggregatorBuilder);
-            pollingDefinitionsAggregator = pollingDefinitionsAggregatorBuilder.Build();
+            _pollingDefinitionsAggregator = pollingDefinitionsAggregatorBuilder.Build();
 
             return this;
         }
 
     public RetryDurableDefinitionBuilder WithRepositoryProvider(IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider)
     {
-            this.retryDurableRepositoryProvider = retryDurableRepositoryProvider;
+            _retryDurableRepositoryProvider = retryDurableRepositoryProvider;
 
             return this;
         }
@@ -93,7 +93,7 @@ public class RetryDurableDefinitionBuilder
 
             var retryDurableRetryPlanBeforeDefinitionBuilder = new RetryDurableRetryPlanBeforeDefinitionBuilder();
             configure(retryDurableRetryPlanBeforeDefinitionBuilder);
-            retryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinitionBuilder.Build();
+            _retryDurableRetryPlanBeforeDefinition = retryDurableRetryPlanBeforeDefinitionBuilder.Build();
 
             return this;
         }
@@ -101,44 +101,44 @@ public class RetryDurableDefinitionBuilder
     internal RetryDurableDefinition Build()
     {
             // TODO: Guard the exceptions and retry plan
-            Guard.Argument(retryDurableRepositoryProvider).NotNull("A repository should be defined");
-            Guard.Argument(messageType).NotNull("A message type should be defined");
+            Guard.Argument(_retryDurableRepositoryProvider).NotNull("A repository should be defined");
+            Guard.Argument(_messageType).NotNull("A message type should be defined");
 
             var triggerProvider = new TriggerProvider();
             var utf8Encoder = new Utf8Encoder();
             var gzipCompressor = new GzipCompressor();
-            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(jsonSerializerSettings);
+            var newtonsoftJsonSerializer = new NewtonsoftJsonSerializer(_jsonSerializerSettings);
             var messageAdapter = new NewtonsoftJsonMessageAdapter(gzipCompressor, newtonsoftJsonSerializer, utf8Encoder);
             var messageHeadersAdapter = new MessageHeadersAdapter();
 
             var retryDurableQueueRepository =
                 new RetryDurableQueueRepository(
-                    retryDurableRepositoryProvider,
+                    _retryDurableRepositoryProvider,
                     new IUpdateRetryQueueItemHandler[]
                     {
-                        new UpdateRetryQueueItemStatusHandler(retryDurableRepositoryProvider),
-                        new UpdateRetryQueueItemExecutionInfoHandler(retryDurableRepositoryProvider)
+                        new UpdateRetryQueueItemStatusHandler(_retryDurableRepositoryProvider),
+                        new UpdateRetryQueueItemExecutionInfoHandler(_retryDurableRepositoryProvider)
                     },
                     messageHeadersAdapter,
                     messageAdapter,
                     utf8Encoder,
-                    pollingDefinitionsAggregator);
+                    _pollingDefinitionsAggregator);
 
-            retryDurableEmbeddedClusterDefinitionBuilder
+            _retryDurableEmbeddedClusterDefinitionBuilder
                 .Build(
-                    messageType,
+                    _messageType,
                     retryDurableQueueRepository,
                     gzipCompressor,
                     utf8Encoder,
                     newtonsoftJsonSerializer,
                     messageHeadersAdapter,
-                    pollingDefinitionsAggregator,
+                    _pollingDefinitionsAggregator,
                     triggerProvider
                 );
 
             return new RetryDurableDefinition(
-                retryWhenExceptions,
-                retryDurableRetryPlanBeforeDefinition,
+                _retryWhenExceptions,
+                _retryDurableRetryPlanBeforeDefinition,
                 retryDurableQueueRepository
             );
         }

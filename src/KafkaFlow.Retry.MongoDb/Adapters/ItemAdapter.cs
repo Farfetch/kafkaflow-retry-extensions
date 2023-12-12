@@ -7,13 +7,13 @@ namespace KafkaFlow.Retry.MongoDb.Adapters;
 
 internal class ItemAdapter : IItemAdapter
 {
-    private readonly IMessageAdapter messageAdapter;
+    private readonly IMessageAdapter _messageAdapter;
 
     public ItemAdapter(IMessageAdapter messageAdater)
     {
             Guard.Argument(messageAdater, nameof(messageAdater)).NotNull();
 
-            messageAdapter = messageAdater;
+            _messageAdapter = messageAdater;
         }
 
     public RetryQueueItem Adapt(RetryQueueItemDbo itemDbo)
@@ -32,7 +32,7 @@ internal class ItemAdapter : IItemAdapter
                 itemDbo.Description
             )
             {
-                Message = messageAdapter.Adapt(itemDbo.Message)
+                Message = _messageAdapter.Adapt(itemDbo.Message)
             };
         }
 }

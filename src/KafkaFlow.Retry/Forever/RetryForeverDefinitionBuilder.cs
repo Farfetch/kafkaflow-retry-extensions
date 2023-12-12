@@ -6,8 +6,8 @@ namespace KafkaFlow.Retry;
 
 public class RetryForeverDefinitionBuilder
 {
-    private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-    private Func<int, TimeSpan> timeBetweenTriesPlan;
+    private readonly List<Func<RetryContext, bool>> _retryWhenExceptions = new List<Func<RetryContext, bool>>();
+    private Func<int, TimeSpan> _timeBetweenTriesPlan;
 
     public RetryForeverDefinitionBuilder Handle<TException>()
         where TException : Exception
@@ -19,7 +19,7 @@ public class RetryForeverDefinitionBuilder
 
     public RetryForeverDefinitionBuilder Handle(Func<RetryContext, bool> func)
     {
-            retryWhenExceptions.Add(func);
+            _retryWhenExceptions.Add(func);
             return this;
         }
 
@@ -28,7 +28,7 @@ public class RetryForeverDefinitionBuilder
 
     public RetryForeverDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
     {
-            this.timeBetweenTriesPlan = timeBetweenTriesPlan;
+            _timeBetweenTriesPlan = timeBetweenTriesPlan;
             return this;
         }
 
@@ -43,8 +43,8 @@ public class RetryForeverDefinitionBuilder
     internal RetryForeverDefinition Build()
     {
             return new RetryForeverDefinition(
-                timeBetweenTriesPlan,
-                retryWhenExceptions
+                _timeBetweenTriesPlan,
+                _retryWhenExceptions
             );
         }
 }

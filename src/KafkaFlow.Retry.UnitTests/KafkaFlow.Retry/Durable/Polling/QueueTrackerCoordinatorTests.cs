@@ -10,17 +10,17 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling;
 
 public class QueueTrackerCoordinatorTests
 {
-    private readonly Mock<IJobDataProvider> mockJobDataProvider;
-    private readonly Mock<IQueueTrackerFactory> mockQueueTrackerFactory;
-    private readonly IQueueTrackerCoordinator queueTrackerCoordinator;
+    private readonly Mock<IJobDataProvider> _mockJobDataProvider;
+    private readonly Mock<IQueueTrackerFactory> _mockQueueTrackerFactory;
+    private readonly IQueueTrackerCoordinator _queueTrackerCoordinator;
 
     public QueueTrackerCoordinatorTests()
     {
             var pollingDefinition = new RetryDurablePollingDefinition(true, "0 0/1 * 1/1 * ? *", 1, 1);
 
-            mockJobDataProvider = new Mock<IJobDataProvider>();
+            _mockJobDataProvider = new Mock<IJobDataProvider>();
 
-            mockJobDataProvider
+            _mockJobDataProvider
                 .SetupGet(m => m.PollingDefinition)
                 .Returns(pollingDefinition);
 
@@ -29,19 +29,19 @@ public class QueueTrackerCoordinatorTests
                 .SetupGet(m => m.Key)
                 .Returns(new TriggerKey("someTriggerKey"));
 
-            mockJobDataProvider
+            _mockJobDataProvider
                 .SetupGet(m => m.Trigger)
                 .Returns(mockTrigger.Object);
 
-            mockQueueTrackerFactory = new Mock<IQueueTrackerFactory>();
-            mockQueueTrackerFactory
+            _mockQueueTrackerFactory = new Mock<IQueueTrackerFactory>();
+            _mockQueueTrackerFactory
                 .Setup(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()))
                 .Returns(new QueueTracker(
                     "id",
-                    new[] { mockJobDataProvider.Object },
+                    new[] { _mockJobDataProvider.Object },
                     Mock.Of<ILogHandler>()));
 
-            queueTrackerCoordinator = new QueueTrackerCoordinator(mockQueueTrackerFactory.Object);
+            _queueTrackerCoordinator = new QueueTrackerCoordinator(_mockQueueTrackerFactory.Object);
         }
 
     [Fact]
@@ -58,12 +58,12 @@ public class QueueTrackerCoordinatorTests
     public async Task QueueTrackerCoordinator_ScheduleJobs_Success()
     {
             // Act
-            await queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
+            await _queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
             //Assert
-            mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
-            mockJobDataProvider.Verify(m => m.JobDetail, Times.Once);
-            mockJobDataProvider.Verify(m => m.Trigger, Times.Once);
+            _mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
+            _mockJobDataProvider.Verify(m => m.JobDetail, Times.Once);
+            _mockJobDataProvider.Verify(m => m.Trigger, Times.Once);
         }
 
     [Fact]
@@ -71,7 +71,7 @@ public class QueueTrackerCoordinatorTests
     {
             // Arrange
 
-            mockJobDataProvider
+            _mockJobDataProvider
                 .Setup(x => x.JobDetail)
                 .Returns(
                     JobBuilder
@@ -79,12 +79,12 @@ public class QueueTrackerCoordinatorTests
                         .Build());
 
             // Act
-            await queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
-            await queueTrackerCoordinator.UnscheduleJobsAsync();
+            await _queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
+            await _queueTrackerCoordinator.UnscheduleJobsAsync();
 
             //Assert
-            mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
-            mockJobDataProvider.Verify(m => m.JobDetail, Times.Once);
-            mockJobDataProvider.Verify(m => m.Trigger, Times.Exactly(2));
+            _mockQueueTrackerFactory.Verify(d => d.Create(It.IsAny<IMessageProducer>(), It.IsAny<ILogHandler>()), Times.Once);
+            _mockJobDataProvider.Verify(m => m.JobDetail, Times.Once);
+            _mockJobDataProvider.Verify(m => m.Trigger, Times.Exactly(2));
         }
 }

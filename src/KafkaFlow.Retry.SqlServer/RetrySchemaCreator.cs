@@ -8,25 +8,25 @@ namespace KafkaFlow.Retry.SqlServer;
 
 internal class RetrySchemaCreator : IRetrySchemaCreator
 {
-    private readonly IEnumerable<Script> schemaScripts;
-    private readonly SqlServerDbSettings sqlServerDbSettings;
+    private readonly IEnumerable<Script> _schemaScripts;
+    private readonly SqlServerDbSettings _sqlServerDbSettings;
 
     public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
     {
             Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
             Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-            this.sqlServerDbSettings = sqlServerDbSettings;
-            this.schemaScripts = schemaScripts;
+            _sqlServerDbSettings = sqlServerDbSettings;
+            _schemaScripts = schemaScripts;
         }
 
     public async Task CreateOrUpdateSchemaAsync(string databaseName)
     {
-            using (SqlConnection openCon = new SqlConnection(sqlServerDbSettings.ConnectionString))
+            using (SqlConnection openCon = new SqlConnection(_sqlServerDbSettings.ConnectionString))
             {
                 openCon.Open();
 
-                foreach (var script in schemaScripts)
+                foreach (var script in _schemaScripts)
                 {
                     string[] batches = script.Value.Split(new string[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
 

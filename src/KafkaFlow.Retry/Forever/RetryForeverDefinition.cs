@@ -7,7 +7,7 @@ namespace KafkaFlow.Retry.Forever;
 
 internal class RetryForeverDefinition
 {
-    private readonly IReadOnlyCollection<Func<RetryContext, bool>> retryWhenExceptions;
+    private readonly IReadOnlyCollection<Func<RetryContext, bool>> _retryWhenExceptions;
 
     public RetryForeverDefinition(
         Func<int, TimeSpan> timeBetweenTriesPlan,
@@ -19,11 +19,11 @@ internal class RetryForeverDefinition
             Guard.Argument(timeBetweenTriesPlan).NotNull("A plan of times betwwen tries should be defined");
 
             TimeBetweenTriesPlan = timeBetweenTriesPlan;
-            this.retryWhenExceptions = retryWhenExceptions;
+            _retryWhenExceptions = retryWhenExceptions;
         }
 
     public Func<int, TimeSpan> TimeBetweenTriesPlan { get; }
 
     public bool ShouldRetry(RetryContext kafkaRetryContext) =>
-        retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
+        _retryWhenExceptions.Any(rule => rule(kafkaRetryContext));
 }

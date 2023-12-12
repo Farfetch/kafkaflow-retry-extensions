@@ -8,7 +8,7 @@ namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems;
 
 public class GetItemsResponseDtoAdapterTests
 {
-    private readonly IGetItemsResponseDtoAdapter adapter = new GetItemsResponseDtoAdapter();
+    private readonly IGetItemsResponseDtoAdapter _adapter = new GetItemsResponseDtoAdapter();
 
     [Fact]
     public void GetItemsResponseDtoAdapter_Adapt_Success()
@@ -32,7 +32,7 @@ public class GetItemsResponseDtoAdapterTests
             var getQueuesResult = new GetQueuesResult(queues);
 
             // Act
-            var responseDto = adapter.Adapt(getQueuesResult);
+            var responseDto = _adapter.Adapt(getQueuesResult);
 
             // Assert
             responseDto.Should().NotBeNull();
@@ -43,7 +43,7 @@ public class GetItemsResponseDtoAdapterTests
     public void GetItemsResponseDtoAdapter_Adapt_WithNullArgs_ThrowsException()
     {
             // Act & Assert
-            Assert.Throws<ArgumentNullException>(() => adapter.Adapt(null));
+            Assert.Throws<ArgumentNullException>(() => _adapter.Adapt(null));
         }
 
     private RetryQueueItem CreateRetryQueueItem(int sort, RetryQueueItemStatus status, SeverityLevel severity)

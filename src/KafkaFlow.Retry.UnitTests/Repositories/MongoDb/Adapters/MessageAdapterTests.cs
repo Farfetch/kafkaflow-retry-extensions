@@ -10,19 +10,19 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Adapters;
 
 public class MessageAdapterTests
 {
-    private readonly Mock<IHeaderAdapter> headerAdapter = new Mock<IHeaderAdapter>();
+    private readonly Mock<IHeaderAdapter> _headerAdapter = new Mock<IHeaderAdapter>();
 
     public MessageAdapterTests()
     {
-            headerAdapter.Setup(d => d.Adapt(It.IsAny<MessageHeader>())).Returns(new RetryQueueHeaderDbo());
-            headerAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueHeaderDbo>())).Returns(new MessageHeader("key", new byte[1]));
+            _headerAdapter.Setup(d => d.Adapt(It.IsAny<MessageHeader>())).Returns(new RetryQueueHeaderDbo());
+            _headerAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueHeaderDbo>())).Returns(new MessageHeader("key", new byte[1]));
         }
 
     [Fact]
     public void MessageAdapter_Adapt_WithoutRetryQueueItemMessage_ThrowException()
     {
             //Arrange
-            var adapter = new MessageAdapter(headerAdapter.Object);
+            var adapter = new MessageAdapter(_headerAdapter.Object);
             RetryQueueItemMessage retryQueueItemMessage = null;
 
             // Act
@@ -36,7 +36,7 @@ public class MessageAdapterTests
     public void MessageAdapter_Adapt_WithoutRetryQueueItemMessageDbo_ThrowException()
     {
             //Arrange
-            var adapter = new MessageAdapter(headerAdapter.Object);
+            var adapter = new MessageAdapter(_headerAdapter.Object);
             RetryQueueItemMessageDbo retryQueueItemDbo = null;
 
             // Act
@@ -50,7 +50,7 @@ public class MessageAdapterTests
     public void MessageAdapter_Adapt_WithRetryQueueItemMessage_Success()
     {
             //Arrange
-            var adapter = new MessageAdapter(headerAdapter.Object);
+            var adapter = new MessageAdapter(_headerAdapter.Object);
             var retryQueueItemMessage = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
 
             // Act
@@ -65,7 +65,7 @@ public class MessageAdapterTests
     public void MessageAdapter_Adapt_WithRetryQueueItemMessageDbo_Success()
     {
             //Arrange
-            var adapter = new MessageAdapter(headerAdapter.Object);
+            var adapter = new MessageAdapter(_headerAdapter.Object);
             var retryQueueItemDbo = new RetryQueueItemMessageDbo
             {
                 Headers = new List<RetryQueueHeaderDbo>

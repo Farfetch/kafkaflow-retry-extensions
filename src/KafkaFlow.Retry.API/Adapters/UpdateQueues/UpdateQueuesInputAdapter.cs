@@ -7,11 +7,11 @@ namespace KafkaFlow.Retry.API.Adapters.UpdateQueues;
 
 internal class UpdateQueuesInputAdapter : IUpdateQueuesInputAdapter
 {
-    private readonly IRetryQueueItemStatusDtoAdapter retryQueueItemStatusDtoAdapter;
+    private readonly IRetryQueueItemStatusDtoAdapter _retryQueueItemStatusDtoAdapter;
 
     public UpdateQueuesInputAdapter()
     {
-        retryQueueItemStatusDtoAdapter = new RetryQueueItemStatusDtoAdapter();
+        _retryQueueItemStatusDtoAdapter = new RetryQueueItemStatusDtoAdapter();
     }
 
     public UpdateQueuesInput Adapt(UpdateQueuesRequestDto requestDto)
@@ -20,7 +20,7 @@ internal class UpdateQueuesInputAdapter : IUpdateQueuesInputAdapter
 
         return new UpdateQueuesInput(
             requestDto.QueueGroupKeys,
-            retryQueueItemStatusDtoAdapter.Adapt(requestDto.ItemStatus)
+            _retryQueueItemStatusDtoAdapter.Adapt(requestDto.ItemStatus)
         );
     }
 }

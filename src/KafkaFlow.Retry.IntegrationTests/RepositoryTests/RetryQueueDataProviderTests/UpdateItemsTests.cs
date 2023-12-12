@@ -124,7 +124,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
     {
         // Arrange
         var repository = GetRepository(repositoryType);
-        var InvalidItemStatus = RetryQueueItemStatus.Done;
+        var invalidItemStatus = RetryQueueItemStatus.Done;
         var expectedItemStatus = RetryQueueItemStatus.Waiting;
 
         var queue = GetDefaultQueue();
@@ -133,7 +133,7 @@ public class UpdateItemsTests : RetryQueueDataProviderTestsTemplate
 
         var item = queue.Items.Single();
 
-        var inputUpdate = new UpdateItemsInput(new[] { item.Id }, InvalidItemStatus);
+        var inputUpdate = new UpdateItemsInput(new[] { item.Id }, invalidItemStatus);
 
         // Act
         var result = await repository.RetryQueueDataProvider.UpdateItemsAsync(inputUpdate);

@@ -8,7 +8,7 @@ namespace KafkaFlow.Retry.UnitTests.API.Adapters.GetItems;
 
 public class GetItemsInputAdapterTests
 {
-    private readonly IGetItemsInputAdapter adapter = new GetItemsInputAdapter();
+    private readonly IGetItemsInputAdapter _adapter = new GetItemsInputAdapter();
 
     [Fact]
     public void GetItemsInputAdapter_Adapt_Success()
@@ -23,7 +23,7 @@ public class GetItemsInputAdapterTests
         };
 
         // Act
-        var queuesInput = adapter.Adapt(requestDto);
+        var queuesInput = _adapter.Adapt(requestDto);
 
         // Assert
         queuesInput.Should().BeEquivalentTo(requestDto);
@@ -35,7 +35,7 @@ public class GetItemsInputAdapterTests
     public void GetItemsInputAdapter_Adapt_WithNullArg_ThrowsException()
     {
         // Act
-        Action act = () => adapter.Adapt(null);
+        Action act = () => _adapter.Adapt(null);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

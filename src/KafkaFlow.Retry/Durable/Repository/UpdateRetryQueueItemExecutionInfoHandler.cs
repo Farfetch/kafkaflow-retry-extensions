@@ -8,13 +8,13 @@ namespace KafkaFlow.Retry.Durable.Repository;
 
 internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemHandler
 {
-    private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
+    private readonly IRetryDurableQueueRepositoryProvider _retryDurableQueueRepositoryProvider;
 
     public UpdateRetryQueueItemExecutionInfoHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
     {
             Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
 
-            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+            _retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
         }
 
     public bool CanHandle(UpdateItemInput input) => input is UpdateItemExecutionInfoInput;
@@ -27,12 +27,12 @@ internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemH
 
             try
             {
-                var result = await retryDurableQueueRepositoryProvider.UpdateItemExecutionInfoAsync(updateItemExecutionInfoInput).ConfigureAwait(false);
+                var result = await _retryDurableQueueRepositoryProvider.UpdateItemExecutionInfoAsync(updateItemExecutionInfoInput).ConfigureAwait(false);
 
                 if (result.Status != UpdateItemResultStatus.Updated)
                 {
                     var kafkaException = new RetryDurableException(
-                        new RetryError(RetryErrorCode.DataProvider_UpdateItem),
+                        new RetryError(RetryErrorCode.DataProviderUpdateItem),
                         $"{result.Status} while updating the item execution info."
                     );
 
@@ -46,7 +46,7 @@ internal class UpdateRetryQueueItemExecutionInfoHandler : IUpdateRetryQueueItemH
             catch (Exception ex) when (!(ex is RetryDurableException))
             {
                 var kafkaException = new RetryDurableException(
-                  new RetryError(RetryErrorCode.DataProvider_UpdateItem),
+                  new RetryError(RetryErrorCode.DataProviderUpdateItem),
                   $"An error ocurred while trying to update the item execution info.", ex
                 );
 

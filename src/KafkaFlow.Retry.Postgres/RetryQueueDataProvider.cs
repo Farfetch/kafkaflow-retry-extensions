@@ -18,17 +18,17 @@ namespace KafkaFlow.Retry.Postgres;
 
 internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvider
 {
-    private readonly IConnectionProvider connectionProvider;
-    private readonly IRetryQueueDboFactory retryQueueDboFactory;
-    private readonly IRetryQueueItemDboFactory retryQueueItemDboFactory;
-    private readonly IRetryQueueItemMessageDboFactory retryQueueItemMessageDboFactory;
-    private readonly IRetryQueueItemMessageHeaderDboFactory retryQueueItemMessageHeaderDboFactory;
-    private readonly IRetryQueueItemMessageHeaderRepository retryQueueItemMessageHeaderRepository;
-    private readonly IRetryQueueItemMessageRepository retryQueueItemMessageRepository;
-    private readonly IRetryQueueItemRepository retryQueueItemRepository;
-    private readonly IRetryQueueReader retryQueueReader;
-    private readonly IRetryQueueRepository retryQueueRepository;
-    private readonly PostgresDbSettings postgresDbSettings;
+    private readonly IConnectionProvider _connectionProvider;
+    private readonly IRetryQueueDboFactory _retryQueueDboFactory;
+    private readonly IRetryQueueItemDboFactory _retryQueueItemDboFactory;
+    private readonly IRetryQueueItemMessageDboFactory _retryQueueItemMessageDboFactory;
+    private readonly IRetryQueueItemMessageHeaderDboFactory _retryQueueItemMessageHeaderDboFactory;
+    private readonly IRetryQueueItemMessageHeaderRepository _retryQueueItemMessageHeaderRepository;
+    private readonly IRetryQueueItemMessageRepository _retryQueueItemMessageRepository;
+    private readonly IRetryQueueItemRepository _retryQueueItemRepository;
+    private readonly IRetryQueueReader _retryQueueReader;
+    private readonly IRetryQueueRepository _retryQueueRepository;
+    private readonly PostgresDbSettings _postgresDbSettings;
 
     public RetryQueueDataProvider(
         PostgresDbSettings postgresDbSettings,
@@ -43,17 +43,17 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
         IRetryQueueItemMessageDboFactory retryQueueItemMessageDboFactory,
         IRetryQueueItemMessageHeaderDboFactory retryQueueItemMessageHeaderDboFactory)
     {
-            this.postgresDbSettings = postgresDbSettings;
-            this.connectionProvider = connectionProvider;
-            this.retryQueueItemMessageHeaderRepository = retryQueueItemMessageHeaderRepository;
-            this.retryQueueItemMessageRepository = retryQueueItemMessageRepository;
-            this.retryQueueItemRepository = retryQueueItemRepository;
-            this.retryQueueRepository = retryQueueRepository;
-            this.retryQueueDboFactory = retryQueueDboFactory;
-            this.retryQueueItemDboFactory = retryQueueItemDboFactory;
-            this.retryQueueReader = retryQueueReader;
-            this.retryQueueItemMessageDboFactory = retryQueueItemMessageDboFactory;
-            this.retryQueueItemMessageHeaderDboFactory = retryQueueItemMessageHeaderDboFactory;
+            _postgresDbSettings = postgresDbSettings;
+            _connectionProvider = connectionProvider;
+            _retryQueueItemMessageHeaderRepository = retryQueueItemMessageHeaderRepository;
+            _retryQueueItemMessageRepository = retryQueueItemMessageRepository;
+            _retryQueueItemRepository = retryQueueItemRepository;
+            _retryQueueRepository = retryQueueRepository;
+            _retryQueueDboFactory = retryQueueDboFactory;
+            _retryQueueItemDboFactory = retryQueueItemDboFactory;
+            _retryQueueReader = retryQueueReader;
+            _retryQueueItemMessageDboFactory = retryQueueItemMessageDboFactory;
+            _retryQueueItemMessageHeaderDboFactory = retryQueueItemMessageHeaderDboFactory;
         }
 
     public async Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input)
@@ -61,9 +61,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
             Guard.Argument(input).NotNull();
 
             // Tries to find an active queue for the GroupKey
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
-                var exists = await retryQueueRepository.ExistsActiveAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
+                var exists = await _retryQueueRepository.ExistsActiveAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 return new CheckQueueResult(
                     exists ?
@@ -76,9 +76,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
-                var itemsDbo = await retryQueueItemRepository.GetNewestItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
+                var itemsDbo = await _retryQueueItemRepository.GetNewestItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
 
                 if (itemsDbo.Any())
                 {
@@ -93,9 +93,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
-                var itemsDbo = await retryQueueItemRepository.GetPendingItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
+                var itemsDbo = await _retryQueueItemRepository.GetPendingItemsAsync(dbConnection, input.QueueId, input.Sort).ConfigureAwait(false);
 
                 if (itemsDbo.Any())
                 {
@@ -110,9 +110,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
-                var totalQueuesDeleted = await retryQueueRepository.DeleteQueuesAsync(
+                var totalQueuesDeleted = await _retryQueueRepository.DeleteQueuesAsync(
                         dbConnection,
                         input.SearchGroupKey,
                         input.RetryQueueStatus,
@@ -130,9 +130,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
             RetryQueuesDboWrapper dboWrapper = new RetryQueuesDboWrapper();
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
-                dboWrapper.QueuesDbos = await retryQueueRepository.GetTopSortedQueuesOrderedAsync(
+                dboWrapper.QueuesDbos = await _retryQueueRepository.GetTopSortedQueuesOrderedAsync(
                     dbConnection,
                     input.Status,
                     input.SortOption,
@@ -151,7 +151,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
                 foreach (var queueId in queueIds)
                 {
-                    var queueeItemsDbo = await retryQueueItemRepository.GetItemsOrderedAsync(
+                    var queueeItemsDbo = await _retryQueueItemRepository.GetItemsOrderedAsync(
                         dbConnection,
                         new Guid[] { queueId },
                         input.ItemsStatuses,
@@ -167,14 +167,14 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
                 if (!dboWrapper.ItemsDbos.Any())
                 {
-                    return new GetQueuesResult(retryQueueReader.Read(dboWrapper));
+                    return new GetQueuesResult(_retryQueueReader.Read(dboWrapper));
                 }
 
-                dboWrapper.MessagesDbos = await retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, dboWrapper.ItemsDbos).ConfigureAwait(false);
-                dboWrapper.HeadersDbos = await retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, dboWrapper.MessagesDbos).ConfigureAwait(false);
+                dboWrapper.MessagesDbos = await _retryQueueItemMessageRepository.GetMessagesOrderedAsync(dbConnection, dboWrapper.ItemsDbos).ConfigureAwait(false);
+                dboWrapper.HeadersDbos = await _retryQueueItemMessageHeaderRepository.GetOrderedAsync(dbConnection, dboWrapper.MessagesDbos).ConfigureAwait(false);
             }
 
-            var queues = retryQueueReader.Read(dboWrapper);
+            var queues = _retryQueueReader.Read(dboWrapper);
 
             return new GetQueuesResult(queues);
         }
@@ -183,9 +183,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input).NotNull();
 
-            using (var dbConnection = connectionProvider.CreateWithinTransaction(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.CreateWithinTransaction(_postgresDbSettings))
             {
-                var retryQueueDbo = await retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
+                var retryQueueDbo = await _retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 SaveToQueueResultStatus resultStatus;
 
@@ -219,7 +219,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
             var results = new List<UpdateItemResult>();
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
                 foreach (var itemId in input.ItemIds)
                 {
@@ -236,9 +236,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     {
             Guard.Argument(input, nameof(input)).NotNull();
 
-            using (var dbConnection = connectionProvider.Create(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
             {
-                var totalItemsUpdated = await retryQueueItemRepository
+                var totalItemsUpdated = await _retryQueueItemRepository
                     .UpdateStatusAsync(dbConnection, input.ItemId, input.Status).ConfigureAwait(false);
 
                 return new UpdateItemResult(
@@ -267,17 +267,17 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
     private async Task AddItemAsync(IDbConnection dbConnection, SaveToQueueInput input, long retryQueueId, Guid retryQueueDomainId)
     {
-            var retryQueueItemDbo = retryQueueItemDboFactory.Create(input, retryQueueId, retryQueueDomainId);
+            var retryQueueItemDbo = _retryQueueItemDboFactory.Create(input, retryQueueId, retryQueueDomainId);
 
-            var retryQueueItemId = await retryQueueItemRepository.AddAsync(dbConnection, retryQueueItemDbo).ConfigureAwait(false);
+            var retryQueueItemId = await _retryQueueItemRepository.AddAsync(dbConnection, retryQueueItemDbo).ConfigureAwait(false);
 
             // queue item message
-            var retryQueueItemMessageDbo = retryQueueItemMessageDboFactory.Create(input.Message, retryQueueItemId);
-            await retryQueueItemMessageRepository.AddAsync(dbConnection, retryQueueItemMessageDbo).ConfigureAwait(false);
+            var retryQueueItemMessageDbo = _retryQueueItemMessageDboFactory.Create(input.Message, retryQueueItemId);
+            await _retryQueueItemMessageRepository.AddAsync(dbConnection, retryQueueItemMessageDbo).ConfigureAwait(false);
 
             // queue item message header
-            var retryQueueHeadersDbo = retryQueueItemMessageHeaderDboFactory.Create(input.Message.Headers, retryQueueItemId);
-            await retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, retryQueueHeadersDbo).ConfigureAwait(false);
+            var retryQueueHeadersDbo = _retryQueueItemMessageHeaderDboFactory.Create(input.Message.Headers, retryQueueItemId);
+            await _retryQueueItemMessageHeaderRepository.AddAsync(dbConnection, retryQueueHeadersDbo).ConfigureAwait(false);
         }
 
     private async Task AddItemIntoAnExistingQueueAsync(IDbConnection dbConnection, SaveToQueueInput input, RetryQueueDbo retryQueueDbo)
@@ -291,16 +291,16 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
             if (retryQueueDbo.Status == RetryQueueStatus.Done)
             {
                 // The queue was marked as DONE. With this new item, the status should return to ACTIVE.
-                await retryQueueRepository.UpdateStatusAsync(dbConnection, retryQueueDbo.IdDomain, RetryQueueStatus.Active).ConfigureAwait(false);
+                await _retryQueueRepository.UpdateStatusAsync(dbConnection, retryQueueDbo.IdDomain, RetryQueueStatus.Active).ConfigureAwait(false);
             }
         }
 
     private async Task CreateItemIntoANewQueueAsync(IDbConnection dbConnection, SaveToQueueInput input)
     {
-            var retryQueueDbo = retryQueueDboFactory.Create(input);
+            var retryQueueDbo = _retryQueueDboFactory.Create(input);
 
             // queue
-            var retryQueueId = await retryQueueRepository.AddAsync(dbConnection, retryQueueDbo).ConfigureAwait(false);
+            var retryQueueId = await _retryQueueRepository.AddAsync(dbConnection, retryQueueDbo).ConfigureAwait(false);
 
             // queue item
             await AddItemAsync(dbConnection, input, retryQueueId, retryQueueDbo.IdDomain).ConfigureAwait(false);
@@ -313,11 +313,11 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
     private async Task<UpdateQueueResultStatus> TryUpdateQueueToDoneAsync(IDbConnectionWithinTransaction dbConnection, Guid queueId)
     {
-            var anyItemStillActive = await retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId).ConfigureAwait(false);
+            var anyItemStillActive = await _retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId).ConfigureAwait(false);
 
             if (!anyItemStillActive)
             {
-                var queueRowsAffected = await retryQueueRepository.UpdateStatusAsync(dbConnection, queueId, RetryQueueStatus.Done).ConfigureAwait(false);
+                var queueRowsAffected = await _retryQueueRepository.UpdateStatusAsync(dbConnection, queueId, RetryQueueStatus.Done).ConfigureAwait(false);
 
                 if (queueRowsAffected == 0)
                 {
@@ -337,9 +337,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                 return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.UpdateIsNotAllowed);
             }
 
-            using (var dbConnection = connectionProvider.CreateWithinTransaction(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.CreateWithinTransaction(_postgresDbSettings))
             {
-                var item = await retryQueueItemRepository.GetItemAsync(dbConnection, input.ItemId).ConfigureAwait(false);
+                var item = await _retryQueueItemRepository.GetItemAsync(dbConnection, input.ItemId).ConfigureAwait(false);
 
                 if (item is null)
                 {
@@ -351,7 +351,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                     return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.ItemIsNotInWaitingState);
                 }
 
-                if (!await retryQueueItemRepository.IsFirstWaitingInQueueAsync(dbConnection, item).ConfigureAwait(false))
+                if (!await _retryQueueItemRepository.IsFirstWaitingInQueueAsync(dbConnection, item).ConfigureAwait(false))
                 {
                     return new UpdateItemResult(input.ItemId, UpdateItemResultStatus.ItemIsNotTheFirstWaitingInQueue);
                 }
@@ -378,10 +378,10 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
     private async Task<UpdateItemResult> UpdateItemAndTryUpdateQueueToDoneAsync(UpdateItemExecutionInfoInput input)
     {
-            using (var dbConnection = connectionProvider.CreateWithinTransaction(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.CreateWithinTransaction(_postgresDbSettings))
             {
                 //update item
-                var itemRowsAffected = await retryQueueItemRepository.UpdateAsync(dbConnection, input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description).ConfigureAwait(false);
+                var itemRowsAffected = await _retryQueueItemRepository.UpdateAsync(dbConnection, input.ItemId, input.Status, input.AttemptCount, input.LastExecution, input.Description).ConfigureAwait(false);
 
                 if (itemRowsAffected == 0)
                 {
@@ -406,9 +406,9 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
     private async Task<UpdateQueueResult> UpdateQueueAndAllItemsAsync(UpdateItemsInQueueInput input)
     {
-            using (var dbConnection = connectionProvider.CreateWithinTransaction(postgresDbSettings))
+            using (var dbConnection = _connectionProvider.CreateWithinTransaction(_postgresDbSettings))
             {
-                var queue = await retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
+                var queue = await _retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 if (queue is null)
                 {
@@ -425,7 +425,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
                     return new UpdateQueueResult(input.QueueGroupKey, UpdateQueueResultStatus.QueueIsNotActive, queue.Status);
                 }
 
-                var items = await retryQueueItemRepository
+                var items = await _retryQueueItemRepository
                     .GetItemsOrderedAsync(dbConnection, new Guid[] { queue.IdDomain }, new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting })
                     .ConfigureAwait(false);
 
@@ -453,7 +453,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
 
                 dbConnection.Commit();
 
-                queue = await retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
+                queue = await _retryQueueRepository.GetQueueAsync(dbConnection, input.QueueGroupKey).ConfigureAwait(false);
 
                 return new UpdateQueueResult(input.QueueGroupKey, updateQueueResultStatus, queue.Status);
             }
@@ -462,12 +462,12 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
     private async Task<UpdateQueueResultStatus> UpdateQueueLastExecutionAndTryUpdateQueueToDoneAsync(IDbConnectionWithinTransaction dbConnection, Guid queueId, DateTime lastExecution)
     {
             // check if the queue can be updated to done as well
-            var anyItemStillActive = await retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId).ConfigureAwait(false);
+            var anyItemStillActive = await _retryQueueItemRepository.AnyItemStillActiveAsync(dbConnection, queueId).ConfigureAwait(false);
 
             if (anyItemStillActive)
             {
                 // update queue last execution only
-                var queueLastExecutionRowsAffected = await retryQueueRepository.UpdateLastExecutionAsync(dbConnection, queueId, lastExecution).ConfigureAwait(false);
+                var queueLastExecutionRowsAffected = await _retryQueueRepository.UpdateLastExecutionAsync(dbConnection, queueId, lastExecution).ConfigureAwait(false);
 
                 if (queueLastExecutionRowsAffected == 0)
                 {
@@ -477,7 +477,7 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
             else
             {
                 // update queue last execution and the status to done
-                var queueRowsAffected = await retryQueueRepository.UpdateAsync(dbConnection, queueId, RetryQueueStatus.Done, lastExecution).ConfigureAwait(false);
+                var queueRowsAffected = await _retryQueueRepository.UpdateAsync(dbConnection, queueId, RetryQueueStatus.Done, lastExecution).ConfigureAwait(false);
 
                 if (queueRowsAffected == 0)
                 {

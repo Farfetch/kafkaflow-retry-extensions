@@ -6,17 +6,17 @@ namespace KafkaFlow.Retry.Postgres.Readers;
 
 internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
 {
-    private readonly IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter;
-    private readonly IList<TDbo> dbos;
-    private int currentIndex;
+    private readonly IDboDomainAdapter<TDbo, TDomain> _dboDomainAdapter;
+    private readonly IList<TDbo> _dbos;
+    private int _currentIndex;
 
     public DboCollectionNavigator(IList<TDbo> dbos, IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter)
     {
             Guard.Argument(dbos, nameof(dbos)).NotNull();
             Guard.Argument(dboDomainAdapter, nameof(dboDomainAdapter)).NotNull();
 
-            this.dboDomainAdapter = dboDomainAdapter;
-            this.dbos = dbos;
+            _dboDomainAdapter = dboDomainAdapter;
+            _dbos = dbos;
         }
 
     public void Navigate(Action<TDomain> action, Predicate<TDbo> navigatingCondition)
@@ -32,18 +32,18 @@ internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
             Guard.Argument(action).NotNull();
             Guard.Argument(navigatingCondition).NotNull();
 
-            while (currentIndex < dbos.Count)
+            while (_currentIndex < _dbos.Count)
             {
-                var currentDbo = dbos[currentIndex];
+                var currentDbo = _dbos[_currentIndex];
 
                 if (!navigatingCondition(currentDbo))
                 {
                     return;
                 }
 
-                action(dboDomainAdapter.Adapt(currentDbo), currentDbo);
+                action(_dboDomainAdapter.Adapt(currentDbo), currentDbo);
 
-                currentIndex++;
+                _currentIndex++;
             }
         }
 }

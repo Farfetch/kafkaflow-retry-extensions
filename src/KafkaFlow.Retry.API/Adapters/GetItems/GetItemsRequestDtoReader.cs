@@ -12,16 +12,16 @@ internal class GetItemsRequestDtoReader : IGetItemsRequestDtoReader
 {
     private const int DefaultTopItemsByQueueValue = 100;
     private const int DefaultTopQueuesValue = 10000;
-    private readonly IEnumerable<RetryQueueItemStatus> DefaultItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
-    private readonly IEnumerable<SeverityLevel> DefaultSeverityLevels = Enumerable.Empty<SeverityLevel>();
+    private readonly IEnumerable<RetryQueueItemStatus> _defaultItemsStatuses = new RetryQueueItemStatus[] { RetryQueueItemStatus.Waiting, RetryQueueItemStatus.InRetry };
+    private readonly IEnumerable<SeverityLevel> _defaultSeverityLevels = Enumerable.Empty<SeverityLevel>();
 
-    private readonly EnumParser<SeverityLevel> severitiesParser;
-    private readonly EnumParser<RetryQueueItemStatus> statusesParser;
+    private readonly EnumParser<SeverityLevel> _severitiesParser;
+    private readonly EnumParser<RetryQueueItemStatus> _statusesParser;
 
     public GetItemsRequestDtoReader()
     {
-        statusesParser = new EnumParser<RetryQueueItemStatus>();
-        severitiesParser = new EnumParser<SeverityLevel>();
+        _statusesParser = new EnumParser<RetryQueueItemStatus>();
+        _severitiesParser = new EnumParser<SeverityLevel>();
     }
 
     public GetItemsRequestDto Read(HttpRequest request)
@@ -33,8 +33,8 @@ internal class GetItemsRequestDtoReader : IGetItemsRequestDtoReader
 
         return new GetItemsRequestDto()
         {
-            ItemsStatuses = statusesParser.Parse(statusIds, DefaultItemsStatuses),
-            SeverityLevels = severitiesParser.Parse(severityIds, DefaultSeverityLevels),
+            ItemsStatuses = _statusesParser.Parse(statusIds, _defaultItemsStatuses),
+            SeverityLevels = _severitiesParser.Parse(severityIds, _defaultSeverityLevels),
             TopQueues = int.TryParse(topQueues.LastOrDefault(), out int parsedTopQueues) ? parsedTopQueues : DefaultTopQueuesValue,
             TopItemsByQueue = int.TryParse(topItemsByQueue.LastOrDefault(), out int parsedTopItemsByQueue) ? parsedTopItemsByQueue : DefaultTopItemsByQueueValue
         };

@@ -6,7 +6,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core;
 
 internal class TraceLogHandler : ILogHandler
 {
-    private readonly JsonSerializerOptions jsonSerializerOptions =
+    private readonly JsonSerializerOptions _jsonSerializerOptions =
         new JsonSerializerOptions
         {
             MaxDepth = 0,
@@ -27,7 +27,7 @@ internal class TraceLogHandler : ILogHandler
                         ex.StackTrace
                     },
                     Data = data,
-                }, jsonSerializerOptions));
+                }, _jsonSerializerOptions));
     }
 
     public void Info(string message, object data)
@@ -38,7 +38,7 @@ internal class TraceLogHandler : ILogHandler
                 {
                     Message = message,
                     Data = data,
-                }, jsonSerializerOptions));
+                }, _jsonSerializerOptions));
     }
 
     public void Verbose(string message, object data)
@@ -49,7 +49,7 @@ internal class TraceLogHandler : ILogHandler
                 {
                     Message = message,
                     Data = data,
-                }, jsonSerializerOptions));
+                }, _jsonSerializerOptions));
     }
 
     public void Warning(string message, object data)
@@ -60,6 +60,6 @@ internal class TraceLogHandler : ILogHandler
                 {
                     Message = message,
                     Data = data,
-                }, jsonSerializerOptions));
+                }, _jsonSerializerOptions));
     }
 }

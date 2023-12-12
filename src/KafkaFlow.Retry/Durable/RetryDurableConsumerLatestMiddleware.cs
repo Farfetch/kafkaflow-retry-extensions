@@ -11,9 +11,9 @@ namespace KafkaFlow.Retry.Durable;
 
 internal class RetryDurableConsumerLatestMiddleware : IMessageMiddleware
 {
-    private readonly ILogHandler logHandler;
-    private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
-    private readonly IUtf8Encoder utf8Encoder;
+    private readonly ILogHandler _logHandler;
+    private readonly IRetryDurableQueueRepository _retryDurableQueueRepository;
+    private readonly IUtf8Encoder _utf8Encoder;
 
     public RetryDurableConsumerLatestMiddleware(
         ILogHandler logHandler,
@@ -24,17 +24,17 @@ internal class RetryDurableConsumerLatestMiddleware : IMessageMiddleware
             Guard.Argument(retryDurableQueueRepository).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
 
-            this.logHandler = logHandler;
-            this.retryDurableQueueRepository = retryDurableQueueRepository;
-            this.utf8Encoder = utf8Encoder;
+            _logHandler = logHandler;
+            _retryDurableQueueRepository = retryDurableQueueRepository;
+            _utf8Encoder = utf8Encoder;
         }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            var queueId = Guid.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
-            var itemId = Guid.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
-            var attemptsCount = int.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
-            var sort = int.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
+            var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
+            var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
+            var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
+            var sort = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.Sort]));
 
             var newestItems = await ThereAreNewestItemsAsync(
                            queueId,
@@ -69,7 +69,7 @@ internal class RetryDurableConsumerLatestMiddleware : IMessageMiddleware
                            sort
                        );
 
-            var queueNewestItemsResult = await retryDurableQueueRepository
+            var queueNewestItemsResult = await _retryDurableQueueRepository
                 .CheckQueueNewestItemsAsync(queueNewestItemsInput)
                 .ConfigureAwait(false);
 
@@ -83,7 +83,7 @@ internal class RetryDurableConsumerLatestMiddleware : IMessageMiddleware
         int attemptsCount,
         Exception exception = null)
     {
-            await retryDurableQueueRepository
+            await _retryDurableQueueRepository
                 .UpdateItemAsync(
                     new UpdateItemExecutionInfoInput(
                         queueId,

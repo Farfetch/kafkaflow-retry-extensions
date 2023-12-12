@@ -6,7 +6,7 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Repository.Adapters;
 
 public class MessageHeadersAdapterTests
 {
-    private readonly MessageHeadersAdapter adapter = new MessageHeadersAdapter();
+    private readonly MessageHeadersAdapter _adapter = new MessageHeadersAdapter();
 
     [Fact]
     public void MessageHeadersAdapter_AdaptMessageHeadersFromRepository_Success()
@@ -18,7 +18,7 @@ public class MessageHeadersAdapterTests
             };
 
             // Act
-            var result = adapter.AdaptMessageHeadersFromRepository(fromMessageHeaders);
+            var result = _adapter.AdaptMessageHeadersFromRepository(fromMessageHeaders);
 
             // Assert
             result.Should().HaveCount(1);
@@ -34,7 +34,7 @@ public class MessageHeadersAdapterTests
             };
 
             // Act
-            var result = adapter.AdaptMessageHeadersToRepository(messageHeadersTest);
+            var result = _adapter.AdaptMessageHeadersToRepository(messageHeadersTest);
 
             // Assert
             result.Should().HaveCount(1);
@@ -42,23 +42,23 @@ public class MessageHeadersAdapterTests
 
     private class MessageHeadersTest : IMessageHeaders
     {
-        private readonly IDictionary<string, byte[]> keyValuePairs = new Dictionary<string, byte[]>();
+        private readonly IDictionary<string, byte[]> _keyValuePairs = new Dictionary<string, byte[]>();
 
-        public byte[] this[string key] { get => keyValuePairs[key]; set => keyValuePairs[key] = value; }
+        public byte[] this[string key] { get => _keyValuePairs[key]; set => _keyValuePairs[key] = value; }
 
         public void Add(string key, byte[] value)
         {
-                keyValuePairs.Add(key, value);
+                _keyValuePairs.Add(key, value);
             }
 
         public IEnumerator<KeyValuePair<string, byte[]>> GetEnumerator()
         {
-                return keyValuePairs.GetEnumerator();
+                return _keyValuePairs.GetEnumerator();
             }
 
         System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator()
         {
-                return keyValuePairs.GetEnumerator();
+                return _keyValuePairs.GetEnumerator();
             }
     }
 }

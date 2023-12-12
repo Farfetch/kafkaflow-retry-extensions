@@ -5,7 +5,7 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Encoders;
 
 public class Utf8EncoderTests
 {
-    private readonly Utf8Encoder utf8Encoder = new Utf8Encoder();
+    private readonly Utf8Encoder _utf8Encoder = new Utf8Encoder();
 
     [Fact]
     public void Utf8Encoder_Deconde_Success()
@@ -14,7 +14,7 @@ public class Utf8EncoderTests
         var data = new byte[0];
 
         // Act
-        var result = utf8Encoder.Decode(data);
+        var result = _utf8Encoder.Decode(data);
 
         // Assert
         result.Should().BeEquivalentTo(Encoding.UTF8.GetString(data));
@@ -27,7 +27,7 @@ public class Utf8EncoderTests
         var data = "new";
 
         // Act
-        var result = utf8Encoder.Encode(data);
+        var result = _utf8Encoder.Encode(data);
 
         // Assert
         result.Should().BeEquivalentTo(Encoding.UTF8.GetBytes(data));

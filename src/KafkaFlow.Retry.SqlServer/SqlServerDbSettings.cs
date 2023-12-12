@@ -10,7 +10,7 @@ namespace KafkaFlow.Retry.SqlServer;
 [ExcludeFromCodeCoverage]
 public class SqlServerDbSettings
 {
-    private const string schemaDefault = "dbo";
+    private const string SchemaDefault = "dbo";
 
     /// <summary>
     /// Creates a Sql Server database settings with schema
@@ -42,7 +42,7 @@ public class SqlServerDbSettings
 
             ConnectionString = connectionString;
             DatabaseName = databaseName;
-            Schema = schemaDefault;
+            Schema = SchemaDefault;
         }
 
     /// <summary>

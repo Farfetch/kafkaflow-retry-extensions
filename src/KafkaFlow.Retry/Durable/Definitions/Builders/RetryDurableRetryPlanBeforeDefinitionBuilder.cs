@@ -5,25 +5,25 @@ namespace KafkaFlow.Retry;
 
 public class RetryDurableRetryPlanBeforeDefinitionBuilder
 {
-    private int numberOfRetries;
-    private bool pauseConsumer;
-    private Func<int, TimeSpan> timeBetweenTriesPlan;
+    private int _numberOfRetries;
+    private bool _pauseConsumer;
+    private Func<int, TimeSpan> _timeBetweenTriesPlan;
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder ShouldPauseConsumer(bool pause)
     {
-            pauseConsumer = pause;
+            _pauseConsumer = pause;
             return this;
         }
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder TryTimes(int numberOfRetries)
     {
-            this.numberOfRetries = numberOfRetries;
+            _numberOfRetries = numberOfRetries;
             return this;
         }
 
     public RetryDurableRetryPlanBeforeDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timeBetweenTriesPlan)
     {
-            this.timeBetweenTriesPlan = timeBetweenTriesPlan;
+            _timeBetweenTriesPlan = timeBetweenTriesPlan;
             return this;
         }
 
@@ -38,9 +38,9 @@ public class RetryDurableRetryPlanBeforeDefinitionBuilder
     internal RetryDurableRetryPlanBeforeDefinition Build()
     {
             return new RetryDurableRetryPlanBeforeDefinition(
-                timeBetweenTriesPlan,
-                numberOfRetries,
-                pauseConsumer
+                _timeBetweenTriesPlan,
+                _numberOfRetries,
+                _pauseConsumer
             );
         }
 }

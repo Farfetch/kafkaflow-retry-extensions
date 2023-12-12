@@ -9,10 +9,10 @@ namespace KafkaFlow.Retry.API.Handlers;
 
 internal class GetItemsHandler : RetryRequestHandlerBase
 {
-    private readonly IGetItemsInputAdapter getItemsInputAdapter;
-    private readonly IGetItemsRequestDtoReader getItemsRequestDtoReader;
-    private readonly IGetItemsResponseDtoAdapter getItemsResponseDtoAdapter;
-    private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
+    private readonly IGetItemsInputAdapter _getItemsInputAdapter;
+    private readonly IGetItemsRequestDtoReader _getItemsRequestDtoReader;
+    private readonly IGetItemsResponseDtoAdapter _getItemsResponseDtoAdapter;
+    private readonly IRetryDurableQueueRepositoryProvider _retryDurableQueueRepositoryProvider;
 
     public GetItemsHandler(
         IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider,
@@ -26,25 +26,25 @@ internal class GetItemsHandler : RetryRequestHandlerBase
         Guard.Argument(getItemsInputAdapter, nameof(getItemsInputAdapter)).NotNull();
         Guard.Argument(getItemsResponseDtoAdapter, nameof(getItemsResponseDtoAdapter)).NotNull();
 
-        this.getItemsInputAdapter = getItemsInputAdapter;
-        this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
-        this.getItemsRequestDtoReader = getItemsRequestDtoReader;
-        this.getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
+        _getItemsInputAdapter = getItemsInputAdapter;
+        _retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+        _getItemsRequestDtoReader = getItemsRequestDtoReader;
+        _getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
     }
 
-    protected override HttpMethod HttpMethod => HttpMethod.GET;
+    protected override HttpMethod HttpMethod => HttpMethod.Get;
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {
         try
         {
-            var requestDto = getItemsRequestDtoReader.Read(request);
+            var requestDto = _getItemsRequestDtoReader.Read(request);
 
-            var input = getItemsInputAdapter.Adapt(requestDto);
+            var input = _getItemsInputAdapter.Adapt(requestDto);
 
-            var result = await retryDurableQueueRepositoryProvider.GetQueuesAsync(input).ConfigureAwait(false);
+            var result = await _retryDurableQueueRepositoryProvider.GetQueuesAsync(input).ConfigureAwait(false);
 
-            var responseDto = getItemsResponseDtoAdapter.Adapt(result);
+            var responseDto = _getItemsResponseDtoAdapter.Adapt(result);
 
             await WriteResponseAsync(response, responseDto, (int)HttpStatusCode.OK).ConfigureAwait(false);
         }

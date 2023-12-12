@@ -7,27 +7,27 @@ namespace KafkaFlow.Retry.SqlServer;
 [ExcludeFromCodeCoverage]
 internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 {
-    private readonly SqlServerDbSettings sqlServerDbSettings;
-    private readonly bool withinTransaction;
-    private bool committed = false;
-    private SqlConnection sqlConnection;
-    private SqlTransaction sqlTransaction;
+    private readonly SqlServerDbSettings _sqlServerDbSettings;
+    private readonly bool _withinTransaction;
+    private bool _committed = false;
+    private SqlConnection _sqlConnection;
+    private SqlTransaction _sqlTransaction;
 
     public DbConnectionContext(SqlServerDbSettings sqlServerDbSettings, bool withinTransaction)
     {
         Guard.Argument(sqlServerDbSettings).NotNull();
-        this.sqlServerDbSettings = sqlServerDbSettings;
-        this.withinTransaction = withinTransaction;
+        _sqlServerDbSettings = sqlServerDbSettings;
+        _withinTransaction = withinTransaction;
     }
 
-    public string Schema => sqlServerDbSettings.Schema;
+    public string Schema => _sqlServerDbSettings.Schema;
 
     public void Commit()
     {
-        if (sqlTransaction is object)
+        if (_sqlTransaction is object)
         {
-            sqlTransaction.Commit();
-            committed = true;
+            _sqlTransaction.Commit();
+            _committed = true;
         }
     }
 
@@ -35,7 +35,7 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
     {
         var dbCommand = GetDbConnection().CreateCommand();
 
-        if (withinTransaction)
+        if (_withinTransaction)
         {
             dbCommand.Transaction = GetDbTransaction();
         }
@@ -45,46 +45,46 @@ internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 
     public void Dispose()
     {
-        if (sqlTransaction is object)
+        if (_sqlTransaction is object)
         {
-            if (!committed)
+            if (!_committed)
             {
                 Rollback();
             }
-            sqlTransaction.Dispose();
+            _sqlTransaction.Dispose();
         }
 
-        if (sqlConnection is object)
+        if (_sqlConnection is object)
         {
-            sqlConnection.Dispose();
+            _sqlConnection.Dispose();
         }
     }
 
     public void Rollback()
     {
-        if (sqlTransaction is object)
+        if (_sqlTransaction is object)
         {
-            sqlTransaction.Rollback();
+            _sqlTransaction.Rollback();
         }
     }
 
     private SqlConnection GetDbConnection()
     {
-        if (sqlConnection is null)
+        if (_sqlConnection is null)
         {
-            sqlConnection = new SqlConnection(sqlServerDbSettings.ConnectionString);
-            sqlConnection.Open();
-            sqlConnection.ChangeDatabase(sqlServerDbSettings.DatabaseName);
+            _sqlConnection = new SqlConnection(_sqlServerDbSettings.ConnectionString);
+            _sqlConnection.Open();
+            _sqlConnection.ChangeDatabase(_sqlServerDbSettings.DatabaseName);
         }
-        return sqlConnection;
+        return _sqlConnection;
     }
 
     private SqlTransaction GetDbTransaction()
     {
-        if (sqlTransaction is null)
+        if (_sqlTransaction is null)
         {
-            sqlTransaction = GetDbConnection().BeginTransaction();
+            _sqlTransaction = GetDbConnection().BeginTransaction();
         }
-        return sqlTransaction;
+        return _sqlTransaction;
     }
 }

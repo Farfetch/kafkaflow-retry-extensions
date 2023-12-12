@@ -7,7 +7,7 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres.Readers.Adapters;
 
 public class RetryQueueItemMessageAdapterTests
 {
-    private readonly RetryQueueItemMessageAdapter adapter = new RetryQueueItemMessageAdapter();
+    private readonly RetryQueueItemMessageAdapter _adapter = new RetryQueueItemMessageAdapter();
 
     [Fact]
     public void RetryQueueItemMessageAdapter_Adapt_Success()
@@ -25,7 +25,7 @@ public class RetryQueueItemMessageAdapterTests
             };
 
             // Act
-            var result = adapter.Adapt(retryQueue);
+            var result = _adapter.Adapt(retryQueue);
 
             // Assert
             result.Should().NotBeNull();
@@ -39,7 +39,7 @@ public class RetryQueueItemMessageAdapterTests
             RetryQueueItemMessageDbo retryQueue = null;
 
             // Act
-            Action act = () => adapter.Adapt(retryQueue);
+            Action act = () => _adapter.Adapt(retryQueue);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();

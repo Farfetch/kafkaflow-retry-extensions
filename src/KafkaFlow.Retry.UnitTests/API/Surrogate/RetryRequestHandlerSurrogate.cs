@@ -12,7 +12,7 @@ internal class RetryRequestHandlerSurrogate : RetryRequestHandlerBase
     {
     }
 
-    protected override HttpMethod HttpMethod => HttpMethod.GET;
+    protected override HttpMethod HttpMethod => HttpMethod.Get;
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {

@@ -212,10 +212,10 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
     {
             switch (sortOption)
             {
-                case GetQueuesSortOption.ByCreationDate_Descending:
+                case GetQueuesSortOption.ByCreationDateDescending:
                     return " ORDER BY CreationDate DESC";
 
-                case GetQueuesSortOption.ByLastExecution_Ascending:
+                case GetQueuesSortOption.ByLastExecutionAscending:
                 default:
                     return " ORDER BY LastExecution ASC";
             }

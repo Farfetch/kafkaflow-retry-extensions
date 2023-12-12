@@ -6,7 +6,7 @@ namespace KafkaFlow.Retry.Durable.Compression;
 
 internal class GzipCompressor : IGzipCompressor
 {
-    private static int BUFFER_SIZE = 64 * 1024;
+    private static int s_bufferSize = 64 * 1024;
 
     public byte[] Compress(byte[] data)
     {
@@ -14,7 +14,7 @@ internal class GzipCompressor : IGzipCompressor
 
             using (var compressIntoMs = new MemoryStream())
             {
-                using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionLevel.Fastest), BUFFER_SIZE))
+                using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionLevel.Fastest), s_bufferSize))
                 {
                     gzs.Write(data, 0, data.Length);
                 }
@@ -30,7 +30,7 @@ internal class GzipCompressor : IGzipCompressor
             {
                 using (var decompressedMs = new MemoryStream())
                 {
-                    using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), BUFFER_SIZE))
+                    using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), s_bufferSize))
                     {
                         gzs.CopyTo(decompressedMs);
                     }

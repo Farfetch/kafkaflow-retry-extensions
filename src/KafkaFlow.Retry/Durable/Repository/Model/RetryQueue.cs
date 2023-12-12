@@ -9,7 +9,7 @@ namespace KafkaFlow.Retry.Durable.Repository.Model;
 [ExcludeFromCodeCoverage]
 public class RetryQueue
 {
-    private readonly SortedList<int, RetryQueueItem> itemsList;
+    private readonly SortedList<int, RetryQueueItem> _itemsList;
 
     public RetryQueue(
         Guid id,
@@ -34,14 +34,14 @@ public class RetryQueue
             LastExecution = lastExecution;
             Status = status;
 
-            itemsList = items is null ? new SortedList<int, RetryQueueItem>() : new SortedList<int, RetryQueueItem>(items.ToDictionary(i => i.Sort));
+            _itemsList = items is null ? new SortedList<int, RetryQueueItem>() : new SortedList<int, RetryQueueItem>(items.ToDictionary(i => i.Sort));
         }
 
     public DateTime CreationDate { get; }
 
     public Guid Id { get; }
 
-    public IEnumerable<RetryQueueItem> Items { get => itemsList.Values; }
+    public IEnumerable<RetryQueueItem> Items { get => _itemsList.Values; }
 
     public DateTime LastExecution { get; }
 
@@ -53,6 +53,6 @@ public class RetryQueue
 
     public void AddItem(RetryQueueItem item)
     {
-            itemsList.Add(item.Sort, item);
+            _itemsList.Add(item.Sort, item);
         }
 }

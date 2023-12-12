@@ -6,10 +6,10 @@ namespace KafkaFlow.Retry;
 
 public class RetrySimpleDefinitionBuilder
 {
-    private readonly List<Func<RetryContext, bool>> retryWhenExceptions = new List<Func<RetryContext, bool>>();
-    private int numberOfRetries;
-    private bool pauseConsumer;
-    private Func<int, TimeSpan> timeBetweenTriesPlan;
+    private readonly List<Func<RetryContext, bool>> _retryWhenExceptions = new List<Func<RetryContext, bool>>();
+    private int _numberOfRetries;
+    private bool _pauseConsumer;
+    private Func<int, TimeSpan> _timeBetweenTriesPlan;
 
     public RetrySimpleDefinitionBuilder Handle<TException>()
         where TException : Exception
@@ -17,7 +17,7 @@ public class RetrySimpleDefinitionBuilder
 
     public RetrySimpleDefinitionBuilder Handle(Func<RetryContext, bool> func)
     {
-        retryWhenExceptions.Add(func);
+        _retryWhenExceptions.Add(func);
         return this;
     }
 
@@ -30,19 +30,19 @@ public class RetrySimpleDefinitionBuilder
 
     public RetrySimpleDefinitionBuilder ShouldPauseConsumer(bool pause)
     {
-        pauseConsumer = pause;
+        _pauseConsumer = pause;
         return this;
     }
 
     public RetrySimpleDefinitionBuilder TryTimes(int numberOfRetries)
     {
-        this.numberOfRetries = numberOfRetries;
+        _numberOfRetries = numberOfRetries;
         return this;
     }
 
     public RetrySimpleDefinitionBuilder WithTimeBetweenTriesPlan(Func<int, TimeSpan> timesBetweenTriesPlan)
     {
-        timeBetweenTriesPlan = timesBetweenTriesPlan;
+        _timeBetweenTriesPlan = timesBetweenTriesPlan;
         return this;
     }
 
@@ -57,10 +57,10 @@ public class RetrySimpleDefinitionBuilder
     internal RetrySimpleDefinition Build()
     {
         return new RetrySimpleDefinition(
-            numberOfRetries,
-            retryWhenExceptions,
-            pauseConsumer,
-            timeBetweenTriesPlan
+            _numberOfRetries,
+            _retryWhenExceptions,
+            _pauseConsumer,
+            _timeBetweenTriesPlan
         );
     }
 }

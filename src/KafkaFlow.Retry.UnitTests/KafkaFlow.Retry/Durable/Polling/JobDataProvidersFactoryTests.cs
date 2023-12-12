@@ -11,7 +11,7 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable.Polling;
 
 public class JobDataProvidersFactoryTests
 {
-    private static readonly PollingDefinitionsAggregator pollingDefinitionsAggregator =
+    private static readonly PollingDefinitionsAggregator s_pollingDefinitionsAggregator =
         new PollingDefinitionsAggregator(
             "id",
             new PollingDefinition[]
@@ -31,7 +31,7 @@ public class JobDataProvidersFactoryTests
                 .Returns(Mock.Of<ITrigger>());
 
             var factory = new JobDataProvidersFactory(
-                pollingDefinitionsAggregator,
+                s_pollingDefinitionsAggregator,
                 mockTriggerProvider.Object,
                 Mock.Of<IRetryDurableQueueRepository>(),
                 Mock.Of<IMessageHeadersAdapter>(),
@@ -54,7 +54,7 @@ public class JobDataProvidersFactoryTests
     {
             // Arrange & Act
             Action act = () => new JobDataProvidersFactory(
-                nullType == typeof(PollingDefinitionsAggregator) ? null : pollingDefinitionsAggregator,
+                nullType == typeof(PollingDefinitionsAggregator) ? null : s_pollingDefinitionsAggregator,
                 nullType == typeof(ITriggerProvider) ? null : Mock.Of<ITriggerProvider>(),
                 nullType == typeof(IRetryDurableQueueRepository) ? null : Mock.Of<IRetryDurableQueueRepository>(),
                 nullType == typeof(IMessageHeadersAdapter) ? null : Mock.Of<IMessageHeadersAdapter>(),

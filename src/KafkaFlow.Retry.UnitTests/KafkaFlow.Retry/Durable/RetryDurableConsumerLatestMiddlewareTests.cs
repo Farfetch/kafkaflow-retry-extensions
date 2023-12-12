@@ -9,13 +9,13 @@ namespace KafkaFlow.Retry.UnitTests.KafkaFlow.Retry.Durable;
 
 public class RetryDurableConsumerLatestMiddlewareTests
 {
-    private readonly Mock<ILogHandler> logHandler = new Mock<ILogHandler>();
+    private readonly Mock<ILogHandler> _logHandler = new Mock<ILogHandler>();
 
-    private readonly Mock<IMessageContext> messageContext = new Mock<IMessageContext>();
+    private readonly Mock<IMessageContext> _messageContext = new Mock<IMessageContext>();
 
-    private readonly Mock<IRetryDurableQueueRepository> retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
+    private readonly Mock<IRetryDurableQueueRepository> _retryDurableQueueRepository = new Mock<IRetryDurableQueueRepository>();
 
-    private readonly Mock<IUtf8Encoder> utf8Encoder = new Mock<IUtf8Encoder>();
+    private readonly Mock<IUtf8Encoder> _utf8Encoder = new Mock<IUtf8Encoder>();
 
     public static IEnumerable<object[]> DataTest() => new List<object[]>
     {

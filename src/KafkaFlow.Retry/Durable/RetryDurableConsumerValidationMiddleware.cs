@@ -10,9 +10,9 @@ namespace KafkaFlow.Retry.Durable;
 
 internal class RetryDurableConsumerValidationMiddleware : IMessageMiddleware
 {
-    private readonly ILogHandler logHandler;
-    private readonly IRetryDurableQueueRepository retryDurableQueueRepository;
-    private readonly IUtf8Encoder utf8Encoder;
+    private readonly ILogHandler _logHandler;
+    private readonly IRetryDurableQueueRepository _retryDurableQueueRepository;
+    private readonly IUtf8Encoder _utf8Encoder;
 
     public RetryDurableConsumerValidationMiddleware(
         ILogHandler logHandler,
@@ -23,16 +23,16 @@ internal class RetryDurableConsumerValidationMiddleware : IMessageMiddleware
             Guard.Argument(retryDurableQueueRepository).NotNull();
             Guard.Argument(utf8Encoder).NotNull();
 
-            this.logHandler = logHandler;
-            this.retryDurableQueueRepository = retryDurableQueueRepository;
-            this.utf8Encoder = utf8Encoder;
+            _logHandler = logHandler;
+            _retryDurableQueueRepository = retryDurableQueueRepository;
+            _utf8Encoder = utf8Encoder;
         }
 
     public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
     {
-            var queueId = Guid.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
-            var itemId = Guid.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
-            var attemptsCount = int.Parse(utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
+            var queueId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.QueueId]));
+            var itemId = Guid.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.ItemId]));
+            var attemptsCount = int.Parse(_utf8Encoder.Decode(context.Headers[RetryDurableConstants.AttemptsCount]));
 
             try
             {
@@ -64,7 +64,7 @@ internal class RetryDurableConsumerValidationMiddleware : IMessageMiddleware
         int attemptsCount,
         Exception exception = null)
     {
-            await retryDurableQueueRepository
+            await _retryDurableQueueRepository
                 .UpdateItemAsync(
                     new UpdateItemExecutionInfoInput(
                         queueId,

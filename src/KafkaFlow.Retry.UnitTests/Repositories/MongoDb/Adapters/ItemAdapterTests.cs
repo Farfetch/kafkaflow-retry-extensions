@@ -10,19 +10,19 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.MongoDb.Adapters;
 
 public class ItemAdapterTests
 {
-    private readonly Mock<IMessageAdapter> messageAdapter = new Mock<IMessageAdapter>();
+    private readonly Mock<IMessageAdapter> _messageAdapter = new Mock<IMessageAdapter>();
 
     public ItemAdapterTests()
     {
             var retryQueueItemMessage = new RetryQueueItemMessage("topicName", new byte[] { 1, 3 }, new byte[] { 2, 4, 6 }, 3, 21, DateTime.UtcNow);
-            messageAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>())).Returns(retryQueueItemMessage);
+            _messageAdapter.Setup(d => d.Adapt(It.IsAny<RetryQueueItemMessageDbo>())).Returns(retryQueueItemMessage);
         }
 
     [Fact]
     public void HeaderAdapter_Adapt_WithMessageHeader_Success()
     {
             //Arrange
-            var adapter = new ItemAdapter(messageAdapter.Object);
+            var adapter = new ItemAdapter(_messageAdapter.Object);
             var retryQueueItemDbo = new RetryQueueItemDbo
             {
                 Status = RetryQueueItemStatus.InRetry,
@@ -62,7 +62,7 @@ public class ItemAdapterTests
     public void HeaderAdapter_Adapt_WithoutMessageHeader_ThrowException()
     {
             //Arrange
-            var adapter = new ItemAdapter(messageAdapter.Object);
+            var adapter = new ItemAdapter(_messageAdapter.Object);
             RetryQueueItemDbo retryQueueItemDbo = null;
 
             // Act

@@ -5,13 +5,13 @@ namespace KafkaFlow.Retry.UnitTests.Repositories.Postgres;
     
 public class ConnectionProviderTests
 {
-    private readonly ConnectionProvider provider = new ConnectionProvider();
+    private readonly ConnectionProvider _provider = new ConnectionProvider();
 
     [Fact]
     public void ConnectionProvider_Create_Success()
     {
             // Act
-            var result = provider.Create(new PostgresDbSettings("connectionString", "databaseName"));
+            var result = _provider.Create(new PostgresDbSettings("connectionString", "databaseName"));
 
             // Arrange
             result.Should().NotBeNull();
@@ -22,7 +22,7 @@ public class ConnectionProviderTests
     public void ConnectionProvider_Create_WithoutSqlServerDbSettings_ThrowsException()
     {
             // Act
-            Action act = () => provider.Create(null);
+            Action act = () => _provider.Create(null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
@@ -32,7 +32,7 @@ public class ConnectionProviderTests
     public void ConnectionProvider_CreateWithinTransaction_Success()
     {
             // Act
-            var result = provider.CreateWithinTransaction(new PostgresDbSettings("connectionString", "databaseName"));
+            var result = _provider.CreateWithinTransaction(new PostgresDbSettings("connectionString", "databaseName"));
 
             // Arrange
             result.Should().NotBeNull();
@@ -43,7 +43,7 @@ public class ConnectionProviderTests
     public void ConnectionProvider_CreateWithinTransaction_WithoutSqlServerDbSettings_ThrowsException()
     {
             // Act
-            Action act = () => provider.CreateWithinTransaction(null);
+            Action act = () => _provider.CreateWithinTransaction(null);
 
             // Assert
             act.Should().Throw<ArgumentNullException>();
