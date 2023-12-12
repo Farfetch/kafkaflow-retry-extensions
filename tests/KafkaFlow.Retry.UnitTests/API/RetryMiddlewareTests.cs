@@ -20,7 +20,7 @@ public class RetryMiddlewareTests
         var middleware = new RetryMiddleware(next, mockHttpRequestHandler.Object);
 
         // Act
-        await middleware.InvokeAsync(context).ConfigureAwait(false);
+        await middleware.InvokeAsync(context);
 
         // Assert
         mockHttpRequestHandler.Verify(mock => mock.HandleAsync(context.Request, context.Response), Times.Once());

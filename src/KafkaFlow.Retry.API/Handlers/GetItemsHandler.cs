@@ -32,7 +32,7 @@ internal class GetItemsHandler : RetryRequestHandlerBase
         _getItemsResponseDtoAdapter = getItemsResponseDtoAdapter;
     }
 
-    protected override HttpMethod HttpMethod => HttpMethod.Get;
+    protected override HttpMethod HttpMethod => HttpMethod.GET;
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {

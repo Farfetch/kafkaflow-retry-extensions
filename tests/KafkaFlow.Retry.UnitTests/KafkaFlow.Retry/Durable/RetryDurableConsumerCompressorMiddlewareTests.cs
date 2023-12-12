@@ -34,7 +34,7 @@ public class RetryDurableConsumerCompressorMiddlewareTests
         var compressorMiddleware = new RetryDurableConsumerCompressorMiddleware(mockIGzipCompressor.Object);
 
         // Act
-        await compressorMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask).ConfigureAwait(false);
+        await compressorMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask);
 
         // Assert
         mockIMessageContext.Verify(c => c.SetMessage(null, decompressed), Times.Once);

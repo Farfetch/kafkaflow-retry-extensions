@@ -97,7 +97,7 @@ public class RetryDurablePollingJobTests
             .Returns(new JobDataMap(data));
 
         // Act
-        await _job.Execute(_jobExecutionContext.Object).ConfigureAwait(false);
+        await _job.Execute(_jobExecutionContext.Object);
 
         //Assert
         _logHandler.Verify(d => d.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()), Times.Exactly(2));
@@ -134,7 +134,7 @@ public class RetryDurablePollingJobTests
             .Returns(new JobDataMap(data));
 
         // Act
-        await _job.Execute(_jobExecutionContext.Object).ConfigureAwait(false);
+        await _job.Execute(_jobExecutionContext.Object);
 
         //Assert
         _messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()), Times.Never);
@@ -193,7 +193,7 @@ public class RetryDurablePollingJobTests
             .Returns(new JobDataMap(data));
 
         // Act
-        await _job.Execute(_jobExecutionContext.Object).ConfigureAwait(false);
+        await _job.Execute(_jobExecutionContext.Object);
 
         //Assert
         _messageProducer.Verify(d => d.ProduceAsync(It.IsAny<byte[]>(), It.IsAny<byte[]>(), It.IsAny<IMessageHeaders>(), It.IsAny<int?>()), Times.Once);

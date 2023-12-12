@@ -107,7 +107,7 @@ public class PatchItemsHandlerTests
         );
 
         // act
-        await handler.HandleAsync(mockHttpContext.Object.Request, mockHttpContext.Object.Response).ConfigureAwait(false);
+        await handler.HandleAsync(mockHttpContext.Object.Request, mockHttpContext.Object.Response);
 
         // assert
         Assert.Contains(expectedDataException, actualData);

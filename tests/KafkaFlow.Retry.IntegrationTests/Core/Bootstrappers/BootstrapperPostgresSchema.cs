@@ -15,7 +15,7 @@ internal static class BootstrapperPostgresSchema
 
     internal static async Task RecreatePostgresSchemaAsync(string databaseName, string connectionString)
     {
-        await s_semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
+        await s_semaphoreOneThreadAtTime.WaitAsync();
         try
         {
             if (s_schemaInitialized)
@@ -36,7 +36,7 @@ internal static class BootstrapperPostgresSchema
                     {
                         queryCommand.Connection = openCon;
 
-                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                        await queryCommand.ExecuteNonQueryAsync();
                     }
                 }
             }

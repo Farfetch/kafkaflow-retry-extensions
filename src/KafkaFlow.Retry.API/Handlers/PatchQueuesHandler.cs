@@ -27,7 +27,7 @@ internal class PatchQueuesHandler : RetryRequestHandlerBase
     }
 
 
-    protected override HttpMethod HttpMethod => HttpMethod.Patch;
+    protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {

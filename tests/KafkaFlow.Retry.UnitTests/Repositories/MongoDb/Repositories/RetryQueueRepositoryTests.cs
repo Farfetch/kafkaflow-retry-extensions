@@ -85,8 +85,7 @@ public class RetryQueueRepositoryTests
     {
         // Act
         var result = await _repository
-            .GetQueueAsync(_retryQueueDbo.SearchGroupKey)
-            .ConfigureAwait(false);
+            .GetQueueAsync(_retryQueueDbo.SearchGroupKey);
 
         // Assert
         result.Should().NotBeNull();
@@ -111,8 +110,7 @@ public class RetryQueueRepositoryTests
                 RetryQueueStatus.Active,
                 getQueuesSortOption,
                 _retryQueueDbo.SearchGroupKey,
-                1)
-            .ConfigureAwait(false);
+                1);
 
         // Assert
         result.Should().NotBeEmpty();
@@ -131,8 +129,7 @@ public class RetryQueueRepositoryTests
     {
         // Act
         var result = await _repository
-            .UpdateLastExecutionAsync(_retryQueueDbo.Id, DateTime.UtcNow)
-            .ConfigureAwait(false);
+            .UpdateLastExecutionAsync(_retryQueueDbo.Id, DateTime.UtcNow);
 
         // Assert
         result.Should().NotBeNull();
@@ -153,8 +150,7 @@ public class RetryQueueRepositoryTests
     {
         // Act
         var result = await _repository
-            .UpdateStatusAndLastExecutionAsync(_retryQueueDbo.Id, RetryQueueStatus.Done, DateTime.UtcNow)
-            .ConfigureAwait(false);
+            .UpdateStatusAndLastExecutionAsync(_retryQueueDbo.Id, RetryQueueStatus.Done, DateTime.UtcNow);
 
         // Assert
         result.Should().NotBeNull();
@@ -175,8 +171,7 @@ public class RetryQueueRepositoryTests
     {
         // Act
         var result = await _repository
-            .UpdateStatusAsync(_retryQueueDbo.Id, RetryQueueStatus.Done)
-            .ConfigureAwait(false);
+            .UpdateStatusAsync(_retryQueueDbo.Id, RetryQueueStatus.Done);
 
         // Assert
         result.Should().NotBeNull();

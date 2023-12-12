@@ -22,7 +22,7 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
         var retryQueue = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueAsync(message.Key)
-            .ConfigureAwait(false);
+            ;
 
         Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Creation Get Retry Queue cannot be asserted.");
 
@@ -32,7 +32,7 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
             {
                 return rqi.Count() != count;
             })
-            .ConfigureAwait(false);
+            ;
 
         Assert.True(retryQueueItems != null, "Retry Durable Creation Get Retry Queue Item Message cannot be asserted.");
 
@@ -47,7 +47,7 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
         var retryQueue = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
             .GetRetryQueueAsync(message.Key)
-            .ConfigureAwait(false);
+            ;
 
         Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Done Get Retry Queue cannot be asserted.");
 
@@ -58,7 +58,7 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
                 rqi =>
                 {
                     return rqi.OrderBy(x => x.Sort).Last().Status != RetryQueueItemStatus.Done;
-                }).ConfigureAwait(false);
+                });
 
         Assert.True(retryQueueItems != null, "Retry Durable Done Get Retry Queue Item Message cannot be asserted.");
 
@@ -69,7 +69,7 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
     {
         var retryQueue = await _repositoryProvider
             .GetRepositoryOfType(repositoryType)
-            .GetRetryQueueAsync(message.Key).ConfigureAwait(false);
+            .GetRetryQueueAsync(message.Key);
 
         Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Retrying Get Retry Queue cannot be asserted.");
 
@@ -80,7 +80,7 @@ internal class RetryDurableLatestConsumptionPhysicalStorageAssert : IPhysicalSto
                 rqi =>
                 {
                     return rqi.OrderBy(x => x.Sort).Last().AttemptsCount != retryCount;
-                }).ConfigureAwait(false);
+                });
 
         Assert.True(retryQueueItems != null, "Retry Durable Retrying Get Retry Queue Item Message cannot be asserted.");
 

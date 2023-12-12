@@ -171,7 +171,7 @@ internal class SqlServerRepository : IRepository
                 return null;
             }
 
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
 
             using (var dbConnection = _connectionProvider.Create(_sqlServerDbSettings))
             using (var command = dbConnection.CreateCommand())
@@ -183,7 +183,7 @@ internal class SqlServerRepository : IRepository
                                 ORDER BY Id";
 
                 command.Parameters.AddWithValue("QueueGroupKey", queueGroupKey);
-                retryQueue = await ExecuteSingleLineReaderAsync(command).ConfigureAwait(false);
+                retryQueue = await ExecuteSingleLineReaderAsync(command);
             }
 
             if (retryQueue != null)
@@ -206,7 +206,7 @@ internal class SqlServerRepository : IRepository
                 return null;
             }
 
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
 
             using (var dbConnection = _connectionProvider.Create(_sqlServerDbSettings))
             using (var command = dbConnection.CreateCommand())
@@ -218,7 +218,7 @@ internal class SqlServerRepository : IRepository
                                 ORDER BY Sort ASC";
 
                 command.Parameters.AddWithValue("IdDomainRetryQueue", retryQueueId);
-                retryQueueItems = await ExecuteReaderAsync(command).ConfigureAwait(false);
+                retryQueueItems = await ExecuteReaderAsync(command);
             }
         } while (stopCondition(retryQueueItems));
 

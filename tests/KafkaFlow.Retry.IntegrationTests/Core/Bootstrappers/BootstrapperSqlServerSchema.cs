@@ -15,7 +15,7 @@ internal static class BootstrapperSqlServerSchema
 
     internal static async Task RecreateSqlSchemaAsync(string databaseName, string connectionString)
     {
-            await s_semaphoreOneThreadAtTime.WaitAsync().ConfigureAwait(false);
+            await s_semaphoreOneThreadAtTime.WaitAsync();
             try
             {
                 if (s_schemaInitialized)
@@ -41,7 +41,7 @@ internal static class BootstrapperSqlServerSchema
                             {
                                 queryCommand.Connection = openCon;
 
-                                await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
+                                await queryCommand.ExecuteNonQueryAsync();
                             }
                         }
                     }

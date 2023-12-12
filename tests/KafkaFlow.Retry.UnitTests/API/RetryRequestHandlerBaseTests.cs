@@ -63,7 +63,7 @@ public class RetryRequestHandlerBaseTests
         var surrogate = new RetryRequestHandlerSurrogate(string.Empty, "resource");
 
         // Act
-        var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response).ConfigureAwait(false);
+        var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response);
 
         // Assert
         result.Should().BeFalse();
@@ -80,7 +80,7 @@ public class RetryRequestHandlerBaseTests
         var surrogate = new RetryRequestHandlerSurrogate(string.Empty, "resource");
 
         // Act
-        var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response).ConfigureAwait(false);
+        var result = await surrogate.HandleAsync(httpContext.Request, httpContext.Response);
 
         // Assert
         result.Should().BeFalse();

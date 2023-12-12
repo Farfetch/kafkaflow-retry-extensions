@@ -21,15 +21,13 @@ internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IP
     {
             var retryQueue = await _repositoryProvider
                 .GetRepositoryOfType(repositoryType)
-                .GetRetryQueueAsync(message.Key)
-                .ConfigureAwait(false);
+                .GetRetryQueueAsync(message.Key);
 
             Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Creation Get Retry Queue cannot be asserted.");
 
             var retryQueueItems = await _repositoryProvider
                 .GetRepositoryOfType(repositoryType)
-                .GetRetryQueueItemsAsync(retryQueue.Id, rqi => rqi.Count() != count)
-                .ConfigureAwait(false);
+                .GetRetryQueueItemsAsync(retryQueue.Id, rqi => rqi.Count() != count);
 
             Assert.True(retryQueueItems != null, "Retry Durable Creation Get Retry Queue Item Message cannot be asserted.");
 
@@ -43,8 +41,7 @@ internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IP
     {
             var retryQueue = await _repositoryProvider
                 .GetRepositoryOfType(repositoryType)
-                .GetRetryQueueAsync(message.Key)
-                .ConfigureAwait(false);
+                .GetRetryQueueAsync(message.Key);
 
             Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Done Get Retry Queue cannot be asserted.");
 
@@ -55,7 +52,7 @@ internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IP
                 items =>
                 {
                     return items.All(item => item.Status != RetryQueueItemStatus.Done);
-                }).ConfigureAwait(false);
+                });
 
             Assert.True(retryQueueItems != null, "Retry Durable Done Get Retry Queue Item Message cannot be asserted.");
 
@@ -66,7 +63,7 @@ internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IP
     {
             var retryQueue = await _repositoryProvider
                 .GetRepositoryOfType(repositoryType)
-                .GetRetryQueueAsync(message.Key).ConfigureAwait(false);
+                .GetRetryQueueAsync(message.Key);
 
             Assert.True(retryQueue.Id != Guid.Empty, "Retry Durable Retrying Get Retry Queue cannot be asserted.");
 
@@ -79,7 +76,7 @@ internal class RetryDurableGuaranteeOrderedConsumptionPhysicalStorageAssert : IP
                     return
                     rqi.Single(x => x.Sort == rqi.Min(i => i.Sort)).LastExecution >
                     rqi.Single(x => x.Sort == rqi.Max(i => i.Sort)).LastExecution;
-                }).ConfigureAwait(false);
+                });
 
             Assert.True(retryQueueItems != null, "Retry Durable Retrying Get Retry Queue Item Message cannot be asserted.");
 

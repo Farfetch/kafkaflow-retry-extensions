@@ -75,8 +75,7 @@ public class RetryQueueItemRepositoryTests
 
         // Act
         var result = await _repository
-            .AnyItemStillActiveAsync(retryQueueId)
-            .ConfigureAwait(false);
+            .AnyItemStillActiveAsync(retryQueueId);
 
         // Assert
         result.Should().BeTrue();
@@ -107,8 +106,7 @@ public class RetryQueueItemRepositoryTests
 
         // Act
         var result = await _repository
-            .GetItemAsync(retryQueueId)
-            .ConfigureAwait(false);
+            .GetItemAsync(retryQueueId);
 
         // Assert
         result.Should().NotBeNull();
@@ -134,8 +132,7 @@ public class RetryQueueItemRepositoryTests
         var result = await _repository
             .GetItemsAsync(
                 retriesQueueId,
-                new List<RetryQueueItemStatus> { RetryQueueItemStatus.Waiting })
-            .ConfigureAwait(false);
+                new List<RetryQueueItemStatus> { RetryQueueItemStatus.Waiting });
 
         // Assert
         result.Should().NotBeEmpty();
@@ -153,8 +150,7 @@ public class RetryQueueItemRepositoryTests
     {
         // Act
         var result = await _repository
-            .IsFirstWaitingInQueue(_retryQueueItemDbo)
-            .ConfigureAwait(false);
+            .IsFirstWaitingInQueue(_retryQueueItemDbo);
 
         // Assert
         result.Should().BeTrue();
@@ -186,8 +182,7 @@ public class RetryQueueItemRepositoryTests
                 RetryQueueItemStatus.Done,
                 1,
                 DateTime.UtcNow,
-                "description")
-            .ConfigureAwait(false);
+                "description");
 
         // Assert
         result.Should().NotBeNull();
@@ -223,8 +218,7 @@ public class RetryQueueItemRepositoryTests
                 RetryQueueItemStatus.Done,
                 1,
                 DateTime.UtcNow,
-                "description")
-            .ConfigureAwait(false);
+                "description");
 
         // Assert
         result.Should().NotBeNull();

@@ -61,7 +61,7 @@ internal class MongoDbRepository : IRepository
 
     public async Task CleanDatabaseAsync()
     {
-        await _mongoClient.DropDatabaseAsync(_databaseName).ConfigureAwait(false);
+        await _mongoClient.DropDatabaseAsync(_databaseName);
     }
 
     public async Task CreateQueueAsync(RetryQueue queue)
@@ -143,10 +143,10 @@ internal class MongoDbRepository : IRepository
                 return null;
             }
 
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
 
-            var retryQueueCursor = await _retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey)).ConfigureAwait(false);
-            var retryQueues = await retryQueueCursor.ToListAsync().ConfigureAwait(false);
+            var retryQueueCursor = await _retryQueuesCollection.FindAsync(x => x.QueueGroupKey.Contains(queueGroupKey));
+            var retryQueues = await retryQueueCursor.ToListAsync();
             if (retryQueues.Any())
             {
                 retryQueueDbo = retryQueues.Single();
@@ -176,12 +176,12 @@ internal class MongoDbRepository : IRepository
                 return null;
             }
 
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
 
-            var retryQueueItemsCursor = await _retryQueueItemsCollection.FindAsync(x => x.RetryQueueId == retryQueueId).ConfigureAwait(false);
+            var retryQueueItemsCursor = await _retryQueueItemsCollection.FindAsync(x => x.RetryQueueId == retryQueueId);
             var retryQueueItemsDbo = await retryQueueItemsCursor
                 .ToListAsync()
-                .ConfigureAwait(false);
+                ;
 
             retryQueueItems = retryQueueItemsDbo
                 .Select(

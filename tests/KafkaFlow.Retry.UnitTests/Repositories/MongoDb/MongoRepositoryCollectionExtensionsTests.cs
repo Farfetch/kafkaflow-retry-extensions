@@ -58,7 +58,7 @@ public class MongoRepositoryCollectionExtensionsTests
         var filter = FilterDefinition<RetryQueueItemDbo>.Empty;
 
         // Act
-        var result = await _collection.Object.GetAsync(filter).ConfigureAwait(false);
+        var result = await _collection.Object.GetAsync(filter);
 
         // Assert
         result.Should().NotBeEmpty();
@@ -88,7 +88,7 @@ public class MongoRepositoryCollectionExtensionsTests
         var filter = FilterDefinition<RetryQueueItemDbo>.Empty;
 
         // Act
-        var result = await _collection.Object.GetOneAsync(filter).ConfigureAwait(false);
+        var result = await _collection.Object.GetOneAsync(filter);
 
         // Assert
         result.Should().NotBeNull();

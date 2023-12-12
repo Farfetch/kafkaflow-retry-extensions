@@ -29,6 +29,9 @@ dotnet_naming_style.prefix_underscore.required_prefix = _
 dotnet_diagnostic.DOTNET_Naming_Style_DoNotUseThisForPrivateFields.severity = warning
 dotnet_diagnostic.DOTNET_Naming_Style_DoNotUseThisForPrivateFields.symbols = field_like
 
+dotnet_diagnostic.CA2007.severity = none
+dotnet_diagnostic.CS1591.severity = none
+
 dotnet_naming_rule.style_dotnet_naming_rule_DotNetNamingStyle.DoNotUseThisForPrivateFields.symbols = field_like
 dotnet_naming_rule.style_dotnet_naming_rule_DotNetNamingStyle.DoNotUseThisForPrivateFields.style = this_prefix
 dotnet_naming_rule.style_dotnet_naming_rule_DotNetNamingStyle.DoNotUseThisForPrivateFields.severity = warning

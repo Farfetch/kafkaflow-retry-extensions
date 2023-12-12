@@ -22,7 +22,7 @@ internal static class HttpContextHelper
                 new JsonSerializerSettings { DateTimeZoneHandling = DateTimeZoneHandling.Utc });
 
             using var writer = new StreamWriter(context.Request.Body, Encoding.UTF8);
-            await writer.WriteAsync(body).ConfigureAwait(false);
+            await writer.WriteAsync(body);
         }
 
         context.Response.Body = new MemoryStream();
@@ -59,7 +59,7 @@ internal static class HttpContextHelper
 
         using (var reader = new StreamReader(response.Body, Encoding.UTF8))
         {
-            var requestMessage = await reader.ReadToEndAsync().ConfigureAwait(false);
+            var requestMessage = await reader.ReadToEndAsync();
 
             responseDto = JsonConvert.DeserializeObject<T>(requestMessage,
                 new JsonSerializerSettings { DateTimeZoneHandling = DateTimeZoneHandling.Utc });

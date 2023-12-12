@@ -33,8 +33,8 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
     protected async Task InitializeDatabasesAsync(IConfiguration configuration)
     {
         InitializeMongoDb(configuration);
-        await InitializeSqlServerAsync(configuration).ConfigureAwait(false);
-        await InitializePostgresAsync(configuration).ConfigureAwait(false);
+        await InitializeSqlServerAsync(configuration);
+        await InitializePostgresAsync(configuration);
 
         _databasesInitialized = true;
     }
@@ -76,7 +76,7 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
         }
         SqlServerSettings.ConnectionString = sqlServerConnectionStringBuilder.ToString();
 
-        await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(SqlServerSettings.DatabaseName, SqlServerSettings.ConnectionString).ConfigureAwait(false);
+        await BootstrapperSqlServerSchema.RecreateSqlSchemaAsync(SqlServerSettings.DatabaseName, SqlServerSettings.ConnectionString);
     }
 
     private async Task InitializePostgresAsync(IConfiguration configuration)
@@ -86,6 +86,6 @@ public abstract class BootstrapperFixtureTemplate : IDisposable
         var postgresConnectionStringBuilder = new NpgsqlConnectionStringBuilder(PostgresSettings.ConnectionString);
         PostgresSettings.ConnectionString = postgresConnectionStringBuilder.ToString();
 
-        await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(PostgresSettings.DatabaseName, PostgresSettings.ConnectionString).ConfigureAwait(false);
+        await BootstrapperPostgresSchema.RecreatePostgresSchemaAsync(PostgresSettings.DatabaseName, PostgresSettings.ConnectionString);
     }
 }

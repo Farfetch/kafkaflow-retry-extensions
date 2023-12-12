@@ -64,7 +64,7 @@ public class GetItemsHandlerTests
         );
 
         // Act
-        var handled = await handler.HandleAsync(httpContext.Request, httpContext.Response).ConfigureAwait(false);
+        var handled = await handler.HandleAsync(httpContext.Request, httpContext.Response);
 
         // Assert
         handled.Should().BeTrue();
@@ -73,7 +73,7 @@ public class GetItemsHandlerTests
         _retryDurableQueueRepositoryProvider.Verify(mock => mock.GetQueuesAsync(getQueuesInput), Times.Once());
         _mockGetItemsResponseDtoReader.Verify(mock => mock.Adapt(getQueuesResult), Times.Once());
 
-        await AssertResponseAsync(httpContext.Response, expectedGetItemsResponseDto).ConfigureAwait(false);
+        await AssertResponseAsync(httpContext.Response, expectedGetItemsResponseDto);
     }
 
     [Theory]
@@ -112,7 +112,7 @@ public class GetItemsHandlerTests
 
         using (var reader = new StreamReader(response.Body, Encoding.UTF8))
         {
-            var requestMessage = await reader.ReadToEndAsync().ConfigureAwait(false);
+            var requestMessage = await reader.ReadToEndAsync();
 
             responseDto = JsonConvert.DeserializeObject<GetItemsResponseDto>(requestMessage);
         }

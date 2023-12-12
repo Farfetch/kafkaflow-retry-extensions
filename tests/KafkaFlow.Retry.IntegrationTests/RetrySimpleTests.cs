@@ -1,4 +1,3 @@
-using System;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoFixture;
@@ -15,7 +14,6 @@ public class RetrySimpleTests
 {
     private readonly BootstrapperHostFixture _bootstrapperHostFixture;
     private readonly Fixture _fixture = new Fixture();
-    private IServiceProvider _provider;
 
     public RetrySimpleTests(BootstrapperHostFixture bootstrapperHostFixture)
     {

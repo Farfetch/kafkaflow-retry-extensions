@@ -26,7 +26,7 @@ internal class PatchItemsHandler : RetryRequestHandlerBase
         _updateItemsResponseDtoAdapter = updateItemsResponseDtoAdapter;
     }
 
-    protected override HttpMethod HttpMethod => HttpMethod.Patch;
+    protected override HttpMethod HttpMethod => HttpMethod.PATCH;
 
     protected override async Task HandleRequestAsync(HttpRequest request, HttpResponse response)
     {

@@ -34,7 +34,7 @@ public class RetryDurableConsumerUtf8EncoderMiddlewareTests
             var utf8EncoderMiddleware = new RetryDurableConsumerUtf8EncoderMiddleware(mockIUtf8Encoder.Object);
 
             // Act
-            await utf8EncoderMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask).ConfigureAwait(false);
+            await utf8EncoderMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask);
 
             // Assert
             mockIMessageContext.Verify(c => c.SetMessage(null, decoded), Times.Once);

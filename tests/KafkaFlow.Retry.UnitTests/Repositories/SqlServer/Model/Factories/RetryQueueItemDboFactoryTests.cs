@@ -39,7 +39,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_WithDefaultQueueId_ThrowsException()
     {
         // Act
-        Action act = () => _factory.Create(_saveToQueueInput, 1, default);
+        Action act = () => _factory.Create(_saveToQueueInput, 1, Guid.Empty);
 
         // Assert
         act.Should().Throw<ArgumentException>();
@@ -49,7 +49,7 @@ public class RetryQueueItemDboFactoryTests
     public void RetryQueueItemDboFactory_Create_WithNegativeRetryQueueId_ThrowsException()
     {
         // Act
-        Action act = () => _factory.Create(_saveToQueueInput, -1, default);
+        Action act = () => _factory.Create(_saveToQueueInput, -1, Guid.Empty);
 
         // Assert
         act.Should().Throw<ArgumentOutOfRangeException>();
@@ -62,7 +62,7 @@ public class RetryQueueItemDboFactoryTests
         SaveToQueueInput saveToQueueInputNull = null;
 
         // Act
-        Action act = () => _factory.Create(saveToQueueInputNull, 1, default);
+        Action act = () => _factory.Create(saveToQueueInputNull, 1, Guid.Empty);
 
         // Assert
         act.Should().Throw<ArgumentNullException>();

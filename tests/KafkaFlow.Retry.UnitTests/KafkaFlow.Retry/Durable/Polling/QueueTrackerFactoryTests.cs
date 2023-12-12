@@ -84,9 +84,9 @@ public class QueueTrackerFactoryTests
                     )
                 );
 
-            await queueTrackerCoordinator.ScheduleJobsAsync(mockIMessageProducer.Object, mockILogHandler.Object).ConfigureAwait(false);
-            await queueTrackerCoordinator.UnscheduleJobsAsync().ConfigureAwait(false);
-            await queueTrackerCoordinator.ScheduleJobsAsync(mockIMessageProducer.Object, mockILogHandler.Object).ConfigureAwait(false);
+            await queueTrackerCoordinator.ScheduleJobsAsync(mockIMessageProducer.Object, mockILogHandler.Object);
+            await queueTrackerCoordinator.UnscheduleJobsAsync();
+            await queueTrackerCoordinator.ScheduleJobsAsync(mockIMessageProducer.Object, mockILogHandler.Object);
 
             mockILogHandler.Verify(x => x.Error(It.IsAny<string>(), It.IsAny<Exception>(), It.IsAny<object>()), Times.Never);
         }

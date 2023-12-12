@@ -56,7 +56,7 @@ public class RetryDurableConsumerNewtonsoftJsonSerializerMiddlewareTests
             typeof(Type));
 
         // Act
-        await newtonsoftJsonSerializerMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask).ConfigureAwait(false);
+        await newtonsoftJsonSerializerMiddleware.Invoke(mockIMessageContext.Object, _ => Task.CompletedTask);
 
         // Assert
         mockIMessageContext.Verify(c => c.SetMessage(null, deserialized), Times.Once);

@@ -27,11 +27,11 @@ internal static class InMemoryAuxiliarStorage<T> where T : ITestMessage
         {
             if (DateTime.Now.Subtract(start).TotalSeconds > TimeoutSec && !Debugger.IsAttached)
             {
-                Assert.True(false, "Message not received.");
+                Assert.Fail("Message not received.");
                 return;
             }
 
-            await Task.Delay(100).ConfigureAwait(false);
+            await Task.Delay(100);
         }
     }
 
