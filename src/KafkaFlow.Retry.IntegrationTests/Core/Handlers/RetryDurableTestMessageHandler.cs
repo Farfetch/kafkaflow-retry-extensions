@@ -5,7 +5,6 @@
     using KafkaFlow.Retry.IntegrationTests.Core.Exceptions;
     using KafkaFlow.Retry.IntegrationTests.Core.Messages;
     using KafkaFlow.Retry.IntegrationTests.Core.Storages;
-    using KafkaFlow.TypedHandler;
 
     internal class RetryDurableTestMessageHandler : IMessageHandler<RetryDurableTestMessage>
     {

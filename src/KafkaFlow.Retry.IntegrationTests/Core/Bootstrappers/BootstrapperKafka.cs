@@ -11,7 +11,6 @@
     using KafkaFlow.Retry.Postgres;
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
-    using KafkaFlow.TypedHandler;
     using Newtonsoft.Json;
 
     internal static class BootstrapperKafka
@@ -71,7 +70,7 @@
                         .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -147,7 +146,7 @@
                         .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -221,7 +220,7 @@
                         .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -297,7 +296,7 @@
                         .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -373,7 +372,7 @@
                         .WithAutoOffsetReset((KafkaFlow.AutoOffsetReset)AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -448,7 +447,7 @@
                         .WithAutoOffsetReset((KafkaFlow.AutoOffsetReset)AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetryDurableTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetryDurableTestMessage))
                                 .RetryDurable(
                                     (configure) => configure
                                         .Handle<RetryDurableTestException>()
@@ -519,7 +518,7 @@
                         .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<ProtobufNetSerializer>(typeof(RetryForeverTestMessage))
+                                .AddSingleTypeDeserializer<ProtobufNetDeserializer>(typeof(RetryForeverTestMessage))
                                 .RetryForever(
                                     (configure) => configure
                                         .Handle<RetryForeverTestException>()
@@ -551,7 +550,7 @@
                         .WithAutoOffsetReset(KafkaFlow.AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSingleTypeSerializer<NewtonsoftJsonSerializer>(typeof(RetrySimpleTestMessage))
+                                .AddSingleTypeDeserializer<NewtonsoftJsonDeserializer>(typeof(RetrySimpleTestMessage))
                                 .RetrySimple(
                                     (configure) => configure
                                         .Handle<RetrySimpleTestException>()

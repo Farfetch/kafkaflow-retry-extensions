@@ -1,6 +1,6 @@
 ﻿namespace KafkaFlow.Retry.SqlServer
 {
-    using System.Data.SqlClient;
+    using Microsoft.Data.SqlClient;
     using System.Diagnostics.CodeAnalysis;
     using Dawn;
 

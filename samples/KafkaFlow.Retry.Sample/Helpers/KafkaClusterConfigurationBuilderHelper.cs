@@ -8,8 +8,6 @@
     using KafkaFlow.Retry.Sample.Messages;
     using KafkaFlow.Retry.SqlServer;
     using KafkaFlow.Serializer;
-    using KafkaFlow.TypedHandler;
-
     internal static class KafkaClusterConfigurationBuilderHelper
     {
         internal static IClusterConfigurationBuilder SetupRetryDurableMongoDb(
@@ -41,7 +39,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSerializer<ProtobufNetSerializer>()
+                                .AddDeserializer<ProtobufNetDeserializer>()
                                 .RetryDurable(
                                     configure => configure
                                         .Handle<RetryDurableTestException>()
@@ -129,7 +127,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSerializer<ProtobufNetSerializer>()
+                                .AddDeserializer<ProtobufNetDeserializer>()
                                 .RetryDurable(
                                     configure => configure
                                         .Handle<RetryDurableTestException>()
@@ -209,7 +207,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSerializer<ProtobufNetSerializer>()
+                                .AddDeserializer<ProtobufNetDeserializer>()
                                 .RetryForever(
                                     (configure) => configure
                                         .Handle<RetryForeverTestException>()
@@ -251,7 +249,7 @@
                         .WithAutoOffsetReset(AutoOffsetReset.Latest)
                         .AddMiddlewares(
                             middlewares => middlewares
-                                .AddSerializer<ProtobufNetSerializer>()
+                                .AddDeserializer<ProtobufNetDeserializer>()
                                 .RetrySimple(
                                     (configure) => configure
                                         .Handle<RetrySimpleTestException>()

@@ -18,15 +18,15 @@
                     ),
                     new CreateIndexModel<RetryQueueDbo>(
                         Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.QueueGroupKey),
-                        new CreateIndexOptions{ Unique = true }
+                        new CreateIndexOptions { Unique = true }
                     ),
                     new CreateIndexModel<RetryQueueDbo>(
                         Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.Status)
                     ),
-                     new CreateIndexModel<RetryQueueDbo>(
+                    new CreateIndexModel<RetryQueueDbo>(
                         Builders<RetryQueueDbo>.IndexKeys.Descending(x => x.CreationDate)
                     ),
-                      new CreateIndexModel<RetryQueueDbo>(
+                    new CreateIndexModel<RetryQueueDbo>(
                         Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.LastExecution)
                     )
                 }
@@ -53,23 +53,17 @@
 
         internal static void TryRegisterClassMapppings()
         {
-            if (!BsonClassMap.IsClassMapRegistered(typeof(RetryQueueDbo)))
+            BsonClassMap.TryRegisterClassMap<RetryQueueDbo>(cm =>
             {
-                BsonClassMap.RegisterClassMap<RetryQueueDbo>(cm =>
-                    {
-                        cm.AutoMap();
-                        cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
-                    });
-            }
+                cm.AutoMap();
+                cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
+            });
 
-            if (!BsonClassMap.IsClassMapRegistered(typeof(RetryQueueItemDbo)))
+            BsonClassMap.TryRegisterClassMap<RetryQueueItemDbo>(cm =>
             {
-                BsonClassMap.RegisterClassMap<RetryQueueItemDbo>(cm =>
-                    {
-                        cm.AutoMap();
-                        cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
-                    });
-            }
+                cm.AutoMap();
+                cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
+            });
         }
     }
 }
