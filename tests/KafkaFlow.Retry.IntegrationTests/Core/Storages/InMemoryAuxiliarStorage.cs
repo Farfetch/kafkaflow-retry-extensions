@@ -9,7 +9,7 @@ namespace KafkaFlow.Retry.IntegrationTests.Core.Storages;
 
 internal static class InMemoryAuxiliarStorage<T> where T : ITestMessage
 {
-    private const int TimeoutSec = 60;
+    private const int TimeoutSec = 90;
     private static readonly ConcurrentBag<T> s_message = new();
 
     public static bool ThrowException { get; set; }

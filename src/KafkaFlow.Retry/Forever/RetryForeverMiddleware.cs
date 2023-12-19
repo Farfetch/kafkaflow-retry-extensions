@@ -24,8 +24,8 @@ internal class RetryForeverMiddleware : IMessageMiddleware
         var policy = Policy
             .Handle<Exception>(exception => _retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
             .WaitAndRetryForeverAsync(
-                (retryNumber, c) => _retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
-                (exception, attemptNumber, waitTime, c) =>
+                (retryNumber, _) => _retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
+                (exception, attemptNumber, waitTime, _) =>
                 {
                     if (!_controlWorkerId.HasValue)
                     {

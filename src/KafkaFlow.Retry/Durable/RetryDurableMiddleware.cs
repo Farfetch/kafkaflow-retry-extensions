@@ -49,7 +49,7 @@ internal class RetryDurableMiddleware : IMessageMiddleware
             .Handle<Exception>(exception => _retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
             .WaitAndRetryAsync(
                 _retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
-                (retryNumber, c) =>
+                (retryNumber, _) =>
                     _retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
                 (exception, waitTime, attemptNumber, c) =>
                 {

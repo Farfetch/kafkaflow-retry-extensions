@@ -25,7 +25,7 @@ public class GetQueuesInput
         {
             Guard.Argument(itemsStatuses, nameof(itemsStatuses))
                 .DoesNotContain(stuckStatusFilter.ItemStatus,
-                    (statuses, stuckStatus) =>
+                    (_, _) =>
                         "The status list can't contain the status that can be considered as stuck.");
         }
 

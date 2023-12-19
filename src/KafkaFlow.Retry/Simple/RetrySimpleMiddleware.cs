@@ -25,8 +25,8 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
             .Handle<Exception>(exception => _retrySimpleDefinition.ShouldRetry(new RetryContext(exception)))
             .WaitAndRetryAsync(
                 _retrySimpleDefinition.NumberOfRetries,
-                (retryNumber, c) => _retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
-                (exception, waitTime, attemptNumber, c) =>
+                (retryNumber, _) => _retrySimpleDefinition.TimeBetweenTriesPlan(retryNumber),
+                (exception, waitTime, attemptNumber, _) =>
                 {
                     if (_retrySimpleDefinition.PauseConsumer && !_controlWorkerId.HasValue)
                     {

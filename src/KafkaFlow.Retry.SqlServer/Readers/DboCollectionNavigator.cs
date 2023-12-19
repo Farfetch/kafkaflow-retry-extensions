@@ -24,7 +24,7 @@ internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
         Guard.Argument(action).NotNull();
         Guard.Argument(navigatingCondition).NotNull();
 
-        Navigate((domain, dbo) => action(domain), navigatingCondition);
+        Navigate((domain, _) => action(domain), navigatingCondition);
     }
 
     public void Navigate(Action<TDomain, TDbo> action, Predicate<TDbo> navigatingCondition)

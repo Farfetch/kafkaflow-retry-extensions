@@ -63,7 +63,6 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
                 async () =>
                 {
                     return await AddIfQueueExistsAsync(
-                        context,
                         new SaveToQueueInput(
                             new RetryQueueItemMessage(
                                 context.ConsumerContext.Topic,
@@ -240,8 +239,7 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
         throw new ArgumentException($"None of the handlers is able to update the input {updateItemInput.GetType()}");
     }
 
-    private async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context,
-        SaveToQueueInput saveToQueueInput)
+    private async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(SaveToQueueInput saveToQueueInput)
     {
         try
         {
