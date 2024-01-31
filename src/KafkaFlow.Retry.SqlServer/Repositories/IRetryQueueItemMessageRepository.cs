@@ -1,13 +1,12 @@
-namespace KafkaFlow.Retry.SqlServer.Repositories
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using KafkaFlow.Retry.SqlServer.Model;
+
+namespace KafkaFlow.Retry.SqlServer.Repositories;
+
+internal interface IRetryQueueItemMessageRepository
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.SqlServer.Model;
+    Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo);
 
-    internal interface IRetryQueueItemMessageRepository
-    {
-        Task AddAsync(IDbConnection dbConnection, RetryQueueItemMessageDbo retryQueueItemMessageDbo);
-
-        Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo);
-    }
+    Task<IList<RetryQueueItemMessageDbo>> GetMessagesOrderedAsync(IDbConnection dbConnection, IEnumerable<RetryQueueItemDbo> retryQueueItemsDbo);
 }

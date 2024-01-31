@@ -1,0 +1,128 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.0.32112.339
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Admin", "Admin", "{5AE4E956-15A8-4117-9A9D-97B53060FE4C}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Framework", "Framework", "{1DF1AB0D-37CB-4AFC-B701-8F0F2B260E54}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Repositories", "Repositories", "{90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry", "src\KafkaFlow.Retry\KafkaFlow.Retry.csproj", "{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "samples", "samples", "{B1D2A20A-0742-4D8E-A773-66EB95560152}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Sample", "samples\KafkaFlow.Retry.Sample\KafkaFlow.Retry.Sample.csproj", "{745CB854-1FFE-4C60-AD15-69A3A784CC9F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SqlServer", "src\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj", "{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.MongoDb", "src\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj", "{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API", "src\KafkaFlow.Retry.API\KafkaFlow.Retry.API.csproj", "{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.API.Sample", "samples\KafkaFlow.Retry.API.Sample\KafkaFlow.Retry.API.Sample.csproj", "{F27309CD-D796-425B-B5D6-780B7B57E9C7}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.UnitTests", "tests\KafkaFlow.Retry.UnitTests\KafkaFlow.Retry.UnitTests.csproj", "{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.IntegrationTests", "tests\KafkaFlow.Retry.IntegrationTests\KafkaFlow.Retry.IntegrationTests.csproj", "{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{9557F908-472F-4872-BCF8-8EC028EFDA9B}"
+	ProjectSection(SolutionItems) = preProject
+		Directory.Build.props = Directory.Build.props
+	EndProjectSection
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.SchemaRegistry.Sample", "samples\KafkaFlow.Retry.SchemaRegistry.Sample\KafkaFlow.Retry.SchemaRegistry.Sample.csproj", "{510D65E8-B62C-402C-9CE3-47C7055A29FF}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KafkaFlow.Retry.Common.Sample", "samples\KafkaFlow.Retry.Common.Sample\KafkaFlow.Retry.Common.Sample.csproj", "{B14C5859-85C5-4E2F-80C7-D8B29E36481A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Workflows", "Workflows", "{2A0BC610-E0FE-4BC3-B232-A8B918BE7381}"
+	ProjectSection(SolutionItems) = preProject
+		.github\workflows\build.yml = .github\workflows\build.yml
+		.github\workflows\publish.yml = .github\workflows\publish.yml
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KafkaFlow.Retry.Postgres", "src\KafkaFlow.Retry.Postgres\KafkaFlow.Retry.Postgres.csproj", "{B7E4C23D-48DC-4056-8658-19D54AF7008A}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{0192C262-63AF-4918-B142-EC07DBB9E501}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "tests", "tests", "{18F1AB11-9DC0-442F-9B6D-7098A93727B8}"
+	ProjectSection(SolutionItems) = preProject
+		CodeCoverage.runsettings = tests\CodeCoverage.runsettings
+	EndProjectSection
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01}.Release|Any CPU.Build.0 = Release|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F27309CD-D796-425B-B5D6-780B7B57E9C7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{510D65E8-B62C-402C-9CE3-47C7055A29FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{510D65E8-B62C-402C-9CE3-47C7055A29FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{510D65E8-B62C-402C-9CE3-47C7055A29FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{510D65E8-B62C-402C-9CE3-47C7055A29FF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B14C5859-85C5-4E2F-80C7-D8B29E36481A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{9DC50EFE-C511-4DEC-A8EA-199795CEFE01} = {1DF1AB0D-37CB-4AFC-B701-8F0F2B260E54}
+		{745CB854-1FFE-4C60-AD15-69A3A784CC9F} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+		{C61CCF7F-E7C8-4FEF-9E7E-22AB3ECD148D} = {90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}
+		{F06DD63E-8965-4C43-BEEE-4ABBB5914FF8} = {90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}
+		{D3664EBB-D77B-42C2-AF90-7B2F3E354C3F} = {5AE4E956-15A8-4117-9A9D-97B53060FE4C}
+		{F27309CD-D796-425B-B5D6-780B7B57E9C7} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+		{510D65E8-B62C-402C-9CE3-47C7055A29FF} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+		{B14C5859-85C5-4E2F-80C7-D8B29E36481A} = {B1D2A20A-0742-4D8E-A773-66EB95560152}
+		{2A0BC610-E0FE-4BC3-B232-A8B918BE7381} = {9557F908-472F-4872-BCF8-8EC028EFDA9B}
+		{B7E4C23D-48DC-4056-8658-19D54AF7008A} = {90B43DD5-C3CE-4BF8-B63E-3A34B962DC96}
+		{A25A5E30-8D5A-40DB-BA21-7A5B4FB44DE0} = {18F1AB11-9DC0-442F-9B6D-7098A93727B8}
+		{9E3B34BA-E309-4DA4-93D4-C0DD72D4711D} = {18F1AB11-9DC0-442F-9B6D-7098A93727B8}
+		{90B43DD5-C3CE-4BF8-B63E-3A34B962DC96} = {0192C262-63AF-4918-B142-EC07DBB9E501}
+		{1DF1AB0D-37CB-4AFC-B701-8F0F2B260E54} = {0192C262-63AF-4918-B142-EC07DBB9E501}
+		{5AE4E956-15A8-4117-9A9D-97B53060FE4C} = {0192C262-63AF-4918-B142-EC07DBB9E501}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A953E534-FBCA-4F30-9CA5-96F67C1A49D8}
+	EndGlobalSection
+EndGlobal

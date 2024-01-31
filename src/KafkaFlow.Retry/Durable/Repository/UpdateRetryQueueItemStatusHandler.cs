@@ -1,42 +1,45 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository
+﻿using System;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+namespace KafkaFlow.Retry.Durable.Repository;
+
+internal class UpdateRetryQueueItemStatusHandler : IUpdateRetryQueueItemHandler
 {
-    using System;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    private readonly IRetryDurableQueueRepositoryProvider _retryDurableQueueRepositoryProvider;
 
-    internal class UpdateRetryQueueItemStatusHandler : IUpdateRetryQueueItemHandler
+    public UpdateRetryQueueItemStatusHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
     {
-        private readonly IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider;
+        Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
 
-        public UpdateRetryQueueItemStatusHandler(IRetryDurableQueueRepositoryProvider retryDurableQueueRepositoryProvider)
+        _retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+    }
+
+    public bool CanHandle(UpdateItemInput input)
+    {
+        return input is UpdateItemStatusInput;
+    }
+
+    public async Task UpdateItemAsync(UpdateItemInput input)
+    {
+        Guard.Argument(input, nameof(input))
+            .Compatible<UpdateItemStatusInput>(i => $"The input have to be a {nameof(UpdateItemStatusInput)}.");
+
+        var updateItemStatusInput = input as UpdateItemStatusInput;
+
+        try
         {
-            Guard.Argument(retryDurableQueueRepositoryProvider).NotNull();
-
-            this.retryDurableQueueRepositoryProvider = retryDurableQueueRepositoryProvider;
+            await _retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput)
+                .ConfigureAwait(false);
         }
-
-        public bool CanHandle(UpdateItemInput input) => input is UpdateItemStatusInput;
-
-        public async Task UpdateItemAsync(UpdateItemInput input)
+        catch (Exception ex)
         {
-            Guard.Argument(input, nameof(input)).Compatible<UpdateItemStatusInput>(i => $"The input have to be a {nameof(UpdateItemStatusInput)}.");
+            var kafkaException = new RetryDurableException(
+                new RetryError(RetryErrorCode.DataProviderUpdateItem),
+                "An error ocurred while updating the retry queue item status.", ex);
 
-            var updateItemStatusInput = input as UpdateItemStatusInput;
-
-            try
-            {
-                await this.retryDurableQueueRepositoryProvider.UpdateItemStatusAsync(updateItemStatusInput).ConfigureAwait(false);
-            }
-            catch (Exception ex)
-            {
-                var kafkaException = new RetryDurableException(
-                  new RetryError(RetryErrorCode.DataProvider_UpdateItem),
-                  $"An error ocurred while updating the retry queue item status.", ex);
-
-                throw kafkaException;
-            }
+            throw kafkaException;
         }
     }
 }

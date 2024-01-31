@@ -1,16 +1,15 @@
-﻿namespace KafkaFlow.Retry.MongoDb
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace KafkaFlow.Retry.MongoDb;
+
+[ExcludeFromCodeCoverage]
+public class MongoDbSettings
 {
-    using System.Diagnostics.CodeAnalysis;
+    public string ConnectionString { get; set; }
 
-    [ExcludeFromCodeCoverage]
-    public class MongoDbSettings
-    {
-        public string ConnectionString { get; set; }
+    public string DatabaseName { get; set; }
 
-        public string DatabaseName { get; set; }
+    public string RetryQueueCollectionName { get; set; }
 
-        public string RetryQueueCollectionName { get; set; }
-
-        public string RetryQueueItemCollectionName { get; set; }
-    }
+    public string RetryQueueItemCollectionName { get; set; }
 }

@@ -1,12 +1,11 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
+﻿using System.Collections.Generic;
+using KafkaFlow.Retry.Durable.Repository.Model;
+
+namespace KafkaFlow.Retry.Durable.Repository.Adapters;
+
+internal interface IMessageHeadersAdapter
 {
-    using System.Collections.Generic;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+    IEnumerable<MessageHeader> AdaptMessageHeadersToRepository(IMessageHeaders messageHeaders);
 
-    internal interface IMessageHeadersAdapter
-    {
-        IEnumerable<MessageHeader> AdaptMessageHeadersToRepository(IMessageHeaders messageHeaders);
-
-        IMessageHeaders AdaptMessageHeadersFromRepository(IEnumerable<MessageHeader> fromMessageHeaders);
-    }
+    IMessageHeaders AdaptMessageHeadersFromRepository(IEnumerable<MessageHeader> fromMessageHeaders);
 }

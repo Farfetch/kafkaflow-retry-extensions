@@ -1,75 +1,76 @@
-﻿namespace KafkaFlow.Retry
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using Dawn;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+
+namespace KafkaFlow.Retry;
+
+public class PollingDefinitionsAggregatorBuilder
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
+    private readonly CleanupPollingDefinitionBuilder _cleanupPollingDefinitionBuilder;
+    private readonly List<PollingDefinition> _pollingDefinitions;
+    private readonly RetryDurablePollingDefinitionBuilder _retryDurablePollingDefinitionBuilder;
+    private string _schedulerId;
 
-    public class PollingDefinitionsAggregatorBuilder
+    public PollingDefinitionsAggregatorBuilder()
     {
-        private readonly CleanupPollingDefinitionBuilder cleanupPollingDefinitionBuilder;
-        private readonly List<PollingDefinition> pollingDefinitions;
-        private readonly RetryDurablePollingDefinitionBuilder retryDurablePollingDefinitionBuilder;
-        private string schedulerId;
+        _cleanupPollingDefinitionBuilder = new CleanupPollingDefinitionBuilder();
+        _retryDurablePollingDefinitionBuilder = new RetryDurablePollingDefinitionBuilder();
 
-        public PollingDefinitionsAggregatorBuilder()
+        _pollingDefinitions = new List<PollingDefinition>();
+    }
+
+    public PollingDefinitionsAggregatorBuilder WithCleanupPollingConfiguration(
+        Action<CleanupPollingDefinitionBuilder> configure)
+    {
+        Guard.Argument(configure, nameof(configure)).NotNull();
+
+        configure(_cleanupPollingDefinitionBuilder);
+        var cleanupPollingDefinition = _cleanupPollingDefinitionBuilder.Build();
+
+        _pollingDefinitions.Add(cleanupPollingDefinition);
+
+        return this;
+    }
+
+    public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(
+        Action<RetryDurablePollingDefinitionBuilder> configure)
+    {
+        Guard.Argument(configure, nameof(configure)).NotNull();
+
+        configure(_retryDurablePollingDefinitionBuilder);
+        var retryDurablepollingDefinition = _retryDurablePollingDefinitionBuilder.Build();
+
+        _pollingDefinitions.Add(retryDurablepollingDefinition);
+
+        return this;
+    }
+
+    public PollingDefinitionsAggregatorBuilder WithSchedulerId(string schedulerId)
+    {
+        _schedulerId = schedulerId;
+        return this;
+    }
+
+    internal PollingDefinitionsAggregator Build()
+    {
+        if (_retryDurablePollingDefinitionBuilder.Required)
         {
-            this.cleanupPollingDefinitionBuilder = new CleanupPollingDefinitionBuilder();
-            this.retryDurablePollingDefinitionBuilder = new RetryDurablePollingDefinitionBuilder();
-
-            this.pollingDefinitions = new List<PollingDefinition>();
+            ValidateRequiredPollingDefinition(PollingJobType.RetryDurable);
         }
 
-        public PollingDefinitionsAggregatorBuilder WithCleanupPollingConfiguration(Action<CleanupPollingDefinitionBuilder> configure)
+        if (_cleanupPollingDefinitionBuilder.Required)
         {
-            Guard.Argument(configure, nameof(configure)).NotNull();
-
-            configure(this.cleanupPollingDefinitionBuilder);
-            var cleanupPollingDefinition = this.cleanupPollingDefinitionBuilder.Build();
-
-            this.pollingDefinitions.Add(cleanupPollingDefinition);
-
-            return this;
+            ValidateRequiredPollingDefinition(PollingJobType.Cleanup);
         }
 
-        public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(Action<RetryDurablePollingDefinitionBuilder> configure)
-        {
-            Guard.Argument(configure, nameof(configure)).NotNull();
+        return new PollingDefinitionsAggregator(_schedulerId, _pollingDefinitions);
+    }
 
-            configure(this.retryDurablePollingDefinitionBuilder);
-            var retryDurablepollingDefinition = this.retryDurablePollingDefinitionBuilder.Build();
-
-            this.pollingDefinitions.Add(retryDurablepollingDefinition);
-
-            return this;
-        }
-
-        public PollingDefinitionsAggregatorBuilder WithSchedulerId(string schedulerId)
-        {
-            this.schedulerId = schedulerId;
-            return this;
-        }
-
-        internal PollingDefinitionsAggregator Build()
-        {
-            if (this.retryDurablePollingDefinitionBuilder.Required)
-            {
-                this.ValidateRequiredPollingDefinition(PollingJobType.RetryDurable);
-            }
-
-            if (this.cleanupPollingDefinitionBuilder.Required)
-            {
-                this.ValidateRequiredPollingDefinition(PollingJobType.Cleanup);
-            }
-
-            return new PollingDefinitionsAggregator(this.schedulerId, this.pollingDefinitions);
-        }
-
-        private void ValidateRequiredPollingDefinition(PollingJobType pollingJobType)
-        {
-            Guard.Argument(this.pollingDefinitions.Any(pd => pd.PollingJobType == pollingJobType), nameof(this.pollingDefinitions))
-                 .True($"The polling job {pollingJobType} must be defined.");
-        }
+    private void ValidateRequiredPollingDefinition(PollingJobType pollingJobType)
+    {
+        Guard.Argument(_pollingDefinitions.Any(pd => pd.PollingJobType == pollingJobType), nameof(_pollingDefinitions))
+            .True($"The polling job {pollingJobType} must be defined.");
     }
 }

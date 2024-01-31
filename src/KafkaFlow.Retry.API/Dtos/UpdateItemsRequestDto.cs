@@ -1,13 +1,12 @@
-﻿namespace KafkaFlow.Retry.API.Dtos
+﻿using System;
+using System.Collections.Generic;
+using KafkaFlow.Retry.API.Dtos.Common;
+
+namespace KafkaFlow.Retry.API.Dtos;
+
+public class UpdateItemsRequestDto
 {
-    using System;
-    using System.Collections.Generic;
-    using KafkaFlow.Retry.API.Dtos.Common;
+    public IEnumerable<Guid> ItemIds { get; set; }
 
-    public class UpdateItemsRequestDto
-    {
-        public IEnumerable<Guid> ItemIds { get; set; }
-
-        public RetryQueueItemStatusDto Status { get; set; }
-    }
+    public RetryQueueItemStatusDto Status { get; set; }
 }

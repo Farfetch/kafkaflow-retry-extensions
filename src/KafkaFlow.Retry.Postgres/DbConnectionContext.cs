@@ -1,89 +1,91 @@
-﻿namespace KafkaFlow.Retry.Postgres
+﻿using System.Diagnostics.CodeAnalysis;
+using Dawn;
+using Npgsql;
+
+namespace KafkaFlow.Retry.Postgres;
+
+[ExcludeFromCodeCoverage]
+internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
 {
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
-    using Npgsql;
-    
-    [ExcludeFromCodeCoverage]
-    internal sealed class DbConnectionContext : IDbConnectionWithinTransaction
+    private readonly PostgresDbSettings _postgresDbSettings;
+    private readonly bool _withinTransaction;
+    private bool _committed;
+    private NpgsqlConnection _sqlConnection;
+    private NpgsqlTransaction _sqlTransaction;
+
+    public DbConnectionContext(PostgresDbSettings postgresDbSettings, bool withinTransaction)
     {
-        private readonly PostgresDbSettings postgresDbSettings;
-        private readonly bool withinTransaction;
-        private bool committed;
-        private NpgsqlConnection sqlConnection;
-        private NpgsqlTransaction sqlTransaction;
+        Guard.Argument(postgresDbSettings).NotNull();
+        _postgresDbSettings = postgresDbSettings;
+        _withinTransaction = withinTransaction;
+    }
 
-        public DbConnectionContext(PostgresDbSettings postgresDbSettings, bool withinTransaction)
+    public void Commit()
+    {
+        if (_sqlTransaction is object)
         {
-            Guard.Argument(postgresDbSettings).NotNull();
-            this.postgresDbSettings = postgresDbSettings;
-            this.withinTransaction = withinTransaction;
+            _sqlTransaction.Commit();
+            _committed = true;
+        }
+    }
+
+    public NpgsqlCommand CreateCommand()
+    {
+        var dbCommand = GetDbConnection().CreateCommand();
+
+        if (_withinTransaction)
+        {
+            dbCommand.Transaction = GetDbTransaction();
         }
 
-        public void Commit()
+        return dbCommand;
+    }
+
+    public void Dispose()
+    {
+        if (_sqlTransaction is object)
         {
-            if (this.sqlTransaction is object)
+            if (!_committed)
             {
-                this.sqlTransaction.Commit();
-                this.committed = true;
+                Rollback();
             }
+
+            _sqlTransaction.Dispose();
         }
 
-        public NpgsqlCommand CreateCommand()
+        if (_sqlConnection is object)
         {
-            var dbCommand = this.GetDbConnection().CreateCommand();
+            _sqlConnection.Dispose();
+        }
+    }
 
-            if (this.withinTransaction)
-            {
-                dbCommand.Transaction = this.GetDbTransaction();
-            }
+    public void Rollback()
+    {
+        if (_sqlTransaction is object)
+        {
+            _sqlTransaction.Rollback();
+        }
+    }
 
-            return dbCommand;
+    private NpgsqlConnection GetDbConnection()
+    {
+        if (_sqlConnection is null)
+        {
+            _sqlConnection = new NpgsqlConnection(_postgresDbSettings.ConnectionString);
+            _sqlConnection.Open();
+            _sqlConnection.ChangeDatabase(_postgresDbSettings.DatabaseName);
         }
 
-        public void Dispose()
-        {
-            if (this.sqlTransaction is object)
-            {
-                if (!this.committed)
-                {
-                    this.Rollback();
-                }
-                this.sqlTransaction.Dispose();
-            }
+        return _sqlConnection;
+    }
 
-            if (this.sqlConnection is object)
-            {
-                this.sqlConnection.Dispose();
-            }
+    private NpgsqlTransaction GetDbTransaction()
+    {
+        if (_sqlTransaction is null)
+        {
+            _sqlTransaction = GetDbConnection().BeginTransaction();
         }
 
-        public void Rollback()
-        {
-            if (this.sqlTransaction is object)
-            {
-                this.sqlTransaction.Rollback();
-            }
-        }
-
-        private NpgsqlConnection GetDbConnection()
-        {
-            if (this.sqlConnection is null)
-            {
-                this.sqlConnection = new NpgsqlConnection(this.postgresDbSettings.ConnectionString);
-                this.sqlConnection.Open();
-                this.sqlConnection.ChangeDatabase(this.postgresDbSettings.DatabaseName);
-            }
-            return this.sqlConnection;
-        }
-
-        private NpgsqlTransaction GetDbTransaction()
-        {
-            if (this.sqlTransaction is null)
-            {
-                this.sqlTransaction = this.GetDbConnection().BeginTransaction();
-            }
-            return this.sqlTransaction;
-        }
+        return _sqlTransaction;
     }
 }

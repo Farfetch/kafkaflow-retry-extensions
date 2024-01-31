@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.SqlServer
-{
-    internal interface IDbConnectionWithinTransaction : IDbConnection
-    {
-        void Commit();
+﻿namespace KafkaFlow.Retry.SqlServer;
 
-        void Rollback();
-    }
+internal interface IDbConnectionWithinTransaction : IDbConnection
+{
+    void Commit();
+
+    void Rollback();
 }

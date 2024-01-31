@@ -1,17 +1,19 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
-{
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using Quartz;
+﻿using KafkaFlow.Retry.Durable.Definitions.Polling;
+using Quartz;
 
-    internal class TriggerProvider : ITriggerProvider
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal class TriggerProvider : ITriggerProvider
+{
+    public ITrigger GetPollingTrigger(string schedulerId, PollingDefinition pollingDefinition)
     {
-        public ITrigger GetPollingTrigger(string schedulerId, PollingDefinition pollingDefinition)
-            => TriggerBuilder
-                .Create()
-                .WithIdentity($"pollingJobTrigger_{schedulerId}_{pollingDefinition.PollingJobType}", "queueTrackerGroup")
-                .WithCronSchedule(pollingDefinition.CronExpression, cronBuilder => cronBuilder.WithMisfireHandlingInstructionDoNothing())
-                .StartNow()
-                .WithPriority(1)
-                .Build();
+        return TriggerBuilder
+            .Create()
+            .WithIdentity($"pollingJobTrigger_{schedulerId}_{pollingDefinition.PollingJobType}", "queueTrackerGroup")
+            .WithCronSchedule(pollingDefinition.CronExpression,
+                cronBuilder => cronBuilder.WithMisfireHandlingInstructionDoNothing())
+            .StartNow()
+            .WithPriority(1)
+            .Build();
     }
 }

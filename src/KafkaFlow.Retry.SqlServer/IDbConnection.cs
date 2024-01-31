@@ -1,12 +1,11 @@
-﻿namespace KafkaFlow.Retry.SqlServer
+﻿using System;
+using Microsoft.Data.SqlClient;
+
+namespace KafkaFlow.Retry.SqlServer;
+
+internal interface IDbConnection : IDisposable
 {
-    using System;
-    using Microsoft.Data.SqlClient;
+    string Schema { get; }
 
-    internal interface IDbConnection : IDisposable
-    {
-        string Schema { get; }
-
-        SqlCommand CreateCommand();
-    }
+    SqlCommand CreateCommand();
 }

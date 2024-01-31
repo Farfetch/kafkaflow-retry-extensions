@@ -1,12 +1,11 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Adapters.Interfaces
+﻿using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Model;
+
+namespace KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
+
+public interface IHeaderAdapter
 {
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Model;
+    RetryQueueHeaderDbo Adapt(MessageHeader header);
 
-    public interface IHeaderAdapter
-    {
-        RetryQueueHeaderDbo Adapt(MessageHeader header);
-
-        MessageHeader Adapt(RetryQueueHeaderDbo headerDbo);
-    }
+    MessageHeader Adapt(RetryQueueHeaderDbo headerDbo);
 }

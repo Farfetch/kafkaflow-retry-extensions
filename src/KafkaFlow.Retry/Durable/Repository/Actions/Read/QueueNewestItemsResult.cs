@@ -1,18 +1,17 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Read
+﻿using System.Diagnostics.CodeAnalysis;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Read;
+
+[ExcludeFromCodeCoverage]
+public class QueueNewestItemsResult
 {
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
-
-    [ExcludeFromCodeCoverage]
-    public class QueueNewestItemsResult
+    public QueueNewestItemsResult(QueueNewestItemsResultStatus status)
     {
-        public QueueNewestItemsResult(QueueNewestItemsResultStatus status)
-        {
-            Guard.Argument(status, nameof(status)).NotDefault();
+        Guard.Argument(status, nameof(status)).NotDefault();
 
-            this.Status = status;
-        }
-
-        public QueueNewestItemsResultStatus Status { get; }
+        Status = status;
     }
+
+    public QueueNewestItemsResultStatus Status { get; }
 }

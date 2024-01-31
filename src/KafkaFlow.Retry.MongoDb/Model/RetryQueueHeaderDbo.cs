@@ -1,12 +1,11 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Model
+﻿using System.Diagnostics.CodeAnalysis;
+
+namespace KafkaFlow.Retry.MongoDb.Model;
+
+[ExcludeFromCodeCoverage]
+public class RetryQueueHeaderDbo
 {
-    using System.Diagnostics.CodeAnalysis;
+    public string Key { get; set; }
 
-    [ExcludeFromCodeCoverage]
-    public class RetryQueueHeaderDbo
-    {
-        public string Key { get; set; }
-
-        public byte[] Value { get; set; }
-    }
+    public byte[] Value { get; set; }
 }

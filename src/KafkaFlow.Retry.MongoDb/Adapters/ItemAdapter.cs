@@ -1,39 +1,38 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Adapters
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
+using KafkaFlow.Retry.MongoDb.Model;
+
+namespace KafkaFlow.Retry.MongoDb.Adapters;
+
+internal class ItemAdapter : IItemAdapter
 {
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
-    using KafkaFlow.Retry.MongoDb.Model;
+    private readonly IMessageAdapter _messageAdapter;
 
-    internal class ItemAdapter : IItemAdapter
+    public ItemAdapter(IMessageAdapter messageAdater)
     {
-        private readonly IMessageAdapter messageAdapter;
+        Guard.Argument(messageAdater, nameof(messageAdater)).NotNull();
 
-        public ItemAdapter(IMessageAdapter messageAdater)
+        _messageAdapter = messageAdater;
+    }
+
+    public RetryQueueItem Adapt(RetryQueueItemDbo itemDbo)
+    {
+        Guard.Argument(itemDbo, nameof(itemDbo)).NotNull();
+
+        return new RetryQueueItem(
+            itemDbo.Id,
+            itemDbo.AttemptsCount,
+            itemDbo.CreationDate,
+            itemDbo.Sort,
+            itemDbo.LastExecution,
+            itemDbo.ModifiedStatusDate,
+            itemDbo.Status,
+            itemDbo.SeverityLevel,
+            itemDbo.Description
+        )
         {
-            Guard.Argument(messageAdater, nameof(messageAdater)).NotNull();
-
-            this.messageAdapter = messageAdater;
-        }
-
-        public RetryQueueItem Adapt(RetryQueueItemDbo itemDbo)
-        {
-            Guard.Argument(itemDbo, nameof(itemDbo)).NotNull();
-
-            return new RetryQueueItem(
-                itemDbo.Id,
-                itemDbo.AttemptsCount,
-                itemDbo.CreationDate,
-                itemDbo.Sort,
-                itemDbo.LastExecution,
-                itemDbo.ModifiedStatusDate,
-                itemDbo.Status,
-                itemDbo.SeverityLevel,
-                itemDbo.Description
-            )
-            {
-                Message = this.messageAdapter.Adapt(itemDbo.Message)
-            };
-        }
+            Message = _messageAdapter.Adapt(itemDbo.Message)
+        };
     }
 }

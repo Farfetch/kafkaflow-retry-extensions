@@ -1,31 +1,30 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository
+﻿using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+namespace KafkaFlow.Retry.Durable.Repository;
+
+public interface IRetryDurableQueueRepositoryProvider
 {
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input);
 
-    public interface IRetryDurableQueueRepositoryProvider
-    {
-        Task<CheckQueueResult> CheckQueueAsync(CheckQueueInput input);
+    Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput input);
 
-        Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput input);
+    Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput input);
 
-        Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput input);
+    Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input);
 
-        Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input);
+    Task<GetQueuesResult> GetQueuesAsync(GetQueuesInput input);
 
-        Task<GetQueuesResult> GetQueuesAsync(GetQueuesInput input);
+    Task<SaveToQueueResult> SaveToQueueAsync(SaveToQueueInput input);
 
-        Task<SaveToQueueResult> SaveToQueueAsync(SaveToQueueInput input);
+    Task<UpdateItemResult> UpdateItemExecutionInfoAsync(UpdateItemExecutionInfoInput input);
 
-        Task<UpdateItemResult> UpdateItemExecutionInfoAsync(UpdateItemExecutionInfoInput input);
+    Task<UpdateItemsResult> UpdateItemsAsync(UpdateItemsInput input);
 
-        Task<UpdateItemsResult> UpdateItemsAsync(UpdateItemsInput input);
+    Task<UpdateItemResult> UpdateItemStatusAsync(UpdateItemStatusInput input);
 
-        Task<UpdateItemResult> UpdateItemStatusAsync(UpdateItemStatusInput input);
-
-        Task<UpdateQueuesResult> UpdateQueuesAsync(UpdateQueuesInput input);
-    }
+    Task<UpdateQueuesResult> UpdateQueuesAsync(UpdateQueuesInput input);
 }

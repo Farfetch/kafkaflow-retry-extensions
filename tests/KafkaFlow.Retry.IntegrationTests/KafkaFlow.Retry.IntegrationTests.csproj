@@ -1,0 +1,48 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <IsPackable>false</IsPackable>
+
+    <RunSettingsFilePath>$(MSBuildProjectDirectory)\..\CodeCoverage.runsettings</RunSettingsFilePath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoFixture" Version="4.18.1" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="OpenCover" Version="4.7.1221" />
+    <PackageReference Include="xunit" Version="2.6.2" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.5.4">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="coverlet.collector" Version="6.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+
+    <PackageReference Include="KafkaFlow" Version="3.0.0" />
+    <PackageReference Include="KafkaFlow.Admin" Version="3.0.0" />
+    <PackageReference Include="KafkaFlow.LogHandler.Console" Version="3.0.0" />
+    <PackageReference Include="KafkaFlow.Microsoft.DependencyInjection" Version="3.0.0" />
+    <PackageReference Include="KafkaFlow.Serializer.NewtonsoftJson" Version="3.0.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry.MongoDb\KafkaFlow.Retry.MongoDb.csproj" />
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry.Postgres\KafkaFlow.Retry.Postgres.csproj" />
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj" />
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry\KafkaFlow.Retry.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="conf\appsettings.json" />
+    <Content Include="conf\appsettings.json">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+</Project>

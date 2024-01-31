@@ -1,22 +1,21 @@
-﻿namespace KafkaFlow.Retry
+﻿namespace KafkaFlow.Retry;
+
+public abstract class PollingDefinitionBuilder<TSelf> where TSelf : PollingDefinitionBuilder<TSelf>
 {
-    public abstract class PollingDefinitionBuilder<TSelf> where TSelf : PollingDefinitionBuilder<TSelf>
+    protected string CronExpression;
+    protected bool IsEnabled;
+
+    internal abstract bool Required { get; }
+
+    public TSelf Enabled(bool value)
     {
-        protected string cronExpression;
-        protected bool enabled;
+        IsEnabled = value;
+        return (TSelf)this;
+    }
 
-        internal abstract bool Required { get; }
-
-        public TSelf Enabled(bool value)
-        {
-            this.enabled = value;
-            return (TSelf)this;
-        }
-
-        public TSelf WithCronExpression(string cronExpression)
-        {
-            this.cronExpression = cronExpression;
-            return (TSelf)this;
-        }
+    public TSelf WithCronExpression(string cronExpression)
+    {
+        CronExpression = cronExpression;
+        return (TSelf)this;
     }
 }

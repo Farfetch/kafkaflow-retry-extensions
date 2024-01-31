@@ -1,23 +1,22 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.GetItems
+﻿using Dawn;
+using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Model;
+
+namespace KafkaFlow.Retry.API.Adapters.GetItems;
+
+internal class GetItemsInputAdapter : IGetItemsInputAdapter
 {
-    using Dawn;
-    using KafkaFlow.Retry.API.Dtos;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Model;
+    private readonly GetQueuesSortOption _sortOption = GetQueuesSortOption.ByCreationDateDescending;
 
-    internal class GetItemsInputAdapter : IGetItemsInputAdapter
+    public GetQueuesInput Adapt(GetItemsRequestDto requestDto)
     {
-        private readonly GetQueuesSortOption sortOption = GetQueuesSortOption.ByCreationDate_Descending;
+        Guard.Argument(requestDto, nameof(requestDto)).NotNull();
 
-        public GetQueuesInput Adapt(GetItemsRequestDto requestDto)
+        return new GetQueuesInput(RetryQueueStatus.Active, requestDto.ItemsStatuses, _sortOption, requestDto.TopQueues)
         {
-            Guard.Argument(requestDto, nameof(requestDto)).NotNull();
-
-            return new GetQueuesInput(RetryQueueStatus.Active, requestDto.ItemsStatuses, this.sortOption, requestDto.TopQueues)
-            {
-                SeverityLevels = requestDto.SeverityLevels,
-                TopItemsByQueue = requestDto.TopItemsByQueue
-            };
-        }
+            SeverityLevels = requestDto.SeverityLevels,
+            TopItemsByQueue = requestDto.TopItemsByQueue
+        };
     }
 }

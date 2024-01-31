@@ -1,154 +1,151 @@
-﻿namespace KafkaFlow.Retry.Durable
+﻿using System;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Definitions;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using Polly;
+
+namespace KafkaFlow.Retry.Durable;
+
+internal class RetryDurableMiddleware : IMessageMiddleware
 {
-    using System;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow;
-    using KafkaFlow.Retry.Durable.Definitions;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using Polly;
+    private readonly ILogHandler _logHandler;
+    private readonly RetryDurableDefinition _retryDurableDefinition;
+    private readonly object _syncPauseAndResume = new();
+    private int? _controlWorkerId;
 
-    internal class RetryDurableMiddleware : IMessageMiddleware
+    public RetryDurableMiddleware(
+        ILogHandler logHandler,
+        RetryDurableDefinition retryDurableDefinition)
     {
-        private readonly ILogHandler logHandler;
-        private readonly RetryDurableDefinition retryDurableDefinition;
-        private readonly object syncPauseAndResume = new object();
-        private int? controlWorkerId;
+        Guard.Argument(logHandler).NotNull();
+        Guard.Argument(retryDurableDefinition).NotNull();
 
-        public RetryDurableMiddleware(
-            ILogHandler logHandler,
-            RetryDurableDefinition retryDurableDefinition)
+        _logHandler = logHandler;
+        _retryDurableDefinition = retryDurableDefinition;
+    }
+
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
+        try
         {
-            Guard.Argument(logHandler).NotNull();
-            Guard.Argument(retryDurableDefinition).NotNull();
+            var resultAddIfQueueExistsAsync = await _retryDurableDefinition
+                .RetryDurableQueueRepository
+                .AddIfQueueExistsAsync(context)
+                .ConfigureAwait(false);
 
-            this.logHandler = logHandler;
-            this.retryDurableDefinition = retryDurableDefinition;
-        }
-
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
-            try
+            if (resultAddIfQueueExistsAsync.Status == AddIfQueueExistsResultStatus.Added)
             {
-                var resultAddIfQueueExistsAsync = await this
-                    .retryDurableDefinition
-                    .RetryDurableQueueRepository
-                    .AddIfQueueExistsAsync(context)
-                    .ConfigureAwait(false);
-
-                if (resultAddIfQueueExistsAsync.Status == AddIfQueueExistsResultStatus.Added)
-                {
-                    return;
-                }
-            }
-            catch (Exception)
-            {
-                context.ConsumerContext.ShouldStoreOffset = false;
                 return;
             }
+        }
+        catch (Exception)
+        {
+            context.ConsumerContext.ShouldStoreOffset = false;
+            return;
+        }
 
-            var policy = Policy
-                .Handle<Exception>(exception => this.retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
-                .WaitAndRetryAsync(
-                    this.retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
-                    (retryNumber, c) => this.retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
-                    (exception, waitTime, attemptNumber, c) =>
+        var policy = Policy
+            .Handle<Exception>(exception => _retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
+            .WaitAndRetryAsync(
+                _retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.NumberOfRetries,
+                (retryNumber, _) =>
+                    _retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.TimeBetweenTriesPlan(retryNumber),
+                (exception, waitTime, attemptNumber, c) =>
+                {
+                    if (_retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.PauseConsumer
+                        && !_controlWorkerId.HasValue)
                     {
-                        if (this.retryDurableDefinition.RetryDurableRetryPlanBeforeDefinition.PauseConsumer
-                        && !this.controlWorkerId.HasValue)
+                        lock (_syncPauseAndResume)
                         {
-                            lock (this.syncPauseAndResume)
+                            if (!_controlWorkerId.HasValue)
                             {
-                                if (!this.controlWorkerId.HasValue)
-                                {
-                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
+                                _controlWorkerId = context.ConsumerContext.WorkerId;
 
-                                    context.ConsumerContext.Pause();
+                                context.ConsumerContext.Pause();
 
-                                    this.logHandler.Info(
-                                        "Consumer paused by retry process",
-                                        new
-                                        {
-                                            ConsumerGroup = context.ConsumerContext.GroupId,
-                                            ConsumerName = context.ConsumerContext.ConsumerName,
-                                            Worker = context.ConsumerContext.WorkerId
-                                        });
-                                }
+                                _logHandler.Info(
+                                    "Consumer paused by retry process",
+                                    new
+                                    {
+                                        ConsumerGroup = context.ConsumerContext.GroupId,
+                                        context.ConsumerContext.ConsumerName,
+                                        Worker = context.ConsumerContext.WorkerId
+                                    });
                             }
                         }
-
-                        this.logHandler.Error(
-                            $"Exception captured by {nameof(RetryDurableMiddleware)}. Retry in process.",
-                            exception,
-                            new
-                            {
-                                AttemptNumber = attemptNumber,
-                                WaitMilliseconds = waitTime.TotalMilliseconds,
-                                PartitionNumber = context.ConsumerContext.Partition,
-                                Worker = context.ConsumerContext.WorkerId,
-                                ExceptionType = exception.GetType().FullName,
-                                ExceptionMessage = exception.Message
-                            });
                     }
-                );
 
-            try
+                    _logHandler.Error(
+                        $"Exception captured by {nameof(RetryDurableMiddleware)}. Retry in process.",
+                        exception,
+                        new
+                        {
+                            AttemptNumber = attemptNumber,
+                            WaitMilliseconds = waitTime.TotalMilliseconds,
+                            PartitionNumber = context.ConsumerContext.Partition,
+                            Worker = context.ConsumerContext.WorkerId,
+                            ExceptionType = exception.GetType().FullName,
+                            ExceptionMessage = exception.Message
+                        });
+                }
+            );
+
+        try
+        {
+            await policy
+                .ExecuteAsync(
+                    _ => next(context),
+                    context.ConsumerContext.WorkerStopped
+                ).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            if (context.ConsumerContext.WorkerStopped.IsCancellationRequested)
             {
-                await policy
-                    .ExecuteAsync(
-                        _ => next(context),
-                        context.ConsumerContext.WorkerStopped
-                    ).ConfigureAwait(false);
+                context.ConsumerContext.ShouldStoreOffset = false;
             }
-            catch (OperationCanceledException)
+        }
+        catch (Exception exception)
+        {
+            if (_retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
             {
-                if (context.ConsumerContext.WorkerStopped.IsCancellationRequested)
+                var resultSaveToQueue = await _retryDurableDefinition
+                    .RetryDurableQueueRepository
+                    .SaveToQueueAsync(context, exception.Message)
+                    .ConfigureAwait(false);
+
+                if (resultSaveToQueue.Status != SaveToQueueResultStatus.Created
+                    && resultSaveToQueue.Status != SaveToQueueResultStatus.Added)
                 {
                     context.ConsumerContext.ShouldStoreOffset = false;
                 }
             }
-            catch (Exception exception)
+            else
             {
-                if (this.retryDurableDefinition.ShouldRetry(new RetryContext(exception)))
-                {
-                    var resultSaveToQueue = await this
-                        .retryDurableDefinition
-                        .RetryDurableQueueRepository
-                        .SaveToQueueAsync(context, exception.Message)
-                        .ConfigureAwait(false);
-
-                    if (resultSaveToQueue.Status != SaveToQueueResultStatus.Created
-                     && resultSaveToQueue.Status != SaveToQueueResultStatus.Added)
-                    {
-                        context.ConsumerContext.ShouldStoreOffset = false;
-                    }
-                }
-                else
-                {
-                    throw;
-                }
+                throw;
             }
-            finally
+        }
+        finally
+        {
+            if (_controlWorkerId == context.ConsumerContext.WorkerId)
             {
-                if (this.controlWorkerId == context.ConsumerContext.WorkerId)
+                lock (_syncPauseAndResume)
                 {
-                    lock (this.syncPauseAndResume)
+                    if (_controlWorkerId == context.ConsumerContext.WorkerId)
                     {
-                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
-                        {
-                            this.controlWorkerId = null;
+                        _controlWorkerId = null;
 
-                            context.ConsumerContext.Resume();
+                        context.ConsumerContext.Resume();
 
-                            this.logHandler.Info(
-                                "Consumer resumed by retry process",
-                                new
-                                {
-                                    ConsumerGroup = context.ConsumerContext.GroupId,
-                                    ConsumerName = context.ConsumerContext.ConsumerName,
-                                    Worker = context.ConsumerContext.WorkerId
-                                });
-                        }
+                        _logHandler.Info(
+                            "Consumer resumed by retry process",
+                            new
+                            {
+                                ConsumerGroup = context.ConsumerContext.GroupId,
+                                context.ConsumerContext.ConsumerName,
+                                Worker = context.ConsumerContext.WorkerId
+                            });
                     }
                 }
             }

@@ -1,79 +1,80 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Common;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Repository.Actions.Create;
+using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
+using KafkaFlow.Retry.Durable.Repository.Actions.Read;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using Polly;
+
+namespace KafkaFlow.Retry.Durable.Repository;
+
+internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
 {
-    using System;
-    using System.Collections.Generic;
-    using System.Linq;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable;
-    using KafkaFlow.Retry.Durable.Common;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Create;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Read;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using Polly;
+    private const int DefaultMaxWaitInSeconds = 60;
+    private const int MaxAttempts = 6;
+    private readonly IMessageAdapter _messageAdapter;
+    private readonly IMessageHeadersAdapter _messageHeadersAdapter;
+    private readonly PollingDefinitionsAggregator _pollingDefinitionsAggregator;
+    private readonly IRetryDurableQueueRepositoryProvider _retryDurableRepositoryProvider;
+    private readonly IEnumerable<IUpdateRetryQueueItemHandler> _updateItemHandlers;
+    private readonly IUtf8Encoder _utf8Encoder;
 
-    internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
+    public RetryDurableQueueRepository(
+        IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider,
+        IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers,
+        IMessageHeadersAdapter messageHeadersAdapter,
+        IMessageAdapter messageAdapter,
+        IUtf8Encoder utf8Encoder,
+        PollingDefinitionsAggregator pollingDefinitionsAggregator)
     {
-        private const int DefaultMaxWaitInSeconds = 60;
-        private const int MaxAttempts = 6;
-        private readonly IMessageAdapter messageAdapter;
-        private readonly IMessageHeadersAdapter messageHeadersAdapter;
-        private readonly PollingDefinitionsAggregator pollingDefinitionsAggregator;
-        private readonly IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider;
-        private readonly IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers;
-        private readonly IUtf8Encoder utf8Encoder;
+        Guard.Argument(retryDurableRepositoryProvider).NotNull("Retry durable requires a repository to be defined");
+        Guard.Argument(updateItemHandlers).NotNull("At least an update item handler should be defined");
+        Guard.Argument(updateItemHandlers.Count())
+            .NotNegative(value => "At least an update item handler should be defined");
+        Guard.Argument(messageHeadersAdapter).NotNull();
+        Guard.Argument(messageAdapter).NotNull();
+        Guard.Argument(utf8Encoder).NotNull();
+        Guard.Argument(pollingDefinitionsAggregator).NotNull();
 
-        public RetryDurableQueueRepository(
-            IRetryDurableQueueRepositoryProvider retryDurableRepositoryProvider,
-            IEnumerable<IUpdateRetryQueueItemHandler> updateItemHandlers,
-            IMessageHeadersAdapter messageHeadersAdapter,
-            IMessageAdapter messageAdapter,
-            IUtf8Encoder utf8Encoder,
-            PollingDefinitionsAggregator pollingDefinitionsAggregator)
-        {
-            Guard.Argument(retryDurableRepositoryProvider).NotNull("Retry durable requires a repository to be defined");
-            Guard.Argument(updateItemHandlers).NotNull("At least an update item handler should be defined");
-            Guard.Argument(updateItemHandlers.Count()).NotNegative(value => "At least an update item handler should be defined");
-            Guard.Argument(messageHeadersAdapter).NotNull();
-            Guard.Argument(messageAdapter).NotNull();
-            Guard.Argument(utf8Encoder).NotNull();
-            Guard.Argument(pollingDefinitionsAggregator).NotNull();
+        _retryDurableRepositoryProvider = retryDurableRepositoryProvider;
+        _updateItemHandlers = updateItemHandlers;
+        _messageHeadersAdapter = messageHeadersAdapter;
+        _messageAdapter = messageAdapter;
+        _utf8Encoder = utf8Encoder;
+        _pollingDefinitionsAggregator = pollingDefinitionsAggregator;
+    }
 
-            this.retryDurableRepositoryProvider = retryDurableRepositoryProvider;
-            this.updateItemHandlers = updateItemHandlers;
-            this.messageHeadersAdapter = messageHeadersAdapter;
-            this.messageAdapter = messageAdapter;
-            this.utf8Encoder = utf8Encoder;
-            this.pollingDefinitionsAggregator = pollingDefinitionsAggregator;
-        }
-
-        public async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context)
-        {
-            return await Policy
-              .Handle<RetryDurableException>()
-              .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
-              .ExecuteAsync(
+    public async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context)
+    {
+        return await Policy
+            .Handle<RetryDurableException>()
+            .WaitAndRetryForeverAsync(retryAttempt =>
+                TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
+            .ExecuteAsync(
                 async () =>
                 {
-                    return await this.AddIfQueueExistsAsync(
-                        context,
+                    return await AddIfQueueExistsAsync(
                         new SaveToQueueInput(
                             new RetryQueueItemMessage(
                                 context.ConsumerContext.Topic,
                                 (byte[])context.Message.Key,
-                                this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
+                                _messageAdapter.AdaptMessageToRepository(context.Message.Value),
                                 context.ConsumerContext.Partition,
                                 context.ConsumerContext.Offset,
                                 context.ConsumerContext.MessageTimestamp,
-                                this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
+                                _messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
                             ),
-                            this.pollingDefinitionsAggregator.SchedulerId,
-                            $"{this.pollingDefinitionsAggregator.SchedulerId}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
+                            _pollingDefinitionsAggregator.SchedulerId,
+                            $"{_pollingDefinitionsAggregator.SchedulerId}-{_utf8Encoder.Decode((byte[])context.Message.Key)}",
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -85,100 +86,105 @@
                         )
                     ).ConfigureAwait(false);
                 }
-                ).ConfigureAwait(false);
+            ).ConfigureAwait(false);
+    }
+
+    public async Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput queueNewestItemsInput)
+    {
+        try
+        {
+            return await _retryDurableRepositoryProvider.CheckQueueNewestItemsAsync(queueNewestItemsInput)
+                .ConfigureAwait(false);
+        }
+        catch (Exception ex) when (!(ex is RetryDurableException))
+        {
+            var kafkaException = GetCheckQueueException(
+                "An error occurred when checking the queue pending items.",
+                queueNewestItemsInput
+            );
+
+            //this.policyBuilder.OnDataProviderException(kafkaException);
+
+            throw kafkaException;
+        }
+    }
+
+    public async Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(
+        QueuePendingItemsInput queuePendingItemsInput)
+    {
+        if (queuePendingItemsInput.Sort == 0)
+        {
+            return new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems);
         }
 
-        public async Task<QueueNewestItemsResult> CheckQueueNewestItemsAsync(QueueNewestItemsInput queueNewestItemsInput)
+        try
         {
-            try
-            {
-                return await this.retryDurableRepositoryProvider.CheckQueueNewestItemsAsync(queueNewestItemsInput).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (!(ex is RetryDurableException))
-            {
-                var kafkaException = this.GetCheckQueueException(
-                    $"An error occurred when checking the queue pending items.",
-                    queueNewestItemsInput
-                );
-
-                //this.policyBuilder.OnDataProviderException(kafkaException);
-
-                throw kafkaException;
-            }
+            return await _retryDurableRepositoryProvider.CheckQueuePendingItemsAsync(queuePendingItemsInput)
+                .ConfigureAwait(false);
         }
-
-        public async Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput queuePendingItemsInput)
+        catch (Exception ex) when (!(ex is RetryDurableException))
         {
-            if (queuePendingItemsInput.Sort == 0)
-            {
-                return new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems);
-            }
+            var kafkaException = GetCheckQueueException(
+                "An error occurred when checking the queue pending items.",
+                queuePendingItemsInput
+            );
 
-            try
-            {
-                return await this.retryDurableRepositoryProvider.CheckQueuePendingItemsAsync(queuePendingItemsInput).ConfigureAwait(false);
-            }
-            catch (Exception ex) when (!(ex is RetryDurableException))
-            {
-                var kafkaException = this.GetCheckQueueException(
-                    $"An error occurred when checking the queue pending items.",
-                    queuePendingItemsInput
-                );
+            //this.policyBuilder.OnDataProviderException(kafkaException);
 
-                //this.policyBuilder.OnDataProviderException(kafkaException);
-
-                throw kafkaException;
-            }
+            throw kafkaException;
         }
+    }
 
-        public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput)
+    public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput)
+    {
+        return await _retryDurableRepositoryProvider.DeleteQueuesAsync(deleteQueuesInput).ConfigureAwait(false);
+    }
+
+    public async Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput)
+    {
+        try
         {
-            return await this.retryDurableRepositoryProvider.DeleteQueuesAsync(deleteQueuesInput).ConfigureAwait(false);
+            var getQueuesResult =
+                await _retryDurableRepositoryProvider.GetQueuesAsync(getQueuesInput).ConfigureAwait(false);
+
+            return getQueuesResult?.RetryQueues ?? Enumerable.Empty<RetryQueue>();
         }
-
-        public async Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput)
+        catch (Exception ex)
         {
-            try
-            {
-                var getQueuesResult = await this.retryDurableRepositoryProvider.GetQueuesAsync(getQueuesInput).ConfigureAwait(false);
+            var kafkaException = new RetryDurableException(
+                new RetryError(RetryErrorCode.DataProviderGetRetryQueues),
+                "An error ocurred getting the retry queues", ex);
 
-                return getQueuesResult?.RetryQueues ?? Enumerable.Empty<RetryQueue>();
-            }
-            catch (Exception ex)
-            {
-                var kafkaException = new RetryDurableException(
-                    new RetryError(RetryErrorCode.DataProvider_GetRetryQueues),
-                    $"An error ocurred getting the retry queues", ex);
+            //this.policyBuilder.OnDataProviderException(kafkaException);
 
-                //this.policyBuilder.OnDataProviderException(kafkaException);
-
-                throw kafkaException;
-            }
+            throw kafkaException;
         }
+    }
 
-        public async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, string description)
-        {
-            return await Policy
-                .Handle<RetryDurableException>(ex => ex.Error.Code != RetryErrorCode.DataProvider_UnrecoverableException)
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
-                .ExecuteAsync(
-                    async () =>
-                    {
-                        var refDate = DateTime.UtcNow;
+    public async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, string description)
+    {
+        return await Policy
+            .Handle<RetryDurableException>(ex => ex.Error.Code != RetryErrorCode.DataProviderUnrecoverableException)
+            .WaitAndRetryForeverAsync(retryAttempt =>
+                TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)))
+            .ExecuteAsync(
+                async () =>
+                {
+                    var refDate = DateTime.UtcNow;
 
-                        return await this.SaveToQueueAsync(context,
-                           new SaveToQueueInput(
-                                new RetryQueueItemMessage(
-                                    context.ConsumerContext.Topic,
-                                    (byte[])context.Message.Key,
-                                    this.messageAdapter.AdaptMessageToRepository(context.Message.Value),
-                                    context.ConsumerContext.Partition,
-                                    context.ConsumerContext.Offset,
-                                    context.ConsumerContext.MessageTimestamp,
-                                    this.messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
-                                ),
-                            this.pollingDefinitionsAggregator.SchedulerId,
-                            $"{this.pollingDefinitionsAggregator.SchedulerId}-{this.utf8Encoder.Decode((byte[])context.Message.Key)}",
+                    return await SaveToQueueAsync(context,
+                        new SaveToQueueInput(
+                            new RetryQueueItemMessage(
+                                context.ConsumerContext.Topic,
+                                (byte[])context.Message.Key,
+                                _messageAdapter.AdaptMessageToRepository(context.Message.Value),
+                                context.ConsumerContext.Partition,
+                                context.ConsumerContext.Offset,
+                                context.ConsumerContext.MessageTimestamp,
+                                _messageHeadersAdapter.AdaptMessageHeadersToRepository(context.Headers)
+                            ),
+                            _pollingDefinitionsAggregator.SchedulerId,
+                            $"{_pollingDefinitionsAggregator.SchedulerId}-{_utf8Encoder.Decode((byte[])context.Message.Key)}",
                             RetryQueueStatus.Active,
                             RetryQueueItemStatus.Waiting,
                             SeverityLevel.Unknown,
@@ -187,141 +193,150 @@
                             refDate,
                             0,
                             description
-                            )
-                       ).ConfigureAwait(false);
-                    }
-                ).ConfigureAwait(false);
-        }
-
-        public async Task UpdateItemAsync(UpdateItemInput updateItemInput)
-        {
-            foreach (var handler in this.updateItemHandlers)
-            {
-                if (handler.CanHandle(updateItemInput))
-                {
-                    //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Info, "RETRY QUEUE STORAGE",
-                    // $"An item ({input.ItemId}) will be UPDATED to status {input.Status}"));
-
-                    await Policy
-                       .Handle<Exception>()
-                       .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts ? DefaultMaxWaitInSeconds : Math.Pow(2, retryAttempt)),
-                       (exception, time) =>
-                            {
-                                //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Error, "RETRY QUEUE STORAGE",
-                                //$"An item ({input.ItemId}) FAILED to update the status to '{input.Status}': {exception?.ToString()}"));
-
-                                var kafkaException = new RetryDurableException( // TODO: ok, we need to think on how we want to expose this kind of exception in this context to the user.
-                                    new RetryError(RetryErrorCode.DataProvider_AddIfQueueExists),
-                                    $"An error ocurred while trying to add the item to an existing queue.", exception);
-
-                                //this.policyBuilder.OnDataProviderException(kafkaException);
-                            }
-                       )
-                       .ExecuteAsync(() => handler.UpdateItemAsync(updateItemInput))
-                       .ConfigureAwait(false);
-
-                    return;
+                        )
+                    ).ConfigureAwait(false);
                 }
-            }
+            ).ConfigureAwait(false);
+    }
 
-            throw new ArgumentException($"None of the handlers is able to update the input {updateItemInput.GetType().ToString()}");
-        }
-
-        private async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(IMessageContext context, SaveToQueueInput saveToQueueInput)
+    public async Task UpdateItemAsync(UpdateItemInput updateItemInput)
+    {
+        foreach (var handler in _updateItemHandlers)
         {
-            try
+            if (handler.CanHandle(updateItemInput))
             {
-                var checkQueueInput = new CheckQueueInput(saveToQueueInput.Message, saveToQueueInput.QueueGroupKey);
+                //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Info, "RETRY QUEUE STORAGE",
+                // $"An item ({input.ItemId}) will be UPDATED to status {input.Status}"));
 
-                var checkQueueResult = await this.retryDurableRepositoryProvider.CheckQueueAsync(checkQueueInput).ConfigureAwait(false);
+                await Policy
+                    .Handle<Exception>()
+                    .WaitAndRetryForeverAsync(
+                        retryAttempt => TimeSpan.FromSeconds(retryAttempt > MaxAttempts
+                            ? DefaultMaxWaitInSeconds
+                            : Math.Pow(2, retryAttempt)),
+                        (exception, time) =>
+                        {
+                            //this.policyBuilder.OnLog(new Retry.LogMessage(this.policyBuilder.GetSearchGroupKey(), KafkaRetryLogLevel.Error, "RETRY QUEUE STORAGE",
+                            //$"An item ({input.ItemId}) FAILED to update the status to '{input.Status}': {exception?.ToString()}"));
 
-                if (checkQueueResult.Status == CheckQueueResultStatus.Exists)
-                {
-                    var saveToQueueResult = await this.retryDurableRepositoryProvider.SaveToQueueAsync(saveToQueueInput).ConfigureAwait(false);
+                            var kafkaException =
+                                new
+                                    RetryDurableException( // TODO: ok, we need to think on how we want to expose this kind of exception in this context to the user.
+                                        new RetryError(RetryErrorCode.DataProviderAddIfQueueExists),
+                                        "An error ocurred while trying to add the item to an existing queue.",
+                                        exception);
 
-                    if (saveToQueueResult.Status == SaveToQueueResultStatus.Added)
-                    {
-                        //this.policyBuilder.OnMessageAddedToQueue(input.QueueGroupKey, context);
+                            //this.policyBuilder.OnDataProviderException(kafkaException);
+                        }
+                    )
+                    .ExecuteAsync(() => handler.UpdateItemAsync(updateItemInput))
+                    .ConfigureAwait(false);
 
-                        return new AddIfQueueExistsResult(AddIfQueueExistsResultStatus.Added);
-                    }
-                }
-
-                return new AddIfQueueExistsResult(AddIfQueueExistsResultStatus.NoPendingMembers);
+                return;
             }
-            catch (Exception ex)
+        }
+
+        throw new ArgumentException($"None of the handlers is able to update the input {updateItemInput.GetType()}");
+    }
+
+    private async Task<AddIfQueueExistsResult> AddIfQueueExistsAsync(SaveToQueueInput saveToQueueInput)
+    {
+        try
+        {
+            var checkQueueInput = new CheckQueueInput(saveToQueueInput.Message, saveToQueueInput.QueueGroupKey);
+
+            var checkQueueResult =
+                await _retryDurableRepositoryProvider.CheckQueueAsync(checkQueueInput).ConfigureAwait(false);
+
+            if (checkQueueResult.Status == CheckQueueResultStatus.Exists)
             {
-                var kafkaException = new RetryDurableException(
-                    new RetryError(RetryErrorCode.DataProvider_AddIfQueueExists),
-                    $"An error ocurred while trying to add the item to an existing queue.", ex);
+                var saveToQueueResult = await _retryDurableRepositoryProvider.SaveToQueueAsync(saveToQueueInput)
+                    .ConfigureAwait(false);
 
-                kafkaException.Data.Add(nameof(saveToQueueInput.QueueGroupKey), saveToQueueInput.QueueGroupKey);
-
-                //this.policyBuilder.OnDataProviderException(kafkaException, context);
-
-                throw kafkaException;
-            }
-        }
-
-        private RetryDurableException GetCheckQueueException(string message, QueuePendingItemsInput input)
-        {
-            var kafkaException = new RetryDurableException(new RetryError(RetryErrorCode.DataProvider_CheckQueuePendingItems), message);
-
-            kafkaException.Data.Add(nameof(input.QueueId), input.QueueId);
-            kafkaException.Data.Add(nameof(input.ItemId), input.ItemId);
-            kafkaException.Data.Add(nameof(input.Sort), input.Sort);
-
-            return kafkaException;
-        }
-
-        private RetryDurableException GetCheckQueueException(string message, QueueNewestItemsInput input)
-        {
-            var kafkaException = new RetryDurableException(new RetryError(RetryErrorCode.DataProvider_CheckQueuePendingItems), message);
-
-            kafkaException.Data.Add(nameof(input.QueueId), input.QueueId);
-            kafkaException.Data.Add(nameof(input.ItemId), input.ItemId);
-            kafkaException.Data.Add(nameof(input.Sort), input.Sort);
-
-            return kafkaException;
-        }
-
-        private async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, SaveToQueueInput input)
-        {
-            try
-            {
-                var result = await this.retryDurableRepositoryProvider.SaveToQueueAsync(input).ConfigureAwait(false);
-
-                if (result.Status == SaveToQueueResultStatus.Added)
+                if (saveToQueueResult.Status == SaveToQueueResultStatus.Added)
                 {
                     //this.policyBuilder.OnMessageAddedToQueue(input.QueueGroupKey, context);
+
+                    return new AddIfQueueExistsResult(AddIfQueueExistsResultStatus.Added);
                 }
-                else if (result.Status == SaveToQueueResultStatus.Created)
-                {
-                    //this.policyBuilder.OnMessageQueueCreated(input.QueueGroupKey, context);
-                }
-
-                return result;
             }
-            catch (System.Text.DecoderFallbackException ex)
+
+            return new AddIfQueueExistsResult(AddIfQueueExistsResultStatus.NoPendingMembers);
+        }
+        catch (Exception ex)
+        {
+            var kafkaException = new RetryDurableException(
+                new RetryError(RetryErrorCode.DataProviderAddIfQueueExists),
+                "An error ocurred while trying to add the item to an existing queue.", ex);
+
+            kafkaException.Data.Add(nameof(saveToQueueInput.QueueGroupKey), saveToQueueInput.QueueGroupKey);
+
+            //this.policyBuilder.OnDataProviderException(kafkaException, context);
+
+            throw kafkaException;
+        }
+    }
+
+    private RetryDurableException GetCheckQueueException(string message, QueuePendingItemsInput input)
+    {
+        var kafkaException =
+            new RetryDurableException(new RetryError(RetryErrorCode.DataProviderCheckQueuePendingItems), message);
+
+        kafkaException.Data.Add(nameof(input.QueueId), input.QueueId);
+        kafkaException.Data.Add(nameof(input.ItemId), input.ItemId);
+        kafkaException.Data.Add(nameof(input.Sort), input.Sort);
+
+        return kafkaException;
+    }
+
+    private RetryDurableException GetCheckQueueException(string message, QueueNewestItemsInput input)
+    {
+        var kafkaException =
+            new RetryDurableException(new RetryError(RetryErrorCode.DataProviderCheckQueuePendingItems), message);
+
+        kafkaException.Data.Add(nameof(input.QueueId), input.QueueId);
+        kafkaException.Data.Add(nameof(input.ItemId), input.ItemId);
+        kafkaException.Data.Add(nameof(input.Sort), input.Sort);
+
+        return kafkaException;
+    }
+
+    private async Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, SaveToQueueInput input)
+    {
+        try
+        {
+            var result = await _retryDurableRepositoryProvider.SaveToQueueAsync(input).ConfigureAwait(false);
+
+            if (result.Status == SaveToQueueResultStatus.Added)
             {
-                var unrecoverableException = new RetryDurableException(
-                    new RetryError(RetryErrorCode.DataProvider_UnrecoverableException),
-                    "An unrecoverable error occurred while trying to save the item", ex);
-
-                //this.policyBuilder.OnDataProviderException(unrecoverableException, context);
-
-                throw unrecoverableException;
+                //this.policyBuilder.OnMessageAddedToQueue(input.QueueGroupKey, context);
             }
-            catch (Exception ex)
+            else if (result.Status == SaveToQueueResultStatus.Created)
             {
-                var retryException = new RetryDurableException(
-                    new RetryError(RetryErrorCode.DataProvider_SaveToQueue),
-                    "An error occurred while trying to save the item", ex);
-
-                //this.policyBuilder.OnDataProviderException(retryException, context);
-
-                throw retryException;
+                //this.policyBuilder.OnMessageQueueCreated(input.QueueGroupKey, context);
             }
+
+            return result;
+        }
+        catch (DecoderFallbackException ex)
+        {
+            var unrecoverableException = new RetryDurableException(
+                new RetryError(RetryErrorCode.DataProviderUnrecoverableException),
+                "An unrecoverable error occurred while trying to save the item", ex);
+
+            //this.policyBuilder.OnDataProviderException(unrecoverableException, context);
+
+            throw unrecoverableException;
+        }
+        catch (Exception ex)
+        {
+            var retryException = new RetryDurableException(
+                new RetryError(RetryErrorCode.DataProviderSaveToQueue),
+                "An error occurred while trying to save the item", ex);
+
+            //this.policyBuilder.OnDataProviderException(retryException, context);
+
+            throw retryException;
         }
     }
 }

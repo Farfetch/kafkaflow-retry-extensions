@@ -1,34 +1,33 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿using System.Threading.Tasks;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal class QueueTrackerCoordinator : IQueueTrackerCoordinator
 {
-    using System.Threading.Tasks;
-    using Dawn;
+    private readonly IQueueTrackerFactory _queueTrackerFactory;
+    private QueueTracker _queueTracker;
 
-    internal class QueueTrackerCoordinator : IQueueTrackerCoordinator
+    public QueueTrackerCoordinator(IQueueTrackerFactory queueTrackerFactory)
     {
-        private readonly IQueueTrackerFactory queueTrackerFactory;
-        private QueueTracker queueTracker;
+        Guard.Argument(queueTrackerFactory).NotNull();
 
-        public QueueTrackerCoordinator(IQueueTrackerFactory queueTrackerFactory)
+        _queueTrackerFactory = queueTrackerFactory;
+    }
+
+    public async Task ScheduleJobsAsync(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
+    {
+        _queueTracker = _queueTrackerFactory
+            .Create(retryDurableMessageProducer, logHandler);
+
+        await _queueTracker.ScheduleJobsAsync().ConfigureAwait(false);
+    }
+
+    public async Task UnscheduleJobsAsync()
+    {
+        if (_queueTracker is object)
         {
-            Guard.Argument(queueTrackerFactory).NotNull();
-
-            this.queueTrackerFactory = queueTrackerFactory;
-        }
-
-        public async Task ScheduleJobsAsync(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
-        {
-            this.queueTracker = this.queueTrackerFactory
-                .Create(retryDurableMessageProducer, logHandler);
-
-            await this.queueTracker.ScheduleJobsAsync().ConfigureAwait(false);
-        }
-
-        public async Task UnscheduleJobsAsync()
-        {
-            if (this.queueTracker is object)
-            {
-                await this.queueTracker.UnscheduleJobsAsync().ConfigureAwait(false);
-            }
+            await _queueTracker.UnscheduleJobsAsync().ConfigureAwait(false);
         }
     }
 }

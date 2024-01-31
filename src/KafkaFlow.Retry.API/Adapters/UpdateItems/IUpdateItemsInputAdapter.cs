@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.UpdateItems
-{
-    using KafkaFlow.Retry.API.Dtos;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+﻿using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
 
-    public interface IUpdateItemsInputAdapter
-    {
-        UpdateItemsInput Adapt(UpdateItemsRequestDto requestDto);
-    }
+namespace KafkaFlow.Retry.API.Adapters.UpdateItems;
+
+public interface IUpdateItemsInputAdapter
+{
+    UpdateItemsInput Adapt(UpdateItemsRequestDto requestDto);
 }

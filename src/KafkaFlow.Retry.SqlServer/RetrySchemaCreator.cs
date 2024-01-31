@@ -1,45 +1,46 @@
-﻿namespace KafkaFlow.Retry.SqlServer
+﻿using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.SqlServer.Model.Schema;
+using Microsoft.Data.SqlClient;
+
+namespace KafkaFlow.Retry.SqlServer;
+
+internal class RetrySchemaCreator : IRetrySchemaCreator
 {
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.SqlServer.Model.Schema;
+    private readonly IEnumerable<Script> _schemaScripts;
+    private readonly SqlServerDbSettings _sqlServerDbSettings;
 
-    internal class RetrySchemaCreator : IRetrySchemaCreator
+    public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
     {
-        private readonly IEnumerable<Script> schemaScripts;
-        private readonly SqlServerDbSettings sqlServerDbSettings;
+        Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
+        Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-        public RetrySchemaCreator(SqlServerDbSettings sqlServerDbSettings, IEnumerable<Script> schemaScripts)
+        _sqlServerDbSettings = sqlServerDbSettings;
+        _schemaScripts = schemaScripts;
+    }
+
+    public async Task CreateOrUpdateSchemaAsync(string databaseName)
+    {
+        using (var openCon = new SqlConnection(_sqlServerDbSettings.ConnectionString))
         {
-            Guard.Argument(sqlServerDbSettings, nameof(sqlServerDbSettings)).NotNull();
-            Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
+            openCon.Open();
 
-            this.sqlServerDbSettings = sqlServerDbSettings;
-            this.schemaScripts = schemaScripts;
-        }
-
-        public async Task CreateOrUpdateSchemaAsync(string databaseName)
-        {
-            using (SqlConnection openCon = new SqlConnection(this.sqlServerDbSettings.ConnectionString))
+            foreach (var script in _schemaScripts)
             {
-                openCon.Open();
+                var batches = script.Value.Split(new[] { "GO\r\n", "GO\t", "GO\n" },
+                    StringSplitOptions.RemoveEmptyEntries);
 
-                foreach (var script in this.schemaScripts)
+                foreach (var batch in batches)
                 {
-                    string[] batches = script.Value.Split(new string[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var replacedBatch = batch.Replace("@dbname", databaseName);
 
-                    foreach (var batch in batches)
+                    using (var queryCommand = new SqlCommand(replacedBatch))
                     {
-                        string replacedBatch = batch.Replace("@dbname", databaseName);
+                        queryCommand.Connection = openCon;
 
-                        using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
-                        {
-                            queryCommand.Connection = openCon;
-
-                            await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        }
+                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }

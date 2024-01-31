@@ -1,56 +1,56 @@
-﻿namespace KafkaFlow.Retry.Common.Sample.Helpers
+﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
+using Microsoft.Data.SqlClient;
+
+namespace KafkaFlow.Retry.Common.Sample.Helpers;
+
+public static class SqlServerHelper
 {
-    using System.Collections.Generic;
-    using Microsoft.Data.SqlClient;
-    using System.IO;
-    using System.Linq;
-    using System.Reflection;
-    using System.Threading.Tasks;
-
-    public static class SqlServerHelper
+    public static async Task RecreateSqlSchema(string databaseName, string connectionString)
     {
-        public static async Task RecreateSqlSchema(string databaseName, string connectionString)
+        using (var openCon = new SqlConnection(connectionString))
         {
-            using (SqlConnection openCon = new SqlConnection(connectionString))
+            openCon.Open();
+
+            foreach (var script in GetScriptsForSchemaCreation())
             {
-                openCon.Open();
+                var batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, StringSplitOptions.RemoveEmptyEntries);
 
-                foreach (var script in GetScriptsForSchemaCreation())
+                foreach (var batch in batches)
                 {
-                    string[] batches = script.Split(new[] { "GO\r\n", "GO\t", "GO\n" }, System.StringSplitOptions.RemoveEmptyEntries);
+                    var replacedBatch = batch.Replace("@dbname", databaseName);
 
-                    foreach (var batch in batches)
+                    using (var queryCommand = new SqlCommand(replacedBatch))
                     {
-                        string replacedBatch = batch.Replace("@dbname", databaseName);
+                        queryCommand.Connection = openCon;
 
-                        using (SqlCommand queryCommand = new SqlCommand(replacedBatch))
-                        {
-                            queryCommand.Connection = openCon;
-
-                            await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                        }
+                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                     }
                 }
             }
         }
+    }
 
-        private static IEnumerable<string> GetScriptsForSchemaCreation()
-        {
-            Assembly sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
-            return sqlServerAssembly
-                .GetManifestResourceNames()
-                .OrderBy(x => x)
-                .Select(script =>
+    private static IEnumerable<string> GetScriptsForSchemaCreation()
+    {
+        var sqlServerAssembly = Assembly.LoadFrom("KafkaFlow.Retry.SqlServer.dll");
+        return sqlServerAssembly
+            .GetManifestResourceNames()
+            .OrderBy(x => x)
+            .Select(script =>
+            {
+                using (var s = sqlServerAssembly.GetManifestResourceStream(script))
                 {
-                    using (Stream s = sqlServerAssembly.GetManifestResourceStream(script))
+                    using (var sr = new StreamReader(s))
                     {
-                        using (StreamReader sr = new StreamReader(s))
-                        {
-                            return sr.ReadToEnd();
-                        }
+                        return sr.ReadToEnd();
                     }
-                })
-                .ToList();
-        }
+                }
+            })
+            .ToList();
     }
 }

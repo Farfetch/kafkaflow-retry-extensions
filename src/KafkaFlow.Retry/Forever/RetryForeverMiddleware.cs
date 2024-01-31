@@ -1,108 +1,106 @@
-﻿namespace KafkaFlow.Retry.Forever
+﻿using System;
+using System.Threading.Tasks;
+using Polly;
+
+namespace KafkaFlow.Retry.Forever;
+
+internal class RetryForeverMiddleware : IMessageMiddleware
 {
-    using System;
-    using System.Threading.Tasks;
-    using KafkaFlow;
-    using Polly;
+    private readonly ILogHandler _logHandler;
+    private readonly RetryForeverDefinition _retryForeverDefinition;
+    private readonly object _syncPauseAndResume = new();
+    private int? _controlWorkerId;
 
-    internal class RetryForeverMiddleware : IMessageMiddleware
+    public RetryForeverMiddleware(
+        ILogHandler logHandler,
+        RetryForeverDefinition retryForeverDefinition)
     {
-        private readonly ILogHandler logHandler;
-        private readonly RetryForeverDefinition retryForeverDefinition;
-        private readonly object syncPauseAndResume = new object();
-        private int? controlWorkerId;
+        _logHandler = logHandler;
+        _retryForeverDefinition = retryForeverDefinition;
+    }
 
-        public RetryForeverMiddleware(
-            ILogHandler logHandler,
-            RetryForeverDefinition retryForeverDefinition)
-        {
-            this.logHandler = logHandler;
-            this.retryForeverDefinition = retryForeverDefinition;
-        }
-
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
-            var policy = Policy
-                .Handle<Exception>(exception => this.retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
-                .WaitAndRetryForeverAsync(
-                    (retryNumber, c) => this.retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
-                    (exception, attemptNumber, waitTime, c) =>
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
+        var policy = Policy
+            .Handle<Exception>(exception => _retryForeverDefinition.ShouldRetry(new RetryContext(exception)))
+            .WaitAndRetryForeverAsync(
+                (retryNumber, _) => _retryForeverDefinition.TimeBetweenTriesPlan(retryNumber),
+                (exception, attemptNumber, waitTime, _) =>
+                {
+                    if (!_controlWorkerId.HasValue)
                     {
-                        if (!this.controlWorkerId.HasValue)
+                        lock (_syncPauseAndResume)
                         {
-                            lock (this.syncPauseAndResume)
+                            if (!_controlWorkerId.HasValue)
                             {
-                                if (!this.controlWorkerId.HasValue)
-                                {
-                                    this.controlWorkerId = context.ConsumerContext.WorkerId;
+                                _controlWorkerId = context.ConsumerContext.WorkerId;
 
-                                    context.ConsumerContext.Pause();
+                                context.ConsumerContext.Pause();
 
-                                    this.logHandler.Info(
-                                        "Consumer paused by retry process",
-                                        new
-                                        {
-                                            ConsumerGroup = context.ConsumerContext.GroupId,
-                                            ConsumerName = context.ConsumerContext.ConsumerName,
-                                            Worker = context.ConsumerContext.WorkerId
-                                        });
-                                }
+                                _logHandler.Info(
+                                    "Consumer paused by retry process",
+                                    new
+                                    {
+                                        ConsumerGroup = context.ConsumerContext.GroupId,
+                                        context.ConsumerContext.ConsumerName,
+                                        Worker = context.ConsumerContext.WorkerId
+                                    });
                             }
                         }
+                    }
 
-                        this.logHandler.Error(
-                            $"Exception captured by {nameof(RetryForeverMiddleware)}. Retry in process.",
-                            exception,
+                    _logHandler.Error(
+                        $"Exception captured by {nameof(RetryForeverMiddleware)}. Retry in process.",
+                        exception,
+                        new
+                        {
+                            AttemptNumber = attemptNumber,
+                            WaitMilliseconds = waitTime.TotalMilliseconds,
+                            PartitionNumber = context.ConsumerContext.Partition,
+                            Worker = context.ConsumerContext.WorkerId,
+                            //Headers = context.HeadersAsJson(),
+                            //Message = context.Message.ToJson(),
+                            ExceptionType = exception.GetType().FullName
+                            //ExceptionMessage = exception.Message
+                        });
+                }
+            );
+
+        try
+        {
+            await policy
+                .ExecuteAsync(
+                    _ => next(context),
+                    context.ConsumerContext.WorkerStopped
+                ).ConfigureAwait(false);
+        }
+        catch (OperationCanceledException)
+        {
+            if (context.ConsumerContext.WorkerStopped.IsCancellationRequested)
+            {
+                context.ConsumerContext.ShouldStoreOffset = false;
+            }
+        }
+        finally
+        {
+            if (_controlWorkerId == context.ConsumerContext.WorkerId)
+            {
+                lock (_syncPauseAndResume)
+                {
+                    if (_controlWorkerId == context.ConsumerContext.WorkerId)
+                    {
+                        _controlWorkerId = null;
+
+                        context.ConsumerContext.Resume();
+
+                        _logHandler.Info(
+                            "Consumer resumed by retry process",
                             new
                             {
-                                AttemptNumber = attemptNumber,
-                                WaitMilliseconds = waitTime.TotalMilliseconds,
-                                PartitionNumber = context.ConsumerContext.Partition,
-                                Worker = context.ConsumerContext.WorkerId,
-                                //Headers = context.HeadersAsJson(),
-                                //Message = context.Message.ToJson(),
-                                ExceptionType = exception.GetType().FullName,
-                                //ExceptionMessage = exception.Message
+                                ConsumerGroup = context.ConsumerContext.GroupId,
+                                context.ConsumerContext.ConsumerName,
+                                Worker = context.ConsumerContext.WorkerId
                             });
-                    }
-                );
-
-            try
-            {
-                await policy
-                    .ExecuteAsync(
-                        _ => next(context),
-                        context.ConsumerContext.WorkerStopped
-                    ).ConfigureAwait(false);
-            }
-            catch (OperationCanceledException)
-            {
-                if (context.ConsumerContext.WorkerStopped.IsCancellationRequested)
-                {
-                    context.ConsumerContext.ShouldStoreOffset = false;
-                }
-            }
-            finally
-            {
-                if (this.controlWorkerId == context.ConsumerContext.WorkerId)
-                {
-                    lock (this.syncPauseAndResume)
-                    {
-                        if (this.controlWorkerId == context.ConsumerContext.WorkerId)
-                        {
-                            this.controlWorkerId = null;
-
-                            context.ConsumerContext.Resume();
-
-                            this.logHandler.Info(
-                                "Consumer resumed by retry process",
-                                new
-                                {
-                                    ConsumerGroup = context.ConsumerContext.GroupId,
-                                    ConsumerName = context.ConsumerContext.ConsumerName,
-                                    Worker = context.ConsumerContext.WorkerId
-                                });
-                        }
                     }
                 }
             }

@@ -1,18 +1,17 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Actions.Create
+﻿using System.Diagnostics.CodeAnalysis;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Repository.Actions.Create;
+
+[ExcludeFromCodeCoverage]
+public class AddIfQueueExistsResult
 {
-    using System.Diagnostics.CodeAnalysis;
-    using Dawn;
-
-    [ExcludeFromCodeCoverage]
-    public class AddIfQueueExistsResult
+    public AddIfQueueExistsResult(AddIfQueueExistsResultStatus status)
     {
-        public AddIfQueueExistsResult(AddIfQueueExistsResultStatus status)
-        {
-            Guard.Argument(status).NotDefault();
+        Guard.Argument(status).NotDefault();
 
-            this.Status = status;
-        }
-
-        public AddIfQueueExistsResultStatus Status { get; }
+        Status = status;
     }
+
+    public AddIfQueueExistsResultStatus Status { get; }
 }

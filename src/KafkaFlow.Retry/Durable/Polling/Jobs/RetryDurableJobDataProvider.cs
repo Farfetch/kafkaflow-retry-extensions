@@ -1,28 +1,28 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling.Jobs
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Definitions.Polling;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Repository;
+using KafkaFlow.Retry.Durable.Repository.Adapters;
+using Quartz;
+
+namespace KafkaFlow.Retry.Durable.Polling.Jobs;
+
+internal class RetryDurableJobDataProvider : IJobDataProvider
 {
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Repository;
-    using KafkaFlow.Retry.Durable.Repository.Adapters;
-    using Quartz;
+    private readonly IJobDetail _jobDetail;
+    private readonly RetryDurablePollingDefinition _retryDurablePollingDefinition;
+    private readonly ITrigger _trigger;
 
-    internal class RetryDurableJobDataProvider : IJobDataProvider
+    public RetryDurableJobDataProvider(
+        RetryDurablePollingDefinition retryDurablePollingDefinition,
+        ITrigger trigger,
+        string schedulerId,
+        IRetryDurableQueueRepository retryDurableQueueRepository,
+        ILogHandler logHandler,
+        IMessageHeadersAdapter messageHeadersAdapter,
+        IUtf8Encoder utf8Encoder,
+        IMessageProducer retryDurableMessageProducer)
     {
-        private readonly IJobDetail jobDetail;
-        private readonly RetryDurablePollingDefinition retryDurablePollingDefinition;
-        private readonly ITrigger trigger;
-
-        public RetryDurableJobDataProvider(
-            RetryDurablePollingDefinition retryDurablePollingDefinition,
-            ITrigger trigger,
-            string schedulerId,
-            IRetryDurableQueueRepository retryDurableQueueRepository,
-            ILogHandler logHandler,
-            IMessageHeadersAdapter messageHeadersAdapter,
-            IUtf8Encoder utf8Encoder,
-            IMessageProducer retryDurableMessageProducer)
-        {
             Guard.Argument(retryDurablePollingDefinition, nameof(retryDurablePollingDefinition)).NotNull();
             Guard.Argument(trigger, nameof(trigger)).NotNull();
             Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
@@ -32,9 +32,9 @@
             Guard.Argument(utf8Encoder, nameof(utf8Encoder)).NotNull();
             Guard.Argument(retryDurableMessageProducer, nameof(retryDurableMessageProducer)).NotNull();
 
-            this.retryDurablePollingDefinition = retryDurablePollingDefinition;
-            this.trigger = trigger;
-            this.jobDetail = JobBuilder
+            _retryDurablePollingDefinition = retryDurablePollingDefinition;
+            _trigger = trigger;
+            _jobDetail = JobBuilder
                 .Create<RetryDurablePollingJob>()
                 .WithIdentity($"pollingJob_{schedulerId}_{retryDurablePollingDefinition.PollingJobType}", "queueTrackerGroup")
                 .SetJobData(
@@ -51,10 +51,9 @@
                 .Build();
         }
 
-        public IJobDetail JobDetail => this.jobDetail;
+    public IJobDetail JobDetail => _jobDetail;
 
-        public PollingDefinition PollingDefinition => this.retryDurablePollingDefinition;
+    public PollingDefinition PollingDefinition => _retryDurablePollingDefinition;
 
-        public ITrigger Trigger => this.trigger;
-    }
+    public ITrigger Trigger => _trigger;
 }

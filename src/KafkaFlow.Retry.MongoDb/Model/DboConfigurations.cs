@@ -1,69 +1,68 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Model
+﻿using System.Diagnostics.CodeAnalysis;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.IdGenerators;
+using MongoDB.Driver;
+
+namespace KafkaFlow.Retry.MongoDb.Model;
+
+[ExcludeFromCodeCoverage]
+internal static class DboConfigurations
 {
-    using System.Diagnostics.CodeAnalysis;
-    using MongoDB.Bson.Serialization;
-    using MongoDB.Bson.Serialization.IdGenerators;
-    using MongoDB.Driver;
-
-    [ExcludeFromCodeCoverage]
-    internal static class DboConfigurations
+    internal static void TryAddIndexes(DbContext dbContext)
     {
-        internal static void TryAddIndexes(DbContext dbContext)
-        {
-            dbContext.RetryQueues.Indexes.CreateMany(
-                new CreateIndexModel<RetryQueueDbo>[]
-                {
-                    new CreateIndexModel<RetryQueueDbo>(
-                        Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.SearchGroupKey)
-                    ),
-                    new CreateIndexModel<RetryQueueDbo>(
-                        Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.QueueGroupKey),
-                        new CreateIndexOptions { Unique = true }
-                    ),
-                    new CreateIndexModel<RetryQueueDbo>(
-                        Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.Status)
-                    ),
-                    new CreateIndexModel<RetryQueueDbo>(
-                        Builders<RetryQueueDbo>.IndexKeys.Descending(x => x.CreationDate)
-                    ),
-                    new CreateIndexModel<RetryQueueDbo>(
-                        Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.LastExecution)
-                    )
-                }
-            );
-
-            dbContext.RetryQueueItems.Indexes.CreateMany(
-                new CreateIndexModel<RetryQueueItemDbo>[]
-                {
-                    new CreateIndexModel<RetryQueueItemDbo>(
-                        Builders<RetryQueueItemDbo>.IndexKeys.Ascending(x => x.RetryQueueId)
-                    ),
-                    new CreateIndexModel<RetryQueueItemDbo>(
-                        Builders<RetryQueueItemDbo>.IndexKeys.Ascending(x => x.Status)
-                    ),
-                    new CreateIndexModel<RetryQueueItemDbo>(
-                        Builders<RetryQueueItemDbo>.IndexKeys.Descending(x => x.SeverityLevel)
-                    ),
-                    new CreateIndexModel<RetryQueueItemDbo>(
-                        Builders<RetryQueueItemDbo>.IndexKeys.Ascending(x => x.Sort)
-                    )
-                }
-            );
-        }
-
-        internal static void TryRegisterClassMapppings()
-        {
-            BsonClassMap.TryRegisterClassMap<RetryQueueDbo>(cm =>
+        dbContext.RetryQueues.Indexes.CreateMany(
+            new CreateIndexModel<RetryQueueDbo>[]
             {
-                cm.AutoMap();
-                cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
-            });
+                new(
+                    Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.SearchGroupKey)
+                ),
+                new(
+                    Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.QueueGroupKey),
+                    new CreateIndexOptions { Unique = true }
+                ),
+                new(
+                    Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.Status)
+                ),
+                new(
+                    Builders<RetryQueueDbo>.IndexKeys.Descending(x => x.CreationDate)
+                ),
+                new(
+                    Builders<RetryQueueDbo>.IndexKeys.Ascending(x => x.LastExecution)
+                )
+            }
+        );
 
-            BsonClassMap.TryRegisterClassMap<RetryQueueItemDbo>(cm =>
+        dbContext.RetryQueueItems.Indexes.CreateMany(
+            new CreateIndexModel<RetryQueueItemDbo>[]
             {
-                cm.AutoMap();
-                cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
-            });
-        }
+                new(
+                    Builders<RetryQueueItemDbo>.IndexKeys.Ascending(x => x.RetryQueueId)
+                ),
+                new(
+                    Builders<RetryQueueItemDbo>.IndexKeys.Ascending(x => x.Status)
+                ),
+                new(
+                    Builders<RetryQueueItemDbo>.IndexKeys.Descending(x => x.SeverityLevel)
+                ),
+                new(
+                    Builders<RetryQueueItemDbo>.IndexKeys.Ascending(x => x.Sort)
+                )
+            }
+        );
+    }
+
+    internal static void TryRegisterClassMapppings()
+    {
+        BsonClassMap.TryRegisterClassMap<RetryQueueDbo>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
+        });
+
+        BsonClassMap.TryRegisterClassMap<RetryQueueItemDbo>(cm =>
+        {
+            cm.AutoMap();
+            cm.MapIdProperty(q => q.Id).SetIdGenerator(new GuidGenerator());
+        });
     }
 }

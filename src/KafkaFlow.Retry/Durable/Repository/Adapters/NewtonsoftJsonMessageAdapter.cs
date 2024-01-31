@@ -1,30 +1,29 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository.Adapters
+﻿using KafkaFlow.Retry.Durable.Compression;
+using KafkaFlow.Retry.Durable.Encoders;
+using KafkaFlow.Retry.Durable.Serializers;
+
+namespace KafkaFlow.Retry.Durable.Repository.Adapters;
+
+internal class NewtonsoftJsonMessageAdapter : IMessageAdapter
 {
-    using KafkaFlow.Retry.Durable.Compression;
-    using KafkaFlow.Retry.Durable.Encoders;
-    using KafkaFlow.Retry.Durable.Serializers;
+    private readonly IGzipCompressor _gzipCompressor;
+    private readonly INewtonsoftJsonSerializer _newtonsoftJsonSerializer;
+    private readonly IUtf8Encoder _utf8Encoder;
 
-    internal class NewtonsoftJsonMessageAdapter : IMessageAdapter
+    public NewtonsoftJsonMessageAdapter(
+        IGzipCompressor gzipCompressor,
+        INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+        IUtf8Encoder utf8Encoder)
     {
-        private readonly IGzipCompressor gzipCompressor;
-        private readonly INewtonsoftJsonSerializer newtonsoftJsonSerializer;
-        private readonly IUtf8Encoder utf8Encoder;
+        _gzipCompressor = gzipCompressor;
+        _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+        _utf8Encoder = utf8Encoder;
+    }
 
-        public NewtonsoftJsonMessageAdapter(
-            IGzipCompressor gzipCompressor,
-            INewtonsoftJsonSerializer newtonsoftJsonSerializer,
-            IUtf8Encoder utf8Encoder)
-        {
-            this.gzipCompressor = gzipCompressor;
-            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            this.utf8Encoder = utf8Encoder;
-        }
-
-        public byte[] AdaptMessageToRepository(object message)
-        {
-            var messageSerialized = this.newtonsoftJsonSerializer.SerializeObject(message);
-            var messageEncoded = this.utf8Encoder.Encode(messageSerialized);
-            return this.gzipCompressor.Compress(messageEncoded);
-        }
+    public byte[] AdaptMessageToRepository(object message)
+    {
+        var messageSerialized = _newtonsoftJsonSerializer.SerializeObject(message);
+        var messageEncoded = _utf8Encoder.Encode(messageSerialized);
+        return _gzipCompressor.Compress(messageEncoded);
     }
 }

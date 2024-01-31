@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.Postgres
-{
-    internal interface IDbConnectionWithinTransaction : IDbConnection
-    {
-        void Commit();
+﻿namespace KafkaFlow.Retry.Postgres;
 
-        void Rollback();
-    }
+internal interface IDbConnectionWithinTransaction : IDbConnection
+{
+    void Commit();
+
+    void Rollback();
 }

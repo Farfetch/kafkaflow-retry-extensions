@@ -1,28 +1,27 @@
-﻿namespace KafkaFlow.Retry.MongoDb.Adapters
+﻿using Dawn;
+using KafkaFlow.Retry.Durable.Repository.Model;
+using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
+using KafkaFlow.Retry.MongoDb.Model;
+
+namespace KafkaFlow.Retry.MongoDb.Adapters;
+
+internal class HeaderAdapter : IHeaderAdapter
 {
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Repository.Model;
-    using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
-    using KafkaFlow.Retry.MongoDb.Model;
-
-    internal class HeaderAdapter : IHeaderAdapter
+    public RetryQueueHeaderDbo Adapt(MessageHeader header)
     {
-        public RetryQueueHeaderDbo Adapt(MessageHeader header)
+        Guard.Argument(header, nameof(header)).NotNull();
+
+        return new RetryQueueHeaderDbo
         {
-            Guard.Argument(header, nameof(header)).NotNull();
+            Key = header.Key,
+            Value = header.Value
+        };
+    }
 
-            return new RetryQueueHeaderDbo
-            {
-                Key = header.Key,
-                Value = header.Value
-            };
-        }
+    public MessageHeader Adapt(RetryQueueHeaderDbo headerDbo)
+    {
+        Guard.Argument(headerDbo, nameof(headerDbo)).NotNull();
 
-        public MessageHeader Adapt(RetryQueueHeaderDbo headerDbo)
-        {
-            Guard.Argument(headerDbo, nameof(headerDbo)).NotNull();
-
-            return new MessageHeader(headerDbo.Key, headerDbo.Value);
-        }
+        return new MessageHeader(headerDbo.Key, headerDbo.Value);
     }
 }

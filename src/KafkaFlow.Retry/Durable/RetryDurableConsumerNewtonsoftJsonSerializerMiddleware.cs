@@ -1,27 +1,28 @@
-﻿namespace KafkaFlow.Retry.Durable
+﻿using System;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Serializers;
+
+namespace KafkaFlow.Retry.Durable;
+
+internal class RetryDurableConsumerNewtonsoftJsonSerializerMiddleware : IMessageMiddleware
 {
-    using System;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Serializers;
+    private readonly INewtonsoftJsonSerializer _newtonsoftJsonSerializer;
+    private readonly Type _type;
 
-    internal class RetryDurableConsumerNewtonsoftJsonSerializerMiddleware : IMessageMiddleware
+    public RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(INewtonsoftJsonSerializer newtonsoftJsonSerializer,
+        Type type)
     {
-        private readonly INewtonsoftJsonSerializer newtonsoftJsonSerializer;
-        private readonly Type type;
+        Guard.Argument(newtonsoftJsonSerializer).NotNull();
+        Guard.Argument(type).NotNull();
 
-        public RetryDurableConsumerNewtonsoftJsonSerializerMiddleware(INewtonsoftJsonSerializer newtonsoftJsonSerializer, Type type)
-        {
-            Guard.Argument(newtonsoftJsonSerializer).NotNull();
-            Guard.Argument(type).NotNull();
+        _newtonsoftJsonSerializer = newtonsoftJsonSerializer;
+        _type = type;
+    }
 
-            this.newtonsoftJsonSerializer = newtonsoftJsonSerializer;
-            this.type = type;
-        }
-
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
-            await next(context.SetMessage(context.Message.Key, this.newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, type))).ConfigureAwait(false);
-        }
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
+        await next(context.SetMessage(context.Message.Key,
+            _newtonsoftJsonSerializer.DeserializeObject((string)context.Message.Value, _type))).ConfigureAwait(false);
     }
 }

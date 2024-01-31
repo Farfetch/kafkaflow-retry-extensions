@@ -1,12 +1,11 @@
-﻿namespace KafkaFlow.Retry.Durable.Repository
+﻿using System.Threading.Tasks;
+using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+
+namespace KafkaFlow.Retry.Durable.Repository;
+
+internal interface IUpdateRetryQueueItemHandler
 {
-    using System.Threading.Tasks;
-    using KafkaFlow.Retry.Durable.Repository.Actions.Update;
+    bool CanHandle(UpdateItemInput input);
 
-    internal interface IUpdateRetryQueueItemHandler
-    {
-        bool CanHandle(UpdateItemInput input);
-
-        Task UpdateItemAsync(UpdateItemInput input);
-    }
+    Task UpdateItemAsync(UpdateItemInput input);
 }

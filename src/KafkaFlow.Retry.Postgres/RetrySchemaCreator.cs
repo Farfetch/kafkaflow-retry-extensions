@@ -1,41 +1,40 @@
-﻿namespace KafkaFlow.Retry.Postgres
+﻿using System.Collections.Generic;
+using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Postgres.Model.Schema;
+using Npgsql;
+
+namespace KafkaFlow.Retry.Postgres;
+
+internal class RetrySchemaCreator : IRetrySchemaCreator
 {
-    using System.Collections.Generic;
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Postgres.Model.Schema;
-    using Npgsql;
-    
-    internal class RetrySchemaCreator : IRetrySchemaCreator
+    private readonly PostgresDbSettings _postgresDbSettings;
+    private readonly IEnumerable<Script> _schemaScripts;
+
+    public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
     {
-        private readonly IEnumerable<Script> schemaScripts;
-        private readonly PostgresDbSettings postgresDbSettings;
+        Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
+        Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
 
-        public RetrySchemaCreator(PostgresDbSettings postgresDbSettings, IEnumerable<Script> schemaScripts)
+        _postgresDbSettings = postgresDbSettings;
+        _schemaScripts = schemaScripts;
+    }
+
+    public async Task CreateOrUpdateSchemaAsync(string databaseName)
+    {
+        using (var openCon = new NpgsqlConnection(_postgresDbSettings.ConnectionString))
         {
-            Guard.Argument(postgresDbSettings, nameof(postgresDbSettings)).NotNull();
-            Guard.Argument(schemaScripts, nameof(schemaScripts)).NotNull();
+            openCon.Open();
 
-            this.postgresDbSettings = postgresDbSettings;
-            this.schemaScripts = schemaScripts;
-        }
-
-        public async Task CreateOrUpdateSchemaAsync(string databaseName)
-        {
-            using (var openCon = new NpgsqlConnection(this.postgresDbSettings.ConnectionString))
+            foreach (var script in _schemaScripts)
             {
-                openCon.Open();
+                var batch = script.Value;
 
-                foreach (var script in this.schemaScripts)
+                using (var queryCommand = new NpgsqlCommand(batch))
                 {
-                    var batch = script.Value;
+                    queryCommand.Connection = openCon;
 
-                    using (var queryCommand = new NpgsqlCommand(batch))
-                    {
-                        queryCommand.Connection = openCon;
-
-                        await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
-                    }
+                    await queryCommand.ExecuteNonQueryAsync().ConfigureAwait(false);
                 }
             }
         }

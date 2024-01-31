@@ -1,11 +1,10 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿using System.Threading.Tasks;
+
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal interface IQueueTrackerCoordinator
 {
-    using System.Threading.Tasks;
+    Task ScheduleJobsAsync(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler);
 
-    internal interface IQueueTrackerCoordinator
-    {
-        Task ScheduleJobsAsync(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler);
-
-        Task UnscheduleJobsAsync();
-    }
+    Task UnscheduleJobsAsync();
 }

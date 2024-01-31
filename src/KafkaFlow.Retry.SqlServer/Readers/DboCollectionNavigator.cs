@@ -1,52 +1,49 @@
-﻿namespace KafkaFlow.Retry.SqlServer.Readers
+﻿using System;
+using System.Collections.Generic;
+using Dawn;
+
+namespace KafkaFlow.Retry.SqlServer.Readers;
+
+internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
 {
-    using System;
-    using System.Collections.Generic;
-    using Dawn;
+    private readonly IDboDomainAdapter<TDbo, TDomain> _dboDomainAdapter;
+    private readonly IList<TDbo> _dbos;
+    private int _currentIndex;
 
-    internal class DboCollectionNavigator<TDbo, TDomain> where TDbo : class
+    public DboCollectionNavigator(IList<TDbo> dbos, IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter)
     {
-        private readonly IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter;
-        private readonly IList<TDbo> dbos;
-        private int currentIndex = 0;
+        Guard.Argument(dbos, nameof(dbos)).NotNull();
+        Guard.Argument(dboDomainAdapter, nameof(dboDomainAdapter)).NotNull();
 
-        public DboCollectionNavigator(IList<TDbo> dbos, IDboDomainAdapter<TDbo, TDomain> dboDomainAdapter)
+        _dboDomainAdapter = dboDomainAdapter;
+        _dbos = dbos;
+    }
+
+    public void Navigate(Action<TDomain> action, Predicate<TDbo> navigatingCondition)
+    {
+        Guard.Argument(action).NotNull();
+        Guard.Argument(navigatingCondition).NotNull();
+
+        Navigate((domain, _) => action(domain), navigatingCondition);
+    }
+
+    public void Navigate(Action<TDomain, TDbo> action, Predicate<TDbo> navigatingCondition)
+    {
+        Guard.Argument(action).NotNull();
+        Guard.Argument(navigatingCondition).NotNull();
+
+        while (_currentIndex < _dbos.Count)
         {
-            Guard.Argument(dbos, nameof(dbos)).NotNull();
-            Guard.Argument(dboDomainAdapter, nameof(dboDomainAdapter)).NotNull();
+            var currentDbo = _dbos[_currentIndex];
 
-            this.dboDomainAdapter = dboDomainAdapter;
-            this.dbos = dbos;
-        }
-
-        public void Navigate(Action<TDomain> action, Predicate<TDbo> navigatingCondition)
-        {
-            Guard.Argument(action).NotNull();
-            Guard.Argument(navigatingCondition).NotNull();
-
-            this.Navigate((domain, dbo) => action(domain), navigatingCondition);
-        }
-
-        public void Navigate(Action<TDomain, TDbo> action, Predicate<TDbo> navigatingCondition)
-        {
-            Guard.Argument(action).NotNull();
-            Guard.Argument(navigatingCondition).NotNull();
-
-            while (this.currentIndex < this.dbos.Count)
+            if (!navigatingCondition(currentDbo))
             {
-                var currentDbo = this.dbos[this.currentIndex];
-
-                if (!navigatingCondition(currentDbo))
-                {
-                    return;
-                }
-
-                action(this.dboDomainAdapter.Adapt(currentDbo), currentDbo);
-
-                this.currentIndex++;
+                return;
             }
 
-            return;
+            action(_dboDomainAdapter.Adapt(currentDbo), currentDbo);
+
+            _currentIndex++;
         }
     }
 }

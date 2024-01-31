@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.GetItems
-{
-    using KafkaFlow.Retry.API.Dtos;
-    using Microsoft.AspNetCore.Http;
+﻿using KafkaFlow.Retry.API.Dtos;
+using Microsoft.AspNetCore.Http;
 
-    public interface IGetItemsRequestDtoReader
-    {
-        GetItemsRequestDto Read(HttpRequest request);
-    }
+namespace KafkaFlow.Retry.API.Adapters.GetItems;
+
+public interface IGetItemsRequestDtoReader
+{
+    GetItemsRequestDto Read(HttpRequest request);
 }

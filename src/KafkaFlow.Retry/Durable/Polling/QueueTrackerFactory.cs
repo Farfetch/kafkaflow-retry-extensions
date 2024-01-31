@@ -1,37 +1,36 @@
-﻿namespace KafkaFlow.Retry.Durable.Polling
+﻿using System.Collections.Generic;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Polling;
+
+internal class QueueTrackerFactory : IQueueTrackerFactory
 {
-    using System.Collections.Generic;
-    using Dawn;
+    private readonly IJobDataProvidersFactory _jobDataProvidersFactory;
+    private readonly string _schedulerId;
+    private IEnumerable<IJobDataProvider> _jobDataProviders;
 
-    internal class QueueTrackerFactory : IQueueTrackerFactory
+    public QueueTrackerFactory(
+        string schedulerId,
+        IJobDataProvidersFactory jobDataProvidersFactory
+    )
     {
-        private readonly IJobDataProvidersFactory jobDataProvidersFactory;
-        private readonly string schedulerId;
-        private IEnumerable<IJobDataProvider> jobDataProviders;
+        Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
+        Guard.Argument(jobDataProvidersFactory, nameof(jobDataProvidersFactory)).NotNull();
 
-        public QueueTrackerFactory(
-            string schedulerId,
-            IJobDataProvidersFactory jobDataProvidersFactory
-        )
+        _schedulerId = schedulerId;
+        _jobDataProvidersFactory = jobDataProvidersFactory;
+    }
+
+    public QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
+    {
+        if (_jobDataProviders is null)
         {
-            Guard.Argument(schedulerId, nameof(schedulerId)).NotNull().NotEmpty();
-            Guard.Argument(jobDataProvidersFactory, nameof(jobDataProvidersFactory)).NotNull();
-
-            this.schedulerId = schedulerId;
-            this.jobDataProvidersFactory = jobDataProvidersFactory;
+            _jobDataProviders = _jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
         }
 
-        public QueueTracker Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
-        {
-            if (this.jobDataProviders is null)
-            {
-                this.jobDataProviders = this.jobDataProvidersFactory.Create(retryDurableMessageProducer, logHandler);
-            }
-
-            return new QueueTracker(
-                this.schedulerId,
-                this.jobDataProviders,
-                logHandler);
-        }
+        return new QueueTracker(
+            _schedulerId,
+            _jobDataProviders,
+            logHandler);
     }
 }

@@ -1,34 +1,33 @@
-﻿namespace KafkaFlow.Retry
+﻿using KafkaFlow.Retry.Durable.Definitions.Polling;
+
+namespace KafkaFlow.Retry;
+
+public class RetryDurablePollingDefinitionBuilder : PollingDefinitionBuilder<RetryDurablePollingDefinitionBuilder>
 {
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
+    protected int ExpirationIntervalFactor = 1;
+    protected int FetchSize = 256;
 
-    public class RetryDurablePollingDefinitionBuilder : PollingDefinitionBuilder<RetryDurablePollingDefinitionBuilder>
+    internal override bool Required => true;
+
+    public RetryDurablePollingDefinitionBuilder WithExpirationIntervalFactor(int expirationIntervalFactor)
     {
-        protected int expirationIntervalFactor = 1;
-        protected int fetchSize = 256;
+        ExpirationIntervalFactor = expirationIntervalFactor;
+        return this;
+    }
 
-        internal override bool Required => true;
+    public RetryDurablePollingDefinitionBuilder WithFetchSize(int fetchSize)
+    {
+        FetchSize = fetchSize;
+        return this;
+    }
 
-        public RetryDurablePollingDefinitionBuilder WithExpirationIntervalFactor(int expirationIntervalFactor)
-        {
-            this.expirationIntervalFactor = expirationIntervalFactor;
-            return this;
-        }
-
-        public RetryDurablePollingDefinitionBuilder WithFetchSize(int fetchSize)
-        {
-            this.fetchSize = fetchSize;
-            return this;
-        }
-
-        internal RetryDurablePollingDefinition Build()
-        {
-            return new RetryDurablePollingDefinition(
-                this.enabled,
-                this.cronExpression,
-                this.fetchSize,
-                this.expirationIntervalFactor
-            );
-        }
+    internal RetryDurablePollingDefinition Build()
+    {
+        return new RetryDurablePollingDefinition(
+            IsEnabled,
+            CronExpression,
+            FetchSize,
+            ExpirationIntervalFactor
+        );
     }
 }

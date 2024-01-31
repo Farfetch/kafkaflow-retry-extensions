@@ -1,41 +1,43 @@
-﻿namespace KafkaFlow.Retry.Durable.Compression
+﻿using System.IO;
+using System.IO.Compression;
+using Dawn;
+
+namespace KafkaFlow.Retry.Durable.Compression;
+
+internal class GzipCompressor : IGzipCompressor
 {
-    using System.IO;
-    using System.IO.Compression;
-    using Dawn;
+    private static readonly int s_bufferSize = 64 * 1024;
 
-    internal class GzipCompressor : IGzipCompressor
+    public byte[] Compress(byte[] data)
     {
-        private static int BUFFER_SIZE = 64 * 1024;
+        Guard.Argument(data).NotNull();
 
-        public byte[] Compress(byte[] data)
+        using (var compressIntoMs = new MemoryStream())
         {
-            Guard.Argument(data).NotNull();
-
-            using (var compressIntoMs = new MemoryStream())
+            using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionLevel.Fastest), s_bufferSize))
             {
-                using (var gzs = new BufferedStream(new GZipStream(compressIntoMs, CompressionLevel.Fastest), BUFFER_SIZE))
-                {
-                    gzs.Write(data, 0, data.Length);
-                }
-                return compressIntoMs.ToArray();
+                gzs.Write(data, 0, data.Length);
             }
+
+            return compressIntoMs.ToArray();
         }
+    }
 
-        public byte[] Decompress(byte[] data)
+    public byte[] Decompress(byte[] data)
+    {
+        Guard.Argument(data).NotNull();
+
+        using (var compressedMs = new MemoryStream(data))
         {
-            Guard.Argument(data).NotNull();
-
-            using (var compressedMs = new MemoryStream(data))
+            using (var decompressedMs = new MemoryStream())
             {
-                using (var decompressedMs = new MemoryStream())
+                using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress),
+                           s_bufferSize))
                 {
-                    using (var gzs = new BufferedStream(new GZipStream(compressedMs, CompressionMode.Decompress), BUFFER_SIZE))
-                    {
-                        gzs.CopyTo(decompressedMs);
-                    }
-                    return decompressedMs.ToArray();
+                    gzs.CopyTo(decompressedMs);
                 }
+
+                return decompressedMs.ToArray();
             }
         }
     }

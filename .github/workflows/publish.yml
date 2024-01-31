@@ -13,12 +13,12 @@ jobs:
       NUGET_SOURCE: https://api.nuget.org/v3/index.json
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
 
     - name: Setup .NET
-      uses: actions/setup-dotnet@v1
+      uses: actions/setup-dotnet@v3
       with:
-        dotnet-version: 3.1.x
+        dotnet-version: 6.0.x
       
     - name: Update project version
       uses: roryprimrose/set-vs-sdk-project-version@v1

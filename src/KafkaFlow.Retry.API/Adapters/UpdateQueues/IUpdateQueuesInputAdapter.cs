@@ -1,10 +1,9 @@
-﻿namespace KafkaFlow.Retry.API.Adapters.UpdateQueues
-{
-    using KafkaFlow.Retry.API.Dtos;
-    using KafkaFlow.Retry.Durable.Repository;
+﻿using KafkaFlow.Retry.API.Dtos;
+using KafkaFlow.Retry.Durable.Repository;
 
-    public interface IUpdateQueuesInputAdapter
-    {
-        UpdateQueuesInput Adapt(UpdateQueuesRequestDto dto);
-    }
+namespace KafkaFlow.Retry.API.Adapters.UpdateQueues;
+
+public interface IUpdateQueuesInputAdapter
+{
+    UpdateQueuesInput Adapt(UpdateQueuesRequestDto dto);
 }

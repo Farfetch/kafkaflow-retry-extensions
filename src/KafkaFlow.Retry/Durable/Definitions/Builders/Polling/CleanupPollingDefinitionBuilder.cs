@@ -1,34 +1,33 @@
-﻿namespace KafkaFlow.Retry
+﻿using KafkaFlow.Retry.Durable.Definitions.Polling;
+
+namespace KafkaFlow.Retry;
+
+public class CleanupPollingDefinitionBuilder : PollingDefinitionBuilder<CleanupPollingDefinitionBuilder>
 {
-    using KafkaFlow.Retry.Durable.Definitions.Polling;
+    private int _rowsPerRequest = 256;
+    private int _timeToLiveInDays = 30;
 
-    public class CleanupPollingDefinitionBuilder : PollingDefinitionBuilder<CleanupPollingDefinitionBuilder>
+    internal override bool Required => false;
+
+    public CleanupPollingDefinitionBuilder WithRowsPerRequest(int rowsPerRequest)
     {
-        private int rowsPerRequest = 256;
-        private int timeToLiveInDays = 30;
+        _rowsPerRequest = rowsPerRequest;
+        return this;
+    }
 
-        internal override bool Required => false;
+    public CleanupPollingDefinitionBuilder WithTimeToLiveInDays(int timeToLiveInDays)
+    {
+        _timeToLiveInDays = timeToLiveInDays;
+        return this;
+    }
 
-        public CleanupPollingDefinitionBuilder WithRowsPerRequest(int rowsPerRequest)
-        {
-            this.rowsPerRequest = rowsPerRequest;
-            return this;
-        }
-
-        public CleanupPollingDefinitionBuilder WithTimeToLiveInDays(int timeToLiveInDays)
-        {
-            this.timeToLiveInDays = timeToLiveInDays;
-            return this;
-        }
-
-        internal CleanupPollingDefinition Build()
-        {
-            return new CleanupPollingDefinition(
-                this.enabled,
-                this.cronExpression,
-                this.timeToLiveInDays,
-                this.rowsPerRequest
-            );
-        }
+    internal CleanupPollingDefinition Build()
+    {
+        return new CleanupPollingDefinition(
+            IsEnabled,
+            CronExpression,
+            _timeToLiveInDays,
+            _rowsPerRequest
+        );
     }
 }

@@ -1,9 +1,8 @@
-﻿namespace KafkaFlow.Retry.SqlServer
-{
-    using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 
-    public interface IRetrySchemaCreator
-    {
-        Task CreateOrUpdateSchemaAsync(string databaseName);
-    }
+namespace KafkaFlow.Retry.SqlServer;
+
+public interface IRetrySchemaCreator
+{
+    Task CreateOrUpdateSchemaAsync(string databaseName);
 }

@@ -1,17 +1,16 @@
-﻿namespace KafkaFlow.Retry
+﻿using System;
+using Dawn;
+
+namespace KafkaFlow.Retry;
+
+public class RetryContext
 {
-    using System;
-    using Dawn;
-
-    public class RetryContext
+    public RetryContext(Exception exception)
     {
-        public RetryContext(Exception exception)
-        {
-            Guard.Argument(exception, nameof(exception)).NotNull();
+        Guard.Argument(exception, nameof(exception)).NotNull();
 
-            this.Exception = exception;
-        }
-
-        public Exception Exception { get; }
+        Exception = exception;
     }
+
+    public Exception Exception { get; }
 }

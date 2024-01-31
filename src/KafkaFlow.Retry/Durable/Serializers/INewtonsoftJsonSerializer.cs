@@ -1,11 +1,10 @@
-﻿namespace KafkaFlow.Retry.Durable.Serializers
+﻿using System;
+
+namespace KafkaFlow.Retry.Durable.Serializers;
+
+internal interface INewtonsoftJsonSerializer
 {
-    using System;
+    object DeserializeObject(string data, Type type);
 
-    internal interface INewtonsoftJsonSerializer
-    {
-        object DeserializeObject(string data, Type type);
-
-        string SerializeObject(object data);
-    }
+    string SerializeObject(object data);
 }

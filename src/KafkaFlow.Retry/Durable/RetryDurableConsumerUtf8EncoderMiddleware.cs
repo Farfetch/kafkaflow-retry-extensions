@@ -1,23 +1,23 @@
-﻿namespace KafkaFlow.Retry.Durable
+﻿using System.Threading.Tasks;
+using Dawn;
+using KafkaFlow.Retry.Durable.Encoders;
+
+namespace KafkaFlow.Retry.Durable;
+
+internal class RetryDurableConsumerUtf8EncoderMiddleware : IMessageMiddleware
 {
-    using System.Threading.Tasks;
-    using Dawn;
-    using KafkaFlow.Retry.Durable.Encoders;
+    private readonly IUtf8Encoder _utf8Encoder;
 
-    internal class RetryDurableConsumerUtf8EncoderMiddleware : IMessageMiddleware
+    public RetryDurableConsumerUtf8EncoderMiddleware(IUtf8Encoder utf8Encoder)
     {
-        private readonly IUtf8Encoder utf8Encoder;
+        Guard.Argument(utf8Encoder).NotNull();
 
-        public RetryDurableConsumerUtf8EncoderMiddleware(IUtf8Encoder utf8Encoder)
-        {
-            Guard.Argument(utf8Encoder).NotNull();
+        _utf8Encoder = utf8Encoder;
+    }
 
-            this.utf8Encoder = utf8Encoder;
-        }
-
-        public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
-        {
-            await next(context.SetMessage(context.Message.Key, this.utf8Encoder.Decode((byte[])context.Message.Value))).ConfigureAwait(false);
-        }
+    public async Task Invoke(IMessageContext context, MiddlewareDelegate next)
+    {
+        await next(context.SetMessage(context.Message.Key, _utf8Encoder.Decode((byte[])context.Message.Value)))
+            .ConfigureAwait(false);
     }
 }

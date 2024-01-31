@@ -1,12 +1,11 @@
-﻿namespace KafkaFlow.Retry.Durable
-{
-    public class RetryError
-    {
-        public RetryError(RetryErrorCode code)
-        {
-            this.Code = code;
-        }
+﻿namespace KafkaFlow.Retry.Durable;
 
-        public RetryErrorCode Code { get; set; }
+public class RetryError
+{
+    public RetryError(RetryErrorCode code)
+    {
+        Code = code;
     }
+
+    public RetryErrorCode Code { get; set; }
 }
