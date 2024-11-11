@@ -10,4 +10,5 @@ internal static class PollingJobConstants
     public const string RetryDurableQueueRepository = "RetryDurableQueueRepository";
     public const string SchedulerId = "SchedulerId";
     public const string Utf8Encoder = "Utf8Encoder";
+    public const string RetryDurableActiveQueuesCountPollingDefinition = "RetryDurableActiveQueuesCountPollingDefinition";
 }

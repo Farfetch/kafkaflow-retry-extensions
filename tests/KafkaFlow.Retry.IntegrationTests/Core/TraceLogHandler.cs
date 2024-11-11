@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core;
 
@@ -10,8 +11,8 @@ internal class TraceLogHandler : ILogHandler
         new()
         {
             MaxDepth = 0,
-            IgnoreNullValues = true,
-            IgnoreReadOnlyProperties = false
+            IgnoreReadOnlyProperties = false,
+            DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingNull
         };
 
     public void Error(string message, Exception ex, object data)

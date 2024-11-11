@@ -21,8 +21,16 @@ internal static class Program
         var mongoDbDatabaseName = "kafka_flow_retry_durable_sample";
         var mongoDbRetryQueueCollectionName = "RetryQueues";
         var mongoDbRetryQueueItemCollectionName = "RetryQueueItems";
-        var sqlServerConnectionString =
-            "Server=localhost;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=KafkaFlow Retry Sample";
+        var sqlServerConnectionString = string.Join(
+            string.Empty,
+            "Server=localhost;",
+            "Trusted_Connection=True;",
+            "Pooling=true;",
+            "Min Pool Size=1;",
+            "Max Pool Size=100;",
+            "MultipleActiveResultSets=true;",
+            "Application Name=KafkaFlow Retry Tests;"
+        ); 
         var sqlServerDatabaseName = "kafka_flow_retry_durable_sample";
         var topics = new[]
         {

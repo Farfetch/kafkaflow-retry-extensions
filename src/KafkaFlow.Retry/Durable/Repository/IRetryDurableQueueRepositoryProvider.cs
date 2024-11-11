@@ -18,6 +18,8 @@ public interface IRetryDurableQueueRepositoryProvider
 
     Task<GetQueuesResult> GetQueuesAsync(GetQueuesInput input);
 
+    Task<long> CountQueuesAsync(CountQueuesInput input);
+
     Task<SaveToQueueResult> SaveToQueueAsync(SaveToQueueInput input);
 
     Task<UpdateItemResult> UpdateItemExecutionInfoAsync(UpdateItemExecutionInfoInput input);
