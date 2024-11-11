@@ -39,7 +39,7 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
 
     public IEnumerable<IJobDataProvider> Create(IMessageProducer retryDurableMessageProducer, ILogHandler logHandler)
     {
-        var jobDataProviders = new List<IJobDataProvider>(2);
+        var jobDataProviders = new List<IJobDataProvider>(3);
 
         if (TryGetPollingDefinition<RetryDurablePollingDefinition>(PollingJobType.RetryDurable,
                 out var retryDurablePollingDefinition))
@@ -64,6 +64,19 @@ internal class JobDataProvidersFactory : IJobDataProvidersFactory
                 new CleanupJobDataProvider(
                     cleanupPollingDefinition,
                     GetTrigger(cleanupPollingDefinition),
+                    _pollingDefinitionsAggregator.SchedulerId,
+                    _retryDurableQueueRepository,
+                    logHandler
+                )
+            );
+        }
+
+        if (TryGetPollingDefinition<RetryDurableActiveQueuesCountPollingDefinition>(PollingJobType.RetryDurableActiveQueuesCount, out var retryDurableActiveQueuesCountPollingDefinition))
+        {
+            jobDataProviders.Add(
+                new RetryDurableActiveQueuesCountJobDataProvider(
+                    retryDurableActiveQueuesCountPollingDefinition,
+                    GetTrigger(retryDurableActiveQueuesCountPollingDefinition),
                     _pollingDefinitionsAggregator.SchedulerId,
                     _retryDurableQueueRepository,
                     logHandler

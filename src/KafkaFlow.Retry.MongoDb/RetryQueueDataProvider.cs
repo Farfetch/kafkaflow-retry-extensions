@@ -105,6 +105,11 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
         return new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems);
     }
 
+    public Task<long> CountQueuesAsync(CountQueuesInput input)
+    {
+        throw new NotImplementedException();
+    }
+
     public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input)
     {
         Guard.Argument(input, nameof(input)).NotNull();

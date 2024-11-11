@@ -174,7 +174,18 @@ internal static class KafkaClusterConfigurationBuilderHelper
                                             .WithCleanupPollingConfiguration(
                                                 configure => configure
                                                     .Enabled(false)
+                                                    .WithCronExpression("0 0/1 * 1/1 * ? *")
                                             )
+                                            .WithRetryDurableActiveQueuesCountPollingConfiguration(
+                                                configure => configure
+                                                    .Enabled(true)
+                                                    .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                    .Do((numberOfActiveQueues) => 
+                                                    {
+                                                        Console.Write($"Number of active queues {numberOfActiveQueues}");
+                                                    })
+                                            )
+
                                     ))
                             .AddTypedHandlers(
                                 handlers => handlers

@@ -24,6 +24,9 @@ internal class NullRetryDurableQueueRepository : IRetryDurableQueueRepository
     public Task<QueuePendingItemsResult> CheckQueuePendingItemsAsync(QueuePendingItemsInput queuePendingItemsInput)
         => Task.FromResult(new QueuePendingItemsResult(QueuePendingItemsResultStatus.NoPendingItems));
 
+    public Task<long> CountRetryQueuesAsync(CountQueuesInput countQueuesInput)
+        => Task.FromResult(default(long));
+
     public Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput)
         => Task.FromResult(new DeleteQueuesResult(0));
 
