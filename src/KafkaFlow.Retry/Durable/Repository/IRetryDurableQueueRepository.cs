@@ -20,6 +20,8 @@ internal interface IRetryDurableQueueRepository
 
     Task<IEnumerable<RetryQueue>> GetRetryQueuesAsync(GetQueuesInput getQueuesInput);
 
+    Task<long> CountRetryQueuesAsync(CountQueuesInput countQueuesInput);
+
     Task<SaveToQueueResult> SaveToQueueAsync(IMessageContext context, string description);
 
     Task UpdateItemAsync(UpdateItemInput updateItemInput);
