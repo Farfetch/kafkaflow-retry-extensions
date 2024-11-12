@@ -22,14 +22,10 @@ internal static class Program
         var mongoDbRetryQueueCollectionName = "RetryQueues";
         var mongoDbRetryQueueItemCollectionName = "RetryQueueItems";
         var sqlServerConnectionString = string.Join(
-            string.Empty, 
-            "Server=sqlserver.docker.internal;",
-            "User ID=SA; Password=Finance123.;",
+            string.Empty,
+            "Server=localhost;",
+            "Trusted_Connection=True;",
             "Pooling=true;",
-            "Trusted_Connection=false;",
-            "Encrypt=false; ",
-            "TrustServerCertificate=true;",
-            "Integrated Security=false;",
             "Min Pool Size=1;",
             "Max Pool Size=100;",
             "MultipleActiveResultSets=true;",
