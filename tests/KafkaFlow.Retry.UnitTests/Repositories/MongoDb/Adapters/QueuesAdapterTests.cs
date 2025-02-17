@@ -35,7 +35,7 @@ public class QueuesAdapterTests
 
         IEnumerable<RetryQueueDbo> queuesDbo = new List<RetryQueueDbo>
         {
-            new RetryQueueDbo()
+            new RetryQueueDbo
             {
                 Id = retryQueueId,
                 CreationDate = DateTime.UtcNow,
