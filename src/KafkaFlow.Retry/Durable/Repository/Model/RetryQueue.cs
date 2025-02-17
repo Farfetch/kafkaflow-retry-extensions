@@ -57,4 +57,15 @@ public class RetryQueue
     {
         _itemsList.Add(item.Sort, item);
     }
+
+    public bool TryAddItem(RetryQueueItem item)
+    {
+        if (_itemsList.TryGetValue(item.Sort, out RetryQueueItem _))
+        {
+            return false;
+        }
+
+        _itemsList.Add(item.Sort, item);
+        return true;
+    }
 }

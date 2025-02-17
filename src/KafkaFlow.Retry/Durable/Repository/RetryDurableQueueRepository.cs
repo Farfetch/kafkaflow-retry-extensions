@@ -149,15 +149,15 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
 
             return getQueuesResult?.RetryQueues ?? Enumerable.Empty<RetryQueue>();
         }
+        catch (Exception ex) when (ex is RetryDurableException)
+        {
+            throw;
+        }
         catch (Exception ex)
         {
-            var kafkaException = new RetryDurableException(
+            throw new RetryDurableException(
                 new RetryError(RetryErrorCode.DataProviderGetRetryQueues),
                 "An error ocurred getting the retry queues", ex);
-
-            //this.policyBuilder.OnDataProviderException(kafkaException);
-
-            throw kafkaException;
         }
     }
 
