@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using KafkaFlow.Retry.Durable;
 using KafkaFlow.Retry.Durable.Common;
