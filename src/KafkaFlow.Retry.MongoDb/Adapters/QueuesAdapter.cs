@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dawn;
+using KafkaFlow.Retry.Durable;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.MongoDb.Adapters.Interfaces;
 using KafkaFlow.Retry.MongoDb.Model;
@@ -35,7 +36,14 @@ internal class QueuesAdapter : IQueuesAdapter
             Guard.Argument(queuesDictionary.ContainsKey(itemDbo.RetryQueueId), nameof(itemDbo.RetryQueueId))
                 .True($"{nameof(itemDbo.RetryQueueId)} not found in queues list.");
 
-            queuesDictionary[itemDbo.RetryQueueId].AddItem(_itemAdapter.Adapt(itemDbo));
+            var item = _itemAdapter.Adapt(itemDbo);
+
+            if (!queuesDictionary[itemDbo.RetryQueueId].TryAddItem(item))
+            {
+                throw new RetryDurableException(
+                    new RetryError(RetryErrorCode.DataProviderGetRetryQueuesSameItemSort),
+                    $"RetryQueueId:{itemDbo.RetryQueueId} RetryQueueItemId:{item.Id} RetryQueueItemSort:{item.Sort}");
+            }
         }
 
         return queuesDictionary.Values;

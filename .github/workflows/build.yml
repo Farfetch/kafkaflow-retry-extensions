@@ -57,7 +57,7 @@ jobs:
       run: dotnet build --no-restore -c Release KafkaFlow.Retry.sln
       
     - name: Start SqlServer
-      run: docker run -d -p 1433:1433 -e ACCEPT_EULA=${{ env.ACCEPT_EULA }} -e SA_PASSWORD=${{ env.SQLSERVER_SA_PASSWORD }} -e MSSQL_PID=Developer mcr.microsoft.com/mssql/server:2017-latest
+      run: docker run -d -p 1433:1433 -e ACCEPT_EULA=${{ env.ACCEPT_EULA }} -e SA_PASSWORD=${{ env.SQLSERVER_SA_PASSWORD }} -e MSSQL_PID=Developer mcr.microsoft.com/mssql/server:2022-latest
 
     - name: Start Postgres
       run: docker run -d -p 5432:5432 -e POSTGRES_USER=${{ env.POSTGRES_SA_USER }} -e POSTGRES_PASSWORD=${{ env.POSTGRES_SA_PASSWORD }} postgres:latest
