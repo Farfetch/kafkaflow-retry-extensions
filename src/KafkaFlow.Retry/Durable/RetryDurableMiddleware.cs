@@ -85,6 +85,7 @@ internal class RetryDurableMiddleware : IMessageMiddleware
                             WaitMilliseconds = waitTime.TotalMilliseconds,
                             PartitionNumber = context.ConsumerContext.Partition,
                             Worker = context.ConsumerContext.WorkerId,
+                            Offset = context.ConsumerContext.Offset,
                             ExceptionType = exception.GetType().FullName,
                             ExceptionMessage = exception.Message
                         });

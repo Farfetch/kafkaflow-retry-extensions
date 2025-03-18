@@ -59,6 +59,7 @@ internal class RetrySimpleMiddleware : IMessageMiddleware
                             WaitMilliseconds = waitTime.TotalMilliseconds,
                             PartitionNumber = context.ConsumerContext.Partition,
                             Worker = context.ConsumerContext.WorkerId,
+                            Offset = context.ConsumerContext.Offset,
                             //Headers = context.HeadersAsJson(),
                             //Message = context.Message.ToJson(),
                             ExceptionType = exception.GetType().FullName
