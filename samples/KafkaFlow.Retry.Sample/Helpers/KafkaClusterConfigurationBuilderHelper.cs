@@ -92,6 +92,15 @@ internal static class KafkaClusterConfigurationBuilderHelper
                                                     .WithTimeToLiveInDays(60)
                                                     .Enabled(true)
                                             )
+                                            .WithRetryDurableActiveQueuesCountPollingConfiguration(
+                                                configure => configure
+                                                    .Enabled(true)
+                                                    .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                    .Do((numberOfActiveQueues) =>
+                                                    {
+                                                        Console.Write($"Number of mongodb active queues {numberOfActiveQueues}");
+                                                    })
+                                            )
                                     ))
                             .AddTypedHandlers(
                                 handlers => handlers
@@ -180,9 +189,9 @@ internal static class KafkaClusterConfigurationBuilderHelper
                                                 configure => configure
                                                     .Enabled(true)
                                                     .WithCronExpression("0 0/1 * 1/1 * ? *")
-                                                    .Do((numberOfActiveQueues) => 
+                                                    .Do((numberOfActiveQueues) =>
                                                     {
-                                                        Console.Write($"Number of active queues {numberOfActiveQueues}");
+                                                        Console.Write($"Number of sql server active queues {numberOfActiveQueues}");
                                                     })
                                             )
 

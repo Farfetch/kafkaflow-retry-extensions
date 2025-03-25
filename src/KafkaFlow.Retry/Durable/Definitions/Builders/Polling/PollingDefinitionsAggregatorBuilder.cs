@@ -11,8 +11,8 @@ public class PollingDefinitionsAggregatorBuilder
 {
     private readonly CleanupPollingDefinitionBuilder _cleanupPollingDefinitionBuilder;
     private readonly List<PollingDefinition> _pollingDefinitions;
-    private readonly RetryDurablePollingDefinitionBuilder _retryDurablePollingDefinitionBuilder;
     private readonly RetryDurableActiveQueuesCountPollingDefinitionBuilder _retryDurableActiveQueuesCountPollingDefinitionBuilder;
+    private readonly RetryDurablePollingDefinitionBuilder _retryDurablePollingDefinitionBuilder;
     private string _schedulerId;
 
     public PollingDefinitionsAggregatorBuilder()
@@ -37,8 +37,21 @@ public class PollingDefinitionsAggregatorBuilder
         return this;
     }
 
+    public PollingDefinitionsAggregatorBuilder WithRetryDurableActiveQueuesCountPollingConfiguration(
+        Action<RetryDurableActiveQueuesCountPollingDefinitionBuilder> configure)
+    {
+        Guard.Argument(configure, nameof(configure)).NotNull();
+
+        configure(_retryDurableActiveQueuesCountPollingDefinitionBuilder);
+        var retryDurableActiveQueuesCountPollingDefinition = _retryDurableActiveQueuesCountPollingDefinitionBuilder.Build();
+
+        _pollingDefinitions.Add(retryDurableActiveQueuesCountPollingDefinition);
+
+        return this;
+    }
+
     public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(
-        Action<RetryDurablePollingDefinitionBuilder> configure)
+            Action<RetryDurablePollingDefinitionBuilder> configure)
     {
         Guard.Argument(configure, nameof(configure)).NotNull();
 
@@ -46,19 +59,6 @@ public class PollingDefinitionsAggregatorBuilder
         var retryDurablepollingDefinition = _retryDurablePollingDefinitionBuilder.Build();
 
         _pollingDefinitions.Add(retryDurablepollingDefinition);
-
-        return this;
-    }
-
-    public PollingDefinitionsAggregatorBuilder WithRetryDurableActiveQueuesCountPollingConfiguration(
-        Action<RetryDurableActiveQueuesCountPollingDefinitionBuilder> configure)
-    {
-        Guard.Argument(configure, nameof(configure)).NotNull();
-
-        configure(_retryDurableActiveQueuesCountPollingDefinitionBuilder);
-        var etryDurableActiveQueuesCountPollingDefinition = _retryDurableActiveQueuesCountPollingDefinitionBuilder.Build();
-
-        _pollingDefinitions.Add(etryDurableActiveQueuesCountPollingDefinition);
 
         return this;
     }

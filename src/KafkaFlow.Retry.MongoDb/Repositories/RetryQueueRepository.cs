@@ -22,6 +22,16 @@ internal class RetryQueueRepository : IRetryQueueRepository
         _dbContext = dbContext;
     }
 
+    public async Task<long> CountQueuesAsync(string searchGroupKey, RetryQueueStatus status)
+    {
+        var queuesFilterBuilder = _dbContext.RetryQueues.GetFilters();
+
+        var findFilter = queuesFilterBuilder.Eq(q => q.SearchGroupKey, searchGroupKey)
+                         & queuesFilterBuilder.Eq(q => q.Status, status);
+
+        return await _dbContext.RetryQueues.CountDocumentsAsync(findFilter).ConfigureAwait(false);
+    }
+
     public async Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds)
     {
         var queuesFilterBuilder = _dbContext.RetryQueues.GetFilters();
