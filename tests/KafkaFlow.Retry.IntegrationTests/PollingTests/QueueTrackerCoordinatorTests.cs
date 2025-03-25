@@ -104,7 +104,7 @@ public class QueueTrackerCoordinatorTests
         // act
         await queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
-        for (int i = 0; i < 60; i++)
+        for (int i = 0; i < timePollingActiveInSeconds; i++)
         {
             await Task.Delay(100);
         }
