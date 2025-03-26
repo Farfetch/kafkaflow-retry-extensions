@@ -107,9 +107,18 @@ internal sealed class RetryQueueDataProvider : IRetryDurableQueueRepositoryProvi
         }
     }
 
-    public Task<long> CountQueuesAsync(CountQueuesInput input)
+    public async Task<long> CountQueuesAsync(CountQueuesInput input)
     {
-        throw new NotImplementedException();
+        Guard.Argument(input, nameof(input)).NotNull();
+
+        using (var dbConnection = _connectionProvider.Create(_postgresDbSettings))
+        {
+            return await _retryQueueRepository.CountQueueAsync(
+                    dbConnection,
+                    input.SearchGroupKey,
+                    input.Status)
+                .ConfigureAwait(false);
+        }
     }
 
     public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput input)

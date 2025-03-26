@@ -18,6 +18,7 @@ public class CountQueuesTests : RetryQueueDataProviderTestsTemplate
     [Theory]
     [InlineData(RepositoryType.MongoDb)]
     [InlineData(RepositoryType.SqlServer)]
+    [InlineData(RepositoryType.Postgres)]
     public async Task f(RepositoryType repositoryType)
     {
         // Arrange

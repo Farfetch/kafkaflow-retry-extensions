@@ -11,13 +11,13 @@ internal interface IRetryQueueRepository
 {
     Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo);
 
+    Task<long> CountQueueAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus);
+
     Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete);
 
     Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey);
 
     Task<RetryQueueDbo> GetQueueAsync(IDbConnection dbConnection, string queueGroupKey);
-
-    Task<long> CountQueueAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus);
 
     Task<IList<RetryQueueDbo>> GetTopSortedQueuesOrderedAsync(IDbConnection dbConnection, RetryQueueStatus retryQueueStatus, GetQueuesSortOption sortOption, string searchGroupKey, int top);
 

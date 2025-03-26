@@ -33,6 +33,24 @@ internal sealed class RetryQueueRepository : IRetryQueueRepository
         }
     }
 
+    public async Task<long> CountQueueAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus)
+    {
+        using (var command = dbConnection.CreateCommand())
+        {
+            command.CommandType = CommandType.Text;
+            command.CommandText =
+                $@"SELECT COUNT(1)
+                     FROM retry_queues
+                    WHERE SearchGroupKey = @SearchGroupKey
+                      AND IdStatus = @IdStatus";
+
+            command.Parameters.AddWithValue("SearchGroupKey", searchGroupKey);
+            command.Parameters.AddWithValue("IdStatus", (byte)retryQueueStatus);
+
+            return Convert.ToInt64(await command.ExecuteScalarAsync().ConfigureAwait(false));
+        }
+    }
+
     public async Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey,
         RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete)
     {
