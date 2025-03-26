@@ -3,7 +3,6 @@ using System.Threading.Tasks;
 using KafkaFlow.Retry.Durable.Definitions.Polling;
 using KafkaFlow.Retry.Durable.Polling.Extensions;
 using KafkaFlow.Retry.Durable.Repository;
-using KafkaFlow.Retry.Durable.Repository.Actions.Delete;
 using KafkaFlow.Retry.Durable.Repository.Actions.Read;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using Quartz;
@@ -29,7 +28,7 @@ internal class RetryDurableActiveQueuesCountJob : IJob
 
         try
         {
-            logHandler.Info(
+            logHandler.Verbose(
                 $"{nameof(RetryDurableActiveQueuesCountJob)} starts execution",
                 new
                 {
@@ -47,7 +46,7 @@ internal class RetryDurableActiveQueuesCountJob : IJob
 
             retryDurableActiveQueuesCountPollingDefinition.ActiveQueues(countQueuesResult);
 
-            logHandler.Info(
+            logHandler.Verbose(
                 $"{nameof(RetryDurableActiveQueuesCountJob)} executed successfully.",
                 new
                 {
