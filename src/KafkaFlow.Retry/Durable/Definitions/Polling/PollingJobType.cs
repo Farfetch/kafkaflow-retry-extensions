@@ -5,5 +5,6 @@ internal enum PollingJobType
     Unknown = 0,
 
     RetryDurable = 1,
-    Cleanup = 2
+    Cleanup = 2,
+    RetryDurableActiveQueuesCount = 3
 }

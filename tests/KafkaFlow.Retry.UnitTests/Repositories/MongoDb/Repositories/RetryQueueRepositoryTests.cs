@@ -60,6 +60,14 @@ public class RetryQueueRepositoryTests
             ))
             .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, BsonBinaryData.Create(_retryQueueDbo.Id)));
 
+        _collection
+            .Setup(d => d.CountDocumentsAsync(
+                It.IsAny<FilterDefinition<RetryQueueDbo>>(),
+                It.IsAny<CountOptions>(),
+                It.IsAny<CancellationToken>()
+            ))
+            .ReturnsAsync(100);
+
         _mongoDatabase.Setup(d =>
                 d.GetCollection<RetryQueueDbo>(It.IsAny<string>(), It.IsAny<MongoCollectionSettings>()))
             .Returns(_collection.Object);
@@ -69,6 +77,24 @@ public class RetryQueueRepositoryTests
 
         var dbContext = new DbContext(new MongoDbSettings(), _mongoClient.Object);
         _repository = new RetryQueueRepository(dbContext);
+    }
+
+    [Fact]
+    public async Task RetryQueueRepository_CountQueuesAsync_Success()
+    {
+        // Act
+        var result = await _repository
+            .CountQueuesAsync(_retryQueueDbo.SearchGroupKey, RetryQueueStatus.Done);
+
+        // Assert
+        result.Should().Be(100);
+
+        _collection.Verify(d =>
+                d.CountDocumentsAsync(
+                    It.IsAny<FilterDefinition<RetryQueueDbo>>(),
+                    It.IsAny<CountOptions>(),
+                    It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [Fact]

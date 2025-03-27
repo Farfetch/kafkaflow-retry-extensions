@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dawn;
+using KafkaFlow.Retry.Durable.Definitions.Builders.Polling;
 using KafkaFlow.Retry.Durable.Definitions.Polling;
 
 namespace KafkaFlow.Retry;
@@ -10,6 +11,7 @@ public class PollingDefinitionsAggregatorBuilder
 {
     private readonly CleanupPollingDefinitionBuilder _cleanupPollingDefinitionBuilder;
     private readonly List<PollingDefinition> _pollingDefinitions;
+    private readonly RetryDurableActiveQueuesCountPollingDefinitionBuilder _retryDurableActiveQueuesCountPollingDefinitionBuilder;
     private readonly RetryDurablePollingDefinitionBuilder _retryDurablePollingDefinitionBuilder;
     private string _schedulerId;
 
@@ -17,6 +19,7 @@ public class PollingDefinitionsAggregatorBuilder
     {
         _cleanupPollingDefinitionBuilder = new CleanupPollingDefinitionBuilder();
         _retryDurablePollingDefinitionBuilder = new RetryDurablePollingDefinitionBuilder();
+        _retryDurableActiveQueuesCountPollingDefinitionBuilder = new RetryDurableActiveQueuesCountPollingDefinitionBuilder();
 
         _pollingDefinitions = new List<PollingDefinition>();
     }
@@ -34,8 +37,21 @@ public class PollingDefinitionsAggregatorBuilder
         return this;
     }
 
+    public PollingDefinitionsAggregatorBuilder WithRetryDurableActiveQueuesCountPollingConfiguration(
+        Action<RetryDurableActiveQueuesCountPollingDefinitionBuilder> configure)
+    {
+        Guard.Argument(configure, nameof(configure)).NotNull();
+
+        configure(_retryDurableActiveQueuesCountPollingDefinitionBuilder);
+        var retryDurableActiveQueuesCountPollingDefinition = _retryDurableActiveQueuesCountPollingDefinitionBuilder.Build();
+
+        _pollingDefinitions.Add(retryDurableActiveQueuesCountPollingDefinition);
+
+        return this;
+    }
+
     public PollingDefinitionsAggregatorBuilder WithRetryDurablePollingConfiguration(
-        Action<RetryDurablePollingDefinitionBuilder> configure)
+            Action<RetryDurablePollingDefinitionBuilder> configure)
     {
         Guard.Argument(configure, nameof(configure)).NotNull();
 
@@ -63,6 +79,11 @@ public class PollingDefinitionsAggregatorBuilder
         if (_cleanupPollingDefinitionBuilder.Required)
         {
             ValidateRequiredPollingDefinition(PollingJobType.Cleanup);
+        }
+
+        if (_retryDurableActiveQueuesCountPollingDefinitionBuilder.Required)
+        {
+            ValidateRequiredPollingDefinition(PollingJobType.RetryDurableActiveQueuesCount);
         }
 
         return new PollingDefinitionsAggregator(_schedulerId, _pollingDefinitions);

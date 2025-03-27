@@ -11,6 +11,8 @@ namespace KafkaFlow.Retry.MongoDb.Repositories;
 
 internal interface IRetryQueueRepository
 {
+    Task<long> CountQueuesAsync(string searchGroupKey, RetryQueueStatus status);
+
     Task<DeleteQueuesResult> DeleteQueuesAsync(IEnumerable<Guid> queueIds);
 
     Task<RetryQueueDbo> GetQueueAsync(string queueGroupKey);

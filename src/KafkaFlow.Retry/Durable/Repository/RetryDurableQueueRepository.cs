@@ -135,6 +135,22 @@ internal class RetryDurableQueueRepository : IRetryDurableQueueRepository
         }
     }
 
+    public async Task<long> CountRetryQueuesAsync(CountQueuesInput countQueuesInput)
+    {
+        try
+        {
+            return await _retryDurableRepositoryProvider.CountQueuesAsync(countQueuesInput).ConfigureAwait(false);
+        }
+        catch (Exception ex)
+        {
+            var kafkaException = new RetryDurableException(
+                new RetryError(RetryErrorCode.DataProviderCountRetryQueues),
+                "An error ocurred count the retry queues", ex);
+
+            throw kafkaException;
+        }
+    }
+
     public async Task<DeleteQueuesResult> DeleteQueuesAsync(DeleteQueuesInput deleteQueuesInput)
     {
         return await _retryDurableRepositoryProvider.DeleteQueuesAsync(deleteQueuesInput).ConfigureAwait(false);

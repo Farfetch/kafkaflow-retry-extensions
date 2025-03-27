@@ -28,14 +28,9 @@ Read our [contributing guidelines](CONTRIBUTING.md) to learn about our developme
 
 ## Maintainers
 
--   [Bruno Gomes](https://github.com/brunohfgomes)
--   [Carlos Miranda](https://github.com/carlosgoias)
--   [Fernando Marins](https://github.com/fernando-a-marins)
--   [Leandro Magalhães](https://github.com/spookylsm)
 -   [Luís Garcês](https://github.com/luispfgarces)
 -   [Martinho Novais](https://github.com/martinhonovais)
 -   [Rodrigo Belo](https://github.com/rodrigobelo)
--   [Sérgio Ribeiro](https://github.com/sergioamribeiro)
 
 ## Get in touch
 

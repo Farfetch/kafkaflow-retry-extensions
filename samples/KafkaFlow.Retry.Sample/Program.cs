@@ -21,8 +21,19 @@ internal static class Program
         var mongoDbDatabaseName = "kafka_flow_retry_durable_sample";
         var mongoDbRetryQueueCollectionName = "RetryQueues";
         var mongoDbRetryQueueItemCollectionName = "RetryQueueItems";
-        var sqlServerConnectionString =
-            "Server=localhost;Trusted_Connection=True; Pooling=true; Min Pool Size=1; Max Pool Size=100; MultipleActiveResultSets=true; Application Name=KafkaFlow Retry Sample";
+        var sqlServerConnectionString = string.Join(
+            string.Empty,
+            "Server=localhost;",
+            "Trusted_Connection=false;",
+            "TrustServerCertificate=true;",
+            "Integrated Security=false;",
+            "Pooling=true;",
+            "Min Pool Size=1;",
+            "Max Pool Size=100;",
+            "MultipleActiveResultSets=true;",
+            "Application Name=KafkaFlow Retry Tests;",
+            "Encrypt=false;"
+        );
         var sqlServerDatabaseName = "kafka_flow_retry_durable_sample";
         var topics = new[]
         {
@@ -76,106 +87,106 @@ internal static class Program
             switch (input)
             {
                 case "retry-durable-mongodb":
-                {
-                    Console.Write("Number of the distinct messages to produce: ");
-                    int.TryParse(Console.ReadLine(), out var numOfMessages);
-                    Console.Write("Number of messages with same partition key: ");
-                    int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
-                    var messages = Enumerable
-                        .Range(0, numOfMessages)
-                        .SelectMany(
-                            x =>
-                            {
-                                var partitionKey = Guid.NewGuid().ToString();
-                                return Enumerable
-                                    .Range(0, numOfMessagesWithSamePartitionkey)
-                                    .Select(y => new BatchProduceItem(
-                                        "sample-kafka-flow-retry-durable-mongodb-topic",
-                                        partitionKey,
-                                        new RetryDurableTestMessage { Text = $"Message({y}): {Guid.NewGuid()}" },
-                                        null))
-                                    .ToList();
-                            }
-                        )
-                        .ToList();
+                    {
+                        Console.Write("Number of the distinct messages to produce: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessages);
+                        Console.Write("Number of messages with same partition key: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
+                        var messages = Enumerable
+                            .Range(0, numOfMessages)
+                            .SelectMany(
+                                x =>
+                                {
+                                    var partitionKey = Guid.NewGuid().ToString();
+                                    return Enumerable
+                                        .Range(0, numOfMessagesWithSamePartitionkey)
+                                        .Select(y => new BatchProduceItem(
+                                            "sample-kafka-flow-retry-durable-mongodb-topic",
+                                            partitionKey,
+                                            new RetryDurableTestMessage { Text = $"Message({y}): {Guid.NewGuid()}" },
+                                            null))
+                                        .ToList();
+                                }
+                            )
+                            .ToList();
 
-                    await producers["kafka-flow-retry-durable-mongodb-producer"]
-                        .BatchProduceAsync(messages)
-                        .ConfigureAwait(false);
-                    Console.WriteLine("Published");
-                }
+                        await producers["kafka-flow-retry-durable-mongodb-producer"]
+                            .BatchProduceAsync(messages)
+                            .ConfigureAwait(false);
+                        Console.WriteLine("Published");
+                    }
                     break;
 
                 case "retry-durable-sqlserver":
-                {
-                    Console.Write("Number of the distinct messages to produce: ");
-                    int.TryParse(Console.ReadLine(), out var numOfMessages);
-                    Console.Write("Number of messages with same partition key: ");
-                    int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
+                    {
+                        Console.Write("Number of the distinct messages to produce: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessages);
+                        Console.Write("Number of messages with same partition key: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
 
-                    var messages = Enumerable
-                        .Range(0, numOfMessages)
-                        .SelectMany(
-                            x =>
-                            {
-                                var partitionKey = Guid.NewGuid().ToString();
-                                return Enumerable
-                                    .Range(0, numOfMessagesWithSamePartitionkey)
-                                    .Select(y => new BatchProduceItem(
-                                        "sample-kafka-flow-retry-durable-sqlserver-topic",
-                                        partitionKey,
-                                        new RetryDurableTestMessage { Text = $"Message({y}): {Guid.NewGuid()}" },
-                                        null))
-                                    .ToList();
-                            }
-                        )
-                        .ToList();
+                        var messages = Enumerable
+                            .Range(0, numOfMessages)
+                            .SelectMany(
+                                x =>
+                                {
+                                    var partitionKey = Guid.NewGuid().ToString();
+                                    return Enumerable
+                                        .Range(0, numOfMessagesWithSamePartitionkey)
+                                        .Select(y => new BatchProduceItem(
+                                            "sample-kafka-flow-retry-durable-sqlserver-topic",
+                                            partitionKey,
+                                            new RetryDurableTestMessage { Text = $"Message({y}): {Guid.NewGuid()}" },
+                                            null))
+                                        .ToList();
+                                }
+                            )
+                            .ToList();
 
-                    await producers["kafka-flow-retry-durable-sqlserver-producer"]
-                        .BatchProduceAsync(messages)
-                        .ConfigureAwait(false);
-                    Console.WriteLine("Published");
-                }
+                        await producers["kafka-flow-retry-durable-sqlserver-producer"]
+                            .BatchProduceAsync(messages)
+                            .ConfigureAwait(false);
+                        Console.WriteLine("Published");
+                    }
                     break;
 
                 case "retry-forever":
-                {
-                    Console.Write("Number of messages to produce: ");
-                    int.TryParse(Console.ReadLine(), out var numOfMessages);
-                    await producers["kafka-flow-retry-forever-producer"]
-                        .BatchProduceAsync(
-                            Enumerable
-                                .Range(0, numOfMessages)
-                                .Select(
-                                    x => new BatchProduceItem(
-                                        "sample-kafka-flow-retry-forever-topic",
-                                        "partition-key",
-                                        new RetryForeverTestMessage { Text = $"Message({x}): {Guid.NewGuid()}" },
-                                        null))
-                                .ToList())
-                        .ConfigureAwait(false);
-                    Console.WriteLine("Published");
-                }
+                    {
+                        Console.Write("Number of messages to produce: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessages);
+                        await producers["kafka-flow-retry-forever-producer"]
+                            .BatchProduceAsync(
+                                Enumerable
+                                    .Range(0, numOfMessages)
+                                    .Select(
+                                        x => new BatchProduceItem(
+                                            "sample-kafka-flow-retry-forever-topic",
+                                            "partition-key",
+                                            new RetryForeverTestMessage { Text = $"Message({x}): {Guid.NewGuid()}" },
+                                            null))
+                                    .ToList())
+                            .ConfigureAwait(false);
+                        Console.WriteLine("Published");
+                    }
                     break;
 
                 case "retry-simple":
-                {
-                    Console.Write("Number of messages to produce:");
-                    int.TryParse(Console.ReadLine(), out var numOfMessages);
-                    await producers["kafka-flow-retry-simple-producer"]
-                        .BatchProduceAsync(
-                            Enumerable
-                                .Range(0, numOfMessages)
-                                .Select(
-                                    x => new BatchProduceItem(
-                                        "sample-kafka-flow-retry-simple-topic",
-                                        "partition-key",
-                                        new RetrySimpleTestMessage { Text = $"Message({x}): {Guid.NewGuid()}" },
-                                        null))
-                                .ToList())
-                        .ConfigureAwait(false);
-                    Console.WriteLine("Published");
-                }
+                    {
+                        Console.Write("Number of messages to produce:");
+                        int.TryParse(Console.ReadLine(), out var numOfMessages);
+                        await producers["kafka-flow-retry-simple-producer"]
+                            .BatchProduceAsync(
+                                Enumerable
+                                    .Range(0, numOfMessages)
+                                    .Select(
+                                        x => new BatchProduceItem(
+                                            "sample-kafka-flow-retry-simple-topic",
+                                            "partition-key",
+                                            new RetrySimpleTestMessage { Text = $"Message({x}): {Guid.NewGuid()}" },
+                                            null))
+                                    .ToList())
+                            .ConfigureAwait(false);
+                        Console.WriteLine("Published");
+                    }
                     break;
 
                 case "exit":

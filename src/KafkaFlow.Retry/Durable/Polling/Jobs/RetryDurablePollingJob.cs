@@ -14,7 +14,7 @@ using Quartz;
 
 namespace KafkaFlow.Retry.Durable.Polling.Jobs;
 
-[DisallowConcurrentExecutionAttribute]
+[DisallowConcurrentExecution]
 internal class RetryDurablePollingJob : IJob
 {
     private TimeSpan _expirationInterval = TimeSpan.Zero;

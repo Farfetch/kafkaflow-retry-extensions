@@ -10,7 +10,9 @@ namespace KafkaFlow.Retry.Postgres.Repositories;
 internal interface IRetryQueueRepository
 {
     Task<long> AddAsync(IDbConnection dbConnection, RetryQueueDbo retryQueueDbo);
-        
+
+    Task<long> CountQueueAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus);
+
     Task<int> DeleteQueuesAsync(IDbConnection dbConnection, string searchGroupKey, RetryQueueStatus retryQueueStatus, DateTime maxLastExecutionDateToBeKept, int maxRowsToDelete);
 
     Task<bool> ExistsActiveAsync(IDbConnection dbConnection, string queueGroupKey);

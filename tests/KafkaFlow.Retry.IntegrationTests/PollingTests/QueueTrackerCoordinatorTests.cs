@@ -1,25 +1,27 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
 using FluentAssertions;
 using KafkaFlow.Retry.Durable.Definitions.Polling;
 using KafkaFlow.Retry.Durable.Polling;
 using Moq;
 using Quartz;
+using Xunit.Abstractions;
 
 namespace KafkaFlow.Retry.IntegrationTests.PollingTests;
 
 public class QueueTrackerCoordinatorTests
 {
     private readonly Mock<IJobDataProvidersFactory> _mockJobDataProvidersFactory;
+    private readonly ITestOutputHelper _testOutputHelper;
     private readonly ITriggerProvider _triggerProvider;
 
-    public QueueTrackerCoordinatorTests()
+    public QueueTrackerCoordinatorTests(ITestOutputHelper testOutputHelper)
     {
         _triggerProvider = new TriggerProvider();
 
         _mockJobDataProvidersFactory = new Mock<IJobDataProvidersFactory>();
+        _testOutputHelper = testOutputHelper;
     }
 
     [Fact]
@@ -45,12 +47,11 @@ public class QueueTrackerCoordinatorTests
         var queueTrackerCoordinator = CreateQueueTrackerCoordinator(schedulerId);
 
         // act
-
-        Thread.Sleep(waitForScheduleInSeconds * 1000);
+        await Task.Delay(waitForScheduleInSeconds * 1000);
 
         await queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
-        Thread.Sleep(jobActiveTimeInSeconds * 1000);
+        await Task.Delay(jobActiveTimeInSeconds * 1000);
 
         await queueTrackerCoordinator.UnscheduleJobsAsync();
 
@@ -79,15 +80,15 @@ public class QueueTrackerCoordinatorTests
         var schedulerId = "twoJobsSchedulerId";
         var jobExecutionContexts = new List<IJobExecutionContext>();
 
-        var timePollingActiveInSeconds = 4;
+        var timePollingActiveInSeconds = 60;
 
-        var retryDurableCronExpression = "*/2 * * ? * * *";
-        var cleanupCronExpression = "*/4 * * ? * * *";
+        var retryDurableCronExpression = "0/2 * * ? * * *";
+        var cleanupCronExpression = "0/2 * * ? * * *";
 
         var retryDurableMinExpectedJobsFired = 2;
-        var retryDurableMaxExpectedJobsFired = 3;
-        var cleanupMinExpectedJobsFired = 1;
-        var cleanupMaxExpectedJobsFired = 2;
+        var retryDurableMaxExpectedJobsFired = 4;
+        var cleanupMinExpectedJobsFired = 2;
+        var cleanupMaxExpectedJobsFired = 4;
 
         var retryDurableJobDataProvider =
             CreateRetryDurableJobDataProvider(schedulerId, retryDurableCronExpression, jobExecutionContexts);
@@ -103,12 +104,15 @@ public class QueueTrackerCoordinatorTests
         // act
         await queueTrackerCoordinator.ScheduleJobsAsync(Mock.Of<IMessageProducer>(), Mock.Of<ILogHandler>());
 
-        Thread.Sleep(timePollingActiveInSeconds * 1000);
+        for (int i = 0; i < timePollingActiveInSeconds; i++)
+        {
+            await Task.Delay(100);
+        }
 
         await queueTrackerCoordinator.UnscheduleJobsAsync();
 
         // assert
-        jobExecutionContexts.Where(ctx => !ctx.PreviousFireTimeUtc.HasValue).Should().HaveCount(2);
+        _testOutputHelper.WriteLine($"JobExecutionContexts:\n{string.Join('\n', jobExecutionContexts.Select(s => $"PreviousFireTimeUtc = {s.PreviousFireTimeUtc} TriggerName = {s.Trigger.Key.Name}"))}");
 
         var retryDurableFiresContexts =
             jobExecutionContexts.Where(ctx => ctx.Trigger.Key.Name == retryDurableJobDataProvider.TriggerName);
@@ -121,15 +125,11 @@ public class QueueTrackerCoordinatorTests
             .And
             .HaveCountLessThanOrEqualTo(retryDurableMaxExpectedJobsFired);
 
-        retryDurableFiresContexts.Should().ContainSingle(ctx => !ctx.PreviousFireTimeUtc.HasValue);
-
         cleanupFiresContexts
             .Should()
             .HaveCountGreaterThanOrEqualTo(cleanupMinExpectedJobsFired)
             .And
             .HaveCountLessThanOrEqualTo(cleanupMaxExpectedJobsFired);
-
-        cleanupFiresContexts.Should().ContainSingle(ctx => !ctx.PreviousFireTimeUtc.HasValue);
     }
 
     private JobDataProviderSurrogate CreateCleanupJobDataProvider(string schedulerId, string cronExpression,

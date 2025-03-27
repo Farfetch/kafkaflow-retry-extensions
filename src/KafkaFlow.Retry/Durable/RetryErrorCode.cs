@@ -32,4 +32,5 @@ public enum RetryErrorCode
     DataProviderGetRetryQueues = 0205,
     DataProviderUpdateItem = 0206,
     DataProviderGetRetryQueuesSameItemSort = 0207,
+    DataProviderCountRetryQueues = 0208,
 }
