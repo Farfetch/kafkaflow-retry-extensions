@@ -9,6 +9,7 @@
 
 
   <ItemGroup>
+    <ProjectReference Include="..\..\src\KafkaFlow.Retry.Postgres\KafkaFlow.Retry.Postgres.csproj" />
     <ProjectReference Include="..\..\src\KafkaFlow.Retry.SqlServer\KafkaFlow.Retry.SqlServer.csproj" />
   </ItemGroup>
 </Project>

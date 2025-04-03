@@ -23,7 +23,9 @@ internal static class Program
         var mongoDbRetryQueueItemCollectionName = "RetryQueueItems";
         var sqlServerConnectionString = string.Join(
             string.Empty,
-            "Server=localhost;",
+            "Server=sqlserver.docker.internal;",
+            "User ID = sa;",
+            "Password=Finance123.;",
             "Trusted_Connection=false;",
             "TrustServerCertificate=true;",
             "Integrated Security=false;",
@@ -35,6 +37,15 @@ internal static class Program
             "Encrypt=false;"
         );
         var sqlServerDatabaseName = "kafka_flow_retry_durable_sample";
+        var postgresConnectionString = string.Join(
+            string.Empty,
+            "Server=localhost;",
+            "User Id=postgres;",
+            "Password=Postgres123123;",
+            "Port=5432;",
+            "Application Name=KafkaFlow Retry Tests;"
+        );
+        var postgresDatabaseName = "kafka_flow_retry_durable_sample";
         var topics = new[]
         {
             "sample-kafka-flow-retry-simple-topic",
@@ -42,10 +53,13 @@ internal static class Program
             "sample-kafka-flow-retry-durable-sqlserver-topic",
             "sample-kafka-flow-retry-durable-sqlserver-topic-retry",
             "sample-kafka-flow-retry-durable-mongodb-topic",
-            "sample-kafka-flow-retry-durable-mongodb-topic-retry"
+            "sample-kafka-flow-retry-durable-mongodb-topic-retry",
+            "sample-kafka-flow-retry-durable-postgres-topic",
+            "sample-kafka-flow-retry-durable-postgres-topic-retry",
         };
 
         SqlServerHelper.RecreateSqlSchema(sqlServerDatabaseName, sqlServerConnectionString).GetAwaiter().GetResult();
+        PostgresHelper.RecreateSqlSchema(postgresDatabaseName, postgresConnectionString).GetAwaiter().GetResult();
         KafkaHelper.CreateKafkaTopics(brokers, topics).GetAwaiter().GetResult();
 
         services.AddKafka(
@@ -65,6 +79,9 @@ internal static class Program
                         .SetupRetryDurableSqlServer(
                             sqlServerConnectionString,
                             sqlServerDatabaseName)
+                        .SetupRetryDurablePostgres(
+                            postgresConnectionString,
+                            postgresDatabaseName)
                 )
         );
 
@@ -81,7 +98,7 @@ internal static class Program
 
         while (true)
         {
-            Console.Write("retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver or exit: ");
+            Console.Write("\nChoose a command:\nretry-simple\nretry-forever\nretry-durable-mongodb\nretry-durable-sqlserver\nretry-durable-postgres\nexit\n: ");
             var input = Console.ReadLine().ToLower(CultureInfo.InvariantCulture);
 
             switch (input)
@@ -149,6 +166,38 @@ internal static class Program
                     }
                     break;
 
+                case "retry-durable-postgres":
+                    {
+                        Console.Write("Number of the distinct messages to produce: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessages);
+                        Console.Write("Number of messages with same partition key: ");
+                        int.TryParse(Console.ReadLine(), out var numOfMessagesWithSamePartitionkey);
+
+                        var messages = Enumerable
+                            .Range(0, numOfMessages)
+                            .SelectMany(
+                                x =>
+                                {
+                                    var partitionKey = Guid.NewGuid().ToString();
+                                    return Enumerable
+                                        .Range(0, numOfMessagesWithSamePartitionkey)
+                                        .Select(y => new BatchProduceItem(
+                                            "sample-kafka-flow-retry-durable-postgres-topic",
+                                            partitionKey,
+                                            new RetryDurableTestMessage { Text = $"Message({y}): {Guid.NewGuid()}" },
+                                            null))
+                                        .ToList();
+                                }
+                            )
+                            .ToList();
+
+                        await producers["kafka-flow-retry-durable-postgres-producer"]
+                            .BatchProduceAsync(messages)
+                            .ConfigureAwait(false);
+                        Console.WriteLine("Published");
+                    }
+                    break;
+
                 case "retry-forever":
                     {
                         Console.Write("Number of messages to produce: ");
@@ -195,7 +244,7 @@ internal static class Program
 
                 default:
                     Console.Write(
-                        "USE: retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver or exit: ");
+                        "USE: retry-simple, retry-forever, retry-durable-mongodb, retry-durable-sqlserver, retry-durable-postgres or exit: ");
                     break;
             }
         }

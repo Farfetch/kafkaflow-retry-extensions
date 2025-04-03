@@ -2,6 +2,7 @@
 using Confluent.Kafka;
 using KafkaFlow.Configuration;
 using KafkaFlow.Retry.MongoDb;
+using KafkaFlow.Retry.Postgres;
 using KafkaFlow.Retry.Sample.Exceptions;
 using KafkaFlow.Retry.Sample.Handlers;
 using KafkaFlow.Retry.Sample.Messages;
@@ -112,8 +113,102 @@ internal static class KafkaClusterConfigurationBuilderHelper
         return cluster;
     }
 
-    internal static IClusterConfigurationBuilder SetupRetryDurableSqlServer(
+    internal static IClusterConfigurationBuilder SetupRetryDurablePostgres(
         this IClusterConfigurationBuilder cluster,
+        string postgresConnectionString,
+        string postgresDatabaseName)
+    {
+        cluster
+            .AddProducer(
+                "kafka-flow-retry-durable-postgres-producer",
+                producer => producer
+                    .DefaultTopic("sample-kafka-flow-retry-durable-postgres-topic")
+                    .WithCompression(CompressionType.Gzip)
+                    .AddMiddlewares(
+                        middlewares => middlewares
+                            .AddSerializer<ProtobufNetSerializer>()
+                    )
+                    .WithAcks(Acks.All)
+            )
+            .AddConsumer(
+                consumer => consumer
+                    .Topic("sample-kafka-flow-retry-durable-postgres-topic")
+                    .WithGroupId("sample-consumer-kafka-flow-retry-durable-postgres")
+                    .WithName("kafka-flow-retry-durable-postgres-consumer")
+                    .WithBufferSize(10)
+                    .WithWorkersCount(20)
+                    .WithAutoOffsetReset(AutoOffsetReset.Latest)
+                    .AddMiddlewares(
+                        middlewares => middlewares
+                            .AddDeserializer<ProtobufNetDeserializer>()
+                            .RetryDurable(
+                                configure => configure
+                                    .Handle<RetryDurableTestException>()
+                                    .WithMessageType(typeof(RetryDurableTestMessage))
+                                    .WithPostgresDataProvider(
+                                        postgresConnectionString,
+                                        postgresDatabaseName)
+                                    .WithRetryPlanBeforeRetryDurable(
+                                        configure => configure
+                                            .TryTimes(3)
+                                            .WithTimeBetweenTriesPlan(
+                                                TimeSpan.FromMilliseconds(250),
+                                                TimeSpan.FromMilliseconds(500),
+                                                TimeSpan.FromMilliseconds(1000))
+                                            .ShouldPauseConsumer(false)
+                                    )
+                                    .WithEmbeddedRetryCluster(
+                                        cluster,
+                                        configure => configure
+                                            .WithRetryTopicName("sample-kafka-flow-retry-durable-postgres-topic-retry")
+                                            .WithRetryConsumerBufferSize(4)
+                                            .WithRetryConsumerWorkersCount(2)
+                                            .WithRetryConsumerStrategy(RetryConsumerStrategy.LatestConsumption)
+                                            .WithRetryTypedHandlers(
+                                                handlers => handlers
+                                                    .WithHandlerLifetime(InstanceLifetime.Transient)
+                                                    .AddHandler<RetryDurableTestHandler>()
+                                            )
+                                            .Enabled(true)
+                                    )
+                                    .WithPollingJobsConfiguration(
+                                        configure => configure
+                                            .WithSchedulerId("retry-durable-postgres-polling-id")
+                                            .WithRetryDurablePollingConfiguration(
+                                                configure => configure
+                                                    .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                    .WithExpirationIntervalFactor(1)
+                                                    .WithFetchSize(10)
+                                                    .Enabled(true)
+                                            )
+                                            .WithCleanupPollingConfiguration(
+                                                configure => configure
+                                                    .Enabled(false)
+                                                    .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                            )
+                                            .WithRetryDurableActiveQueuesCountPollingConfiguration(
+                                                configure => configure
+                                                    .Enabled(true)
+                                                    .WithCronExpression("0 0/1 * 1/1 * ? *")
+                                                    .Do((numberOfActiveQueues) =>
+                                                    {
+                                                        Console.Write($"Number of postgres active queues {numberOfActiveQueues}");
+                                                    })
+                                            )
+
+                                    ))
+                            .AddTypedHandlers(
+                                handlers => handlers
+                                    .WithHandlerLifetime(InstanceLifetime.Transient)
+                                    .AddHandler<RetryDurableTestHandler>())
+                    )
+            );
+
+        return cluster;
+    }
+
+    internal static IClusterConfigurationBuilder SetupRetryDurableSqlServer(
+            this IClusterConfigurationBuilder cluster,
         string sqlServerConnectionString,
         string sqlServerDatabaseName)
     {
