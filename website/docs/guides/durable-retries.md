@@ -132,12 +132,15 @@ On the configuration, define the access configuration to the MongoDb instance.
                 connectionString,
                 database,
                 retryQueueCollectionName,
-                retryQueueItemCollectionName)
+                retryQueueItemCollectionName,
+                retrySkipIndexCreation)
             ...
     )
     ...
 )
 ```
+
+- `retrySkipIndexCreation`: When this parameter is included, the application will ignore the creation of its indexes.
 
 
 ## How to use SQL Server as a Provider

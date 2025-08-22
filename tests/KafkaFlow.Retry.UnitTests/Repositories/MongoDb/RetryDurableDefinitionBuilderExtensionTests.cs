@@ -40,4 +40,23 @@ public class RetryDurableDefinitionBuilderExtensionTests
         result.Should().NotBeNull();
         result.Should().BeOfType(typeof(RetryDurableDefinitionBuilder));
     }
+    
+    [Fact]
+    public void RetryDurableDefinitionBuilder_WithMongoDbDataProviderAndSkipIndexCreation_Success()
+    {
+        // Arrange
+        var builder = new RetryDurableDefinitionBuilder();
+
+        // Act
+        var result = builder.WithMongoDbDataProvider(
+            "mongodb://localhost:27017/KafkaFlowRetry?maxPoolSize=1000",
+            "Test",
+            "RetryQueueCollectionName",
+            "RetryQueueItemCollectionName",
+            true
+        );
+
+        result.Should().NotBeNull();
+        result.Should().BeOfType(typeof(RetryDurableDefinitionBuilder));
+    }
 }

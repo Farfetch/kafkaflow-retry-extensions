@@ -23,7 +23,12 @@ public sealed class MongoDbDataProviderFactory
         {
             var mongoClient = new MongoClient(mongoDbSettings.ConnectionString);
             var dbContext = new DbContext(mongoDbSettings, mongoClient);
-            DboConfigurations.TryAddIndexes(dbContext);
+
+            if (!mongoDbSettings.SkipIndexCreation)
+            {
+                DboConfigurations.TryAddIndexes(dbContext);
+            }
+
             return new DataProviderCreationResult(
                 null,
                 new RetryQueueDataProvider(

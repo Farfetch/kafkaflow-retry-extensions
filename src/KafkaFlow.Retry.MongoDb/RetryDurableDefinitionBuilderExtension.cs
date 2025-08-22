@@ -9,10 +9,29 @@ public static class RetryDurableDefinitionBuilderExtension
         string mongoDbretryQueueCollectionName,
         string mongoDbretryQueueItemCollectionName)
     {
+        return WithMongoDbDataProvider(
+            retryDurableDefinitionBuilder,
+            connectionString,
+            databaseName,
+            mongoDbretryQueueCollectionName,
+            mongoDbretryQueueItemCollectionName,
+            mongoDbretrySkipIndexCreation: false
+        );
+    }
+
+    public static RetryDurableDefinitionBuilder WithMongoDbDataProvider(
+        this RetryDurableDefinitionBuilder retryDurableDefinitionBuilder,
+        string connectionString,
+        string databaseName,
+        string mongoDbretryQueueCollectionName,
+        string mongoDbretryQueueItemCollectionName,
+        bool mongoDbretrySkipIndexCreation)
+    {
         var dataProviderCreation = new MongoDbDataProviderFactory()
             .TryCreate(
                 new MongoDbSettings
                 {
+                    SkipIndexCreation = mongoDbretrySkipIndexCreation,
                     ConnectionString = connectionString,
                     DatabaseName = databaseName,
                     RetryQueueCollectionName = mongoDbretryQueueCollectionName,
