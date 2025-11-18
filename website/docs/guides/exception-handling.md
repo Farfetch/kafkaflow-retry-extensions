@@ -47,23 +47,6 @@ You execute the policy for any exception thrown by simply configuring with `Hand
 ```
 
 
-## How to handle any exception regardless of the type
-
-You execute the policy for any exception thrown by simply configuring with `HandleAnyException()` instead of `Handle<TypeOfException>()`.
-
-
-```csharp
-.AddMiddlewares(
-    middlewares => middlewares
-    .RetrySimple(
-        (config) => config
-            .HandleAnyException()
-            ...
-    )
-    ...
-)
-```
-
 ## How to handle Exceptions that met given criteria
 
 In case you need to handle multiple types of exceptions or apply any complex condition, you can use the `Handle(Func<RetryContext, bool> func)` method as the following example.
