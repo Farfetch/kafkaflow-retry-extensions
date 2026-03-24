@@ -174,7 +174,7 @@ public class RetryQueueItemRepositoryTests
                 It.IsAny<UpdateOptions>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, BsonBinaryData.Create(_retryQueueItemDbo.Id)));
+            .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, new BsonBinaryData(_retryQueueItemDbo.Id, GuidRepresentation.Standard)));
 
         // Act
         var result = await _repository
@@ -210,7 +210,7 @@ public class RetryQueueItemRepositoryTests
                 It.IsAny<UpdateOptions>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new UpdateResult.Acknowledged(0, null, BsonBinaryData.Create(_retryQueueItemDbo.Id)));
+            .ReturnsAsync(new UpdateResult.Acknowledged(0, null, new BsonBinaryData(_retryQueueItemDbo.Id, GuidRepresentation.Standard)));
 
         // Act
         var result = await _repository

@@ -3,12 +3,18 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+
 using Dawn;
+
 using KafkaFlow.Retry.Durable.Repository;
 using KafkaFlow.Retry.Durable.Repository.Model;
 using KafkaFlow.Retry.MongoDb;
 using KafkaFlow.Retry.MongoDb.Adapters;
 using KafkaFlow.Retry.MongoDb.Model;
+
+using MongoDB.Bson;
+using MongoDB.Bson.Serialization;
+using MongoDB.Bson.Serialization.Serializers;
 using MongoDB.Driver;
 
 namespace KafkaFlow.Retry.IntegrationTests.Core.Storages.Repositories;
@@ -22,6 +28,15 @@ internal class MongoDbRepository : IRepository
     private readonly QueuesAdapter _queuesAdapter;
     private readonly IMongoCollection<RetryQueueItemDbo> _retryQueueItemsCollection;
     private readonly IMongoCollection<RetryQueueDbo> _retryQueuesCollection;
+
+    static MongoDbRepository()
+    {
+        // Configure GUID serialization globally (only once)
+        if (BsonSerializer.LookupSerializer<Guid>() == null)
+        {
+            BsonSerializer.RegisterSerializer(new GuidSerializer(GuidRepresentation.Standard));
+        }
+    }
 
     public MongoDbRepository(
         string connectionString,

@@ -58,7 +58,7 @@ public class RetryQueueRepositoryTests
                 It.IsAny<UpdateOptions>(),
                 It.IsAny<CancellationToken>()
             ))
-            .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, BsonBinaryData.Create(_retryQueueDbo.Id)));
+            .ReturnsAsync(new UpdateResult.Acknowledged(1, 1, new BsonBinaryData(_retryQueueDbo.Id, GuidRepresentation.Standard)));
 
         _collection
             .Setup(d => d.CountDocumentsAsync(
